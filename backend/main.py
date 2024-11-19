@@ -1,7 +1,12 @@
 from fastapi import FastAPI
+import sqlite3
+
+import config
 
 
 app = FastAPI()
+connection = sqlite3.connect(config.PATH_TO_DB)
+cursor = connection.cursor()
 
 
 @app.get("/get_things_list")
