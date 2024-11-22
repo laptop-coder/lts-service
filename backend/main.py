@@ -6,18 +6,19 @@ import config
 
 app = FastAPI()
 
+
 @app.get("/get_things_list")
 def get_things_list(type: str):
-    if type == "lost":
-        connection = sqlite3.connect(config.PATH_TO_DB)
-        with connection:
-            cursor = connection.cursor()
-            data = cursor.execute(
-                """
-                SELECT * FROM lost_thing WHERE status=0;
-                """
-            ).fetchall()
-            formatted_data = []
+    connection = sqlite3.connect(config.PATH_TO_DB)
+    with connection:
+        cursor = connection.cursor()
+        data = cursor.execute(
+            f"""
+            SELECT * FROM {type}_thing WHERE status=0;
+            """
+        ).fetchall()
+        formatted_data = []
+        if type == "lost":
             for i in range(len(data)):
                 formatted_data.append({
                     "id": data[i][0],
@@ -28,18 +29,8 @@ def get_things_list(type: str):
                     "path_to_thing_photo": data[i][5],
                     "custom_text": data[i][6],
                     "status": data[i][7]
-                    })
-            return formatted_data
-    elif type == "found":
-        connection = sqlite3.connect(config.PATH_TO_DB)
-        with connection:
-            cursor = connection.cursor()
-            data = cursor.execute(
-                """
-                SELECT * FROM found_thing WHERE status=0;
-                """
-            ).fetchall()
-            formatted_data = []
+                })
+        elif type == "found":
             for i in range(len(data)):
                 formatted_data.append({
                     "id": data[i][0],
@@ -50,8 +41,8 @@ def get_things_list(type: str):
                     "path_to_thing_photo": data[i][5],
                     "custom_text": data[i][6],
                     "status": data[i][7]
-                    })
-            return formatted_data
+                })
+    return formatted_data
     
 
 @app.post("/add_new_thing")
