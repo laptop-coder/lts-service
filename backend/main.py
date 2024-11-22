@@ -67,8 +67,8 @@ def change_thing_status(type: str, id: int):
     connection = sqlite3.connect(config.PATH_TO_DB)
     with connection:
         cursor = connection.cursor()
-        cursor.execute(f
-            """
+        cursor.execute(
+            f"""
             UPDATE {type}_thing SET status=1 WHERE id={id};
             """
         )
