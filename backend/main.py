@@ -14,7 +14,7 @@ def get_things_list(type: str):
             cursor = connection.cursor()
             data = cursor.execute(
                 """
-                SELECT * FROM lost_thing;
+                SELECT * FROM lost_thing WHERE status=0;
                 """
             ).fetchall()
             formatted_data = []
@@ -36,7 +36,7 @@ def get_things_list(type: str):
             cursor = connection.cursor()
             data = cursor.execute(
                 """
-                SELECT * FROM found_thing;
+                SELECT * FROM found_thing WHERE status=0;
                 """
             ).fetchall()
             formatted_data = []
@@ -63,6 +63,13 @@ def add_new_thing(type: str):
 
 
 @app.get("/change_thing_status")
-def change_thing_status(id: int):
-    pass
-    
+def change_thing_status(type: str, id: int):
+    connection = sqlite3.connect(config.PATH_TO_DB)
+    with connection:
+        cursor = connection.cursor()
+        cursor.execute(f
+            """
+            UPDATE {type}_thing SET status=1 WHERE id={id};
+            """
+        )
+
