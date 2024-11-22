@@ -1,7 +1,24 @@
-from fastapi import FastAPI
+import datetime
 import sqlite3
 
+from fastapi import FastAPI
+from pydantic import BaseModel
+
 import config
+
+
+class LostThingData(BaseModel):
+    thing_name: str
+    user_contacts: str
+    path_to_thing_photo: str
+    custom_text: str
+    
+
+class FoundThingData(BaseModel):
+    thing_name: str
+    thing_location: str
+    path_to_thing_photo: str
+    custom_text: str
 
 
 app = FastAPI()
@@ -45,12 +62,62 @@ def get_things_list(type: str):
     return formatted_data
     
 
-@app.post("/add_new_thing")
-def add_new_thing(type: str):
-    if type == "lost":
-        pass
-    elif type == "found":
-        pass
+@app.post("/add_new_lost_thing")
+def add_new_lost_thing(data: LostThingData):
+    connection = sqlite3.connect(config.PATH_TO_DB)
+    with connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"""
+            INSERT INTO lost_thing (
+                publication_date,
+                publication_time,
+                thing_name,
+                user_contacts,
+                path_to_thing_photo,
+                custom_text,
+                status
+            )
+            VALUES (
+                '{str(datetime.datetime.now())[0:10]}',
+                '{str(datetime.datetime.now())[11:16]}',
+                '{data.thing_name}',
+                '{data.user_contacts}',
+                '{data.path_to_thing_photo}',
+                '{data.custom_text}',
+                0
+            );
+            """
+        )
+
+
+@app.post("/add_new_found_thing")
+def add_new_found_thing(data: FoundThingData):
+    connection = sqlite3.connect(config.PATH_TO_DB)
+    with connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"""
+            INSERT INTO found_thing (
+                publication_date,
+                publication_time,
+                thing_name,
+                thing_location,
+                path_to_thing_photo,
+                custom_text,
+                status
+            )
+            VALUES (
+                '{str(datetime.datetime.now())[0:10]}',
+                '{str(datetime.datetime.now())[11:16]}',
+                '{data.thing_name}',
+                '{data.thing_location}',
+                '{data.path_to_thing_photo}',
+                '{data.custom_text}',
+                0
+            );
+            """
+        )
 
 
 @app.get("/change_thing_status")
