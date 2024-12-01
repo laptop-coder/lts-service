@@ -1,23 +1,26 @@
-page {
+.page {
 }
 
-header {
+.header {
 }
 
-header__title {
+.header__title {
 }
 
-header__buttons {
+.header__buttons {
 }
 
-content {
+.content {
 }
 
-things_list {
+.things_list {
 }
 
-things_list__title {
+.things_list__title {
 }
 
-footer {
+.things_list__content {
+}
+
+.footer {
 }
