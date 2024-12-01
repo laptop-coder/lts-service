@@ -2,6 +2,7 @@ import datetime
 import sqlite3
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import config
@@ -22,6 +23,16 @@ class FoundThingData(BaseModel):
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:4000"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 @app.get("/get_things_list")
