@@ -1,5 +1,6 @@
 import datetime
 import sqlite3
+import base64
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -68,6 +69,16 @@ def get_things_list(type: str):
                 })
     return formatted_data
     
+
+@app.get("/get_thing_photo")
+def get_thing_photo(id: int):
+    try:
+        with open(f"{config.PATH_TO_STORAGE}/{id}.jpeg", "rb") as photo:
+            photo_base64 = base64.b64encode(photo.read())
+            return photo_base64
+    except:
+        return ""
+
 
 @app.post("/add_new_lost_thing")
 def add_new_lost_thing(data: LostThingData):
