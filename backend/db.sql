@@ -4,7 +4,6 @@ CREATE TABLE lost_thing (
     publication_time TEXT NOT NULL,
     thing_name TEXT NOT NULL,
     user_contacts TEXT NOT NULL,
-    path_to_thing_photo TEXT NOT NULL,
     custom_text TEXT NOT NULL,
     status INTEGER NOT NULL
 );
@@ -15,7 +14,6 @@ CREATE TABLE found_thing (
     publication_time TEXT NOT NULL,
     thing_name TEXT NOT NULL,
     thing_location TEXT NOT NULL,
-    path_to_thing_photo TEXT NOT NULL,
     custom_text TEXT NOT NULL,
     status INTEGER NOT NULL
 );

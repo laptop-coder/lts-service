@@ -11,14 +11,12 @@ import config
 class LostThingData(BaseModel):
     thing_name: str
     user_contacts: str
-    path_to_thing_photo: str
     custom_text: str
     
 
 class FoundThingData(BaseModel):
     thing_name: str
     thing_location: str
-    path_to_thing_photo: str
     custom_text: str
 
 
@@ -54,9 +52,8 @@ def get_things_list(type: str):
                     "publication_time": data[i][2],
                     "thing_name": data[i][3],
                     "user_contacts": data[i][4],
-                    "path_to_thing_photo": data[i][5],
-                    "custom_text": data[i][6],
-                    "status": data[i][7]
+                    "custom_text": data[i][5],
+                    "status": data[i][6]
                 })
         elif type == "found":
             for i in range(len(data)):
@@ -66,9 +63,8 @@ def get_things_list(type: str):
                     "publication_time": data[i][2],
                     "thing_name": data[i][3],
                     "thing_location": data[i][4],
-                    "path_to_thing_photo": data[i][5],
-                    "custom_text": data[i][6],
-                    "status": data[i][7]
+                    "custom_text": data[i][5],
+                    "status": data[i][6]
                 })
     return formatted_data
     
@@ -85,7 +81,6 @@ def add_new_lost_thing(data: LostThingData):
                 publication_time,
                 thing_name,
                 user_contacts,
-                path_to_thing_photo,
                 custom_text,
                 status
             )
@@ -94,7 +89,6 @@ def add_new_lost_thing(data: LostThingData):
                 '{str(datetime.datetime.now())[11:16]}',
                 '{data.thing_name}',
                 '{data.user_contacts}',
-                '{data.path_to_thing_photo}',
                 '{data.custom_text}',
                 0
             );
@@ -114,7 +108,6 @@ def add_new_found_thing(data: FoundThingData):
                 publication_time,
                 thing_name,
                 thing_location,
-                path_to_thing_photo,
                 custom_text,
                 status
             )
@@ -123,7 +116,6 @@ def add_new_found_thing(data: FoundThingData):
                 '{str(datetime.datetime.now())[11:16]}',
                 '{data.thing_name}',
                 '{data.thing_location}',
-                '{data.path_to_thing_photo}',
                 '{data.custom_text}',
                 0
             );
