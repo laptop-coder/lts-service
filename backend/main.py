@@ -71,9 +71,9 @@ def get_things_list(type: str):
     
 
 @app.get("/get_thing_photo")
-def get_thing_photo(id: int):
+def get_thing_photo(type: str, id: int):
     try:
-        with open(f"{config.PATH_TO_STORAGE}/{id}.jpeg", "rb") as photo:
+        with open(f"{config.PATH_TO_STORAGE}/{type}/{id}.jpeg", "rb") as photo:
             photo_base64 = base64.b64encode(photo.read())
             return photo_base64
     except:
