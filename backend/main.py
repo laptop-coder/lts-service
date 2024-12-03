@@ -54,6 +54,7 @@ def get_things_list(type: str):
                     "thing_name": data[i][3],
                     "user_contacts": data[i][4],
                     "custom_text": data[i][5],
+                    "thing_photo": get_thing_photo("lost", data[i][0]),
                     "status": data[i][6]
                 })
         elif type == "found":
@@ -65,6 +66,7 @@ def get_things_list(type: str):
                     "thing_name": data[i][3],
                     "thing_location": data[i][4],
                     "custom_text": data[i][5],
+                    "thing_photo": get_thing_photo("found", data[i][0]),
                     "status": data[i][6]
                 })
     return formatted_data
