@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
 
-import styles from './lostthing.module.css';
+import styles from './thing.module.css';
 
 
 interface LostThingProps {
