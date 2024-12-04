@@ -3,6 +3,7 @@ import { createResource, Swith, Match } from 'solid-js';
 
 import styles from './app.module.css';
 import LostThing from './components/LostThing';
+import FoundThing from './components/FoundThing';
 
 
 const getThingsList = async (type: string) => {
@@ -46,7 +47,7 @@ const App: Component = () => {
 	    </Match>
 	    <Match when={foundThingsList()}>
 	      <div class={styles.things_list__content}>
-	        {JSON.stringify(foundThingsList())}
+	        {foundThingsList().map(foundThing => <FoundThing props={foundThing} />)}
 	      </div>
 	    </Match>
 	  </Switch>
