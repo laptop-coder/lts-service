@@ -1,12 +1,16 @@
 .thing {
+  max-width: 500px;
 }
 
 .thing__title {
+  font-weight: bold;
 }
 
 .thing__content {
 }
 
 .thing__photo {
+  width: 100%;
+  border-radius: 10px;
 }
 
