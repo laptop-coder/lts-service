@@ -1,9 +1,11 @@
 import type { Component } from 'solid-js';
 import { createResource, Swith, Match } from 'solid-js';
+import { createSignal } from 'solid-js';
 
 import styles from './app.module.css';
 import LostThing from './components/LostThing';
 import FoundThing from './components/FoundThing';
+import AddNewLostThing from './components/AddNewLostThing';
 import HeaderButton from './components/HeaderButton';
 import d from './SVG';
 
@@ -17,14 +19,18 @@ const getThingsList = async (type: string) => {
 const App: Component = () => {
   const [lostThingsList] = createResource("lost", getThingsList);
   const [foundThingsList] = createResource("found", getThingsList);
+
+  const [addNewLostThing, setAddNewLostThing] = createSignal(false);
+
   return (
     <div class={styles.page}>
+      {addNewLostThing() && <AddNewLostThing onClick={() => setAddNewLostThing(prev => !prev)}/>}
       <div class={styles.header}>
         <div class={styles.header__title}>
 	</div>
         <div class={styles.header__buttons}>
-	  <HeaderButton d={d.add} action={console.log("Add button")}/>
-	  <HeaderButton d={d.sync} action={console.log("Sync button")}/>
+	  <HeaderButton d={d.add} action={() => setAddNewLostThing(prev => !prev)}/>
+	  <HeaderButton d={d.sync} action={() => console.log("Sync button")}/>
 	</div>
       </div>
       <div class={styles.content}>

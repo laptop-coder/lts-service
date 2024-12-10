@@ -12,7 +12,7 @@ interface HeaderButtonProps {
 
 const HeaderButton: Component = (props: HeaderButtonProps) => {
   return (
-    <button class={styles.header_button} onClick={()=> props.action}>
+    <button class={styles.header_button} onClick={props.action}>
       <svg class={svg_styles.svg} xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
         <path d={props.d} />
       </svg>
