@@ -4,6 +4,8 @@ import { createResource, Swith, Match } from 'solid-js';
 import styles from './app.module.css';
 import LostThing from './components/LostThing';
 import FoundThing from './components/FoundThing';
+import HeaderButton from './components/HeaderButton';
+import d from './SVG';
 
 
 const getThingsList = async (type: string) => {
@@ -21,6 +23,8 @@ const App: Component = () => {
         <div class={styles.header__title}>
 	</div>
         <div class={styles.header__buttons}>
+	  <HeaderButton d={d.add} action={console.log("Add button")}/>
+	  <HeaderButton d={d.sync} action={console.log("Sync button")}/>
 	</div>
       </div>
       <div class={styles.content}>

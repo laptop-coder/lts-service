@@ -2,12 +2,22 @@
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  margin-bottom: 30px;
+  gap: 10px;
 }
 
 .header__title {
+  margin-left: 30px;
 }
 
 .header__buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 30px;
 }
 
 .content {
