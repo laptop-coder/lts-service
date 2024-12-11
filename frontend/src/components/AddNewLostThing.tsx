@@ -10,7 +10,11 @@ interface AddNewLostThingProps {
 
 const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   return (
-    <div class={styles.background} onClick={props.onClick}>
+    <div class={styles.wrapper}>
+      <div class={styles.box}>
+      </div>
+      <div class={styles.background} onClick={props.onClick}>
+      </div>
     </div>
   );
 }
