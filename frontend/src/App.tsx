@@ -36,6 +36,7 @@ const App: Component = () => {
       <div class={styles.content}>
         <div class={styles.things_list}>
 	  <div class={styles.things_list__title}>
+	    Потерянные вещи
 	  </div>
 	  <Switch>
 	    <Match when={lostThingsList.loading}>
@@ -50,6 +51,7 @@ const App: Component = () => {
 	</div>
         <div class={styles.things_list}>
 	  <div class={styles.things_list__title}>
+	    Найденные вещи
 	  </div>
 	  <Switch>
 	    <Match when={foundThingsList.loading}>

@@ -33,6 +33,7 @@
 }
 
 .things_list__title {
+  font-weight: bold;
 }
 
 .things_list__content {
