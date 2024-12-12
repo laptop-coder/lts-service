@@ -1,6 +1,7 @@
 .button {
-  height: 50px;
-  min-width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 1px solid #000000;
   border-radius: 10px;
   background-color: #ffffff;
@@ -9,5 +10,15 @@
 
 .button:hover {
   background-color: #eeeeee;
+}
+
+.square_button {
+  width: 40px;
+  aspect-ratio: 1/1;
+}
+
+.wide_button {
+  height: 40px;
+  min-width: 200px;
 }
 

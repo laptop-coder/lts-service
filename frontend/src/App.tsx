@@ -3,10 +3,11 @@ import { createResource, Swith, Match } from 'solid-js';
 import { createSignal } from 'solid-js';
 
 import styles from './app.module.css';
+import button_styles from './components/button.module.css';
 import LostThing from './components/LostThing';
 import FoundThing from './components/FoundThing';
 import AddNewLostThing from './components/AddNewLostThing';
-import HeaderButton from './components/HeaderButton';
+import Button from './components/Button';
 import d from './SVG';
 
 
@@ -29,8 +30,8 @@ const App: Component = () => {
         <div class={styles.header__title}>
 	</div>
         <div class={styles.header__buttons}>
-	  <HeaderButton d={d.add} action={() => setAddNewLostThing(prev => !prev)}/>
-	  <HeaderButton d={d.sync} action={() => console.log("Sync button")}/>
+	  <Button class={button_styles.square_button} onClick={() => setAddNewLostThing(prev => !prev)} type="svg" value={d.add} />
+	  <Button class={button_styles.square_button} onClick={() => console.log("Sync button")} type="svg" value={d.sync} />
 	</div>
       </div>
       <div class={styles.content}>
