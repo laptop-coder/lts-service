@@ -44,6 +44,17 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	    </form>
 	  </>
 	}
+	{addNewFoundThing() &&
+	  <>
+	    <p>Добавить найденную вещь</p>
+	    <form method="post">
+	      <input placeholder="Что Вы нашли?" required />
+	      <input placeholder="Где забрать вещь?" required />
+	      <textarea placeholder="Здесь можно оставить сообщение" required />
+	      <button type="submit">Отправить</button>
+	    </form>
+	  </>
+	}
       </div>
       <div class={styles.background} onClick={props.onClick}>
       </div>
