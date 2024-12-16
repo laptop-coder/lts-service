@@ -13,6 +13,7 @@ interface AddNewLostThingProps {
 const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
+  const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
   return (
     <div class={styles.wrapper}>
       <div class={styles.box}>
@@ -26,7 +27,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	    />
 	    <Button
 	      class={button_styles.wide_button}
-	      onClick={() => console.log("Found thing")}
+	      onClick={() => {setChooseThingType(false); setAddNewFoundThing(true)}}
 	      type="text"
 	      value="Я нашёл вещь"
 	    />
