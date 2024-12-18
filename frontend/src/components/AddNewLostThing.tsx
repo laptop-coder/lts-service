@@ -10,10 +10,19 @@ interface AddNewLostThingProps {
   onClick: func;
 }
 
+
 const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
+
+  const [thingName, setThingName] = createSignal("");
+  const [userContacts, setUserContacts] = createSignal("");
+  const [thingLocation, setThingLocation] = createSignal("");
+  const [userMessage, setUserMessage] = createSignal("");
+
+  const [data, setData] = createSignal({});
+
   return (
     <div class={styles.wrapper}>
       <div class={styles.box}>
@@ -37,10 +46,36 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	  <>
 	    <p>Добавить потерянную вещь</p>
 	    <form method="post">
-	      <input placeholder="Что Вы потеряли?" required />
-	      <input placeholder="Как с Вами можно связаться?" required />
-	      <textarea placeholder="Здесь можно оставить сообщение" required />
-	      <button type="submit">Отправить</button>
+	      <input
+	        placeholder="Что Вы потеряли?"
+		value={thingName()}
+		onInput={e => setThingName(e.target.value)}
+		required
+	      />
+	      <input
+	        placeholder="Как с Вами можно связаться?"
+		value={userContacts()}
+		onInput={e => setUserContacts(e.target.value)}
+		required
+	      />
+	      <textarea
+	        placeholder="Здесь можно оставить сообщение"
+		value={userMessage()}
+		onInput={e => setUserMessage(e.target.value)}
+		required
+	      />
+	      <button
+		onClick={e => {
+		  e.preventDefault();
+		  setData(JSON.stringify({
+		    "thingName": thingName(),
+		    "userContacts": userContacts(),
+		    "userMessage": userMessage(),
+		  }))
+		}}
+	      >
+	        Отправить
+	      </button>
 	    </form>
 	  </>
 	}
@@ -48,10 +83,36 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	  <>
 	    <p>Добавить найденную вещь</p>
 	    <form method="post">
-	      <input placeholder="Что Вы нашли?" required />
-	      <input placeholder="Где забрать вещь?" required />
-	      <textarea placeholder="Здесь можно оставить сообщение" required />
-	      <button type="submit">Отправить</button>
+	      <input
+	        placeholder="Что Вы нашли?"
+		value={thingName()}
+		onInput={e => setThingName(e.target.value)}
+		required
+	      />
+	      <input
+	        placeholder="Где забрать вещь?"
+		value={thingLocation()}
+		onInput={e => setThingLocation(e.target.value)}
+		required
+	      />
+	      <textarea
+	        placeholder="Здесь можно оставить сообщение"
+		value={userMessage()}
+		onInput={e => setUserMessage(e.target.value)}
+		required
+	      />
+	      <button
+		onClick={e => {
+		  e.preventDefault();
+		  setData(JSON.stringify({
+		    "thingName": thingName(),
+		    "thingLocation": thingLocation(),
+		    "userMessage": userMessage(),
+		  }))
+		}}
+	      >
+		Отправить
+	      </button>
 	    </form>
 	  </>
 	}
