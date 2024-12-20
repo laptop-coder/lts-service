@@ -33,7 +33,9 @@ const FoundThing: Component = (props: FoundThingProps) => {
         Опубликовано: {day} {month} {year} в {time}<br/>
         Где забрать: {props.props.thing_location}<br/>
 	{props.props.custom_text}
-	<img class={styles.thing__photo} src={"data:image/jpeg;base64," + props.props.thing_photo}/>
+	{props.props.thing_photo &&
+	  <img class={styles.thing__photo} src={"data:image/jpeg;base64," + props.props.thing_photo}/>
+	}
       </div>
     </div>
   );

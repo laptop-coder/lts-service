@@ -33,7 +33,9 @@ const LostThing: Component = (props: LostThingProps) => {
         Опубликовано: {day} {month} {year} в {time}<br/>
         Контакты: {props.props.user_contacts}<br/>
 	{props.props.custom_text}
-	<img class={styles.thing__photo} src={"data:image/jpeg;base64," + props.props.thing_photo}/>
+	{props.props.thing_photo &&
+	  <img class={styles.thing__photo} src={"data:image/jpeg;base64," + props.props.thing_photo}/>
+	}
       </div>
     </div>
   );
