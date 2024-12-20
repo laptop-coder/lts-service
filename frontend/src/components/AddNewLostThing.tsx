@@ -23,6 +23,14 @@ interface PostFoundThingDataProps {
 }
 
 
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = reject;
+});
+
+
 const postLostThingData = async (data: PostLostThingDataProps) => {
   const response = await fetch(`http://localhost:8000/add_new_lost_thing`, {
     method: "POST",
@@ -56,6 +64,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [userContacts, setUserContacts] = createSignal("");
   const [thingLocation, setThingLocation] = createSignal("");
   const [customText, setCustomText] = createSignal("");
+  const [thingPhoto, setThingPhoto] = createSignal();
 
   const [data, setData] = createSignal({});
 
@@ -100,6 +109,8 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		onInput={e => setCustomText(e.target.value)}
 		required
 	      />
+	      {thingPhoto() && <img src={thingPhoto()} />}
+	      <input type="file" accept="image/jpeg" onInput={e => fileToBase64(e.target.files[0]).then(r => setThingPhoto(r))}/>
 	      <button
 		onClick={e => {
 		  e.preventDefault();
@@ -138,6 +149,8 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		onInput={e => setCustomText(e.target.value)}
 		required
 	      />
+	      {thingPhoto() && <img src={thingPhoto()} />}
+	      <input type="file" accept="image/jpeg" onInput={e => fileToBase64(e.target.files[0]).then(r => setThingPhoto(r))}/>
 	      <button
 		onClick={e => {
 		  e.preventDefault();
