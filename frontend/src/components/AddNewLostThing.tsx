@@ -16,9 +16,27 @@ interface PostLostThingDataProps {
   customText: string;
 }
 
+interface PostFoundThingDataProps {
+  thingName: string;
+  thingLocation: string;
+  customText: string;
+}
+
 
 const postLostThingData = async (data: PostLostThingDataProps) => {
   const response = await fetch(`http://localhost:8000/add_new_lost_thing`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    body: JSON.stringify(data)
+  });
+  return response.json();
+}
+
+
+const postFoundThingData = async (data: PostFoundThingDataProps) => {
+  const response = await fetch(`http://localhost:8000/add_new_found_thing`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=utf-8"
@@ -123,11 +141,12 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	      <button
 		onClick={e => {
 		  e.preventDefault();
-		  setData(JSON.stringify({
+		  setData({
 		    "thing_name": thingName(),
 		    "thing_location": thingLocation(),
 		    "custom_text": customText(),
-		  }))
+		  });
+		  postFoundThingData(data())
 		}}
 	      >
 		Отправить
