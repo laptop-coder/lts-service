@@ -18,8 +18,8 @@ const getThingsList = async (type: string) => {
 
 
 const App: Component = () => {
-  const [lostThingsList] = createResource("lost", getThingsList);
-  const [foundThingsList] = createResource("found", getThingsList);
+  const [lostThingsList, {refetch: syncLostThingsList}] = createResource("lost", getThingsList);
+  const [foundThingsList, {refetch: syncFoundThingsList}] = createResource("found", getThingsList);
 
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
 
@@ -31,7 +31,7 @@ const App: Component = () => {
 	</div>
         <div class={styles.header__buttons}>
 	  <Button class={button_styles.square_button} onClick={() => setAddNewLostThing(prev => !prev)} type="svg" value={d.add} />
-	  <Button class={button_styles.square_button} onClick={() => console.log("Sync button")} type="svg" value={d.sync} />
+	  <Button class={button_styles.square_button} onClick={() => {syncLostThingsList(); syncFoundThingsList()}} type="svg" value={d.sync} />
 	</div>
       </div>
       <div class={styles.content}>
