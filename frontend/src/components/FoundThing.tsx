@@ -15,6 +15,12 @@ interface FoundThingProps {
 }
 
 
+const handleClick = async (type: string, id: number) => {
+  const response = await fetch(`http://localhost:8000/change_thing_status?type=${type}&id=${id}`);
+  return response.json();
+}
+
+
 const FoundThing: Component = (props: FoundThingProps) => {
   const months = ["января", "февраля", "марта", "апреля", "мая", "июня",
 	          "июля", "августа", "сентября", "октября", "ноября", "декабря"];
@@ -41,7 +47,7 @@ const FoundThing: Component = (props: FoundThingProps) => {
       </div>
       <Button
 	class={button_styles.wide_button}
-	onClick={() => console.log("Я забрал вещь")}
+	onClick={() => handleClick("found", props.props.id)}
 	type="text"
 	value="Я забрал вещь"
       />
