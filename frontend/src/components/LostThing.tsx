@@ -1,5 +1,7 @@
 import type { Component } from 'solid-js';
 
+import Button from './Button';
+import button_styles from './button.module.css';
 import styles from './thing.module.css';
 
 
@@ -37,6 +39,12 @@ const LostThing: Component = (props: LostThingProps) => {
 	  <img class={styles.thing__photo} src={"data:image/jpeg;base64," + props.props.thing_photo}/>
 	}
       </div>
+      <Button
+	class={button_styles.wide_button}
+	onClick={() => console.log("Я забрал вещь")}
+	type="text"
+	value="Я забрал вещь"
+      />
     </div>
   );
 }
