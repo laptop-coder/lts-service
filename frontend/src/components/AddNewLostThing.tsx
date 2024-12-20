@@ -10,6 +10,24 @@ interface AddNewLostThingProps {
   onClick: func;
 }
 
+interface PostLostThingDataProps {
+  thingName: string;
+  userContacts: string;
+  customText: string;
+}
+
+
+const postLostThingData = async (data: PostLostThingDataProps) => {
+  const response = await fetch(`http://localhost:8000/add_new_lost_thing`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    body: JSON.stringify(data)
+  });
+  return response.json();
+}
+
 
 const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
@@ -19,7 +37,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [thingName, setThingName] = createSignal("");
   const [userContacts, setUserContacts] = createSignal("");
   const [thingLocation, setThingLocation] = createSignal("");
-  const [userMessage, setUserMessage] = createSignal("");
+  const [customText, setCustomText] = createSignal("");
 
   const [data, setData] = createSignal({});
 
@@ -60,18 +78,19 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	      />
 	      <textarea
 	        placeholder="Здесь можно оставить сообщение"
-		value={userMessage()}
-		onInput={e => setUserMessage(e.target.value)}
+		value={customText()}
+		onInput={e => setCustomText(e.target.value)}
 		required
 	      />
 	      <button
 		onClick={e => {
 		  e.preventDefault();
-		  setData(JSON.stringify({
-		    "thingName": thingName(),
-		    "userContacts": userContacts(),
-		    "userMessage": userMessage(),
-		  }))
+		  setData({
+		    "thing_name": thingName(),
+		    "user_contacts": userContacts(),
+		    "custom_text": customText(),
+		  });
+		  postLostThingData(data())
 		}}
 	      >
 	        Отправить
@@ -97,17 +116,17 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 	      />
 	      <textarea
 	        placeholder="Здесь можно оставить сообщение"
-		value={userMessage()}
-		onInput={e => setUserMessage(e.target.value)}
+		value={customText()}
+		onInput={e => setCustomText(e.target.value)}
 		required
 	      />
 	      <button
 		onClick={e => {
 		  e.preventDefault();
 		  setData(JSON.stringify({
-		    "thingName": thingName(),
-		    "thingLocation": thingLocation(),
-		    "userMessage": userMessage(),
+		    "thing_name": thingName(),
+		    "thing_location": thingLocation(),
+		    "custom_text": customText(),
 		  }))
 		}}
 	      >
