@@ -1,6 +1,6 @@
 #!/bin/sh
 # Run this script from the project's root directory (where this script is located)
-mkdir -p ./backend/storage/{lost, found}
+mkdir -p ./backend/storage/{lost,found}
 cat ./backend/db.sql | sqlite3 ./backend/db.sqlite3
 cd frontend
 npm i
