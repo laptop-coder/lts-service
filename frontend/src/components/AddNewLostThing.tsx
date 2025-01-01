@@ -110,7 +110,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		required
 	      />
 	      {thingPhoto() && <img src={thingPhoto()} />}
-	      <input type="file" accept="image/jpeg" onInput={e => fileToBase64(e.target.files[0]).then(r => setThingPhoto(r))}/>
+	      <input type="file" accept="image/jpeg" onInput={e => fileToBase64(e.target.files[0]).then(r => setThingPhoto(r.slice(23)))}/>
 	      <button
 		onClick={e => {
 		  e.preventDefault();
