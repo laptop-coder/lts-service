@@ -45,7 +45,7 @@ def get_things_list(type: str):
         cursor = connection.cursor()
         data = cursor.execute(
             f"""
-            SELECT * FROM {type}_thing WHERE status=0;
+            SELECT * FROM {type}_thing WHERE status=0 ORDER BY id DESC;
             """
         ).fetchall()
         formatted_data = []
