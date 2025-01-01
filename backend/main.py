@@ -1,4 +1,5 @@
 import datetime
+import os
 import sqlite3
 import base64
 
@@ -154,4 +155,8 @@ def change_thing_status(type: str, id: int):
             UPDATE {type}_thing SET status=1 WHERE id={id};
             """
         )
+        try:
+            os.remove(f"./storage/{type}/{id}.jpeg")
+        except FileNotFoundError:
+            pass
 
