@@ -161,7 +161,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		    "thing_name": thingName(),
 		    "thing_location": thingLocation(),
 		    "custom_text": customText(),
-		    "thingPhoto": thingPhoto(),
+		    "thing_photo": thingPhoto(),
 		  });
 		  postFoundThingData(data())
 		}}

@@ -139,6 +139,9 @@ def add_new_found_thing(data: FoundThingData):
             );
             """
         )
+    thing_photo = f"{data.thing_photo[23:]}".encode()
+    with open(f"./storage/found/{cursor.lastrowid}.jpeg", "wb") as file:
+        file.write(base64.decodebytes(thing_photo))
 
 
 @app.get("/change_thing_status")
