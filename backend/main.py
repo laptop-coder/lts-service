@@ -86,9 +86,6 @@ def get_thing_photo(type: str, id: int):
 
 @app.post("/add_new_lost_thing")
 def add_new_lost_thing(data: LostThingData):
-    thing_photo = f"{data.thing_photo[23:]}".encode()
-    with open(f"./storage/lost/{str(datetime.datetime.now())[0:10]}_{str(datetime.datetime.now())[11:16]}.jpeg", "wb") as file:
-        file.write(base64.decodebytes(thing_photo))
     connection = sqlite3.connect(config.PATH_TO_DB)
     with connection:
         cursor = connection.cursor()
@@ -112,6 +109,9 @@ def add_new_lost_thing(data: LostThingData):
             );
             """
         )
+    thing_photo = f"{data.thing_photo[23:]}".encode()
+    with open(f"./storage/lost/{cursor.lastrowid}.jpeg", "wb") as file:
+        file.write(base64.decodebytes(thing_photo))
 
 
 @app.post("/add_new_found_thing")
