@@ -14,12 +14,14 @@ interface PostLostThingDataProps {
   thingName: string;
   userContacts: string;
   customText: string;
+  thingPhoto: string;
 }
 
 interface PostFoundThingDataProps {
   thingName: string;
   thingLocation: string;
   customText: string;
+  thingPhoto: string;
 }
 
 
@@ -110,7 +112,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		required
 	      />
 	      {thingPhoto() && <img src={thingPhoto()} />}
-	      <input type="file" accept="image/jpeg" onInput={e => fileToBase64(e.target.files[0]).then(r => setThingPhoto(r.slice(23)))}/>
+	      <input type="file" accept="image/jpeg" onInput={e => fileToBase64(e.target.files[0]).then(r => setThingPhoto(r))}/>
 	      <button
 		onClick={e => {
 		  e.preventDefault();
@@ -118,6 +120,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		    "thing_name": thingName(),
 		    "user_contacts": userContacts(),
 		    "custom_text": customText(),
+		    "thing_photo": thingPhoto(),
 		  });
 		  postLostThingData(data())
 		}}
@@ -158,6 +161,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
 		    "thing_name": thingName(),
 		    "thing_location": thingLocation(),
 		    "custom_text": customText(),
+		    "thingPhoto": thingPhoto(),
 		  });
 		  postFoundThingData(data())
 		}}
