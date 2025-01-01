@@ -1,6 +1,6 @@
 # Requirements
-Alacritty
-Npm
-Python
-SQLite
+- Alacritty
+- Npm
+- Python
+- SQLite
 
