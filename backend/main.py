@@ -6,6 +6,7 @@ import base64
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 
 import config
 
@@ -14,7 +15,7 @@ class LostThingData(BaseModel):
     thing_name: str
     user_contacts: str
     custom_text: str
-    thing_photo: str
+    thing_photo: Optional[ str ] = None
     
 
 class FoundThingData(BaseModel):
@@ -110,9 +111,12 @@ def add_new_lost_thing(data: LostThingData):
             );
             """
         )
-    thing_photo = f"{data.thing_photo[23:]}".encode()
-    with open(f"./storage/lost/{cursor.lastrowid}.jpeg", "wb") as file:
-        file.write(base64.decodebytes(thing_photo))
+    try:
+        thing_photo = f"{data.thing_photo[23:]}".encode()
+        with open(f"./storage/lost/{cursor.lastrowid}.jpeg", "wb") as file:
+            file.write(base64.decodebytes(thing_photo))
+    except TypeError:
+        pass
 
 
 @app.post("/add_new_found_thing")
