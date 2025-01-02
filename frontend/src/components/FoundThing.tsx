@@ -3,6 +3,7 @@ import type { Component } from "solid-js";
 import Button from "./Button";
 import button_styles from "./button.module.css";
 import styles from "./thing.module.css";
+import { months } from "../constants";
 
 interface FoundThingProps {
   id: number;
@@ -21,20 +22,6 @@ const handleClick = async (type: string, id: number) => {
 };
 
 const FoundThing: Component = (props: FoundThingProps) => {
-  const months = [
-    "января",
-    "февраля",
-    "марта",
-    "апреля",
-    "мая",
-    "июня",
-    "июля",
-    "августа",
-    "сентября",
-    "октября",
-    "ноября",
-    "декабря",
-  ];
   const monthNumber = Number(props.props.publication_date.slice(5, 7));
 
   const day = Number(props.props.publication_date.slice(8, 10));
