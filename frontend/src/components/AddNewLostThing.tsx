@@ -4,6 +4,7 @@ import { createSignal } from "solid-js";
 import Button from "./Button";
 import styles from "./addnewlostthing.module.css";
 import button_styles from "./button.module.css";
+import fileToBase64 from "./fileToBase64";
 
 interface AddNewLostThingProps {
   onClick: func;
@@ -22,14 +23,6 @@ interface PostFoundThingDataProps {
   customText: string;
   thingPhoto: string;
 }
-
-const fileToBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-  });
 
 const postLostThingData = async (data: PostLostThingDataProps) => {
   const response = await fetch(`http://localhost:8000/add_new_lost_thing`, {
