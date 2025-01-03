@@ -1,7 +1,7 @@
+import base64
 import datetime
 import os
 import sqlite3
-import base64
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -82,7 +82,7 @@ def get_thing_photo(type: str, id: int):
         with open(f"{config.PATH_TO_STORAGE}/{type}/{id}.jpeg", "rb") as photo:
             photo_base64 = base64.b64encode(photo.read())
             return photo_base64
-    except:
+    except FileNotFoundError:
         return ""
 
 
