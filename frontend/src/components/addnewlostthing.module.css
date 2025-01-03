@@ -23,10 +23,28 @@
   padding: 10px;
   margin-top: 30px;
   background-color: #ffffff;
+  width: 70%;
+  max-width: 500px;
+}
+
+.box_title {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 form {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+input,
+textarea {
+  border: 1px solid #000000;
+  border-radius: 10px;
+  padding: 10px;
 }

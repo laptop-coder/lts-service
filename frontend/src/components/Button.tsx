@@ -13,7 +13,7 @@ interface ButtonProps {
 const Button: Component = (props: ButtonProps) => {
   return (
     <button
-      class={styles.button + (props.class ? " " + props.class : "")}
+      class={props.class ? " " + props.class : ""}
       onClick={props.onClick}
     >
       {props.type === "svg" && (

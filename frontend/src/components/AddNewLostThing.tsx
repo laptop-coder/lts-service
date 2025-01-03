@@ -86,7 +86,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
         )}
         {addNewLostThing() && (
           <>
-            <p>Добавить потерянную вещь</p>
+            <div class={styles.box_title}>Добавить потерянную вещь</div>
             <form method="post">
               <input
                 placeholder="Что Вы потеряли?"
@@ -114,7 +114,10 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
                 }
               />
-              <button
+              <Button
+                type="text"
+                class={button_styles.wide_button}
+                value="Отправить"
                 onClick={(e) => {
                   e.preventDefault();
                   setData({
@@ -126,15 +129,13 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   postLostThingData(data());
                   window.location.reload();
                 }}
-              >
-                Отправить
-              </button>
+              />
             </form>
           </>
         )}
         {addNewFoundThing() && (
           <>
-            <p>Добавить найденную вещь</p>
+            <div class={styles.box_title}>Добавить найденную вещь</div>
             <form method="post">
               <input
                 placeholder="Что Вы нашли?"
@@ -162,7 +163,10 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
                 }
               />
-              <button
+              <Button
+                type="text"
+                class={button_styles.wide_button}
+                value="Отправить"
                 onClick={(e) => {
                   e.preventDefault();
                   setData({
@@ -174,9 +178,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   postFoundThingData(data());
                   window.location.reload();
                 }}
-              >
-                Отправить
-              </button>
+              />
             </form>
           </>
         )}
