@@ -50,7 +50,10 @@ const FoundThing: Component = (props: FoundThingProps) => {
       </div>
       <Button
         class={button_styles.wide_button}
-        onClick={() => handleClick("found", props.props.id)}
+        onClick={() => {
+          handleClick("found", props.props.id);
+          window.location.reload();
+        }}
         type="text"
         value="Я забрал вещь"
       />

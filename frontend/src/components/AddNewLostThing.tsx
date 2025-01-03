@@ -124,6 +124,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                     thing_photo: thingPhoto(),
                   });
                   postLostThingData(data());
+                  window.location.reload();
                 }}
               >
                 Отправить
@@ -171,6 +172,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                     thing_photo: thingPhoto(),
                   });
                   postFoundThingData(data());
+                  window.location.reload();
                 }}
               >
                 Отправить
