@@ -37,13 +37,13 @@ const App: Component = () => {
         <div class="header__title">Система поиска потерянных вещей</div>
         <div class="header__buttons">
           <button
-            class="header_button"
+            style="aspect-ratio: 1/1;"
             onClick={() => setAddNewLostThing((prev) => !prev)}
           >
             <SVG d={d.add} />
           </button>
           <button
-            class="header_button"
+            style="aspect-ratio: 1/1;"
             onClick={() => {
               syncLostThingsList();
               syncFoundThingsList();
@@ -53,15 +53,15 @@ const App: Component = () => {
           </button>
         </div>
       </div>
-      <div class="content">
-        <div class="things_list">
-          <div class="things_list__title">Потерянные вещи</div>
+      <div style="display: flex; justify-content: space-evenly;">
+        <div class="list__wrapper">
+          <div class="list__title">Потерянные вещи</div>
           <Switch>
             <Match when={lostThingsList.loading}>
               <p>Loading...</p>
             </Match>
             <Match when={lostThingsList()}>
-              <div class="things_list__content">
+              <div class="list">
                 {lostThingsList().map((lostThing) => (
                   <LostThing props={lostThing} />
                 ))}
@@ -69,14 +69,14 @@ const App: Component = () => {
             </Match>
           </Switch>
         </div>
-        <div class="things_list">
-          <div class="things_list__title">Найденные вещи</div>
+        <div class="list__wrapper">
+          <div class="list__title">Найденные вещи</div>
           <Switch>
             <Match when={foundThingsList.loading}>
               <p>Loading...</p>
             </Match>
             <Match when={foundThingsList()}>
-              <div class="things_list__content">
+              <div class="list">
                 {foundThingsList().map((foundThing) => (
                   <FoundThing props={foundThing} />
                 ))}
