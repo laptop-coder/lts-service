@@ -2,7 +2,7 @@ import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
 
 import "../styles.css";
-import fileToBase64 from "./utils/fileToBase64";
+import fileToBase64 from "../utils/fileToBase64";
 
 interface AddNewLostThingProps {
   onClick: func;

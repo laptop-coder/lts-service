@@ -1,7 +1,7 @@
 import type { Component } from "solid-js";
 
 import "../styles.css";
-import { months } from "./utils/constants";
+import { months } from "../utils/constants";
 
 interface FoundThingProps {
   id: number;
