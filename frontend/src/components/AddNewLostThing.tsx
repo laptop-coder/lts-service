@@ -3,45 +3,32 @@ import { createSignal } from "solid-js";
 
 import "../styles.css";
 import fileToBase64 from "../utils/fileToBase64";
+import POST from "../utils/POST";
 
 interface AddNewLostThingProps {
   onClick: func;
 }
 
-interface PostLostThingDataProps {
+interface LostThingData {
   thingName: string;
   userContacts: string;
   customText: string;
   thingPhoto: string;
 }
 
-interface PostFoundThingDataProps {
+interface FoundThingData {
   thingName: string;
   thingLocation: string;
   customText: string;
   thingPhoto: string;
 }
 
-const postLostThingData = async (data: PostLostThingDataProps) => {
-  const response = await fetch(`http://localhost:8000/add_new_lost_thing`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: JSON.stringify(data),
-  });
-  return response.json();
+const checkLostThingDataType = (data: LostThingData) => {
+  return true;
 };
 
-const postFoundThingData = async (data: PostFoundThingDataProps) => {
-  const response = await fetch(`http://localhost:8000/add_new_found_thing`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: JSON.stringify(data),
-  });
-  return response.json();
+const checkFoundThingDataType = (data: FoundThingData) => {
+  return true;
 };
 
 const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
@@ -119,7 +106,11 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                     custom_text: customText(),
                     thing_photo: thingPhoto(),
                   });
-                  postLostThingData(data());
+                  if (checkLostThingDataType()) {
+                    POST("add_new_lost_thing", data());
+                  } else {
+                    console.log("Type error (POST, lost things)");
+                  }
                   window.location.reload();
                 }}
               >
@@ -167,7 +158,11 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                     custom_text: customText(),
                     thing_photo: thingPhoto(),
                   });
-                  postFoundThingData(data());
+                  if (checkFoundThingDataType()) {
+                    POST("add_new_found_thing", data());
+                  } else {
+                    console.log("Type error (POST, found things)");
+                  }
                   window.location.reload();
                 }}
               >
