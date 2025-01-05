@@ -6,7 +6,7 @@ import "./styles.css";
 import LostThing from "./components/LostThing";
 import FoundThing from "./components/FoundThing";
 import AddNewLostThing from "./components/AddNewLostThing";
-import d from "./d";
+import d from "./components/utils/d";
 import SVG from "./components/SVG";
 
 const getThingsList = async (type: string) => {
