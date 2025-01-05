@@ -1,9 +1,7 @@
 import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
 
-import Button from "./Button";
 import styles from "./addnewlostthing.module.css";
-import button_styles from "./button.module.css";
 import fileToBase64 from "./fileToBase64";
 
 interface AddNewLostThingProps {
@@ -64,24 +62,22 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
       <div class={styles.box}>
         {chooseThingType() && (
           <>
-            <Button
-              class={button_styles.wide_button}
+            <button
               onClick={() => {
                 setChooseThingType(false);
                 setAddNewLostThing(true);
               }}
-              type="text"
-              value="Я потерял вещь"
-            />
-            <Button
-              class={button_styles.wide_button}
+            >
+              Я потерял вещь
+            </button>
+            <button
               onClick={() => {
                 setChooseThingType(false);
                 setAddNewFoundThing(true);
               }}
-              type="text"
-              value="Я нашёл вещь"
-            />
+            >
+              Я нашёл вещь
+            </button>
           </>
         )}
         {addNewLostThing() && (
@@ -114,10 +110,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
                 }
               />
-              <Button
-                type="text"
-                class={button_styles.wide_button}
-                value="Отправить"
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   setData({
@@ -129,7 +122,9 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   postLostThingData(data());
                   window.location.reload();
                 }}
-              />
+              >
+                Отправить
+              </button>
             </form>
           </>
         )}
@@ -163,10 +158,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
                 }
               />
-              <Button
-                type="text"
-                class={button_styles.wide_button}
-                value="Отправить"
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   setData({
@@ -178,7 +170,9 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
                   postFoundThingData(data());
                   window.location.reload();
                 }}
-              />
+              >
+                Отправить
+              </button>
             </form>
           </>
         )}

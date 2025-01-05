@@ -3,12 +3,11 @@ import { createResource, Swith, Match } from "solid-js";
 import { createSignal } from "solid-js";
 
 import styles from "./app.module.css";
-import button_styles from "./components/button.module.css";
 import LostThing from "./components/LostThing";
 import FoundThing from "./components/FoundThing";
 import AddNewLostThing from "./components/AddNewLostThing";
-import Button from "./components/Button";
-import d from "./SVG";
+import d from "./d";
+import SVG from "./components/SVG";
 
 const getThingsList = async (type: string) => {
   const response = await fetch(
@@ -30,28 +29,28 @@ const App: Component = () => {
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
 
   return (
-    <div class={styles.page}>
+    <>
       {addNewLostThing() && (
         <AddNewLostThing onClick={() => setAddNewLostThing((prev) => !prev)} />
       )}
       <div class={styles.header}>
         <div class={styles.header__title}></div>
         <div class={styles.header__buttons}>
-          <Button
-            class={button_styles.square_button}
+          <button
+            class={styles.header_button}
             onClick={() => setAddNewLostThing((prev) => !prev)}
-            type="svg"
-            value={d.add}
-          />
-          <Button
-            class={button_styles.square_button}
+          >
+            <SVG d={d.add} />
+          </button>
+          <button
+            class={styles.header_button}
             onClick={() => {
               syncLostThingsList();
               syncFoundThingsList();
             }}
-            type="svg"
-            value={d.sync}
-          />
+          >
+            <SVG d={d.sync} />
+          </button>
         </div>
       </div>
       <div class={styles.content}>
@@ -86,8 +85,7 @@ const App: Component = () => {
           </Switch>
         </div>
       </div>
-      <div class={styles.footer}></div>
-    </div>
+    </>
   );
 };
 

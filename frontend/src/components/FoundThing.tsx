@@ -1,7 +1,5 @@
 import type { Component } from "solid-js";
 
-import Button from "./Button";
-import button_styles from "./button.module.css";
 import styles from "./thing.module.css";
 import { months } from "../constants";
 
@@ -48,15 +46,14 @@ const FoundThing: Component = (props: FoundThingProps) => {
           />
         )}
       </div>
-      <Button
-        class={button_styles.wide_button}
+      <button
         onClick={() => {
           handleClick("found", props.props.id);
           window.location.reload();
         }}
-        type="text"
-        value="Я забрал вещь"
-      />
+      >
+        Я забрал вещь
+      </button>
     </div>
   );
 };
