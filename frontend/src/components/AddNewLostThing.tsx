@@ -1,7 +1,7 @@
 import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
 
-import styles from "./addnewlostthing.module.css";
+import "../styles.css";
 import fileToBase64 from "./fileToBase64";
 
 interface AddNewLostThingProps {
@@ -58,8 +58,8 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [data, setData] = createSignal({});
 
   return (
-    <div class={styles.wrapper}>
-      <div class={styles.box}>
+    <div class="wrapper">
+      <div class="box">
         {chooseThingType() && (
           <>
             <button
@@ -82,7 +82,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
         )}
         {addNewLostThing() && (
           <>
-            <div class={styles.box_title}>Добавить потерянную вещь</div>
+            <div class="box_title">Добавить потерянную вещь</div>
             <form method="post">
               <input
                 placeholder="Что Вы потеряли?"
@@ -130,7 +130,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
         )}
         {addNewFoundThing() && (
           <>
-            <div class={styles.box_title}>Добавить найденную вещь</div>
+            <div class="box_title">Добавить найденную вещь</div>
             <form method="post">
               <input
                 placeholder="Что Вы нашли?"
@@ -178,7 +178,7 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
         )}
       </div>
       <div
-        class={styles.background}
+        class="background"
         onClick={props.onClick}
       ></div>
     </div>

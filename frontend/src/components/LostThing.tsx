@@ -1,6 +1,6 @@
 import type { Component } from "solid-js";
 
-import styles from "./thing.module.css";
+import "../styles.css";
 import { months } from "../constants";
 
 interface LostThingProps {
@@ -29,11 +29,11 @@ const LostThing: Component = (props: LostThingProps) => {
   const time = props.props.publication_time;
 
   return (
-    <div class={styles.thing}>
-      <div class={styles.thing__title}>
+    <div class="thing">
+      <div class="thing__title">
         {props.props.thing_name} (№{props.props.id})
       </div>
-      <div class={styles.thing__content}>
+      <div class="thing__content">
         Опубликовано: {day} {month} {year} в {time}
         <br />
         Контакты: {props.props.user_contacts}
@@ -41,7 +41,7 @@ const LostThing: Component = (props: LostThingProps) => {
         {props.props.custom_text}
         {props.props.thing_photo && (
           <img
-            class={styles.thing__photo}
+            class="thing__photo"
             src={"data:image/jpeg;base64," + props.props.thing_photo}
           />
         )}
