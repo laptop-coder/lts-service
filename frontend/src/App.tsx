@@ -34,7 +34,7 @@ const App: Component = () => {
         <AddNewLostThing onClick={() => setAddNewLostThing((prev) => !prev)} />
       )}
       <div class="header">
-        <div class="header__title"></div>
+        <div class="header__title">Система поиска потерянных вещей</div>
         <div class="header__buttons">
           <button
             class="header_button"
