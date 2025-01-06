@@ -27,7 +27,7 @@ const checkFoundThingDataType = (data: FoundThingData) => {
   return true;
 };
 
-const AddNewLostThing: Component = () => {
+const AddNewThing: Component = () => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
@@ -170,4 +170,4 @@ const AddNewLostThing: Component = () => {
   );
 };
 
-export default AddNewLostThing;
+export default AddNewThing;

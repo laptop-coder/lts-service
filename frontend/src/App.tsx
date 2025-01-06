@@ -5,7 +5,7 @@ import { createSignal } from "solid-js";
 import "./styles.css";
 import LostThing from "./components/LostThing";
 import FoundThing from "./components/FoundThing";
-import AddNewLostThing from "./components/AddNewLostThing";
+import AddNewThing from "./components/AddNewThing";
 import d from "./utils/d";
 import SVG from "./components/SVG";
 import DialogBox from "./components/DialogBox";
@@ -21,13 +21,13 @@ const App: Component = () => {
     GET,
   );
 
-  const [addNewLostThing, setAddNewLostThing] = createSignal(false);
+  const [addNewThing, setAddNewThing] = createSignal(false);
 
   return (
     <>
-      {addNewLostThing() && (
-        <DialogBox actionToClose={() => setAddNewLostThing((prev) => !prev)}>
-          <AddNewLostThing />
+      {addNewThing() && (
+        <DialogBox actionToClose={() => setAddNewThing((prev) => !prev)}>
+          <AddNewThing />
         </DialogBox>
       )}
       <div class="header">
@@ -35,7 +35,7 @@ const App: Component = () => {
         <div class="header__buttons">
           <button
             style="aspect-ratio: 1/1;"
-            onClick={() => setAddNewLostThing((prev) => !prev)}
+            onClick={() => setAddNewThing((prev) => !prev)}
           >
             <SVG d={d.add} />
           </button>
