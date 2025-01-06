@@ -5,10 +5,6 @@ import "../styles.css";
 import fileToBase64 from "../utils/fileToBase64";
 import POST from "../utils/POST";
 
-interface AddNewLostThingProps {
-  onClick: func;
-}
-
 interface LostThingData {
   thingName: string;
   userContacts: string;
@@ -31,7 +27,7 @@ const checkFoundThingDataType = (data: FoundThingData) => {
   return true;
 };
 
-const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
+const AddNewLostThing: Component = () => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
@@ -45,138 +41,132 @@ const AddNewLostThing: Component = (props: AddNewLostThingProps) => {
   const [data, setData] = createSignal({});
 
   return (
-    <div class="wrapper">
-      <div class="box">
-        {chooseThingType() && (
-          <>
+    <>
+      {chooseThingType() && (
+        <>
+          <button
+            onClick={() => {
+              setChooseThingType(false);
+              setAddNewLostThing(true);
+            }}
+          >
+            Я потерял вещь
+          </button>
+          <button
+            onClick={() => {
+              setChooseThingType(false);
+              setAddNewFoundThing(true);
+            }}
+          >
+            Я нашёл вещь
+          </button>
+        </>
+      )}
+      {addNewLostThing() && (
+        <>
+          <div class="box_title">Добавить потерянную вещь</div>
+          <form method="post">
+            <input
+              placeholder="Что Вы потеряли?"
+              value={thingName()}
+              onInput={(e) => setThingName(e.target.value)}
+              required
+            />
+            <input
+              placeholder="Как с Вами можно связаться?"
+              value={userContacts()}
+              onInput={(e) => setUserContacts(e.target.value)}
+              required
+            />
+            <textarea
+              placeholder="Здесь можно оставить сообщение"
+              value={customText()}
+              onInput={(e) => setCustomText(e.target.value)}
+              required
+            />
+            {thingPhoto() && <img src={thingPhoto()} />}
+            <input
+              type="file"
+              accept="image/jpeg"
+              onInput={(e) =>
+                fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
+              }
+            />
             <button
-              onClick={() => {
-                setChooseThingType(false);
-                setAddNewLostThing(true);
+              onClick={(e) => {
+                e.preventDefault();
+                setData({
+                  thing_name: thingName(),
+                  user_contacts: userContacts(),
+                  custom_text: customText(),
+                  thing_photo: thingPhoto(),
+                });
+                if (checkLostThingDataType()) {
+                  POST("add_new_lost_thing", data());
+                } else {
+                  console.log("Type error (POST, lost things)");
+                }
+                window.location.reload();
               }}
             >
-              Я потерял вещь
+              Отправить
             </button>
+          </form>
+        </>
+      )}
+      {addNewFoundThing() && (
+        <>
+          <div class="box_title">Добавить найденную вещь</div>
+          <form method="post">
+            <input
+              placeholder="Что Вы нашли?"
+              value={thingName()}
+              onInput={(e) => setThingName(e.target.value)}
+              required
+            />
+            <input
+              placeholder="Где забрать вещь?"
+              value={thingLocation()}
+              onInput={(e) => setThingLocation(e.target.value)}
+              required
+            />
+            <textarea
+              placeholder="Здесь можно оставить сообщение"
+              value={customText()}
+              onInput={(e) => setCustomText(e.target.value)}
+              required
+            />
+            {thingPhoto() && <img src={thingPhoto()} />}
+            <input
+              type="file"
+              accept="image/jpeg"
+              onInput={(e) =>
+                fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
+              }
+            />
             <button
-              onClick={() => {
-                setChooseThingType(false);
-                setAddNewFoundThing(true);
+              onClick={(e) => {
+                e.preventDefault();
+                setData({
+                  thing_name: thingName(),
+                  thing_location: thingLocation(),
+                  custom_text: customText(),
+                  thing_photo: thingPhoto(),
+                });
+                if (checkFoundThingDataType()) {
+                  POST("add_new_found_thing", data());
+                } else {
+                  console.log("Type error (POST, found things)");
+                }
+                window.location.reload();
               }}
             >
-              Я нашёл вещь
+              Отправить
             </button>
-          </>
-        )}
-        {addNewLostThing() && (
-          <>
-            <div class="box_title">Добавить потерянную вещь</div>
-            <form method="post">
-              <input
-                placeholder="Что Вы потеряли?"
-                value={thingName()}
-                onInput={(e) => setThingName(e.target.value)}
-                required
-              />
-              <input
-                placeholder="Как с Вами можно связаться?"
-                value={userContacts()}
-                onInput={(e) => setUserContacts(e.target.value)}
-                required
-              />
-              <textarea
-                placeholder="Здесь можно оставить сообщение"
-                value={customText()}
-                onInput={(e) => setCustomText(e.target.value)}
-                required
-              />
-              {thingPhoto() && <img src={thingPhoto()} />}
-              <input
-                type="file"
-                accept="image/jpeg"
-                onInput={(e) =>
-                  fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
-                }
-              />
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setData({
-                    thing_name: thingName(),
-                    user_contacts: userContacts(),
-                    custom_text: customText(),
-                    thing_photo: thingPhoto(),
-                  });
-                  if (checkLostThingDataType()) {
-                    POST("add_new_lost_thing", data());
-                  } else {
-                    console.log("Type error (POST, lost things)");
-                  }
-                  window.location.reload();
-                }}
-              >
-                Отправить
-              </button>
-            </form>
-          </>
-        )}
-        {addNewFoundThing() && (
-          <>
-            <div class="box_title">Добавить найденную вещь</div>
-            <form method="post">
-              <input
-                placeholder="Что Вы нашли?"
-                value={thingName()}
-                onInput={(e) => setThingName(e.target.value)}
-                required
-              />
-              <input
-                placeholder="Где забрать вещь?"
-                value={thingLocation()}
-                onInput={(e) => setThingLocation(e.target.value)}
-                required
-              />
-              <textarea
-                placeholder="Здесь можно оставить сообщение"
-                value={customText()}
-                onInput={(e) => setCustomText(e.target.value)}
-                required
-              />
-              {thingPhoto() && <img src={thingPhoto()} />}
-              <input
-                type="file"
-                accept="image/jpeg"
-                onInput={(e) =>
-                  fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
-                }
-              />
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setData({
-                    thing_name: thingName(),
-                    thing_location: thingLocation(),
-                    custom_text: customText(),
-                    thing_photo: thingPhoto(),
-                  });
-                  if (checkFoundThingDataType()) {
-                    POST("add_new_found_thing", data());
-                  } else {
-                    console.log("Type error (POST, found things)");
-                  }
-                  window.location.reload();
-                }}
-              >
-                Отправить
-              </button>
-            </form>
-          </>
-        )}
-      </div>
-      <div
-        class="background"
-        onClick={props.onClick}
-      ></div>
-    </div>
+          </form>
+        </>
+      )}
+    </>
   );
 };
 

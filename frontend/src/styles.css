@@ -75,7 +75,7 @@ textarea {
   gap: 20px;
 }
 
-.background {
+.dialog_box__background {
   position: fixed;
   top: 0;
   right: 0;
@@ -85,12 +85,12 @@ textarea {
   opacity: 0.5;
 }
 
-.wrapper {
+.dialog_box__wrapper {
   display: flex;
   justify-content: center;
 }
 
-.box {
+.dialog_box {
   position: fixed;
   z-index: 1;
   display: flex;

@@ -8,6 +8,7 @@ import FoundThing from "./components/FoundThing";
 import AddNewLostThing from "./components/AddNewLostThing";
 import d from "./utils/d";
 import SVG from "./components/SVG";
+import DialogBox from "./components/DialogBox";
 
 const getThingsList = async (type: string) => {
   const response = await fetch(
@@ -31,7 +32,9 @@ const App: Component = () => {
   return (
     <>
       {addNewLostThing() && (
-        <AddNewLostThing onClick={() => setAddNewLostThing((prev) => !prev)} />
+        <DialogBox actionToClose={() => setAddNewLostThing((prev) => !prev)}>
+          <AddNewLostThing />
+        </DialogBox>
       )}
       <div class="header">
         <div class="header__title">Система поиска потерянных вещей</div>

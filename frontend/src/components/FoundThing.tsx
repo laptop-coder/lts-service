@@ -31,7 +31,7 @@ const FoundThing: Component = (props: FoundThingProps) => {
   return (
     <div class="thing">
       <div class="thing__title">
-        {props.props.thing_name} (№ {props.props.id})
+        {props.props.thing_name} (№{props.props.id})
       </div>
       <div class="thing__content">
         Опубликовано: {day} {month} {year} в {time}
