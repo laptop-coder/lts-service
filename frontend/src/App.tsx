@@ -9,22 +9,16 @@ import AddNewLostThing from "./components/AddNewLostThing";
 import d from "./utils/d";
 import SVG from "./components/SVG";
 import DialogBox from "./components/DialogBox";
-
-const getThingsList = async (type: string) => {
-  const response = await fetch(
-    `http://localhost:8000/get_things_list?type=${type}`,
-  );
-  return response.json();
-};
+import GET from "./utils/GET";
 
 const App: Component = () => {
   const [lostThingsList, { refetch: syncLostThingsList }] = createResource(
-    "lost",
-    getThingsList,
+    "get_things_list?type=lost",
+    GET,
   );
   const [foundThingsList, { refetch: syncFoundThingsList }] = createResource(
-    "found",
-    getThingsList,
+    "get_things_list?type=found",
+    GET,
   );
 
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
