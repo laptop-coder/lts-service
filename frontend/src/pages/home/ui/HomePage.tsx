@@ -1,26 +1,22 @@
 import type { Component } from "solid-js";
-import { createResource, Swith, Match } from "solid-js";
+import { Swith, Match } from "solid-js";
 import { createSignal } from "solid-js";
 
-import "./app/styles.css";
-import LostThing from "./components/LostThing";
-import FoundThing from "./components/FoundThing";
-import AddNewThing from "./components/AddNewThing";
-import d from "./utils/d";
-import SVG from "./components/SVG";
-import DialogBox from "./components/DialogBox";
-import GET from "./utils/GET";
+import "../../../app/styles.css";
+import LostThing from "../../../components/LostThing";
+import FoundThing from "../../../components/FoundThing";
+import AddNewThing from "../../../components/AddNewThing";
+import d from "../../../utils/d";
+import SVG from "../../../components/SVG";
+import DialogBox from "../../../components/DialogBox";
+import {
+  lostThingsList,
+  foundThingsList,
+  syncLostThingsList,
+  syncFoundThingsList,
+} from "../api/getThingsLists";
 
-const App: Component = () => {
-  const [lostThingsList, { refetch: syncLostThingsList }] = createResource(
-    "get_things_list?type=lost",
-    GET,
-  );
-  const [foundThingsList, { refetch: syncFoundThingsList }] = createResource(
-    "get_things_list?type=found",
-    GET,
-  );
-
+export const HomePage: Component = () => {
   const [addNewThing, setAddNewThing] = createSignal(false);
 
   return (
@@ -85,5 +81,3 @@ const App: Component = () => {
     </>
   );
 };
-
-export default App;
