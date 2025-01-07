@@ -1,6 +1,6 @@
 import type { Component } from "solid-js";
 
-import "../styles.css";
+import "../app/styles.css";
 import { months } from "../utils/constants";
 
 interface FoundThingProps {

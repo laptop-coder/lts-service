@@ -2,7 +2,7 @@ import type { Component } from "solid-js";
 import { createResource, Swith, Match } from "solid-js";
 import { createSignal } from "solid-js";
 
-import "./styles.css";
+import "./app/styles.css";
 import LostThing from "./components/LostThing";
 import FoundThing from "./components/FoundThing";
 import AddNewThing from "./components/AddNewThing";
