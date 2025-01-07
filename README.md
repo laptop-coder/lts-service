@@ -3,4 +3,5 @@
 - Npm
 - Python
 - SQLite
+- pre-commit
 
