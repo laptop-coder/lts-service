@@ -3,8 +3,8 @@ import { Swith, Match } from "solid-js";
 import { createSignal } from "solid-js";
 
 import "../../../app/styles.css";
-import LostThing from "../../../components/LostThing";
-import FoundThing from "../../../components/FoundThing";
+import { LostThing } from "../../../entities/lostThing/ui/LostThing";
+import { FoundThing } from "../../../entities/foundThing/ui/FoundThing";
 import AddNewThing from "../../../components/AddNewThing";
 import d from "../../../utils/d";
 import SVG from "../../../components/SVG";

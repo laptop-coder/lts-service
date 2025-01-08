@@ -1,25 +1,11 @@
 import type { Component } from "solid-js";
 
-import "../app/styles.css";
-import { months } from "../utils/constants";
+import "../../../app/styles.css";
+import { months } from "../../../utils/constants";
+import { changeThingStatus } from "../api/changeThingStatus";
+import { Props } from "../types/Props";
 
-interface LostThingProps {
-  id: number;
-  publication_date: string;
-  publication_time: string;
-  thing_name: string;
-  user_contacts: string;
-  custom_text: string;
-}
-
-const handleClick = async (type: string, id: number) => {
-  const response = await fetch(
-    `http://localhost:8000/change_thing_status?type=${type}&id=${id}`,
-  );
-  return response.json();
-};
-
-const LostThing: Component = (props: LostThingProps) => {
+export const LostThing: Component = (props: Props) => {
   const monthNumber = Number(props.props.publication_date.slice(5, 7));
 
   const day = Number(props.props.publication_date.slice(8, 10));
@@ -48,7 +34,7 @@ const LostThing: Component = (props: LostThingProps) => {
       </div>
       <button
         onClick={() => {
-          handleClick("lost", props.props.id);
+          changeThingStatus(props.props.id);
           window.location.reload();
         }}
       >
@@ -57,5 +43,3 @@ const LostThing: Component = (props: LostThingProps) => {
     </div>
   );
 };
-
-export default LostThing;

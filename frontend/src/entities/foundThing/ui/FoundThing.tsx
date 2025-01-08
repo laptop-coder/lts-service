@@ -1,25 +1,11 @@
 import type { Component } from "solid-js";
 
-import "../app/styles.css";
-import { months } from "../utils/constants";
+import "../../../app/styles.css";
+import { months } from "../../../utils/constants";
+import { changeThingStatus } from "../api/changeThingStatus";
+import { Props } from "../types/Props";
 
-interface FoundThingProps {
-  id: number;
-  publication_date: string;
-  publication_time: string;
-  thing_name: string;
-  thing_location: string;
-  custom_text: string;
-}
-
-const handleClick = async (type: string, id: number) => {
-  const response = await fetch(
-    `http://localhost:8000/change_thing_status?type=${type}&id=${id}`,
-  );
-  return response.json();
-};
-
-const FoundThing: Component = (props: FoundThingProps) => {
+export const FoundThing: Component = (props: Props) => {
   const monthNumber = Number(props.props.publication_date.slice(5, 7));
 
   const day = Number(props.props.publication_date.slice(8, 10));
@@ -48,7 +34,7 @@ const FoundThing: Component = (props: FoundThingProps) => {
       </div>
       <button
         onClick={() => {
-          handleClick("found", props.props.id);
+          changeThingStatus(props.props.id);
           window.location.reload();
         }}
       >
@@ -57,5 +43,3 @@ const FoundThing: Component = (props: FoundThingProps) => {
     </div>
   );
 };
-
-export default FoundThing;
