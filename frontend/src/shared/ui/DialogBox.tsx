@@ -1,21 +1,15 @@
-import type { JSX, Component } from "solid-js";
+import type { Component } from "solid-js";
 import { children } from "solid-js";
+import type { DialogBox } from "../types/DialogBox";
 
-interface DialogBoxProps {
-  children: JSX.Element;
-  actionToClose: func;
-}
-
-const DialogBox = (props: DialogBoxProps) => {
+export const DialogBox: Component = (props: DialogBox) => {
   return (
     <div class="dialog_box__wrapper">
       <div class="dialog_box">{children(() => props.children)}</div>
       <div
         class="dialog_box__background"
         onClick={props.actionToClose}
-      ></div>
+      />
     </div>
   );
 };
-
-export default DialogBox;

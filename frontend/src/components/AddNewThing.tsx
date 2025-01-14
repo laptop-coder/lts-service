@@ -2,8 +2,8 @@ import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
 
 import "../app/styles.css";
-import fileToBase64 from "../utils/fileToBase64";
-import POST from "../utils/POST";
+import { fileToBase64 } from "../shared/lib/utils/index";
+import { POST } from "../shared/lib/utils/index";
 
 interface LostThingData {
   thingName: string;

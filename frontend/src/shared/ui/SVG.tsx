@@ -1,10 +1,7 @@
 import type { Component } from "solid-js";
+import type { SVG } from "../types/index";
 
-interface SVGProps {
-  d: string;
-}
-
-const SVG = (props: SVGProps) => {
+export const SVG = (props: SVG) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,5 +11,3 @@ const SVG = (props: SVGProps) => {
     </svg>
   );
 };
-
-export default SVG;

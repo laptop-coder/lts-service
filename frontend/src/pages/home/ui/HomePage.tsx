@@ -6,9 +6,9 @@ import "../../../app/styles.css";
 import { LostThing } from "../../../entities/lostThing/ui/LostThing";
 import { FoundThing } from "../../../entities/foundThing/ui/FoundThing";
 import AddNewThing from "../../../components/AddNewThing";
-import d from "../../../utils/d";
-import SVG from "../../../components/SVG";
-import DialogBox from "../../../components/DialogBox";
+import { d } from "../../../shared/assets/index";
+import { SVG } from "../../../shared/ui/index";
+import { DialogBox } from "../../../shared/ui/index";
 import {
   lostThingsList,
   foundThingsList,

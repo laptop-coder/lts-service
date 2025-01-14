@@ -1,4 +1,4 @@
-const POST = async (path: string, data) => {
+export const POST = async (path: string, data) => {
   const response = await fetch(`http://localhost:8000/${path}`, {
     method: "POST",
     headers: {
@@ -8,5 +8,3 @@ const POST = async (path: string, data) => {
   });
   return response.json();
 };
-
-export default POST;
