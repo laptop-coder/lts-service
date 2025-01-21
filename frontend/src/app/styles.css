@@ -6,11 +6,11 @@ html {
 * {
   font-family: sans-serif;
   font-size: 18px;
-  background-color: #eeeeee;
+  background: #eee;
 }
 
 svg {
-  fill: #000000;
+  fill: #000;
   width: 100%;
   background: transparent;
 }
@@ -19,7 +19,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #000000;
+  border: none;
   border-radius: 10px;
   background: #d3eeff;
   cursor: pointer;
@@ -27,11 +27,11 @@ button {
 }
 
 button:hover {
-  background-color: #b1e0ff;
+  background: #b1e0ff;
 }
 
 form {
-  background: #ffffff;
+  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -39,14 +39,14 @@ form {
 
 input,
 textarea {
-  background: #ffffff;
-  border: 1px solid #000000;
+  background: transparent;
+  border: 1px solid #ccc;
   border-radius: 10px;
   padding: 10px;
 }
 
 .box {
-  background: white;
+  background: #fff;
   display: flex;
   justify-content: space-evenly;
   border-radius: 10px;
@@ -60,11 +60,11 @@ textarea {
   justify-content: space-between;
   align-items: center;
   height: 50px;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   margin-right: 15px;
   margin-left: 15px;
   gap: 10px;
-  background: #ffffff;
+  background: #fff;
   border-radius: 10px;
 }
 
@@ -79,17 +79,17 @@ textarea {
   display: flex;
   gap: 10px;
   margin-right: 20px;
-  background: #ffffff;
+  background: transparent;
 }
 
 .list__wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  background: #ffffff;
-  margin-top: 20px;
-  margin-bottom: 30px;
+  gap: 30px;
+  background: transparent;
+  margin-top: 30px;
+  margin-bottom: 40px;
 }
 
 .list__title {
@@ -111,7 +111,7 @@ textarea {
   right: 0;
   width: 100%;
   height: 100%;
-  background-color: #000000;
+  background: #000;
   opacity: 0.5;
 }
 
@@ -129,13 +129,13 @@ textarea {
   border-radius: 10px;
   padding: 10px;
   margin-top: 30px;
-  background-color: #ffffff;
+  background: #fff;
   width: 70%;
   max-width: 500px;
 }
 
 .box_title {
-  background: #ffffff;
+  background: transparent;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -146,19 +146,20 @@ textarea {
 
 .thing {
   max-width: 500px;
-  border: 1px solid #000000;
   border-radius: 10px;
   display: flex;
   padding: 10px;
   flex-direction: column;
-  background: #ffffff;
+  background: transparent;
+  border: none;
+  box-shadow: 0px 0px 10px #ccc;
 }
 
 .thing__title {
   font-weight: bold;
   justify-content: center;
   display: flex;
-  background: #ffffff;
+  background: transparent;
 }
 
 .thing__content {
@@ -168,7 +169,7 @@ textarea {
 
 .thing__photo {
   width: 100%;
-  border: 1px solid #000000;
+  border: 1px solid #ccc;
   border-radius: 10px;
   margin-top: 10px;
 }
