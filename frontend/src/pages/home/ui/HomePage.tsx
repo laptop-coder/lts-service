@@ -46,7 +46,7 @@ export const HomePage: Component = () => {
           </button>
         </div>
       </div>
-      <div style="display: flex; justify-content: space-evenly;">
+      <div class="box">
         <div class="list__wrapper">
           <div class="list__title">Потерянные вещи</div>
           <Switch>

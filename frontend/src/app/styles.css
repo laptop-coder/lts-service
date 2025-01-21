@@ -1,11 +1,18 @@
+html {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
 * {
   font-family: sans-serif;
   font-size: 18px;
+  background-color: #eeeeee;
 }
 
 svg {
   fill: #000000;
   width: 100%;
+  background: transparent;
 }
 
 button {
@@ -14,16 +21,17 @@ button {
   align-items: center;
   border: 1px solid #000000;
   border-radius: 10px;
-  background-color: #ffffff;
+  background: #d3eeff;
   cursor: pointer;
   height: 40px;
 }
 
 button:hover {
-  background-color: #eeeeee;
+  background-color: #b1e0ff;
 }
 
 form {
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -31,30 +39,47 @@ form {
 
 input,
 textarea {
+  background: #ffffff;
   border: 1px solid #000000;
   border-radius: 10px;
   padding: 10px;
 }
 
+.box {
+  background: white;
+  display: flex;
+  justify-content: space-evenly;
+  border-radius: 10px;
+  margin-right: 15px;
+  margin-left: 15px;
+}
+
 .header {
+  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 50px;
   margin-bottom: 30px;
+  margin-right: 15px;
+  margin-left: 15px;
   gap: 10px;
+  background: #ffffff;
+  border-radius: 10px;
 }
 
 .header__title {
-  margin-left: 30px;
+  margin-left: 20px;
   font-weight: bold;
   font-size: 20px;
+  background: transparent;
 }
 
 .header__buttons {
   display: flex;
   gap: 10px;
-  margin-right: 30px;
+  margin-right: 20px;
+  background: #ffffff;
 }
 
 .list__wrapper {
@@ -62,17 +87,22 @@ textarea {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  background: #ffffff;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
 .list__title {
   font-weight: bold;
   font-size: 20px;
+  background: transparent;
 }
 
 .list {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: transparent;
 }
 
 .dialog_box__background {
@@ -105,6 +135,7 @@ textarea {
 }
 
 .box_title {
+  background: #ffffff;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -120,16 +151,19 @@ textarea {
   display: flex;
   padding: 10px;
   flex-direction: column;
+  background: #ffffff;
 }
 
 .thing__title {
   font-weight: bold;
   justify-content: center;
   display: flex;
+  background: #ffffff;
 }
 
 .thing__content {
   margin-bottom: 10px;
+  background: transparent;
 }
 
 .thing__photo {
