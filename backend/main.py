@@ -22,7 +22,7 @@ class FoundThingData(BaseModel):
     thing_name: str
     thing_location: str
     custom_text: str
-    thing_photo: str
+    thing_photo: Optional[ str ] = None
 
 
 app = FastAPI()
