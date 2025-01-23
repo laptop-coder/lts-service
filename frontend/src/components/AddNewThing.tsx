@@ -4,6 +4,8 @@ import { createSignal } from "solid-js";
 import "../app/styles.css";
 import { fileToBase64 } from "../shared/lib/utils/index";
 import { POST } from "../shared/lib/utils/index";
+import { d } from "../shared/assets/index";
+import { SVG } from "../shared/ui/index";
 
 interface LostThingData {
   thingName: string;
@@ -39,6 +41,8 @@ const AddNewThing: Component = () => {
   const [thingPhoto, setThingPhoto] = createSignal();
 
   const [data, setData] = createSignal({});
+
+  const [uploadPhotoFocus, setUploadPhotoFocus] = createSignal(false);
 
   return (
     <>
@@ -84,14 +88,29 @@ const AddNewThing: Component = () => {
               onInput={(e) => setCustomText(e.target.value)}
               required
             />
-            {thingPhoto() && <img src={thingPhoto()} />}
+            {thingPhoto() && (
+              <img
+                class="thing__photo"
+                src={thingPhoto()}
+              />
+            )}
             <input
               type="file"
+              class="hidden"
+              id="upload-photo__input"
               accept="image/jpeg"
+              onFocus={() => setUploadPhotoFocus((prev) => !prev)}
+              onBlur={() => setUploadPhotoFocus((prev) => !prev)}
               onInput={(e) =>
                 fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
               }
             />
+            <label
+              class={`upload-photo__label${thingPhoto() ? " hidden" : ""}${uploadPhotoFocus() ? " focus" : ""}`}
+              for="upload-photo__input"
+            >
+              Выберите файл
+            </label>
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -136,14 +155,29 @@ const AddNewThing: Component = () => {
               onInput={(e) => setCustomText(e.target.value)}
               required
             />
-            {thingPhoto() && <img src={thingPhoto()} />}
+            {thingPhoto() && (
+              <img
+                class="thing__photo"
+                src={thingPhoto()}
+              />
+            )}
             <input
               type="file"
+              class="hidden"
+              id="upload-photo__input"
               accept="image/jpeg"
+              onFocus={() => setUploadPhotoFocus((prev) => !prev)}
+              onBlur={() => setUploadPhotoFocus((prev) => !prev)}
               onInput={(e) =>
                 fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
               }
             />
+            <label
+              class={`upload-photo__label${thingPhoto() ? " hidden" : ""}${uploadPhotoFocus() ? " focus" : ""}`}
+              for="upload-photo__input"
+            >
+              Выберите файл
+            </label>
             <button
               onClick={(e) => {
                 e.preventDefault();
