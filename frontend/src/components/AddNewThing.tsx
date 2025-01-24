@@ -101,6 +101,7 @@ const AddNewThing: Component = () => {
               accept="image/jpeg"
               onFocus={() => setUploadPhotoFocus((prev) => !prev)}
               onBlur={() => setUploadPhotoFocus((prev) => !prev)}
+              tabindex={thingPhoto() ? "-1" : "0"}
               onInput={(e) =>
                 fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
               }
@@ -168,6 +169,7 @@ const AddNewThing: Component = () => {
               accept="image/jpeg"
               onFocus={() => setUploadPhotoFocus((prev) => !prev)}
               onBlur={() => setUploadPhotoFocus((prev) => !prev)}
+              tabindex={thingPhoto() ? "-1" : "0"}
               onInput={(e) =>
                 fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
               }

@@ -1,6 +1,5 @@
 import type { Component } from "solid-js";
-import { Swith, Match } from "solid-js";
-import { createSignal } from "solid-js";
+import { createSignal, createMemo, Swith, Match } from "solid-js";
 
 import "../../../app/styles.css";
 import { LostThing } from "../../../entities/lostThing/ui/LostThing";
@@ -18,11 +17,17 @@ import {
 
 export const HomePage: Component = () => {
   const [addNewThing, setAddNewThing] = createSignal(false);
+  const [tabIndex, setTabIndex] = createSignal("0");
 
   return (
     <>
       {addNewThing() && (
-        <DialogBox actionToClose={() => setAddNewThing((prev) => !prev)}>
+        <DialogBox
+          actionToClose={() => {
+            setAddNewThing((prev) => !prev);
+            setTabIndex("0");
+          }}
+        >
           <AddNewThing />
         </DialogBox>
       )}
@@ -30,12 +35,17 @@ export const HomePage: Component = () => {
         <div class="header__title">Система поиска потерянных вещей</div>
         <div class="header__buttons">
           <button
+            tabindex={tabIndex()}
             style="aspect-ratio: 1/1;"
-            onClick={() => setAddNewThing((prev) => !prev)}
+            onClick={() => {
+              setAddNewThing((prev) => !prev);
+              setTabIndex("-1");
+            }}
           >
             <SVG d={d.add} />
           </button>
           <button
+            tabindex={tabIndex()}
             style="aspect-ratio: 1/1;"
             onClick={() => {
               syncLostThingsList();
@@ -55,9 +65,15 @@ export const HomePage: Component = () => {
             </Match>
             <Match when={lostThingsList()}>
               <div class="list">
-                {lostThingsList().map((lostThing) => (
-                  <LostThing props={lostThing} />
-                ))}
+                {createMemo(() => {
+                  tabIndex();
+                  return lostThingsList().map((lostThing) => (
+                    <LostThing
+                      tabIndex={tabIndex()}
+                      props={lostThing}
+                    />
+                  ));
+                })}
               </div>
             </Match>
           </Switch>
@@ -70,9 +86,15 @@ export const HomePage: Component = () => {
             </Match>
             <Match when={foundThingsList()}>
               <div class="list">
-                {foundThingsList().map((foundThing) => (
-                  <FoundThing props={foundThing} />
-                ))}
+                {createMemo(() => {
+                  tabIndex();
+                  return foundThingsList().map((foundThing) => (
+                    <FoundThing
+                      tabIndex={tabIndex()}
+                      props={foundThing}
+                    />
+                  ));
+                })}
               </div>
             </Match>
           </Switch>
