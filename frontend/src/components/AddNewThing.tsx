@@ -9,7 +9,7 @@ import { SVG } from "../shared/ui/index";
 
 interface LostThingData {
   thingName: string;
-  userContacts: string;
+  email: string;
   customText: string;
   thingPhoto: string;
 }
@@ -35,7 +35,7 @@ const AddNewThing: Component = () => {
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
 
   const [thingName, setThingName] = createSignal("");
-  const [userContacts, setUserContacts] = createSignal("");
+  const [email, setEmail] = createSignal("");
   const [thingLocation, setThingLocation] = createSignal("");
   const [customText, setCustomText] = createSignal("");
   const [thingPhoto, setThingPhoto] = createSignal();
@@ -77,9 +77,10 @@ const AddNewThing: Component = () => {
               required
             />
             <input
-              placeholder="Как с Вами можно связаться?"
-              value={userContacts()}
-              onInput={(e) => setUserContacts(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={email()}
+              onInput={(e) => setEmail(e.target.value)}
               required
             />
             <textarea
@@ -117,7 +118,7 @@ const AddNewThing: Component = () => {
                 e.preventDefault();
                 setData({
                   thing_name: thingName(),
-                  user_contacts: userContacts(),
+                  email: email(),
                   custom_text: customText(),
                   thing_photo: thingPhoto(),
                 });

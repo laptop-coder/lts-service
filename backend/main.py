@@ -13,7 +13,7 @@ import config
 
 class LostThingData(BaseModel):
     thing_name: str
-    user_contacts: str
+    email: str
     custom_text: str
     thing_photo: Optional[ str ] = None
     
@@ -56,7 +56,7 @@ def get_things_list(type: str):
                     "publication_date": data[i][1],
                     "publication_time": data[i][2],
                     "thing_name": data[i][3],
-                    "user_contacts": data[i][4],
+                    "email": data[i][4],
                     "custom_text": data[i][5],
                     "thing_photo": get_thing_photo("lost", data[i][0]),
                     "status": data[i][6]
@@ -97,7 +97,7 @@ def add_new_lost_thing(data: LostThingData):
                 publication_date,
                 publication_time,
                 thing_name,
-                user_contacts,
+                email,
                 custom_text,
                 status
             )
@@ -105,7 +105,7 @@ def add_new_lost_thing(data: LostThingData):
                 '{str(datetime.datetime.now())[0:10]}',
                 '{str(datetime.datetime.now())[11:16]}',
                 '{data.thing_name}',
-                '{data.user_contacts}',
+                '{data.email}',
                 '{data.custom_text}',
                 0
             );

@@ -4,6 +4,6 @@ export interface Props {
   publication_date: string;
   publication_time: string;
   thing_name: string;
-  user_contacts: string;
+  email: string;
   custom_text: string;
 }

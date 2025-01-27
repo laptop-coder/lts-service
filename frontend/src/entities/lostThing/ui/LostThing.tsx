@@ -22,7 +22,7 @@ export const LostThing: Component = ({ tabIndex, props }: Props) => {
       <div class="thing__content">
         Опубликовано: {day} {month} {year} в {time}
         <br />
-        Контакты: {props.user_contacts}
+        Email: {props.email}
         <br />
         {props.custom_text}
         {props.thing_photo && (

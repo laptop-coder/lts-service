@@ -3,7 +3,7 @@ CREATE TABLE lost_thing (
     publication_date TEXT NOT NULL,
     publication_time TEXT NOT NULL,
     thing_name TEXT NOT NULL,
-    user_contacts TEXT NOT NULL,
+    email varchar(254) NOT NULL,
     custom_text TEXT NOT NULL,
     status INTEGER NOT NULL
 );
