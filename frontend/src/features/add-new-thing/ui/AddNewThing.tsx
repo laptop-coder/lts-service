@@ -1,25 +1,13 @@
 import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
 
-import "../app/styles.css";
-import { fileToBase64 } from "../shared/lib/utils/index";
-import { POST } from "../shared/lib/utils/index";
-import { d } from "../shared/assets/index";
-import { SVG } from "../shared/ui/index";
-
-interface LostThingData {
-  thingName: string;
-  email: string;
-  customText: string;
-  thingPhoto: string;
-}
-
-interface FoundThingData {
-  thingName: string;
-  thingLocation: string;
-  customText: string;
-  thingPhoto: string;
-}
+import type { LostThingData } from "../types/LostThingData";
+import type { FoundThingData } from "../types/FoundThingData";
+import "../../../app/styles.css";
+import { fileToBase64 } from "../../../shared/lib/utils/index";
+import { POST } from "../../../shared/lib/utils/index";
+import { d } from "../../../shared/assets/index";
+import { SVG } from "../../../shared/ui/index";
 
 const checkLostThingDataType = (data: LostThingData) => {
   return true;
@@ -29,7 +17,7 @@ const checkFoundThingDataType = (data: FoundThingData) => {
   return true;
 };
 
-const AddNewThing: Component = () => {
+export const AddNewThing: Component = () => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
@@ -206,5 +194,3 @@ const AddNewThing: Component = () => {
     </>
   );
 };
-
-export default AddNewThing;
