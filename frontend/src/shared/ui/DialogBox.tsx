@@ -1,6 +1,6 @@
 import type { Component } from "solid-js";
 import { children } from "solid-js";
-import type { DialogBox } from "../types/DialogBox";
+import type { DialogBox } from "../model/DialogBox";
 
 export const DialogBox: Component = (props: DialogBox) => {
   return (

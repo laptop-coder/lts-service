@@ -1,8 +1,8 @@
 import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
 
-import type { LostThingData } from "../types/LostThingData";
-import type { FoundThingData } from "../types/FoundThingData";
+import type { LostThingData } from "../model/LostThingData";
+import type { FoundThingData } from "../model/FoundThingData";
 import "../../../app/styles.css";
 import { fileToBase64 } from "../../../shared/lib/utils/index";
 import { POST } from "../../../shared/lib/utils/index";

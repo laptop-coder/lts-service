@@ -3,7 +3,7 @@ import type { Component } from "solid-js";
 import "../../../app/styles.css";
 import { months } from "../../../shared/constants/index";
 import { changeThingStatus } from "../api/changeThingStatus";
-import { Props } from "../types/Props";
+import { Props } from "../model/Props";
 
 export const LostThing: Component = ({ tabIndex, props }: Props) => {
   const monthNumber = Number(props.publication_date.slice(5, 7));

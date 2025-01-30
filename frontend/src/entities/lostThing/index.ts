@@ -1,1 +1,1 @@
-export { LostThing } from "./lostThing/ui/LostThing";
+export { LostThing } from "./ui/LostThing";

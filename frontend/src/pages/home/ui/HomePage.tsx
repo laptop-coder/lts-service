@@ -2,8 +2,8 @@ import type { Component } from "solid-js";
 import { createSignal, createMemo, Swith, Match } from "solid-js";
 
 import "../../../app/styles.css";
-import { LostThing } from "../../../entities/lostThing/ui/LostThing";
-import { FoundThing } from "../../../entities/foundThing/ui/FoundThing";
+import { LostThing } from "../../../entities/lostThing/index";
+import { FoundThing } from "../../../entities/foundThing/index";
 import { AddNewThing } from "../../../features/add-new-thing/index";
 import { d } from "../../../shared/assets/index";
 import { SVG } from "../../../shared/ui/index";

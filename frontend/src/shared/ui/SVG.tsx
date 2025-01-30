@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import type { SVG } from "../types/index";
+import type { SVG } from "../model/index";
 
 export const SVG = (props: SVG) => {
   return (
