@@ -18,6 +18,8 @@ import {
 export const HomePage: Component = () => {
   const [addNewThing, setAddNewThing] = createSignal(false);
   const [tabIndex, setTabIndex] = createSignal("0");
+  const [rotateAddButton, setRotateAddButton] = createSignal(false);
+  const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
 
   return (
     <>
@@ -38,21 +40,35 @@ export const HomePage: Component = () => {
             tabindex={tabIndex()}
             style="aspect-ratio: 1/1;"
             onClick={() => {
+              setRotateAddButton(true);
+              setTimeout(() => {
+                setRotateAddButton(false);
+              }, 1000);
               setAddNewThing((prev) => !prev);
               setTabIndex("-1");
             }}
           >
-            <SVG d={d.add} />
+            <SVG
+              d={d.add}
+              class={`${rotateAddButton() ? "rotate" : ""}`}
+            />
           </button>
           <button
             tabindex={tabIndex()}
             style="aspect-ratio: 1/1;"
             onClick={() => {
+              setRotateSyncButton(true);
+              setTimeout(() => {
+                setRotateSyncButton(false);
+              }, 1000);
               syncLostThingsList();
               syncFoundThingsList();
             }}
           >
-            <SVG d={d.sync} />
+            <SVG
+              d={d.sync}
+              class={`${rotateSyncButton() ? "rotate" : ""}`}
+            />
           </button>
         </div>
       </div>

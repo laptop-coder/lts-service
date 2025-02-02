@@ -206,3 +206,8 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 10px;
 }
+
+.rotate {
+  transform: rotate(-360deg);
+  transition: all 1s ease-in;
+}
