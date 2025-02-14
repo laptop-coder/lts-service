@@ -1,8 +1,3 @@
-html {
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
 * {
   font-family: sans-serif;
   font-size: 18px;
@@ -37,17 +32,23 @@ form {
   gap: 10px;
 }
 
+input {
+  height: calc(40px - 3.64px);
+}
+
 input,
 textarea {
   background: transparent;
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 10px;
+  padding-left: 10px;
 }
 
 textarea {
   resize: vertical;
   min-height: 100px;
+  padding-top: 10px;
+  height: calc(100px - 13.66px);
 }
 
 .hidden {
@@ -72,7 +73,13 @@ textarea {
   font-weight: bold;
   background: transparent;
   cursor: pointer;
-  height: 50px;
+  height: calc(40px - 1.66px);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
 }
 
 .box {
@@ -80,28 +87,24 @@ textarea {
   display: flex;
   justify-content: space-evenly;
   border-radius: 10px;
-  margin-right: 15px;
-  margin-left: 15px;
-  gap: 20px;
-  padding: 10px;
+  gap: 5%;
+  padding-top: 5%;
+  padding-bottom: 5%;
 }
 
 .header {
-  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 50px;
-  margin-bottom: 15px;
-  margin-right: 15px;
-  margin-left: 15px;
-  gap: 10px;
   background: #fff;
   border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  padding-right: 20px;
+  padding-left: 20px;
 }
 
 .header__title {
-  margin-left: 20px;
   font-weight: bold;
   font-size: 20px;
   background: transparent;
@@ -109,19 +112,17 @@ textarea {
 
 .header__buttons {
   display: flex;
-  gap: 10px;
-  margin-right: 20px;
   background: transparent;
+  gap: 10px;
 }
 
 .list__wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
   background: transparent;
-  margin-top: 30px;
-  margin-bottom: 40px;
+  width: 50%;
+  gap: 30px;
 }
 
 .list__title {
@@ -129,13 +130,21 @@ textarea {
   font-size: 20px;
   background: transparent;
   text-align: center;
+  width: 100%;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   background: transparent;
+  width: 100%;
+  gap: 30px;
+  align-items: center;
+}
+
+.dialog_box__wrapper {
+  display: flex;
+  justify-content: center;
 }
 
 .dialog_box__background {
@@ -148,23 +157,17 @@ textarea {
   opacity: 0.5;
 }
 
-.dialog_box__wrapper {
-  display: flex;
-  justify-content: center;
-}
-
 .dialog_box {
   position: fixed;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   border-radius: 10px;
-  padding: 10px;
-  margin-top: 30px;
   background: #fff;
   width: 70%;
   max-width: 500px;
+  padding: 10px;
+  gap: 10px;
 }
 
 .box_title {
@@ -173,19 +176,19 @@ textarea {
   display: flex;
   justify-content: center;
   font-weight: bold;
-  margin-top: 10px;
-  margin-bottom: 10px;
 }
 
 .thing {
-  max-width: 500px;
   border-radius: 10px;
-  display: flex;
-  padding: 10px;
-  flex-direction: column;
   background: transparent;
-  border: none;
   box-shadow: 0px 0px 10px #ccc;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  padding: 10px;
+  gap: 10px;
+  max-width: 500px;
+  width: 80%;
 }
 
 .thing__title {
@@ -197,17 +200,20 @@ textarea {
 }
 
 .thing__content {
-  margin-bottom: 10px;
   background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .thing__photo {
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 10px;
+  background: #fff;
 }
 
 .rotate {
   transform: rotate(-360deg);
-  transition: all 1s ease-in;
+  transition: all 1s ease-out;
 }

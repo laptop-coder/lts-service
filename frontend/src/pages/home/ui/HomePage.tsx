@@ -20,9 +20,11 @@ export const HomePage: Component = () => {
   const [tabIndex, setTabIndex] = createSignal("0");
   const [rotateAddButton, setRotateAddButton] = createSignal(false);
   const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
+  const [lostThingsListCache, setLostThingsListCache] = createSignal();
+  const [foundThingsListCache, setFoundThingsListCache] = createSignal();
 
   return (
-    <>
+    <div class="page">
       {addNewThing() && (
         <DialogBox
           actionToClose={() => {
@@ -61,6 +63,12 @@ export const HomePage: Component = () => {
               setTimeout(() => {
                 setRotateSyncButton(false);
               }, 1000);
+              if (lostThingsList()) {
+                setLostThingsListCache(lostThingsList());
+              }
+              if (foundThingsList()) {
+                setFoundThingsListCache(lostThingsList());
+              }
               syncLostThingsList();
               syncFoundThingsList();
             }}
@@ -73,12 +81,31 @@ export const HomePage: Component = () => {
         </div>
       </div>
       <div class="box">
-        <div class="list__wrapper">
+        <div
+          class="list__wrapper"
+          style="margin-left: 5%;"
+        >
           <div class="list__title">Потерянные вещи</div>
           <Switch>
-            <Match when={lostThingsList.loading}>
+            {/*Data not loaded*/}
+            <Match when={!lostThingsList() && !lostThingsListCache()}>
               <p>Loading...</p>
             </Match>
+            {/*New data not loaded, old data loaded*/}
+            <Match when={!lostThingsList() && lostThingsListCache()}>
+              <div class="list">
+                {createMemo(() => {
+                  tabIndex();
+                  return lostThingsListCache().map((lostThing) => (
+                    <LostThing
+                      tabIndex={tabIndex()}
+                      props={lostThing}
+                    />
+                  ));
+                })}
+              </div>
+            </Match>
+            {/*New data loaded*/}
             <Match when={lostThingsList()}>
               <div class="list">
                 {createMemo(() => {
@@ -94,12 +121,31 @@ export const HomePage: Component = () => {
             </Match>
           </Switch>
         </div>
-        <div class="list__wrapper">
+        <div
+          class="list__wrapper"
+          style="margin-right: 5%;"
+        >
           <div class="list__title">Найденные вещи</div>
           <Switch>
-            <Match when={foundThingsList.loading}>
+            {/*Data not loaded*/}
+            <Match when={!foundThingsList() && !foundThingsListCache()}>
               <p>Loading...</p>
             </Match>
+            {/*New data not loaded, old data loaded*/}
+            <Match when={!foundThingsList() && foundThingsListCache()}>
+              <div class="list">
+                {createMemo(() => {
+                  tabIndex();
+                  return foundThingsListCache().map((foundThing) => (
+                    <FoundThing
+                      tabIndex={tabIndex()}
+                      props={foundThing}
+                    />
+                  ));
+                })}
+              </div>
+            </Match>
+            {/*New data loaded*/}
             <Match when={foundThingsList()}>
               <div class="list">
                 {createMemo(() => {
@@ -116,6 +162,6 @@ export const HomePage: Component = () => {
           </Switch>
         </div>
       </div>
-    </>
+    </div>
   );
 };
