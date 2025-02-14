@@ -1,21 +1,21 @@
 import type { Component } from "solid-js";
+import { createSignal } from "solid-js";
 
 import "../../../app/styles.css";
 import { months } from "../../../shared/constants/index";
 import { changeThingStatus } from "../api/changeThingStatus";
 import { Props } from "../model/Props";
 
-export const FoundThing: Component = ({ tabIndex, props }: Props) => {
+export const FoundThing: Component = ({ syncList, tabIndex, props }: Props) => {
   const monthNumber = Number(props.publication_date.slice(5, 7));
-
   const day = Number(props.publication_date.slice(8, 10));
   const month = months[monthNumber - 1];
   const year = props.publication_date.slice(0, 4);
-
   const time = props.publication_time;
+  const [thingHidden, setThingHidden] = createSignal(false);
 
   return (
-    <div class="thing">
+    <div class={thingHidden() ? "thing thing__hidden" : "thing"}>
       <div class="thing__title">
         {props.thing_name} (№{props.id})
       </div>
@@ -35,8 +35,10 @@ export const FoundThing: Component = ({ tabIndex, props }: Props) => {
       <button
         tabindex={tabIndex}
         onClick={() => {
-          changeThingStatus(props.id);
-          window.location.reload();
+          setThingHidden(true);
+          setTimeout(() => {
+            changeThingStatus(props.id).then(() => syncList());
+          }, 500);
         }}
       >
         Я забрал вещь

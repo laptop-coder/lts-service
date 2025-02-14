@@ -1,4 +1,5 @@
 export interface Props {
+  syncList: func;
   tabindex: string;
   id: number;
   publication_date: string;

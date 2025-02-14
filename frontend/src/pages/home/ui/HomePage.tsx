@@ -98,6 +98,7 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return lostThingsListCache().map((lostThing) => (
                     <LostThing
+                      syncList={syncLostThingsList}
                       tabIndex={tabIndex()}
                       props={lostThing}
                     />
@@ -112,6 +113,7 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return lostThingsList().map((lostThing) => (
                     <LostThing
+                      syncList={syncLostThingsList}
                       tabIndex={tabIndex()}
                       props={lostThing}
                     />
@@ -138,6 +140,7 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return foundThingsListCache().map((foundThing) => (
                     <FoundThing
+                      syncList={syncFoundThingsList}
                       tabIndex={tabIndex()}
                       props={foundThing}
                     />
@@ -152,6 +155,7 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return foundThingsList().map((foundThing) => (
                     <FoundThing
+                      syncList={syncFoundThingsList}
                       tabIndex={tabIndex()}
                       props={foundThing}
                     />

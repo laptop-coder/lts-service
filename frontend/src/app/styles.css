@@ -4,6 +4,10 @@
   background: #eee;
 }
 
+body {
+  margin: 0;
+}
+
 svg {
   fill: #000;
   width: 100%;
@@ -88,8 +92,7 @@ textarea {
   justify-content: space-evenly;
   border-radius: 10px;
   gap: 5%;
-  padding-top: 5%;
-  padding-bottom: 5%;
+  min-height: calc(100vh - 90px);
 }
 
 .header {
@@ -123,6 +126,8 @@ textarea {
   background: transparent;
   width: 50%;
   gap: 30px;
+  margin-bottom: 3%;
+  margin-top: 3%;
 }
 
 .list__title {
@@ -189,6 +194,14 @@ textarea {
   gap: 10px;
   max-width: 500px;
   width: 80%;
+}
+
+.thing__hidden {
+  opacity: 0;
+  display: none;
+  transition:
+    opacity 0.5s linear,
+    display 0.5s allow-discrete;
 }
 
 .thing__title {
