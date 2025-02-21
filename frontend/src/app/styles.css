@@ -1,17 +1,16 @@
 * {
   font-family: sans-serif;
   font-size: 18px;
-  background: #eee;
 }
 
 body {
   margin: 0;
+  background: #eee;
 }
 
 svg {
   fill: #000;
   width: 100%;
-  background: transparent;
 }
 
 button {
@@ -30,7 +29,6 @@ button:hover {
 }
 
 form {
-  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -42,7 +40,6 @@ input {
 
 input,
 textarea {
-  background: transparent;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding-left: 10px;
@@ -75,7 +72,6 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 10px;
   font-weight: bold;
-  background: transparent;
   cursor: pointer;
   height: calc(40px - 1.66px);
 }
@@ -110,12 +106,10 @@ textarea {
 .header__title {
   font-weight: bold;
   font-size: 20px;
-  background: transparent;
 }
 
 .header__buttons {
   display: flex;
-  background: transparent;
   gap: 10px;
 }
 
@@ -123,7 +117,6 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: transparent;
   width: 50%;
   gap: 30px;
   margin-bottom: 3%;
@@ -133,7 +126,6 @@ textarea {
 .list__title {
   font-weight: bold;
   font-size: 20px;
-  background: transparent;
   text-align: center;
   width: 100%;
 }
@@ -141,7 +133,6 @@ textarea {
 .list {
   display: flex;
   flex-direction: column;
-  background: transparent;
   width: 100%;
   gap: 30px;
   align-items: center;
@@ -163,6 +154,7 @@ textarea {
 }
 
 .dialog_box {
+  margin-top: 30px;
   position: fixed;
   z-index: 1;
   display: flex;
@@ -176,7 +168,6 @@ textarea {
 }
 
 .box_title {
-  background: transparent;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -185,7 +176,6 @@ textarea {
 
 .thing {
   border-radius: 10px;
-  background: transparent;
   box-shadow: 0px 0px 10px #ccc;
   display: flex;
   flex-direction: column;
@@ -208,22 +198,19 @@ textarea {
   font-weight: bold;
   justify-content: center;
   display: flex;
-  background: transparent;
   text-align: center;
 }
 
 .thing__content {
-  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .thing__photo {
-  width: 100%;
+  width: calc(100% - 1.66px);
   border: 1px solid #ccc;
   border-radius: 10px;
-  background: #fff;
 }
 
 .rotate {

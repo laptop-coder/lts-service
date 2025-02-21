@@ -20,11 +20,16 @@ export const FoundThing: Component = ({ syncList, tabIndex, props }: Props) => {
         {props.thing_name} (№{props.id})
       </div>
       <div class="thing__content">
-        Опубликовано: {day} {month} {year} в {time}
-        <br />
-        Где забрать: {props.thing_location}
-        <br />
-        {props.custom_text}
+        <div>
+          Опубликовано:{" "}
+          <b>
+            {day} {month} {year} в {time}
+          </b>
+          <br />
+          Где забрать: <b>{props.thing_location}</b>
+          <br />
+          <i>{props.custom_text}</i>
+        </div>
         {props.thing_photo && (
           <img
             class="thing__photo"
