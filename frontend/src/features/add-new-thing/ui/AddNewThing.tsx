@@ -8,6 +8,7 @@ import { fileToBase64 } from "../../../shared/lib/utils/index";
 import { POST } from "../../../shared/lib/utils/index";
 import { d } from "../../../shared/assets/index";
 import { SVG } from "../../../shared/ui/index";
+import { Props } from "../model/Props";
 
 const checkLostThingDataType = (data: LostThingData) => {
   return true;
@@ -17,7 +18,11 @@ const checkFoundThingDataType = (data: FoundThingData) => {
   return true;
 };
 
-export const AddNewThing: Component = () => {
+export const AddNewThing: Component = ({
+  syncLostThingsList,
+  syncFoundThingsList,
+  setAddNewThing,
+}: Props) => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
@@ -111,11 +116,13 @@ export const AddNewThing: Component = () => {
                   thing_photo: thingPhoto(),
                 });
                 if (checkLostThingDataType()) {
-                  POST("add_new_lost_thing", data());
+                  POST("add_new_lost_thing", data()).then(() =>
+                    syncLostThingsList(),
+                  );
                 } else {
                   console.log("Type error (POST, lost things)");
                 }
-                window.location.reload();
+                setAddNewThing(false);
               }}
             >
               Отправить
@@ -179,11 +186,13 @@ export const AddNewThing: Component = () => {
                   thing_photo: thingPhoto(),
                 });
                 if (checkFoundThingDataType()) {
-                  POST("add_new_found_thing", data());
+                  POST("add_new_found_thing", data()).then(() =>
+                    syncFoundThingsList(),
+                  );
                 } else {
                   console.log("Type error (POST, found things)");
                 }
-                window.location.reload();
+                setAddNewThing(false);
               }}
             >
               Отправить

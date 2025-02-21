@@ -32,7 +32,11 @@ export const HomePage: Component = () => {
             setTabIndex("0");
           }}
         >
-          <AddNewThing />
+          <AddNewThing
+            syncLostThingsList={syncLostThingsList}
+            syncFoundThingsList={syncFoundThingsList}
+            setAddNewThing={setAddNewThing}
+          />
         </DialogBox>
       )}
       <div class="header">
