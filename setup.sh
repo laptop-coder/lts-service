@@ -38,7 +38,7 @@ info "Activating Python virtual environment..."
 . ./env/bin/activate > /dev/null
 result
 
-info "Updating Python package manager..."
+info "Upgrading Python package manager..."
 pip install --upgrade pip > /dev/null
 result
 
