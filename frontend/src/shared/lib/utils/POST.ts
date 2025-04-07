@@ -1,6 +1,6 @@
 export const POST = (path: string, data) => {
   return new Promise((resolve, reject) => {
-    fetch(`http://localhost:8000/${path}`, {
+    fetch(`http://localhost:8080/${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",

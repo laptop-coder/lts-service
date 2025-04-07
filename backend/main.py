@@ -1,6 +1,7 @@
 import base64
 import datetime
 import os
+from pathlib import Path
 import sqlite3
 
 from fastapi import FastAPI
@@ -8,7 +9,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
-import config
+
+PATH_TO_DB = os.getenv("PATH_TO_DB")
+PATH_TO_STORAGE = os.getenv("PATH_TO_STORAGE")
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="http://localhost",
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 class LostThingData(BaseModel):
@@ -25,23 +36,44 @@ class FoundThingData(BaseModel):
     thing_photo: Optional[ str ] = None
 
 
-app = FastAPI()
+# Creating storage directories
+try:
+    Path(f"{PATH_TO_STORAGE}/lost").mkdir(parents=True)
+    Path(f"{PATH_TO_STORAGE}/found").mkdir(parents=True)
+except FileExistsError:
+    pass
 
-origins = [
-    "http://localhost:4000"
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
+
+# Creating database tables
+with sqlite3.connect(PATH_TO_DB) as connection:
+    cursor = connection.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS lost_thing (
+        id INTEGER PRIMARY KEY,
+        publication_date TEXT NOT NULL,
+        publication_time TEXT NOT NULL,
+        thing_name TEXT NOT NULL,
+        email varchar(254) NOT NULL,
+        custom_text TEXT NOT NULL,
+        status INTEGER NOT NULL
+    );
+    """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS found_thing (
+        id INTEGER PRIMARY KEY,
+        publication_date TEXT NOT NULL,
+        publication_time TEXT NOT NULL,
+        thing_name TEXT NOT NULL,
+        thing_location TEXT NOT NULL,
+        custom_text TEXT NOT NULL,
+        status INTEGER NOT NULL
+    );
+    """)
 
 
 @app.get("/get_things_list")
 def get_things_list(type: str):
-    connection = sqlite3.connect(config.PATH_TO_DB)
-    with connection:
+    with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         data = cursor.execute(
             f"""
@@ -79,7 +111,7 @@ def get_things_list(type: str):
 @app.get("/get_thing_photo")
 def get_thing_photo(type: str, id: int):
     try:
-        with open(f"{config.PATH_TO_STORAGE}/{type}/{id}.jpeg", "rb") as photo:
+        with open(f"{PATH_TO_STORAGE}/{type}/{id}.jpeg", "rb") as photo:
             photo_base64 = base64.b64encode(photo.read())
             return photo_base64
     except FileNotFoundError:
@@ -88,8 +120,7 @@ def get_thing_photo(type: str, id: int):
 
 @app.post("/add_new_lost_thing")
 def add_new_lost_thing(data: LostThingData):
-    connection = sqlite3.connect(config.PATH_TO_DB)
-    with connection:
+    with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
@@ -113,7 +144,7 @@ def add_new_lost_thing(data: LostThingData):
         )
     try:
         thing_photo = f"{data.thing_photo[23:]}".encode()
-        with open(f"./storage/lost/{cursor.lastrowid}.jpeg", "wb") as file:
+        with open(f"{PATH_TO_STORAGE}/lost/{cursor.lastrowid}.jpeg", "wb") as file:
             file.write(base64.decodebytes(thing_photo))
     except TypeError:
         pass
@@ -121,8 +152,7 @@ def add_new_lost_thing(data: LostThingData):
 
 @app.post("/add_new_found_thing")
 def add_new_found_thing(data: FoundThingData):
-    connection = sqlite3.connect(config.PATH_TO_DB)
-    with connection:
+    with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
@@ -146,7 +176,7 @@ def add_new_found_thing(data: FoundThingData):
         )
     try:
         thing_photo = f"{data.thing_photo[23:]}".encode()
-        with open(f"./storage/found/{cursor.lastrowid}.jpeg", "wb") as file:
+        with open(f"{PATH_TO_STORAGE}/found/{cursor.lastrowid}.jpeg", "wb") as file:
             file.write(base64.decodebytes(thing_photo))
     except TypeError:
         pass
@@ -154,8 +184,7 @@ def add_new_found_thing(data: FoundThingData):
 
 @app.get("/change_thing_status")
 def change_thing_status(type: str, id: int):
-    connection = sqlite3.connect(config.PATH_TO_DB)
-    with connection:
+    with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
@@ -163,7 +192,7 @@ def change_thing_status(type: str, id: int):
             """
         )
         try:
-            os.remove(f"./storage/{type}/{id}.jpeg")
+            os.remove(f"{PATH_TO_STORAGE}/{type}/{id}.jpeg")
         except FileNotFoundError:
             pass
 

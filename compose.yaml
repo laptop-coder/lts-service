@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - data:/backend/data
+    environment:
+      - PATH_TO_DB=/backend/data/db.sqlite3
+      - PATH_TO_STORAGE=/backend/data/storage
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:80:80"
+
+volumes:
+  data:
+    driver: local
+
