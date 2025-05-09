@@ -12,11 +12,12 @@ from typing import Optional
 
 PATH_TO_DB = os.getenv("PATH_TO_DB")
 PATH_TO_STORAGE = os.getenv("PATH_TO_STORAGE")
+PORT = os.getenv("PORT")
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins="http://localhost",
+    allow_origins=f"http://localhost:{PORT if PORT != None else '80'}",
     allow_methods=["*"],
     allow_headers=["*"]
 )

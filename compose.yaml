@@ -8,10 +8,14 @@ services:
     environment:
       - PATH_TO_DB=/backend/data/db.sqlite3
       - PATH_TO_STORAGE=/backend/data/storage
+    env_file:
+      - .env
   frontend:
     build: ./frontend
     ports:
-      - "127.0.0.1:80:80"
+      - "127.0.0.1:${PORT:-80}:80"
+    env_file:
+      - .env
 
 volumes:
   data:
