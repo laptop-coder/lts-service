@@ -111,12 +111,11 @@ def get_things_list(type: str):
 
 @app.get("/get_thing_photo")
 def get_thing_photo(type: str, id: int):
-    try:
-        with open(f"{PATH_TO_STORAGE}/{type}/{id}.jpeg", "rb") as photo:
-            photo_base64 = base64.b64encode(photo.read())
-            return photo_base64
-    except FileNotFoundError:
-        return ""
+    path_to_photo = f"{PATH_TO_STORAGE}/{type}/{id}.jpeg"
+    if os.path.exists(path_to_photo):
+        with open(path_to_photo, "rb") as photo:
+            return base64.b64encode(photo.read())
+    return ""
 
 
 @app.post("/add_new_lost_thing")
