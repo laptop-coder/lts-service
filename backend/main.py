@@ -7,7 +7,7 @@ import sqlite3
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Literal, Optional
 
 
 PATH_TO_DB = os.getenv("PATH_TO_DB")
@@ -70,6 +70,14 @@ with sqlite3.connect(PATH_TO_DB) as connection:
         status INTEGER NOT NULL
     );
     """)
+
+def write_photo_to_the_storage(
+        type: Literal["lost"] | Literal["found"],
+        id: int,
+        photo_base64: str
+    ):
+        with open(f"{PATH_TO_STORAGE}/{type}/{id}.jpeg", "wb") as photo:
+            photo.write(base64.decodebytes(photo_base64))
 
 
 @app.get("/get_things_list")
@@ -142,12 +150,12 @@ def add_new_lost_thing(data: LostThingData):
             );
             """
         )
-    try:
-        thing_photo = f"{data.thing_photo[23:]}".encode()
-        with open(f"{PATH_TO_STORAGE}/lost/{cursor.lastrowid}.jpeg", "wb") as file:
-            file.write(base64.decodebytes(thing_photo))
-    except TypeError:
-        pass
+        if data.thing_photo != "":
+            write_photo_to_the_storage(
+                "lost",
+                cursor.lastrowid,
+                f"{data.thing_photo[23:]}".encode()
+            )
 
 
 @app.post("/add_new_found_thing")
@@ -174,12 +182,12 @@ def add_new_found_thing(data: FoundThingData):
             );
             """
         )
-    try:
-        thing_photo = f"{data.thing_photo[23:]}".encode()
-        with open(f"{PATH_TO_STORAGE}/found/{cursor.lastrowid}.jpeg", "wb") as file:
-            file.write(base64.decodebytes(thing_photo))
-    except TypeError:
-        pass
+        if data.thing_photo != "":
+            write_photo_to_the_storage(
+                "found",
+                cursor.lastrowid,
+                f"{data.thing_photo[23:]}".encode()
+            )
 
 
 @app.get("/change_thing_status")
