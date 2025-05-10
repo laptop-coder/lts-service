@@ -83,28 +83,28 @@ def get_things_list(type: str):
         ).fetchall()
         formatted_data = []
         if type == "lost":
-            for i in range(len(data)):
+            for elem in data:
                 formatted_data.append({
-                    "id": data[i][0],
-                    "publication_date": data[i][1],
-                    "publication_time": data[i][2],
-                    "thing_name": data[i][3],
-                    "email": data[i][4],
-                    "custom_text": data[i][5],
-                    "thing_photo": get_thing_photo("lost", data[i][0]),
-                    "status": data[i][6]
+                    "id": elem[0],
+                    "publication_date": elem[1],
+                    "publication_time": elem[2],
+                    "thing_name": elem[3],
+                    "email": elem[4],
+                    "custom_text": elem[5],
+                    "thing_photo": get_thing_photo("lost", elem[0]),
+                    "status": elem[6]
                 })
         elif type == "found":
-            for i in range(len(data)):
+            for elem in data:
                 formatted_data.append({
-                    "id": data[i][0],
-                    "publication_date": data[i][1],
-                    "publication_time": data[i][2],
-                    "thing_name": data[i][3],
-                    "thing_location": data[i][4],
-                    "custom_text": data[i][5],
-                    "thing_photo": get_thing_photo("found", data[i][0]),
-                    "status": data[i][6]
+                    "id": elem[0],
+                    "publication_date": elem[1],
+                    "publication_time": elem[2],
+                    "thing_name": elem[3],
+                    "thing_location": elem[4],
+                    "custom_text": elem[5],
+                    "thing_photo": get_thing_photo("found", elem[0]),
+                    "status": elem[6]
                 })
     return formatted_data
     
