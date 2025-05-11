@@ -78,7 +78,7 @@ def write_photo_to_the_storage(
 
 
 @app.get("/get_things_list")
-def get_things_list(type: str):
+def get_things_list(type: Literal["lost"] | Literal["found"]):
     with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         data = cursor.execute(
@@ -115,7 +115,7 @@ def get_things_list(type: str):
     
 
 @app.get("/get_thing_photo")
-def get_thing_photo(type: str, id: int):
+def get_thing_photo(type: Literal["lost"] | Literal["found"], id: int):
     path_to_photo = f"{PATH_TO_STORAGE}/{type}/{id}.jpeg"
     if os.path.exists(path_to_photo):
         with open(path_to_photo, "rb") as photo:
@@ -188,7 +188,7 @@ def add_new_found_thing(data: FoundThingData):
 
 
 @app.get("/change_thing_status")
-def change_thing_status(type: str, id: int):
+def change_thing_status(type: Literal["lost"] | Literal["found"], id: int):
     with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
