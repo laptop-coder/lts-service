@@ -38,11 +38,8 @@ class FoundThingData(BaseModel):
 
 
 # Creating storage directories
-try:
-    Path(f"{PATH_TO_STORAGE}/lost").mkdir(parents=True)
-    Path(f"{PATH_TO_STORAGE}/found").mkdir(parents=True)
-except FileExistsError:
-    pass
+Path(f"{PATH_TO_STORAGE}/lost").mkdir(parents=True, exist_ok=True)
+Path(f"{PATH_TO_STORAGE}/found").mkdir(parents=True, exist_ok=True)
 
 
 # Creating database tables
