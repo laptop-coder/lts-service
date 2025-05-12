@@ -1,8 +1,8 @@
 services:
+
   backend:
     build: ./backend
-    ports:
-      - "127.0.0.1:8080:80"
+    container_name: backend
     volumes:
       - data:/backend/data
     environment:
@@ -10,14 +10,30 @@ services:
       - PATH_TO_STORAGE=/backend/data/storage
     env_file:
       - .env
+    networks:
+      network:
+        ipv4_address: 172.16.1.2
+
   frontend:
     build: ./frontend
+    container_name: frontend
     ports:
-      - "127.0.0.1:${PORT:-80}:80"
+      - "${PORT:-80}:80"
     env_file:
       - .env
+    networks:
+      network:
+        ipv4_address: 172.16.1.3
+    depends_on:
+      - backend
 
 volumes:
   data:
     driver: local
 
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.1.0/24
