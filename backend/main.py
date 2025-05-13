@@ -196,8 +196,4 @@ def change_thing_status(type: Literal["lost"] | Literal["found"], id: int):
             UPDATE {type}_thing SET status=1 WHERE id={id};
             """
         )
-        try:
-            os.remove(f"{PATH_TO_STORAGE}/{type}/{id}.jpeg")
-        except FileNotFoundError:
-            pass
 
