@@ -40,10 +40,12 @@ export const FoundThing: Component = ({ syncList, tabIndex, props }: Props) => {
       <button
         tabindex={tabIndex}
         onClick={() => {
-          setThingHidden(true);
-          setTimeout(() => {
-            changeThingStatus(props.id).then(() => syncList());
-          }, 500);
+          if (confirm("Вы уверены?")) {
+            setThingHidden(true);
+            setTimeout(() => {
+              changeThingStatus(props.id).then(() => syncList());
+            }, 500);
+          }
         }}
       >
         Я забрал вещь
