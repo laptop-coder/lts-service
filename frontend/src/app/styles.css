@@ -217,3 +217,15 @@ textarea {
   transform: rotate(-360deg);
   transition: all 1s ease-out;
 }
+
+@keyframes rotation {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.loading {
+  animation: rotation 0.5s linear infinite;
+  height: 40px;
+  aspect-ratio: 1/1;
+}

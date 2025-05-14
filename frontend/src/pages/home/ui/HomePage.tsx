@@ -8,6 +8,7 @@ import { AddNewThing } from "../../../features/add-new-thing/index";
 import { d } from "../../../shared/assets/index";
 import { SVG } from "../../../shared/ui/index";
 import { DialogBox } from "../../../shared/ui/index";
+import { Loading } from "../../../shared/ui/index";
 import {
   lostThingsList,
   foundThingsList,
@@ -93,7 +94,7 @@ export const HomePage: Component = () => {
           <Switch>
             {/*Data not loaded*/}
             <Match when={!lostThingsList() && !lostThingsListCache()}>
-              <p>Loading...</p>
+              <Loading />
             </Match>
             {/*New data not loaded, old data loaded*/}
             <Match when={!lostThingsList() && lostThingsListCache()}>
@@ -135,7 +136,7 @@ export const HomePage: Component = () => {
           <Switch>
             {/*Data not loaded*/}
             <Match when={!foundThingsList() && !foundThingsListCache()}>
-              <p>Loading...</p>
+              <Loading />
             </Match>
             {/*New data not loaded, old data loaded*/}
             <Match when={!foundThingsList() && foundThingsListCache()}>
