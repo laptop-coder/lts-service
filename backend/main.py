@@ -17,7 +17,7 @@ PORT = os.getenv("PORT")
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=f"http://localhost:{PORT if PORT != None else '80'}",
+    allow_origins=f"http://localhost:{PORT if PORT is not None else '80'}",
     allow_methods=["*"],
     allow_headers=["*"]
 )
