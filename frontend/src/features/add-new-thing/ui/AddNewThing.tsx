@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
+import { autofocus } from "@solid-primitives/autofocus";
 
 import type { LostThingData } from "../model/LostThingData";
 import type { FoundThingData } from "../model/FoundThingData";
@@ -68,6 +69,8 @@ export const AddNewThing: Component = ({
               value={thingName()}
               onInput={(e) => setThingName(e.target.value)}
               required
+              autofocus
+              use:autofocus
             />
             <input
               type="email"
@@ -139,6 +142,8 @@ export const AddNewThing: Component = ({
               value={thingName()}
               onInput={(e) => setThingName(e.target.value)}
               required
+              autofocus
+              use:autofocus
             />
             <input
               placeholder="Где забрать вещь?"
