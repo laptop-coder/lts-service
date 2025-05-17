@@ -89,6 +89,7 @@ export const AddNewThing: Component = ({
               <img
                 class="thing__photo"
                 src={thingPhoto()}
+                onClick={(event) => event.target.requestFullscreen()}
               />
             )}
             <input
@@ -161,6 +162,7 @@ export const AddNewThing: Component = ({
               <img
                 class="thing__photo"
                 src={thingPhoto()}
+                onClick={(event) => event.target.requestFullscreen()}
               />
             )}
             <input

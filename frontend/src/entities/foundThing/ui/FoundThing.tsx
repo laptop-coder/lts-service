@@ -34,6 +34,7 @@ export const FoundThing: Component = ({ syncList, tabIndex, props }: Props) => {
           <img
             class="thing__photo"
             src={"data:image/jpeg;base64," + props.thing_photo}
+            onClick={(event) => event.target.requestFullscreen()}
           />
         )}
       </div>

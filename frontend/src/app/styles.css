@@ -212,6 +212,7 @@ textarea {
   width: calc(100% - 1.66px);
   border: 1px solid #ccc;
   border-radius: 10px;
+  cursor: pointer;
 }
 
 .rotate {
