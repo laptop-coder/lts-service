@@ -65,25 +65,22 @@ export const AddNewThing: Component = ({
           <div class="box_title">Добавить потерянную вещь</div>
           <form method="post">
             <input
-              placeholder="Что Вы потеряли?"
+              placeholder="Что Вы потеряли?*"
               value={thingName()}
               onInput={(event) => setThingName(event.target.value)}
-              required
               autofocus
               use:autofocus
             />
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email*"
               value={email()}
               onInput={(event) => setEmail(event.target.value)}
-              required
             />
             <textarea
               placeholder="Здесь можно оставить сообщение"
               value={customText()}
               onInput={(event) => setCustomText(event.target.value)}
-              required
             />
             {thingPhoto() && (
               <img
@@ -115,20 +112,24 @@ export const AddNewThing: Component = ({
             <button
               onClick={(event) => {
                 event.preventDefault();
-                setData({
-                  thing_name: thingName(),
-                  email: email(),
-                  custom_text: customText(),
-                  thing_photo: thingPhoto(),
-                });
-                if (checkLostThingDataType()) {
-                  POST("add_new_lost_thing", data()).then(() =>
-                    syncLostThingsList(),
-                  );
+                if (thingName() !== "" && email() !== "") {
+                  setData({
+                    thing_name: thingName(),
+                    email: email(),
+                    custom_text: customText(),
+                    thing_photo: thingPhoto(),
+                  });
+                  if (checkLostThingDataType()) {
+                    POST("add_new_lost_thing", data()).then(() =>
+                      syncLostThingsList(),
+                    );
+                  } else {
+                    console.log("Type error (POST, lost things)");
+                  }
+                  setAddNewThing(false);
                 } else {
-                  console.log("Type error (POST, lost things)");
+                  alert("Обязательные поля не заполнены");
                 }
-                setAddNewThing(false);
               }}
             >
               Отправить
@@ -141,24 +142,21 @@ export const AddNewThing: Component = ({
           <div class="box_title">Добавить найденную вещь</div>
           <form method="post">
             <input
-              placeholder="Что Вы нашли?"
+              placeholder="Что Вы нашли?*"
               value={thingName()}
               onInput={(event) => setThingName(event.target.value)}
-              required
               autofocus
               use:autofocus
             />
             <input
-              placeholder="Где забрать вещь?"
+              placeholder="Где забрать вещь?*"
               value={thingLocation()}
               onInput={(event) => setThingLocation(event.target.value)}
-              required
             />
             <textarea
               placeholder="Здесь можно оставить сообщение"
               value={customText()}
               onInput={(event) => setCustomText(event.target.value)}
-              required
             />
             {thingPhoto() && (
               <img
@@ -190,20 +188,24 @@ export const AddNewThing: Component = ({
             <button
               onClick={(event) => {
                 event.preventDefault();
-                setData({
-                  thing_name: thingName(),
-                  thing_location: thingLocation(),
-                  custom_text: customText(),
-                  thing_photo: thingPhoto(),
-                });
-                if (checkFoundThingDataType()) {
-                  POST("add_new_found_thing", data()).then(() =>
-                    syncFoundThingsList(),
-                  );
+                if (thingName() !== "" && thingLocation() !== "") {
+                  setData({
+                    thing_name: thingName(),
+                    thing_location: thingLocation(),
+                    custom_text: customText(),
+                    thing_photo: thingPhoto(),
+                  });
+                  if (checkFoundThingDataType()) {
+                    POST("add_new_found_thing", data()).then(() =>
+                      syncFoundThingsList(),
+                    );
+                  } else {
+                    console.log("Type error (POST, found things)");
+                  }
+                  setAddNewThing(false);
                 } else {
-                  console.log("Type error (POST, found things)");
+                  alert("Обязательные поля не заполнены");
                 }
-                setAddNewThing(false);
               }}
             >
               Отправить
