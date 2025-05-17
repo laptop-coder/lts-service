@@ -67,7 +67,7 @@ export const AddNewThing: Component = ({
             <input
               placeholder="Что Вы потеряли?"
               value={thingName()}
-              onInput={(e) => setThingName(e.target.value)}
+              onInput={(event) => setThingName(event.target.value)}
               required
               autofocus
               use:autofocus
@@ -76,13 +76,13 @@ export const AddNewThing: Component = ({
               type="email"
               placeholder="Email"
               value={email()}
-              onInput={(e) => setEmail(e.target.value)}
+              onInput={(event) => setEmail(event.target.value)}
               required
             />
             <textarea
               placeholder="Здесь можно оставить сообщение"
               value={customText()}
-              onInput={(e) => setCustomText(e.target.value)}
+              onInput={(event) => setCustomText(event.target.value)}
               required
             />
             {thingPhoto() && (
@@ -100,8 +100,10 @@ export const AddNewThing: Component = ({
               onFocus={() => setUploadPhotoFocus((prev) => !prev)}
               onBlur={() => setUploadPhotoFocus((prev) => !prev)}
               tabindex={thingPhoto() ? "-1" : "0"}
-              onInput={(e) =>
-                fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
+              onInput={(event) =>
+                fileToBase64(event.target.files[0]).then((photoBase64) =>
+                  setThingPhoto(photoBase64),
+                )
               }
             />
             <label
@@ -111,8 +113,8 @@ export const AddNewThing: Component = ({
               Выберите файл
             </label>
             <button
-              onClick={(e) => {
-                e.preventDefault();
+              onClick={(event) => {
+                event.preventDefault();
                 setData({
                   thing_name: thingName(),
                   email: email(),
@@ -141,7 +143,7 @@ export const AddNewThing: Component = ({
             <input
               placeholder="Что Вы нашли?"
               value={thingName()}
-              onInput={(e) => setThingName(e.target.value)}
+              onInput={(event) => setThingName(event.target.value)}
               required
               autofocus
               use:autofocus
@@ -149,13 +151,13 @@ export const AddNewThing: Component = ({
             <input
               placeholder="Где забрать вещь?"
               value={thingLocation()}
-              onInput={(e) => setThingLocation(e.target.value)}
+              onInput={(event) => setThingLocation(event.target.value)}
               required
             />
             <textarea
               placeholder="Здесь можно оставить сообщение"
               value={customText()}
-              onInput={(e) => setCustomText(e.target.value)}
+              onInput={(event) => setCustomText(event.target.value)}
               required
             />
             {thingPhoto() && (
@@ -173,8 +175,10 @@ export const AddNewThing: Component = ({
               onFocus={() => setUploadPhotoFocus((prev) => !prev)}
               onBlur={() => setUploadPhotoFocus((prev) => !prev)}
               tabindex={thingPhoto() ? "-1" : "0"}
-              onInput={(e) =>
-                fileToBase64(e.target.files[0]).then((r) => setThingPhoto(r))
+              onInput={(event) =>
+                fileToBase64(event.target.files[0]).then((photoBase64) =>
+                  setThingPhoto(photoBase64),
+                )
               }
             />
             <label
@@ -184,8 +188,8 @@ export const AddNewThing: Component = ({
               Выберите файл
             </label>
             <button
-              onClick={(e) => {
-                e.preventDefault();
+              onClick={(event) => {
+                event.preventDefault();
                 setData({
                   thing_name: thingName(),
                   thing_location: thingLocation(),
