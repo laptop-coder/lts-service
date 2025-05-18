@@ -29,8 +29,14 @@ button:hover {
   background: #b1e0ff;
 }
 
-form,
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .choose_thing_type {
+  all: unset;
   display: flex;
   flex-direction: column;
   gap: 10px;
