@@ -1,4 +1,4 @@
-import type { Component, Setter } from "solid-js";
+import type { Component, Setter, Accessor } from "solid-js";
 import { createSignal } from "solid-js";
 import { autofocus } from "@solid-primitives/autofocus";
 
@@ -25,6 +25,25 @@ const handleFoundThingButtonClick = (
 ) => {
   setChooseThingType(false);
   setAddNewFoundThing(true);
+};
+
+const keyDown = (
+  event,
+  chooseThingType: Accessor<boolean>,
+  setChooseThingType: Setter<boolean>,
+  setAddNewLostThing: Setter<boolean>,
+  setAddNewFoundThing: Setter<boolean>,
+) => {
+  switch (event.key) {
+    case "l":
+      if (chooseThingType())
+        handleLostThingButtonClick(setChooseThingType, setAddNewLostThing);
+      break;
+    case "f":
+      if (chooseThingType())
+        handleFoundThingButtonClick(setChooseThingType, setAddNewFoundThing);
+      break;
+  }
 };
 
 const checkLostThingDataType = (data: LostThingData) => {
@@ -57,7 +76,21 @@ export const AddNewThing: Component = ({
   return (
     <>
       {chooseThingType() && (
-        <>
+        <div
+          class="choose_thing_type"
+          tabindex="1"
+          autofocus
+          use:autofocus
+          onKeyDown={(event) =>
+            keyDown(
+              event,
+              chooseThingType,
+              setChooseThingType,
+              setAddNewLostThing,
+              setAddNewFoundThing,
+            )
+          }
+        >
           <button
             onClick={() =>
               handleLostThingButtonClick(setChooseThingType, setAddNewLostThing)
@@ -75,7 +108,7 @@ export const AddNewThing: Component = ({
           >
             Я нашёл вещь
           </button>
-        </>
+        </div>
       )}
       {addNewLostThing() && (
         <>
