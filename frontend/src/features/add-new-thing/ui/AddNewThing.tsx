@@ -1,4 +1,4 @@
-import type { Component } from "solid-js";
+import type { Component, Setter } from "solid-js";
 import { createSignal } from "solid-js";
 import { autofocus } from "@solid-primitives/autofocus";
 
@@ -10,6 +10,22 @@ import { POST } from "../../../shared/lib/utils/index";
 import { d } from "../../../shared/assets/index";
 import { SVG } from "../../../shared/ui/index";
 import { Props } from "../model/Props";
+
+const handleLostThingButtonClick = (
+  setChooseThingType: Setter<boolean>,
+  setAddNewLostThing: Setter<boolean>,
+) => {
+  setChooseThingType(false);
+  setAddNewLostThing(true);
+};
+
+const handleFoundThingButtonClick = (
+  setChooseThingType: Setter<boolean>,
+  setAddNewFoundThing: Setter<boolean>,
+) => {
+  setChooseThingType(false);
+  setAddNewFoundThing(true);
+};
 
 const checkLostThingDataType = (data: LostThingData) => {
   return true;
@@ -43,18 +59,19 @@ export const AddNewThing: Component = ({
       {chooseThingType() && (
         <>
           <button
-            onClick={() => {
-              setChooseThingType(false);
-              setAddNewLostThing(true);
-            }}
+            onClick={() =>
+              handleLostThingButtonClick(setChooseThingType, setAddNewLostThing)
+            }
           >
             Я потерял вещь
           </button>
           <button
-            onClick={() => {
-              setChooseThingType(false);
-              setAddNewFoundThing(true);
-            }}
+            onClick={() =>
+              handleFoundThingButtonClick(
+                setChooseThingType,
+                setAddNewFoundThing,
+              )
+            }
           >
             Я нашёл вещь
           </button>
