@@ -15,6 +15,7 @@ import {
   syncLostThingsList,
   syncFoundThingsList,
 } from "../api/getThingsLists";
+import { autofocus } from "@solid-primitives/autofocus";
 
 const [addNewThing, setAddNewThing] = createSignal(false);
 const [tabIndex, setTabIndex] = createSignal("0");
@@ -47,9 +48,26 @@ const handleSyncButtonClick = () => {
   syncFoundThingsList();
 };
 
+const keyDown = (event) => {
+  switch (event.key) {
+    case "a":
+      if (!addNewThing()) handleAddButtonClick();
+      break;
+    case "s":
+      if (!addNewThing()) handleSyncButtonClick();
+      break;
+  }
+};
+
 export const HomePage: Component = () => {
   return (
-    <div class="page">
+    <div
+      class="page"
+      tabindex="1"
+      autofocus
+      use:autofocus
+      onKeyDown={(event) => keyDown(event)}
+    >
       {addNewThing() && (
         <DialogBox
           actionToClose={() => {
