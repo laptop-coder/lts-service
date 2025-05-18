@@ -53,7 +53,7 @@ with sqlite3.connect(PATH_TO_DB) as connection:
         thing_name TEXT NOT NULL,
         email varchar(254) NOT NULL,
         custom_text TEXT NOT NULL,
-        status INTEGER NOT NULL,
+        status INTEGER NOT NULL
     );
     """)
     cursor.execute("""
@@ -64,7 +64,7 @@ with sqlite3.connect(PATH_TO_DB) as connection:
         thing_name TEXT NOT NULL,
         thing_location TEXT NOT NULL,
         custom_text TEXT NOT NULL,
-        status INTEGER NOT NULL,
+        status INTEGER NOT NULL
     );
     """)
 
