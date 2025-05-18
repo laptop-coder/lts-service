@@ -16,14 +16,38 @@ import {
   syncFoundThingsList,
 } from "../api/getThingsLists";
 
-export const HomePage: Component = () => {
-  const [addNewThing, setAddNewThing] = createSignal(false);
-  const [tabIndex, setTabIndex] = createSignal("0");
-  const [rotateAddButton, setRotateAddButton] = createSignal(false);
-  const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
-  const [lostThingsListCache, setLostThingsListCache] = createSignal();
-  const [foundThingsListCache, setFoundThingsListCache] = createSignal();
+const [addNewThing, setAddNewThing] = createSignal(false);
+const [tabIndex, setTabIndex] = createSignal("0");
+const [rotateAddButton, setRotateAddButton] = createSignal(false);
+const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
+const [lostThingsListCache, setLostThingsListCache] = createSignal();
+const [foundThingsListCache, setFoundThingsListCache] = createSignal();
 
+const handleAddButtonClick = () => {
+  setRotateAddButton(true);
+  setTimeout(() => {
+    setRotateAddButton(false);
+  }, 1000);
+  setAddNewThing((prev) => !prev);
+  setTabIndex("-1");
+};
+
+const handleSyncButtonClick = () => {
+  setRotateSyncButton(true);
+  setTimeout(() => {
+    setRotateSyncButton(false);
+  }, 1000);
+  if (lostThingsList()) {
+    setLostThingsListCache(lostThingsList());
+  }
+  if (foundThingsList()) {
+    setFoundThingsListCache(lostThingsList());
+  }
+  syncLostThingsList();
+  syncFoundThingsList();
+};
+
+export const HomePage: Component = () => {
   return (
     <div class="page">
       {addNewThing() && (
@@ -46,14 +70,7 @@ export const HomePage: Component = () => {
           <button
             tabindex={tabIndex()}
             style="aspect-ratio: 1/1;"
-            onClick={() => {
-              setRotateAddButton(true);
-              setTimeout(() => {
-                setRotateAddButton(false);
-              }, 1000);
-              setAddNewThing((prev) => !prev);
-              setTabIndex("-1");
-            }}
+            onClick={() => handleAddButtonClick()}
           >
             <SVG
               d={d.add}
@@ -63,20 +80,7 @@ export const HomePage: Component = () => {
           <button
             tabindex={tabIndex()}
             style="aspect-ratio: 1/1;"
-            onClick={() => {
-              setRotateSyncButton(true);
-              setTimeout(() => {
-                setRotateSyncButton(false);
-              }, 1000);
-              if (lostThingsList()) {
-                setLostThingsListCache(lostThingsList());
-              }
-              if (foundThingsList()) {
-                setFoundThingsListCache(lostThingsList());
-              }
-              syncLostThingsList();
-              syncFoundThingsList();
-            }}
+            onClick={() => handleSyncButtonClick()}
           >
             <SVG
               d={d.sync}
