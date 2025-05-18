@@ -7,6 +7,7 @@ const keyDown = (event, actionToClose) => {
   switch (event.key) {
     case "Escape":
       actionToClose();
+      break;
   }
 };
 
