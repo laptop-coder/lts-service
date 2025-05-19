@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   sodipodi:docname="logo_full_ru.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="1"
+     inkscape:cx="295.5"
+     inkscape:cy="237.5"
+     inkscape:window-width="1590"
+     inkscape:window-height="890"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Слой 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <ellipse
+       style="fill:#2451a4;stroke-width:1.3364;fill-opacity:1"
+       id="path1"
+       cx="256"
+       cy="256"
+       rx="255.99934"
+       ry="255.99864" />
+    <text
+       xml:space="preserve"
+       style="font-size:192px;font-family:Nunito;-inkscape-font-specification:Nunito;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="97.02417"
+       y="281.62143"
+       id="text1"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         x="97.02417"
+         y="281.62143"
+         style="font-size:192px">LTS</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:85.3333px;font-family:Nunito;-inkscape-font-specification:Nunito;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="117.84535"
+       y="351.50937"
+       id="text2"><tspan
+         sodipodi:role="line"
+         id="tspan2"
+         x="117.84535"
+         y="351.50937"
+         style="font-size:85.3333px">сервис</tspan></text>
+  </g>
+</svg>
