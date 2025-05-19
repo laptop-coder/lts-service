@@ -144,13 +144,17 @@ export const HomePage: Component = () => {
               <div class="list">
                 {createMemo(() => {
                   tabIndex();
-                  return lostThingsList().map((lostThing) => (
-                    <LostThing
-                      syncList={syncLostThingsList}
-                      tabIndex={tabIndex()}
-                      props={lostThing}
-                    />
-                  ));
+                  if (lostThingsList().length === 0) {
+                    return <p>Данные отсутствуют</p>;
+                  } else {
+                    return lostThingsList().map((lostThing) => (
+                      <LostThing
+                        syncList={syncLostThingsList}
+                        tabIndex={tabIndex()}
+                        props={lostThing}
+                      />
+                    ));
+                  }
                 })}
               </div>
             </Match>
@@ -186,13 +190,17 @@ export const HomePage: Component = () => {
               <div class="list">
                 {createMemo(() => {
                   tabIndex();
-                  return foundThingsList().map((foundThing) => (
-                    <FoundThing
-                      syncList={syncFoundThingsList}
-                      tabIndex={tabIndex()}
-                      props={foundThing}
-                    />
-                  ));
+                  if (foundThingsList().length === 0) {
+                    return <p>Данные отсутствуют</p>;
+                  } else {
+                    return foundThingsList().map((foundThing) => (
+                      <FoundThing
+                        syncList={syncFoundThingsList}
+                        tabIndex={tabIndex()}
+                        props={foundThing}
+                      />
+                    ));
+                  }
                 })}
               </div>
             </Match>
