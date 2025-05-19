@@ -83,7 +83,13 @@ export const HomePage: Component = () => {
         </DialogBox>
       )}
       <div class="header">
-        <div class="header__title">Система поиска потерянных вещей</div>
+        <div class="header__wrapper">
+          <img
+            class="header__logo"
+            src="/logo.svg"
+          />
+          <div class="header__title">Сервис поиска потерянных вещей</div>
+        </div>
         <div class="header__buttons">
           <button
             tabindex={tabIndex()}

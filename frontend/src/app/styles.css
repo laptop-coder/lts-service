@@ -111,6 +111,17 @@ textarea {
   padding-left: 20px;
 }
 
+.header__wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.header__logo {
+  height: 40px;
+  aspect-ratio: 1/1;
+}
+
 .header__title {
   font-weight: bold;
   font-size: 20px;
