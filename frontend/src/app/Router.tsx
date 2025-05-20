@@ -12,7 +12,7 @@ render(
         component={HomePage}
       />
       <Route
-        path="/status"
+        path="/status/:type/:id"
         component={StatusPage}
       />
       <Route
