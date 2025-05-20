@@ -53,6 +53,7 @@ with sqlite3.connect(PATH_TO_DB) as connection:
         thing_name TEXT NOT NULL,
         email varchar(254) NOT NULL,
         custom_text TEXT NOT NULL,
+        verified INTEGER NOT NULL,
         status INTEGER NOT NULL
     );
     """)
@@ -64,6 +65,7 @@ with sqlite3.connect(PATH_TO_DB) as connection:
         thing_name TEXT NOT NULL,
         thing_location TEXT NOT NULL,
         custom_text TEXT NOT NULL,
+        verified INTEGER NOT NULL,
         status INTEGER NOT NULL
     );
     """)
@@ -82,7 +84,7 @@ def get_things_list(type: Literal["lost"] | Literal["found"]):
         cursor = connection.cursor()
         data = cursor.execute(
             f"""
-            SELECT * FROM {type}_thing WHERE status=0 ORDER BY id DESC;
+            SELECT * FROM {type}_thing WHERE verified=1 AND status=0 ORDER BY id DESC;
             """
         ).fetchall()
         formatted_data = []
@@ -98,7 +100,8 @@ def get_things_list(type: Literal["lost"] | Literal["found"]):
                             "email": elem[4],
                             "custom_text": elem[5],
                             "thing_photo": get_thing_photo("lost", elem[0]),
-                            "status": elem[6],
+                            "verified": elem[6],
+                            "status": elem[7],
                         }
                     )
             case "found":
@@ -112,7 +115,8 @@ def get_things_list(type: Literal["lost"] | Literal["found"]):
                             "thing_location": elem[4],
                             "custom_text": elem[5],
                             "thing_photo": get_thing_photo("found", elem[0]),
-                            "status": elem[6],
+                            "verified": elem[6],
+                            "status": elem[7],
                         }
                     )
     return formatted_data
@@ -139,6 +143,7 @@ def add_new_lost_thing(data: LostThingData):
                 thing_name,
                 email,
                 custom_text,
+                verified,
                 status
             )
             VALUES (
@@ -147,6 +152,7 @@ def add_new_lost_thing(data: LostThingData):
                 '{data.thing_name}',
                 '{data.email}',
                 '{data.custom_text}',
+                0,
                 0
             );
             """
@@ -171,6 +177,7 @@ def add_new_found_thing(data: FoundThingData):
                 thing_name,
                 thing_location,
                 custom_text,
+                verified,
                 status
             )
             VALUES (
@@ -179,6 +186,7 @@ def add_new_found_thing(data: FoundThingData):
                 '{data.thing_name}',
                 '{data.thing_location}',
                 '{data.custom_text}',
+                0,
                 0
             );
             """
