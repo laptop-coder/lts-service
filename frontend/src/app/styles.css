@@ -125,6 +125,11 @@ textarea {
 .header__title {
   font-weight: bold;
   font-size: 20px;
+  color: black;
+}
+
+a {
+  text-decoration: none;
 }
 
 .header__buttons {
