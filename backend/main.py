@@ -122,6 +122,44 @@ def get_things_list(type: Literal["lost"] | Literal["found"]):
     return formatted_data
 
 
+@app.get("/get_thing_data")
+def get_thing_data(type: Literal["lost"] | Literal["found"], id: int):
+    with sqlite3.connect(PATH_TO_DB) as connection:
+        cursor = connection.cursor()
+        data = cursor.execute(
+            f"""
+            SELECT * FROM {type}_thing WHERE id={id};
+            """
+        ).fetchone()
+        formatted_data = {}
+        match type:
+            case "lost":
+                formatted_data = {
+                    "id": data[0],
+                    "publication_date": data[1],
+                    "publication_time": data[2],
+                    "thing_name": data[3],
+                    "email": data[4],
+                    "custom_text": data[5],
+                    "thing_photo": get_thing_photo("lost", data[0]),
+                    "verified": data[6],
+                    "status": data[7],
+                }
+            case "found":
+                formatted_data = {
+                    "id": data[0],
+                    "publication_date": data[1],
+                    "publication_time": data[2],
+                    "thing_name": data[3],
+                    "thing_location": data[4],
+                    "custom_text": data[5],
+                    "thing_photo": get_thing_photo("found", data[0]),
+                    "verified": data[6],
+                    "status": data[7],
+                }
+    return formatted_data
+
+
 @app.get("/get_thing_photo")
 def get_thing_photo(type: Literal["lost"] | Literal["found"], id: int):
     path_to_photo = f"{PATH_TO_STORAGE}/{type}/{id}.jpeg"
