@@ -1,5 +1,4 @@
 import base64
-import datetime
 import os
 from pathlib import Path
 import sqlite3
@@ -185,8 +184,8 @@ def add_new_lost_thing(data: LostThingData):
                 status
             )
             VALUES (
-                '{str(datetime.datetime.now())[0:10]}',
-                '{str(datetime.datetime.now())[11:16]}',
+                date('now'),
+                substr(time('now'), 1, 5),
                 '{data.thing_name}',
                 '{data.email}',
                 '{data.custom_text}',
@@ -219,8 +218,8 @@ def add_new_found_thing(data: FoundThingData):
                 status
             )
             VALUES (
-                '{str(datetime.datetime.now())[0:10]}',
-                '{str(datetime.datetime.now())[11:16]}',
+                date('now'),
+                substr(time('now'), 1, 5),
                 '{data.thing_name}',
                 '{data.thing_location}',
                 '{data.custom_text}',
