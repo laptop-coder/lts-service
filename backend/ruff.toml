@@ -1,0 +1,6 @@
+line-length = 79
+
+[format]
+quote-style = 'single'
+docstring-code-format = true
+docstring-code-line-length = 72
