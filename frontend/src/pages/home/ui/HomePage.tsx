@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import { createSignal, createMemo, Swith, Match } from "solid-js";
+import { createSignal, createMemo, Switch, Match } from "solid-js";
 
 import "../../../app/styles.css";
 import { LostThing } from "../../../entities/lostThing/index";
