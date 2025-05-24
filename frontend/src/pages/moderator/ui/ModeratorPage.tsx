@@ -7,11 +7,18 @@ export const ModeratorPage: Component = () => {
     <div class="page">
       <div class="header">
         <div class="header__wrapper">
-          <img
-            class="header__logo"
-            src="/logo.svg"
-          />
-          <div class="header__title">Сервис поиска потерянных вещей</div>
+          <a
+            class="header__wrapper"
+            href="/home"
+            title="На главную"
+          >
+            <img
+              class="header__logo"
+              src="/logo.svg"
+              style="cursor: pointer"
+            />
+            <div class="header__title">Сервис поиска потерянных вещей</div>
+          </a>
         </div>
         <div class="header__title">Модератор</div>
       </div>
