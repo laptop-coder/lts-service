@@ -1,1 +1,1 @@
-export { AddNewThing } from "./ui/AddNewThing";
+export { AddNewThing } from './ui/AddNewThing';

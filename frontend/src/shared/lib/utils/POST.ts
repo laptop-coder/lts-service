@@ -1,9 +1,9 @@
 export const POST = (path: string, data) => {
   return new Promise((resolve, reject) => {
     fetch(`http://172.16.1.2/${path}`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json; charset=utf-8",
+        'Content-Type': 'application/json; charset=utf-8',
       },
       body: JSON.stringify(data),
     })

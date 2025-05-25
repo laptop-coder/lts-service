@@ -1,1 +1,1 @@
-export { ModeratorPage } from "./ui/ModeratorPage";
+export { ModeratorPage } from './ui/ModeratorPage';

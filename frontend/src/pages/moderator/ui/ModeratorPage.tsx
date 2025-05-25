@@ -1,28 +1,28 @@
-import type { Component } from "solid-js";
-import "../../../app/styles.css";
+import type { Component } from 'solid-js';
+import '../../../app/styles.css';
 
 export const ModeratorPage: Component = () => {
-  document.title = "Модератор: " + document.title;
+  document.title = 'Модератор: ' + document.title;
   return (
-    <div class="page">
-      <div class="header">
-        <div class="header__wrapper">
+    <div class='page'>
+      <div class='header'>
+        <div class='header__wrapper'>
           <a
-            class="header__wrapper"
-            href="/home"
-            title="На главную"
+            class='header__wrapper'
+            href='/home'
+            title='На главную'
           >
             <img
-              class="header__logo"
-              src="/logo.svg"
-              style="cursor: pointer"
+              class='header__logo'
+              src='/logo.svg'
+              style='cursor: pointer'
             />
-            <div class="header__title">Сервис поиска потерянных вещей</div>
+            <div class='header__title'>Сервис поиска потерянных вещей</div>
           </a>
         </div>
-        <div class="header__title">Модератор</div>
+        <div class='header__title'>Модератор</div>
       </div>
-      <div class="box"></div>
+      <div class='box'></div>
     </div>
   );
 };

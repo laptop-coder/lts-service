@@ -1,24 +1,24 @@
-import type { Component } from "solid-js";
-import { createSignal, createMemo, Switch, Match } from "solid-js";
+import type { Component } from 'solid-js';
+import { createSignal, createMemo, Switch, Match } from 'solid-js';
 
-import "../../../app/styles.css";
-import { LostThing } from "../../../entities/lostThing/index";
-import { FoundThing } from "../../../entities/foundThing/index";
-import { AddNewThing } from "../../../features/add-new-thing/index";
-import { d } from "../../../shared/assets/index";
-import { SVG } from "../../../shared/ui/index";
-import { DialogBox } from "../../../shared/ui/index";
-import { Loading } from "../../../shared/ui/index";
+import '../../../app/styles.css';
+import { LostThing } from '../../../entities/lostThing/index';
+import { FoundThing } from '../../../entities/foundThing/index';
+import { AddNewThing } from '../../../features/add-new-thing/index';
+import { d } from '../../../shared/assets/index';
+import { SVG } from '../../../shared/ui/index';
+import { DialogBox } from '../../../shared/ui/index';
+import { Loading } from '../../../shared/ui/index';
 import {
   lostThingsList,
   foundThingsList,
   syncLostThingsList,
   syncFoundThingsList,
-} from "../api/getThingsLists";
-import { autofocus } from "@solid-primitives/autofocus";
+} from '../api/getThingsLists';
+import { autofocus } from '@solid-primitives/autofocus';
 
 const [addNewThing, setAddNewThing] = createSignal(false);
-const [tabIndex, setTabIndex] = createSignal("0");
+const [tabIndex, setTabIndex] = createSignal('0');
 const [rotateAddButton, setRotateAddButton] = createSignal(false);
 const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
 const [lostThingsListCache, setLostThingsListCache] = createSignal();
@@ -30,7 +30,7 @@ const handleAddButtonClick = () => {
     setRotateAddButton(false);
   }, 1000);
   setAddNewThing((prev) => !prev);
-  setTabIndex("-1");
+  setTabIndex('-1');
 };
 
 const handleSyncButtonClick = () => {
@@ -50,10 +50,10 @@ const handleSyncButtonClick = () => {
 
 const keyDown = (event) => {
   switch (event.key) {
-    case "a":
+    case 'a':
       if (!addNewThing()) handleAddButtonClick();
       break;
-    case "s":
+    case 's':
       if (!addNewThing()) handleSyncButtonClick();
       break;
   }
@@ -62,8 +62,8 @@ const keyDown = (event) => {
 export const HomePage: Component = () => {
   return (
     <div
-      class="page"
-      tabindex="1"
+      class='page'
+      tabindex='1'
       autofocus
       use:autofocus
       onKeyDown={(event) => keyDown(event)}
@@ -72,7 +72,7 @@ export const HomePage: Component = () => {
         <DialogBox
           actionToClose={() => {
             setAddNewThing((prev) => !prev);
-            setTabIndex("0");
+            setTabIndex('0');
           }}
         >
           <AddNewThing
@@ -82,43 +82,43 @@ export const HomePage: Component = () => {
           />
         </DialogBox>
       )}
-      <div class="header">
-        <div class="header__wrapper">
+      <div class='header'>
+        <div class='header__wrapper'>
           <img
-            class="header__logo"
-            src="/logo.svg"
+            class='header__logo'
+            src='/logo.svg'
           />
-          <div class="header__title">Сервис поиска потерянных вещей</div>
+          <div class='header__title'>Сервис поиска потерянных вещей</div>
         </div>
-        <div class="header__buttons">
+        <div class='header__buttons'>
           <button
             tabindex={tabIndex()}
-            style="aspect-ratio: 1/1;"
+            style='aspect-ratio: 1/1;'
             onClick={() => handleAddButtonClick()}
           >
             <SVG
               d={d.add}
-              class={`${rotateAddButton() ? "rotate" : ""}`}
+              class={`${rotateAddButton() ? 'rotate' : ''}`}
             />
           </button>
           <button
             tabindex={tabIndex()}
-            style="aspect-ratio: 1/1;"
+            style='aspect-ratio: 1/1;'
             onClick={() => handleSyncButtonClick()}
           >
             <SVG
               d={d.sync}
-              class={`${rotateSyncButton() ? "rotate" : ""}`}
+              class={`${rotateSyncButton() ? 'rotate' : ''}`}
             />
           </button>
         </div>
       </div>
-      <div class="box">
+      <div class='box'>
         <div
-          class="list__wrapper"
-          style="margin-left: 5%;"
+          class='list__wrapper'
+          style='margin-left: 5%;'
         >
-          <div class="list__title">Потерянные вещи</div>
+          <div class='list__title'>Потерянные вещи</div>
           <Switch>
             {/*Data not loaded*/}
             <Match when={!lostThingsList() && !lostThingsListCache()}>
@@ -126,7 +126,7 @@ export const HomePage: Component = () => {
             </Match>
             {/*New data not loaded, old data loaded*/}
             <Match when={!lostThingsList() && lostThingsListCache()}>
-              <div class="list">
+              <div class='list'>
                 {createMemo(() => {
                   tabIndex();
                   return lostThingsListCache().map((lostThing) => (
@@ -141,7 +141,7 @@ export const HomePage: Component = () => {
             </Match>
             {/*New data loaded*/}
             <Match when={lostThingsList()}>
-              <div class="list">
+              <div class='list'>
                 {createMemo(() => {
                   tabIndex();
                   if (lostThingsList().length === 0) {
@@ -161,10 +161,10 @@ export const HomePage: Component = () => {
           </Switch>
         </div>
         <div
-          class="list__wrapper"
-          style="margin-right: 5%;"
+          class='list__wrapper'
+          style='margin-right: 5%;'
         >
-          <div class="list__title">Найденные вещи</div>
+          <div class='list__title'>Найденные вещи</div>
           <Switch>
             {/*Data not loaded*/}
             <Match when={!foundThingsList() && !foundThingsListCache()}>
@@ -172,7 +172,7 @@ export const HomePage: Component = () => {
             </Match>
             {/*New data not loaded, old data loaded*/}
             <Match when={!foundThingsList() && foundThingsListCache()}>
-              <div class="list">
+              <div class='list'>
                 {createMemo(() => {
                   tabIndex();
                   return foundThingsListCache().map((foundThing) => (
@@ -187,7 +187,7 @@ export const HomePage: Component = () => {
             </Match>
             {/*New data loaded*/}
             <Match when={foundThingsList()}>
-              <div class="list">
+              <div class='list'>
                 {createMemo(() => {
                   tabIndex();
                   if (foundThingsList().length === 0) {

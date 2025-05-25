@@ -1,2 +1,2 @@
-export type { DialogBox } from "./DialogBox";
-export type { SVG } from "./SVG";
+export type { DialogBox } from './DialogBox';
+export type { SVG } from './SVG';

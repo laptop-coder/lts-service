@@ -1,1 +1,1 @@
-export { d } from "./d";
+export { d } from './d';
