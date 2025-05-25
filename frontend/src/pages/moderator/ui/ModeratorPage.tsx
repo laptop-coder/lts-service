@@ -9,7 +9,7 @@ export const ModeratorPage: Component = () => {
         <div class='header__wrapper'>
           <a
             class='header__wrapper'
-            href='/home'
+            href='/'
             title='На главную'
           >
             <img

@@ -9,10 +9,6 @@ render(
   () => (
     <Router>
       <Route
-        path='/home'
-        component={HomePage}
-      />
-      <Route
         path='/moderator'
         component={ModeratorPage}
       />
@@ -24,10 +20,14 @@ render(
         path='/*'
         component={() => (
           <Navigate
-            href='/home'
+            href='/'
             state
           />
         )}
+      />
+      <Route
+        path='/'
+        component={HomePage}
       />
     </Router>
   ),

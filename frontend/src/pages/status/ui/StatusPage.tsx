@@ -10,7 +10,7 @@ export const StatusPage: Component = () => {
       <div class='header'>
         <a
           class='header__wrapper'
-          href='/home'
+          href='/'
           title='На главную'
         >
           <img
