@@ -1,5 +1,7 @@
 import type { Component } from 'solid-js';
 import { createSignal, createMemo, Switch, Match } from 'solid-js';
+import type { LostThingProps } from '../../../entities/lostThing/model/LostThingProps';
+import type { FoundThingProps } from '../../../entities/foundThing/model/FoundThingProps';
 
 import '../../../app/styles.css';
 import { LostThing } from '../../../entities/lostThing/index';
@@ -21,8 +23,8 @@ const [addNewThing, setAddNewThing] = createSignal(false);
 const [tabIndex, setTabIndex] = createSignal('0');
 const [rotateAddButton, setRotateAddButton] = createSignal(false);
 const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
-const [lostThingsListCache, setLostThingsListCache] = createSignal();
-const [foundThingsListCache, setFoundThingsListCache] = createSignal();
+const [lostThingsListCache, setLostThingsListCache] = createSignal<LostThingProps[]>();
+const [foundThingsListCache, setFoundThingsListCache] = createSignal<FoundThingProps[]>();
 
 const handleAddButtonClick = () => {
   setRotateAddButton(true);
@@ -48,7 +50,7 @@ const handleSyncButtonClick = () => {
   syncFoundThingsList();
 };
 
-const keyDown = (event) => {
+const keyDown = (event: KeyboardEvent) => {
   switch (event.key) {
     case 'a':
       if (!addNewThing()) handleAddButtonClick();
@@ -63,8 +65,8 @@ export const HomePage: Component = () => {
   return (
     <div
       class='page'
-      tabindex='1'
-      autofocus
+      tabIndex='1'
+      autofocus  // required for use:autofocus
       use:autofocus
       onKeyDown={(event) => keyDown(event)}
     >
@@ -92,7 +94,7 @@ export const HomePage: Component = () => {
         </div>
         <div class='header__buttons'>
           <button
-            tabindex={tabIndex()}
+            tabIndex={tabIndex()}
             style='aspect-ratio: 1/1;'
             onClick={() => handleAddButtonClick()}
           >
@@ -102,7 +104,7 @@ export const HomePage: Component = () => {
             />
           </button>
           <button
-            tabindex={tabIndex()}
+            tabIndex={tabIndex()}
             style='aspect-ratio: 1/1;'
             onClick={() => handleSyncButtonClick()}
           >
@@ -129,14 +131,22 @@ export const HomePage: Component = () => {
               <div class='list'>
                 {createMemo(() => {
                   tabIndex();
-                  return lostThingsListCache().map((lostThing) => (
-                    <LostThing
-                      syncList={syncLostThingsList}
-                      tabIndex={tabIndex()}
-                      props={lostThing}
-                    />
-                  ));
-                })}
+                  return lostThingsListCache().map(
+                    (lostThing: LostThingProps) => (
+                      <LostThing
+                        syncList={syncLostThingsList}
+                        tabIndex={tabIndex()}
+                        id={lostThing.id}
+                        publication_date={lostThing.publication_date}
+                        publication_time={lostThing.publication_time}
+                        thing_name={lostThing.thing_name}
+                        email={lostThing.email}
+                        custom_text={lostThing.custom_text}
+                        thing_photo={lostThing.thing_photo}
+                      />
+                    ),
+                  );
+                })()}
               </div>
             </Match>
             {/*New data loaded*/}
@@ -147,15 +157,21 @@ export const HomePage: Component = () => {
                   if (lostThingsList().length === 0) {
                     return <p>Данные отсутствуют</p>;
                   } else {
-                    return lostThingsList().map((lostThing) => (
+                    return lostThingsList().map((lostThing: LostThingProps) => (
                       <LostThing
                         syncList={syncLostThingsList}
                         tabIndex={tabIndex()}
-                        props={lostThing}
+                        id={lostThing.id}
+                        publication_date={lostThing.publication_date}
+                        publication_time={lostThing.publication_time}
+                        thing_name={lostThing.thing_name}
+                        email={lostThing.email}
+                        custom_text={lostThing.custom_text}
+                        thing_photo={lostThing.thing_photo}
                       />
                     ));
                   }
-                })}
+                })()}
               </div>
             </Match>
           </Switch>
@@ -175,14 +191,22 @@ export const HomePage: Component = () => {
               <div class='list'>
                 {createMemo(() => {
                   tabIndex();
-                  return foundThingsListCache().map((foundThing) => (
-                    <FoundThing
-                      syncList={syncFoundThingsList}
-                      tabIndex={tabIndex()}
-                      props={foundThing}
-                    />
-                  ));
-                })}
+                  return foundThingsListCache().map(
+                    (foundThing: FoundThingProps) => (
+                      <FoundThing
+                        syncList={syncFoundThingsList}
+                        tabIndex={tabIndex()}
+                        id={foundThing.id}
+                        publication_date={foundThing.publication_date}
+                        publication_time={foundThing.publication_time}
+                        thing_name={foundThing.thing_name}
+                        thing_location={foundThing.thing_location}
+                        custom_text={foundThing.custom_text}
+                        thing_photo={foundThing.thing_photo}
+                      />
+                    ),
+                  );
+                })()}
               </div>
             </Match>
             {/*New data loaded*/}
@@ -193,15 +217,23 @@ export const HomePage: Component = () => {
                   if (foundThingsList().length === 0) {
                     return <p>Данные отсутствуют</p>;
                   } else {
-                    return foundThingsList().map((foundThing) => (
-                      <FoundThing
-                        syncList={syncFoundThingsList}
-                        tabIndex={tabIndex()}
-                        props={foundThing}
-                      />
-                    ));
+                    return foundThingsList().map(
+                      (foundThing: FoundThingProps) => (
+                          <FoundThing
+                            syncList={syncFoundThingsList}
+                            tabIndex={tabIndex()}
+                            id={foundThing.id}
+                            publication_date={foundThing.publication_date}
+                            publication_time={foundThing.publication_time}
+                            thing_name={foundThing.thing_name}
+                            thing_location={foundThing.thing_location}
+                            custom_text={foundThing.custom_text}
+                            thing_photo={foundThing.thing_photo}
+                          />
+                      ),
+                    );
                   }
-                })}
+                })()}
               </div>
             </Match>
           </Switch>

@@ -28,7 +28,7 @@ const handleFoundThingButtonClick = (
 };
 
 const keyDown = (
-  event,
+  event: KeyboardEvent,
   chooseThingType: Accessor<boolean>,
   setChooseThingType: Setter<boolean>,
   setAddNewLostThing: Setter<boolean>,
@@ -46,19 +46,11 @@ const keyDown = (
   }
 };
 
-const checkLostThingDataType = (data: LostThingData) => {
-  return true;
-};
-
-const checkFoundThingDataType = (data: FoundThingData) => {
-  return true;
-};
-
-export const AddNewThing: Component = ({
+export const AddNewThing: Component<Props> = ({
   syncLostThingsList,
   syncFoundThingsList,
   setAddNewThing,
-}: Props) => {
+}) => {
   const [chooseThingType, setChooseThingType] = createSignal(true);
   const [addNewLostThing, setAddNewLostThing] = createSignal(false);
   const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
@@ -78,8 +70,8 @@ export const AddNewThing: Component = ({
       {chooseThingType() && (
         <div
           class='choose_thing_type'
-          tabindex='1'
-          autofocus
+          tabIndex='1'
+          autofocus  // required for use:autofocus
           use:autofocus
           onKeyDown={(event) =>
             keyDown(
@@ -118,7 +110,7 @@ export const AddNewThing: Component = ({
               placeholder='Что Вы потеряли?*'
               value={thingName()}
               onInput={(event) => setThingName(event.target.value)}
-              autofocus
+              autofocus  // required for use:autofocus
               use:autofocus
             />
             <input
@@ -132,12 +124,14 @@ export const AddNewThing: Component = ({
               value={customText()}
               onInput={(event) => setCustomText(event.target.value)}
             />
-            {thingPhoto() && (
+            {thingPhoto() ? (
               <img
                 class='thing__photo'
                 src={thingPhoto()}
                 onClick={(event) => event.target.requestFullscreen()}
               />
+            ) : (
+              ''
             )}
             <input
               type='file'
@@ -146,8 +140,9 @@ export const AddNewThing: Component = ({
               accept='image/jpeg'
               onFocus={() => setUploadPhotoFocus((prev) => !prev)}
               onBlur={() => setUploadPhotoFocus((prev) => !prev)}
-              tabindex={thingPhoto() ? '-1' : '0'}
+              tabIndex={thingPhoto() ? '-1' : '0'}
               onInput={(event) =>
+                event.target.files &&
                 fileToBase64(event.target.files[0]).then((photoBase64) =>
                   setThingPhoto(photoBase64),
                 )
@@ -169,13 +164,9 @@ export const AddNewThing: Component = ({
                     custom_text: customText(),
                     thing_photo: thingPhoto(),
                   });
-                  if (checkLostThingDataType()) {
-                    POST('add_new_lost_thing', data()).then(() =>
-                      syncLostThingsList(),
-                    );
-                  } else {
-                    console.log('Type error (POST, lost things)');
-                  }
+                  POST('add_new_lost_thing', data()).then(() =>
+                    syncLostThingsList(),
+                  );
                   setAddNewThing(false);
                 } else {
                   alert('Обязательные поля не заполнены');
@@ -195,7 +186,7 @@ export const AddNewThing: Component = ({
               placeholder='Что Вы нашли?*'
               value={thingName()}
               onInput={(event) => setThingName(event.target.value)}
-              autofocus
+              autofocus  // required for use:autofocus
               use:autofocus
             />
             <input
@@ -208,12 +199,14 @@ export const AddNewThing: Component = ({
               value={customText()}
               onInput={(event) => setCustomText(event.target.value)}
             />
-            {thingPhoto() && (
+            {thingPhoto() ? (
               <img
                 class='thing__photo'
                 src={thingPhoto()}
                 onClick={(event) => event.target.requestFullscreen()}
               />
+            ) : (
+              ''
             )}
             <input
               type='file'
@@ -222,8 +215,9 @@ export const AddNewThing: Component = ({
               accept='image/jpeg'
               onFocus={() => setUploadPhotoFocus((prev) => !prev)}
               onBlur={() => setUploadPhotoFocus((prev) => !prev)}
-              tabindex={thingPhoto() ? '-1' : '0'}
+              tabIndex={thingPhoto() ? '-1' : '0'}
               onInput={(event) =>
+                event.target.files &&
                 fileToBase64(event.target.files[0]).then((photoBase64) =>
                   setThingPhoto(photoBase64),
                 )
@@ -245,13 +239,9 @@ export const AddNewThing: Component = ({
                     custom_text: customText(),
                     thing_photo: thingPhoto(),
                   });
-                  if (checkFoundThingDataType()) {
-                    POST('add_new_found_thing', data()).then(() =>
-                      syncFoundThingsList(),
-                    );
-                  } else {
-                    console.log('Type error (POST, found things)');
-                  }
+                  POST('add_new_found_thing', data()).then(() =>
+                    syncFoundThingsList(),
+                  );
                   setAddNewThing(false);
                 } else {
                   alert('Обязательные поля не заполнены');

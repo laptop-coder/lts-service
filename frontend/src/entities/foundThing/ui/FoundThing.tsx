@@ -4,9 +4,9 @@ import { createSignal } from 'solid-js';
 import '../../../app/styles.css';
 import { months } from '../../../shared/constants/index';
 import { changeThingStatus } from '../api/changeThingStatus';
-import { Props } from '../model/Props';
+import { FoundThingProps } from '../model/FoundThingProps';
 
-export const FoundThing: Component = ({ syncList, tabIndex, props }: Props) => {
+export const FoundThing: Component<FoundThingProps> = (props) => {
   const monthNumber = Number(props.publication_date.slice(5, 7));
   const day = Number(props.publication_date.slice(8, 10));
   const month = months[monthNumber - 1];
@@ -39,12 +39,12 @@ export const FoundThing: Component = ({ syncList, tabIndex, props }: Props) => {
         )}
       </div>
       <button
-        tabindex={tabIndex}
+        tabIndex={props.tabIndex}
         onClick={() => {
           if (confirm('Вы уверены?')) {
             setThingHidden(true);
             setTimeout(() => {
-              changeThingStatus(props.id).then(() => syncList());
+              changeThingStatus(props.id).then(() => props.syncList());
             }, 500);
           }
         }}

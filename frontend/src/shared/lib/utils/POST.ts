@@ -1,4 +1,4 @@
-export const POST = (path: string, data) => {
+export const POST = (path: string, data: object) => {
   return new Promise((resolve, reject) => {
     fetch(`http://172.16.1.2/${path}`, {
       method: 'POST',

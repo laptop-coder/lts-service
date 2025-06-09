@@ -1,9 +1,9 @@
 import type { Component } from 'solid-js';
 import { children } from 'solid-js';
-import type { DialogBox } from '../model/DialogBox';
+import type { DialogBoxProps } from '../model/index';
 import { autofocus } from '@solid-primitives/autofocus';
 
-const keyDown = (event, actionToClose) => {
+const keyDown = (event: KeyboardEvent, actionToClose) => {
   switch (event.key) {
     case 'Escape':
       actionToClose();
@@ -11,12 +11,12 @@ const keyDown = (event, actionToClose) => {
   }
 };
 
-export const DialogBox: Component = (props: DialogBox) => {
+export const DialogBox: Component<DialogBoxProps> = (props) => {
   return (
     <div
       class='dialog_box__wrapper'
-      tabindex='1'
-      autofocus
+      tabIndex='1'
+      autofocus  // required for use:autofocus
       use:autofocus
       onKeyDown={(event) => keyDown(event, props.actionToClose)}
     >

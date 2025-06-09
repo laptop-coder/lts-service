@@ -1,4 +1,4 @@
-export interface SVG {
+export interface SVGProps {
   d: string;
   class?: string;
 }

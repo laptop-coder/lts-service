@@ -1,5 +1,6 @@
+import type { ResourceSource, Setter } from 'solid-js';
 export interface Props {
-  syncLostThingsList: func;
-  syncFoundThingsList: func;
-  setAddNewThing: func;
+  syncLostThingsList: ResourceSource<any>;
+  syncFoundThingsList: ResourceSource<any>;
+  setAddNewThing: Setter<boolean>;
 }
