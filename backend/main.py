@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from typing import Literal, Optional
 
 
-PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db.sqlite3')
+PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
 PATH_TO_STORAGE = os.getenv('PATH_TO_STORAGE', '/backend/data/storage')
 PORT = os.getenv('PORT', 80)
 
@@ -98,7 +98,6 @@ def get_things_list(type: Literal['lost'] | Literal['found']):
                             'thing_name': elem[3],
                             'email': elem[4],
                             'custom_text': elem[5],
-                            'thing_photo': get_thing_photo('lost', elem[0]),
                             'verified': elem[6],
                             'status': elem[7],
                         }
@@ -113,7 +112,6 @@ def get_things_list(type: Literal['lost'] | Literal['found']):
                             'thing_name': elem[3],
                             'thing_location': elem[4],
                             'custom_text': elem[5],
-                            'thing_photo': get_thing_photo('found', elem[0]),
                             'verified': elem[6],
                             'status': elem[7],
                         }
@@ -140,7 +138,6 @@ def get_thing_data(type: Literal['lost'] | Literal['found'], id: int):
                     'thing_name': data[3],
                     'email': data[4],
                     'custom_text': data[5],
-                    'thing_photo': get_thing_photo('lost', data[0]),
                     'verified': data[6],
                     'status': data[7],
                 }
@@ -152,20 +149,10 @@ def get_thing_data(type: Literal['lost'] | Literal['found'], id: int):
                     'thing_name': data[3],
                     'thing_location': data[4],
                     'custom_text': data[5],
-                    'thing_photo': get_thing_photo('found', data[0]),
                     'verified': data[6],
                     'status': data[7],
                 }
     return formatted_data
-
-
-@app.get('/get_thing_photo')
-def get_thing_photo(type: Literal['lost'] | Literal['found'], id: int):
-    path_to_photo = f'{PATH_TO_STORAGE}/{type}/{id}.jpeg'
-    if os.path.exists(path_to_photo):
-        with open(path_to_photo, 'rb') as photo:
-            return base64.b64encode(photo.read())
-    return ''
 
 
 @app.post('/add_new_lost_thing')

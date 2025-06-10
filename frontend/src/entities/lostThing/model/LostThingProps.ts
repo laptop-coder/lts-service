@@ -8,5 +8,4 @@ export interface LostThingProps {
   thing_name: string;
   email: string;
   custom_text: string;
-  thing_photo: string;
 }

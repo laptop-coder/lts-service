@@ -4,9 +4,10 @@ services:
     build: ./backend
     container_name: backend
     volumes:
-      - data:/backend/data
+      - db:/backend/data/db
+      - storage:/backend/data/storage
     environment:
-      - PATH_TO_DB=/backend/data/db.sqlite3
+      - PATH_TO_DB=/backend/data/db/db.sqlite3
       - PATH_TO_STORAGE=/backend/data/storage
     env_file:
       - .env
@@ -17,6 +18,8 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend
+    volumes:
+      - storage:/usr/share/nginx/html/storage
     ports:
       - "${PORT:-80}:80"
     env_file:
@@ -28,12 +31,11 @@ services:
       - backend
 
 volumes:
-  data:
-    driver: local
+  db:
+  storage:
 
 networks:
   network:
-    driver: bridge
     ipam:
       config:
         - subnet: 172.16.1.0/24

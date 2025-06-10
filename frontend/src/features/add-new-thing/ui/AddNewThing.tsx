@@ -71,7 +71,7 @@ export const AddNewThing: Component<Props> = ({
         <div
           class='choose_thing_type'
           tabIndex='1'
-          autofocus  // required for use:autofocus
+          autofocus // required for use:autofocus
           use:autofocus
           onKeyDown={(event) =>
             keyDown(
@@ -110,7 +110,7 @@ export const AddNewThing: Component<Props> = ({
               placeholder='Что Вы потеряли?*'
               value={thingName()}
               onInput={(event) => setThingName(event.target.value)}
-              autofocus  // required for use:autofocus
+              autofocus // required for use:autofocus
               use:autofocus
             />
             <input
@@ -186,7 +186,7 @@ export const AddNewThing: Component<Props> = ({
               placeholder='Что Вы нашли?*'
               value={thingName()}
               onInput={(event) => setThingName(event.target.value)}
-              autofocus  // required for use:autofocus
+              autofocus // required for use:autofocus
               use:autofocus
             />
             <input

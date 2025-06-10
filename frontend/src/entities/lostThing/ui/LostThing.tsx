@@ -14,6 +14,14 @@ export const LostThing: Component<LostThingProps> = (props) => {
   const time = props.publication_time;
   const [thingHidden, setThingHidden] = createSignal(false);
 
+  const path_to_photo = `/storage/lost/${props.id}.jpeg`;
+
+  // Check if the photo exists and put the result in photoExists()
+  const [photoExists, setPhotoExists] = createSignal(false);
+  const photo = new Image();
+  photo.onload = () => setPhotoExists(true);
+  photo.src = path_to_photo;
+
   return (
     <div class={thingHidden() ? 'thing thing__hidden' : 'thing'}>
       <div class='thing__title'>
@@ -30,10 +38,10 @@ export const LostThing: Component<LostThingProps> = (props) => {
           <br />
           <i>{props.custom_text}</i>
         </div>
-        {props.thing_photo && (
+        {photoExists() && (
           <img
             class='thing__photo'
-            src={'data:image/jpeg;base64,' + props.thing_photo}
+            src={path_to_photo}
             onClick={(event) => event.target.requestFullscreen()}
           />
         )}

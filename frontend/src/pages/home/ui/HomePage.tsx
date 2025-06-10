@@ -23,8 +23,10 @@ const [addNewThing, setAddNewThing] = createSignal(false);
 const [tabIndex, setTabIndex] = createSignal('0');
 const [rotateAddButton, setRotateAddButton] = createSignal(false);
 const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
-const [lostThingsListCache, setLostThingsListCache] = createSignal<LostThingProps[]>();
-const [foundThingsListCache, setFoundThingsListCache] = createSignal<FoundThingProps[]>();
+const [lostThingsListCache, setLostThingsListCache] =
+  createSignal<LostThingProps[]>();
+const [foundThingsListCache, setFoundThingsListCache] =
+  createSignal<FoundThingProps[]>();
 
 const handleAddButtonClick = () => {
   setRotateAddButton(true);
@@ -66,7 +68,7 @@ export const HomePage: Component = () => {
     <div
       class='page'
       tabIndex='1'
-      autofocus  // required for use:autofocus
+      autofocus // required for use:autofocus
       use:autofocus
       onKeyDown={(event) => keyDown(event)}
     >
@@ -142,7 +144,6 @@ export const HomePage: Component = () => {
                         thing_name={lostThing.thing_name}
                         email={lostThing.email}
                         custom_text={lostThing.custom_text}
-                        thing_photo={lostThing.thing_photo}
                       />
                     ),
                   );
@@ -167,7 +168,6 @@ export const HomePage: Component = () => {
                         thing_name={lostThing.thing_name}
                         email={lostThing.email}
                         custom_text={lostThing.custom_text}
-                        thing_photo={lostThing.thing_photo}
                       />
                     ));
                   }
@@ -202,7 +202,6 @@ export const HomePage: Component = () => {
                         thing_name={foundThing.thing_name}
                         thing_location={foundThing.thing_location}
                         custom_text={foundThing.custom_text}
-                        thing_photo={foundThing.thing_photo}
                       />
                     ),
                   );
@@ -219,17 +218,16 @@ export const HomePage: Component = () => {
                   } else {
                     return foundThingsList().map(
                       (foundThing: FoundThingProps) => (
-                          <FoundThing
-                            syncList={syncFoundThingsList}
-                            tabIndex={tabIndex()}
-                            id={foundThing.id}
-                            publication_date={foundThing.publication_date}
-                            publication_time={foundThing.publication_time}
-                            thing_name={foundThing.thing_name}
-                            thing_location={foundThing.thing_location}
-                            custom_text={foundThing.custom_text}
-                            thing_photo={foundThing.thing_photo}
-                          />
+                        <FoundThing
+                          syncList={syncFoundThingsList}
+                          tabIndex={tabIndex()}
+                          id={foundThing.id}
+                          publication_date={foundThing.publication_date}
+                          publication_time={foundThing.publication_time}
+                          thing_name={foundThing.thing_name}
+                          thing_location={foundThing.thing_location}
+                          custom_text={foundThing.custom_text}
+                        />
                       ),
                     );
                   }
