@@ -6,7 +6,7 @@ import { months } from '../../../shared/constants/index';
 import { changeThingStatus } from '../api/changeThingStatus';
 import { FoundThingProps } from '../model/FoundThingProps';
 
-export const FoundThing: Component<FoundThingProps> = (props) => {
+export const StatusPageFoundThing: Component<FoundThingProps> = (props) => {
   const monthNumber = Number(props.publication_date.slice(5, 7));
   const day = Number(props.publication_date.slice(8, 10));
   const month = months[monthNumber - 1];

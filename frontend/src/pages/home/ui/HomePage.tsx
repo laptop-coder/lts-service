@@ -4,8 +4,8 @@ import type { LostThingProps } from '../../../entities/lostThing/model/LostThing
 import type { FoundThingProps } from '../../../entities/foundThing/model/FoundThingProps';
 
 import '../../../app/styles.css';
-import { LostThing } from '../../../entities/lostThing/index';
-import { FoundThing } from '../../../entities/foundThing/index';
+import { HomePageLostThing } from '../../../entities/lostThing/index';
+import { HomePageFoundThing } from '../../../entities/foundThing/index';
 import { AddNewThing } from '../../../features/add-new-thing/index';
 import { d } from '../../../shared/assets/index';
 import { SVG } from '../../../shared/ui/index';
@@ -135,7 +135,7 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return lostThingsListCache().map(
                     (lostThing: LostThingProps) => (
-                      <LostThing
+                      <HomePageLostThing
                         syncList={syncLostThingsList}
                         tabIndex={tabIndex()}
                         id={lostThing.id}
@@ -159,7 +159,7 @@ export const HomePage: Component = () => {
                     return <p>Данные отсутствуют</p>;
                   } else {
                     return lostThingsList().map((lostThing: LostThingProps) => (
-                      <LostThing
+                      <HomePageLostThing
                         syncList={syncLostThingsList}
                         tabIndex={tabIndex()}
                         id={lostThing.id}
@@ -193,7 +193,7 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return foundThingsListCache().map(
                     (foundThing: FoundThingProps) => (
-                      <FoundThing
+                      <HomePageFoundThing
                         syncList={syncFoundThingsList}
                         tabIndex={tabIndex()}
                         id={foundThing.id}
@@ -218,7 +218,7 @@ export const HomePage: Component = () => {
                   } else {
                     return foundThingsList().map(
                       (foundThing: FoundThingProps) => (
-                        <FoundThing
+                        <HomePageFoundThing
                           syncList={syncFoundThingsList}
                           tabIndex={tabIndex()}
                           id={foundThing.id}

@@ -6,7 +6,7 @@ import { months } from '../../../shared/constants/index';
 import { changeThingStatus } from '../api/changeThingStatus';
 import { LostThingProps } from '../model/LostThingProps';
 
-export const LostThing: Component<LostThingProps> = (props) => {
+export const HomePageLostThing: Component<LostThingProps> = (props) => {
   const monthNumber = Number(props.publication_date.slice(5, 7));
   const day = Number(props.publication_date.slice(8, 10));
   const month = months[monthNumber - 1];
