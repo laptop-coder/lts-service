@@ -1,7 +1,7 @@
 import type { Component, Setter, Accessor } from 'solid-js';
 import { createSignal, createMemo, Switch, Match } from 'solid-js';
-import type { LostThingProps } from '../../../entities/lostThing/model/LostThingProps';
-import type { FoundThingProps } from '../../../entities/foundThing/model/FoundThingProps';
+import type { LostThingProps } from '../../../entities/lostThing/index';
+import type { FoundThingProps } from '../../../entities/foundThing/index';
 import { fileToBase64 } from '../../../shared/lib/utils/index';
 import { POST } from '../../../shared/lib/utils/index';
 
