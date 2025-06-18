@@ -15,7 +15,7 @@ export const StatusPage: Component = () => {
         >
           <img
             class='header__logo'
-            src='/logo.svg'
+            src='/logo-512.png'
             style='cursor: pointer'
           />
           <div class='header__title'>Сервис поиска потерянных вещей</div>

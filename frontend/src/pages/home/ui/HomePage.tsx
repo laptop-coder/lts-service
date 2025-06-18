@@ -325,7 +325,7 @@ export const HomePage: Component = () => {
         <div class='header__wrapper'>
           <img
             class='header__logo'
-            src='/logo.svg'
+            src='/logo-512.png'
           />
           <div class='header__title'>Сервис поиска потерянных вещей</div>
         </div>
