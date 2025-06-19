@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.13.5-slim-bookworm
 WORKDIR /backend
 EXPOSE 80
 COPY ./requirements.txt ./
