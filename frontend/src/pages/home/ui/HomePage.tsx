@@ -120,7 +120,7 @@ export const HomePage: Component = () => {
       class='page'
       tabIndex='1'
       autofocus // required for use:autofocus
-      use:autofocus
+      ref={autofocus}
       onKeyDown={(event) => homePageKeyDown(event)}
     >
       {addNewThing() && (
