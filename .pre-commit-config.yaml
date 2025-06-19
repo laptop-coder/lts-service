@@ -5,6 +5,10 @@ repos:
       name: prettier
       entry: bash -c "npx prettier --write ./frontend/src"
       language: system
+- repo: https://github.com/oxc-project/mirrors-oxlint
+  rev: v1.2.0
+  hooks:
+    - id: oxlint
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.11.10
   hooks:
