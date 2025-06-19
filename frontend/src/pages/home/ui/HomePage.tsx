@@ -1,10 +1,11 @@
 import type { Component, Setter, Accessor } from 'solid-js';
 import { createSignal, createMemo, Switch, Match } from 'solid-js';
+
+import { Header } from '../../../shared/ui/index';
 import type { LostThingProps } from '../../../entities/lostThing/index';
 import type { FoundThingProps } from '../../../entities/foundThing/index';
 import { fileToBase64 } from '../../../shared/lib/utils/index';
 import { POST } from '../../../shared/lib/utils/index';
-
 import '../../../app/styles.css';
 import { HomePageLostThing } from '../../../entities/lostThing/index';
 import { HomePageFoundThing } from '../../../entities/foundThing/index';
@@ -321,14 +322,7 @@ export const HomePage: Component = () => {
           )}
         </DialogBox>
       )}
-      <div class='header'>
-        <div class='header__wrapper'>
-          <img
-            class='header__logo'
-            src='/logo-512.png'
-          />
-          <div class='header__title'>Сервис поиска потерянных вещей</div>
-        </div>
+      <Header>
         <div class='header__buttons'>
           <button
             tabIndex={tabIndex()}
@@ -351,7 +345,7 @@ export const HomePage: Component = () => {
             />
           </button>
         </div>
-      </div>
+      </Header>
       <div class='box'>
         <div
           class='list__wrapper'

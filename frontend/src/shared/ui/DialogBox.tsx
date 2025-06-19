@@ -20,7 +20,7 @@ export const DialogBox: Component<DialogBoxProps> = (props) => {
       ref={autofocus}
       onKeyDown={(event) => keyDown(event, props.actionToClose)}
     >
-      <div class='dialog_box'>{children(() => props.children)}</div>
+      <div class='dialog_box'>{<>{children(() => props.children)}</>}</div>
       <div
         class='dialog_box__background'
         onClick={props.actionToClose}
