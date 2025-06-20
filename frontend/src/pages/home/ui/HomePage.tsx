@@ -2,13 +2,14 @@ import type { Component, Setter, Accessor } from 'solid-js';
 import { createSignal, createMemo, Switch, Match } from 'solid-js';
 
 import { Header } from '../../../shared/ui/index';
-import type { LostThingProps } from '../../../entities/lostThing/index';
-import type { FoundThingProps } from '../../../entities/foundThing/index';
+import type {
+  LostThingProps,
+  FoundThingProps,
+} from '../../../entities/thing/index';
 import { fileToBase64 } from '../../../shared/lib/utils/index';
 import { POST } from '../../../shared/lib/utils/index';
 import '../../../app/styles.css';
-import { HomePageLostThing } from '../../../entities/lostThing/index';
-import { HomePageFoundThing } from '../../../entities/foundThing/index';
+import { Thing } from '../../../entities/thing/index';
 import { d } from '../../../shared/assets/index';
 import { SVG } from '../../../shared/ui/index';
 import { DialogBox } from '../../../shared/ui/index';
@@ -361,15 +362,17 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return lostThingsListCache().map(
                     (lostThing: LostThingProps) => (
-                      <HomePageLostThing
-                        syncList={syncLostThingsList}
-                        tabIndex={tabIndex()}
+                      <Thing
+                        custom_text={lostThing.custom_text}
+                        email={lostThing.email}
                         id={lostThing.id}
                         publication_date={lostThing.publication_date}
                         publication_time={lostThing.publication_time}
+                        syncList={syncLostThingsList}
+                        tabIndex={tabIndex()}
                         thing_name={lostThing.thing_name}
-                        email={lostThing.email}
-                        custom_text={lostThing.custom_text}
+                        page='home'
+                        type='lost'
                       />
                     ),
                   );
@@ -385,15 +388,17 @@ export const HomePage: Component = () => {
                     return <p>Данные отсутствуют</p>;
                   } else {
                     return lostThingsList().map((lostThing: LostThingProps) => (
-                      <HomePageLostThing
-                        syncList={syncLostThingsList}
-                        tabIndex={tabIndex()}
+                      <Thing
+                        custom_text={lostThing.custom_text}
+                        email={lostThing.email}
                         id={lostThing.id}
                         publication_date={lostThing.publication_date}
                         publication_time={lostThing.publication_time}
+                        syncList={syncLostThingsList}
+                        tabIndex={tabIndex()}
                         thing_name={lostThing.thing_name}
-                        email={lostThing.email}
-                        custom_text={lostThing.custom_text}
+                        page='home'
+                        type='lost'
                       />
                     ));
                   }
@@ -419,15 +424,17 @@ export const HomePage: Component = () => {
                   tabIndex();
                   return foundThingsListCache().map(
                     (foundThing: FoundThingProps) => (
-                      <HomePageFoundThing
-                        syncList={syncFoundThingsList}
-                        tabIndex={tabIndex()}
+                      <Thing
+                        custom_text={foundThing.custom_text}
                         id={foundThing.id}
+                        page='home'
                         publication_date={foundThing.publication_date}
                         publication_time={foundThing.publication_time}
-                        thing_name={foundThing.thing_name}
+                        syncList={syncFoundThingsList}
+                        tabIndex={tabIndex()}
                         thing_location={foundThing.thing_location}
-                        custom_text={foundThing.custom_text}
+                        thing_name={foundThing.thing_name}
+                        type='found'
                       />
                     ),
                   );
@@ -444,15 +451,17 @@ export const HomePage: Component = () => {
                   } else {
                     return foundThingsList().map(
                       (foundThing: FoundThingProps) => (
-                        <HomePageFoundThing
-                          syncList={syncFoundThingsList}
-                          tabIndex={tabIndex()}
+                        <Thing
+                          custom_text={foundThing.custom_text}
                           id={foundThing.id}
                           publication_date={foundThing.publication_date}
                           publication_time={foundThing.publication_time}
-                          thing_name={foundThing.thing_name}
+                          syncList={syncFoundThingsList}
+                          tabIndex={tabIndex()}
                           thing_location={foundThing.thing_location}
-                          custom_text={foundThing.custom_text}
+                          thing_name={foundThing.thing_name}
+                          page='home'
+                          type='lost'
                         />
                       ),
                     );
