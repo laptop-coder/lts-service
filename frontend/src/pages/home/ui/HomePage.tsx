@@ -1,4 +1,4 @@
-import type { Component, Setter, Accessor } from 'solid-js';
+import type { Component } from 'solid-js';
 import { createSignal, createMemo, Switch, Match } from 'solid-js';
 
 import { Header } from '../../../shared/ui/index';
@@ -19,51 +19,6 @@ import { autofocus } from '@solid-primitives/autofocus';
 
 const [lostThingsList, reloadLostThingsList] = getThingsList('lost');
 const [foundThingsList, reloadFoundThingsList] = getThingsList('found');
-const handleLostThingButtonClick = (
-  setChooseThingType: Setter<boolean>,
-  setAddNewLostThing: Setter<boolean>,
-) => {
-  setChooseThingType(false);
-  setAddNewLostThing(true);
-};
-
-const handleFoundThingButtonClick = (
-  setChooseThingType: Setter<boolean>,
-  setAddNewFoundThing: Setter<boolean>,
-) => {
-  setChooseThingType(false);
-  setAddNewFoundThing(true);
-};
-
-const homePageKeyDown = (event: KeyboardEvent) => {
-  switch (event.key) {
-    case 'a':
-      if (!addNewThing()) handleAddButtonClick();
-      break;
-    case 'r':
-      if (!addNewThing()) handleReloadButtonClick();
-      break;
-  }
-};
-
-const addNewThingKeyDown = (
-  event: KeyboardEvent,
-  chooseThingType: Accessor<boolean>,
-  setChooseThingType: Setter<boolean>,
-  setAddNewLostThing: Setter<boolean>,
-  setAddNewFoundThing: Setter<boolean>,
-) => {
-  switch (event.key) {
-    case 'l':
-      if (chooseThingType())
-        handleLostThingButtonClick(setChooseThingType, setAddNewLostThing);
-      break;
-    case 'f':
-      if (chooseThingType())
-        handleFoundThingButtonClick(setChooseThingType, setAddNewFoundThing);
-      break;
-  }
-};
 
 const [tabIndex, setTabIndex] = createSignal('0');
 const [rotateAddButton, setRotateAddButton] = createSignal(false);
@@ -74,10 +29,14 @@ const [foundThingsListCache, setFoundThingsListCache] =
   createSignal<FoundThingProps[]>();
 
 const [addNewThing, setAddNewThing] = createSignal(false);
-
-const [chooseThingType, setChooseThingType] = createSignal(true);
-const [addNewLostThing, setAddNewLostThing] = createSignal(false);
-const [addNewFoundThing, setAddNewFoundThing] = createSignal(false);
+enum AddNewThingStatuses { // type of elements is number
+  ChooseThingType,
+  AddLostThing,
+  AddFoundThing,
+}
+const [currentAddNewThingStatus, setCurrentAddNewThingStatus] = createSignal(
+  AddNewThingStatuses.ChooseThingType,
+);
 
 const [thingName, setThingName] = createSignal('');
 const [email, setEmail] = createSignal('');
@@ -89,12 +48,48 @@ const [data, setData] = createSignal({});
 
 const [uploadPhotoFocus, setUploadPhotoFocus] = createSignal(false);
 
+const clear = () => {
+  setCurrentAddNewThingStatus(AddNewThingStatuses.ChooseThingType);
+  setAddNewThing(false);
+  setThingName('');
+  setEmail('');
+  setThingLocation('');
+  setCustomText('');
+  setThingPhoto();
+  setData({});
+  setUploadPhotoFocus(false);
+};
+
+const homePageKeyDown = (event: KeyboardEvent) => {
+  if (!addNewThing())
+    switch (event.key) {
+      case 'a':
+        handleAddButtonClick();
+        break;
+      case 'r':
+        handleReloadButtonClick();
+        break;
+    }
+};
+
+const addNewThingKeyDown = (event: KeyboardEvent) => {
+  if (currentAddNewThingStatus() === AddNewThingStatuses.ChooseThingType)
+    switch (event.key) {
+      case 'l':
+        setCurrentAddNewThingStatus(AddNewThingStatuses.AddLostThing);
+        break;
+      case 'f':
+        setCurrentAddNewThingStatus(AddNewThingStatuses.AddFoundThing);
+        break;
+    }
+};
+
 const handleAddButtonClick = () => {
   setRotateAddButton(true);
   setTimeout(() => {
     setRotateAddButton(false);
   }, 1000);
-  setAddNewThing((prev) => !prev);
+  setAddNewThing(true);
   setTabIndex('-1');
 };
 
@@ -118,56 +113,43 @@ export const HomePage: Component = () => {
     <div
       class='page'
       tabIndex='1'
-      autofocus // required for use:autofocus
+      autofocus // required for ref={autofocus}
       ref={autofocus}
       onKeyDown={(event) => homePageKeyDown(event)}
     >
       {addNewThing() && (
         <DialogBox
           actionToClose={() => {
-            setAddNewThing((prev) => !prev);
+            clear();
             setTabIndex('0');
           }}
         >
-          {chooseThingType() && (
+          {currentAddNewThingStatus() ===
+            AddNewThingStatuses.ChooseThingType && (
             <div
               class='choose_thing_type'
               tabIndex='1'
-              autofocus // required for use:autofocus
-              use:autofocus
-              onKeyDown={(event) =>
-                addNewThingKeyDown(
-                  event,
-                  chooseThingType,
-                  setChooseThingType,
-                  setAddNewLostThing,
-                  setAddNewFoundThing,
-                )
-              }
+              autofocus // required for ref={autofocus}
+              ref={autofocus}
+              onKeyDown={(event) => addNewThingKeyDown(event)}
             >
               <button
                 onClick={() =>
-                  handleLostThingButtonClick(
-                    setChooseThingType,
-                    setAddNewLostThing,
-                  )
+                  setCurrentAddNewThingStatus(AddNewThingStatuses.AddLostThing)
                 }
               >
                 Я потерял вещь
               </button>
               <button
                 onClick={() =>
-                  handleFoundThingButtonClick(
-                    setChooseThingType,
-                    setAddNewFoundThing,
-                  )
+                  setCurrentAddNewThingStatus(AddNewThingStatuses.AddFoundThing)
                 }
               >
                 Я нашёл вещь
               </button>
             </div>
           )}
-          {addNewLostThing() && (
+          {currentAddNewThingStatus() === AddNewThingStatuses.AddLostThing && (
             <>
               <div class='box_title'>Добавить потерянную вещь</div>
               <form method='post'>
@@ -175,8 +157,8 @@ export const HomePage: Component = () => {
                   placeholder='Что Вы потеряли?*'
                   value={thingName()}
                   onInput={(event) => setThingName(event.target.value)}
-                  autofocus // required for use:autofocus
-                  use:autofocus
+                  autofocus // required for ref={autofocus}
+                  ref={autofocus}
                 />
                 <input
                   type='email'
@@ -229,10 +211,10 @@ export const HomePage: Component = () => {
                         custom_text: customText(),
                         thing_photo: thingPhoto(),
                       });
-                      POST('add_new_lost_thing', data()).then(() =>
-                        reloadLostThingsList(),
-                      );
-                      setAddNewThing(false);
+                      POST('add_new_lost_thing', data()).then(() => {
+                        reloadLostThingsList();
+                        clear();
+                      });
                     } else {
                       alert('Обязательные поля не заполнены');
                     }
@@ -243,7 +225,7 @@ export const HomePage: Component = () => {
               </form>
             </>
           )}
-          {addNewFoundThing() && (
+          {currentAddNewThingStatus() === AddNewThingStatuses.AddFoundThing && (
             <>
               <div class='box_title'>Добавить найденную вещь</div>
               <form method='post'>
@@ -251,8 +233,8 @@ export const HomePage: Component = () => {
                   placeholder='Что Вы нашли?*'
                   value={thingName()}
                   onInput={(event) => setThingName(event.target.value)}
-                  autofocus // required for use:autofocus
-                  use:autofocus
+                  autofocus // required for ref={autofocus}
+                  ref={autofocus}
                 />
                 <input
                   placeholder='Где забрать вещь?*'
@@ -304,10 +286,10 @@ export const HomePage: Component = () => {
                         custom_text: customText(),
                         thing_photo: thingPhoto(),
                       });
-                      POST('add_new_found_thing', data()).then(() =>
-                        reloadFoundThingsList(),
-                      );
-                      setAddNewThing(false);
+                      POST('add_new_found_thing', data()).then(() => {
+                        reloadFoundThingsList();
+                        clear;
+                      });
                     } else {
                       alert('Обязательные поля не заполнены');
                     }
@@ -366,12 +348,12 @@ export const HomePage: Component = () => {
                         custom_text={lostThing.custom_text}
                         email={lostThing.email}
                         id={lostThing.id}
+                        page='home'
                         publication_date={lostThing.publication_date}
                         publication_time={lostThing.publication_time}
                         reloadList={reloadLostThingsList}
                         tabIndex={tabIndex()}
                         thing_name={lostThing.thing_name}
-                        page='home'
                         type='lost'
                       />
                     ),
@@ -392,12 +374,12 @@ export const HomePage: Component = () => {
                         custom_text={lostThing.custom_text}
                         email={lostThing.email}
                         id={lostThing.id}
+                        page='home'
                         publication_date={lostThing.publication_date}
                         publication_time={lostThing.publication_time}
                         reloadList={reloadLostThingsList}
                         tabIndex={tabIndex()}
                         thing_name={lostThing.thing_name}
-                        page='home'
                         type='lost'
                       />
                     ));
@@ -454,14 +436,14 @@ export const HomePage: Component = () => {
                         <Thing
                           custom_text={foundThing.custom_text}
                           id={foundThing.id}
+                          page='home'
                           publication_date={foundThing.publication_date}
                           publication_time={foundThing.publication_time}
                           reloadList={reloadFoundThingsList}
                           tabIndex={tabIndex()}
                           thing_location={foundThing.thing_location}
                           thing_name={foundThing.thing_name}
-                          page='home'
-                          type='lost'
+                          type='found'
                         />
                       ),
                     );

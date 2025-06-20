@@ -16,7 +16,7 @@ export const DialogBox: Component<DialogBoxProps> = (props) => {
     <div
       class='dialog_box__wrapper'
       tabIndex='1'
-      autofocus // required for use:autofocus
+      autofocus // required for ref={autofocus}
       ref={autofocus}
       onKeyDown={(event) => keyDown(event, props.actionToClose)}
     >
