@@ -23,7 +23,8 @@
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^6.3.5",
-    "vite-plugin-solid": "^2.8.2"
+    "vite-plugin-solid": "^2.8.2",
+    "vitepress": "^1.6.3"
   },
   "dependencies": {
     "@solid-primitives/autofocus": "^0.1.1",
