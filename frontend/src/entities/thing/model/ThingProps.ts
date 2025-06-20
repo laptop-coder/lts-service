@@ -6,7 +6,7 @@ interface ThingProps {
   page: 'home' | 'moderator' | 'status';
   publication_date: string;
   publication_time: string;
-  syncList: ResourceSource<any>;
+  reloadList: ResourceSource<any>;
   tabIndex: string;
   thing_name: string;
   type: 'lost' | 'found';

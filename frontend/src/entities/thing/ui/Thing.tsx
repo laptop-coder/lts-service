@@ -12,7 +12,7 @@ export const Thing: Component<LostThingProps & FoundThingProps> = (props) => {
   const email = props.email;
   const id = props.id;
   const page = props.page;
-  const syncList = props.syncList;
+  const reloadList = props.reloadList;
   const tabIndex = props.tabIndex;
   const thing_location = props.thing_location;
   const thing_name = props.thing_name;
@@ -72,7 +72,7 @@ export const Thing: Component<LostThingProps & FoundThingProps> = (props) => {
           if (confirm('Вы уверены?')) {
             setThingHidden(true);
             setTimeout(() => {
-              changeThingStatus(type, id).then(() => syncList());
+              changeThingStatus(type, id).then(() => reloadList());
             }, 500);
           }
         }}

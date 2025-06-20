@@ -17,8 +17,8 @@ import { Loading } from '../../../shared/ui/index';
 import { getThingsList } from '../api/getThingsList';
 import { autofocus } from '@solid-primitives/autofocus';
 
-const [lostThingsList, syncLostThingsList] = getThingsList('lost');
-const [foundThingsList, syncFoundThingsList] = getThingsList('found');
+const [lostThingsList, reloadLostThingsList] = getThingsList('lost');
+const [foundThingsList, reloadFoundThingsList] = getThingsList('found');
 const handleLostThingButtonClick = (
   setChooseThingType: Setter<boolean>,
   setAddNewLostThing: Setter<boolean>,
@@ -40,8 +40,8 @@ const homePageKeyDown = (event: KeyboardEvent) => {
     case 'a':
       if (!addNewThing()) handleAddButtonClick();
       break;
-    case 's':
-      if (!addNewThing()) handleSyncButtonClick();
+    case 'r':
+      if (!addNewThing()) handleReloadButtonClick();
       break;
   }
 };
@@ -67,7 +67,7 @@ const addNewThingKeyDown = (
 
 const [tabIndex, setTabIndex] = createSignal('0');
 const [rotateAddButton, setRotateAddButton] = createSignal(false);
-const [rotateSyncButton, setRotateSyncButton] = createSignal(false);
+const [rotateReloadButton, setRotateReloadButton] = createSignal(false);
 const [lostThingsListCache, setLostThingsListCache] =
   createSignal<LostThingProps[]>();
 const [foundThingsListCache, setFoundThingsListCache] =
@@ -98,10 +98,10 @@ const handleAddButtonClick = () => {
   setTabIndex('-1');
 };
 
-const handleSyncButtonClick = () => {
-  setRotateSyncButton(true);
+const handleReloadButtonClick = () => {
+  setRotateReloadButton(true);
   setTimeout(() => {
-    setRotateSyncButton(false);
+    setRotateReloadButton(false);
   }, 1000);
   if (lostThingsList()) {
     setLostThingsListCache(lostThingsList());
@@ -109,8 +109,8 @@ const handleSyncButtonClick = () => {
   if (foundThingsList()) {
     setFoundThingsListCache(lostThingsList());
   }
-  syncLostThingsList();
-  syncFoundThingsList();
+  reloadLostThingsList();
+  reloadFoundThingsList();
 };
 
 export const HomePage: Component = () => {
@@ -230,7 +230,7 @@ export const HomePage: Component = () => {
                         thing_photo: thingPhoto(),
                       });
                       POST('add_new_lost_thing', data()).then(() =>
-                        syncLostThingsList(),
+                        reloadLostThingsList(),
                       );
                       setAddNewThing(false);
                     } else {
@@ -305,7 +305,7 @@ export const HomePage: Component = () => {
                         thing_photo: thingPhoto(),
                       });
                       POST('add_new_found_thing', data()).then(() =>
-                        syncFoundThingsList(),
+                        reloadFoundThingsList(),
                       );
                       setAddNewThing(false);
                     } else {
@@ -335,11 +335,11 @@ export const HomePage: Component = () => {
           <button
             tabIndex={tabIndex()}
             style='aspect-ratio: 1/1;'
-            onClick={() => handleSyncButtonClick()}
+            onClick={() => handleReloadButtonClick()}
           >
             <SVG
-              d={d.sync}
-              class={`${rotateSyncButton() ? 'rotate' : ''}`}
+              d={d.reload}
+              class={`${rotateReloadButton() ? 'rotate' : ''}`}
             />
           </button>
         </div>
@@ -368,7 +368,7 @@ export const HomePage: Component = () => {
                         id={lostThing.id}
                         publication_date={lostThing.publication_date}
                         publication_time={lostThing.publication_time}
-                        syncList={syncLostThingsList}
+                        reloadList={reloadLostThingsList}
                         tabIndex={tabIndex()}
                         thing_name={lostThing.thing_name}
                         page='home'
@@ -394,7 +394,7 @@ export const HomePage: Component = () => {
                         id={lostThing.id}
                         publication_date={lostThing.publication_date}
                         publication_time={lostThing.publication_time}
-                        syncList={syncLostThingsList}
+                        reloadList={reloadLostThingsList}
                         tabIndex={tabIndex()}
                         thing_name={lostThing.thing_name}
                         page='home'
@@ -430,7 +430,7 @@ export const HomePage: Component = () => {
                         page='home'
                         publication_date={foundThing.publication_date}
                         publication_time={foundThing.publication_time}
-                        syncList={syncFoundThingsList}
+                        reloadList={reloadFoundThingsList}
                         tabIndex={tabIndex()}
                         thing_location={foundThing.thing_location}
                         thing_name={foundThing.thing_name}
@@ -456,7 +456,7 @@ export const HomePage: Component = () => {
                           id={foundThing.id}
                           publication_date={foundThing.publication_date}
                           publication_time={foundThing.publication_time}
-                          syncList={syncFoundThingsList}
+                          reloadList={reloadFoundThingsList}
                           tabIndex={tabIndex()}
                           thing_location={foundThing.thing_location}
                           thing_name={foundThing.thing_name}
