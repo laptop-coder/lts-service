@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Literal, Optional
+from PIL import Image
 
 
 PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
@@ -73,8 +74,11 @@ with sqlite3.connect(PATH_TO_DB) as connection:
 def write_photo_to_the_storage(
     type: Literal['lost'] | Literal['found'], id: int, photo_base64: str
 ):
-    with open(f'{PATH_TO_STORAGE}/{type}/{id}.jpeg', 'wb') as photo:
+    path_to_photo = f'{PATH_TO_STORAGE}/{type}/{id}.jpeg'
+    with open(path_to_photo, 'wb') as photo:
         photo.write(base64.b64decode(photo_base64))
+    photo = Image.open(path_to_photo)
+    photo.save(path_to_photo, quality=25)
 
 
 @app.get('/get_things_list')
