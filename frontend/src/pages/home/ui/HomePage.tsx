@@ -13,14 +13,11 @@ import { d } from '../../../shared/assets/index';
 import { SVG } from '../../../shared/ui/index';
 import { DialogBox } from '../../../shared/ui/index';
 import { Loading } from '../../../shared/ui/index';
-import {
-  lostThingsList,
-  foundThingsList,
-  syncLostThingsList,
-  syncFoundThingsList,
-} from '../api/getThingsLists';
+import { getThingsList } from '../api/getThingsList';
 import { autofocus } from '@solid-primitives/autofocus';
 
+const [lostThingsList, syncLostThingsList] = getThingsList('lost');
+const [foundThingsList, syncFoundThingsList] = getThingsList('found');
 const handleLostThingButtonClick = (
   setChooseThingType: Setter<boolean>,
   setAddNewLostThing: Setter<boolean>,
