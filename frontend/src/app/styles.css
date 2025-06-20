@@ -29,6 +29,59 @@ button:hover {
   background: #b1e0ff;
 }
 
+.button__hotkey_hint {
+  pointer-events: none;
+  position: absolute;
+  border: 2px solid #aaa;
+  background-color: #ddd;
+
+  border-radius: 5px;
+  height: 20px;
+  min-width: 20px;
+  opacity: 0;
+}
+
+.button__hotkey_hint.in.bottom {
+  bottom: 0;
+  margin-bottom: 10px;
+}
+.button__hotkey_hint.in.left {
+  left: 0;
+  margin-left: 10px;
+}
+.button__hotkey_hint.in.right {
+  right: 0;
+  margin-right: 10px;
+}
+.button__hotkey_hint.in.top {
+  top: 0;
+  margin-top: 10px;
+}
+.button__hotkey_hint.out.bottom {
+  bottom: 0;
+  margin-bottom: -30px;
+}
+.button__hotkey_hint.out.left {
+  left: 0;
+  margin-left: -30px;
+}
+.button__hotkey_hint.out.right {
+  right: 0;
+  margin-right: -30px;
+}
+.button__hotkey_hint.out.top {
+  top: 0;
+  margin-top: -30px;
+}
+
+button:has(.button__hotkey_hint) {
+  position: relative;
+}
+
+button:hover .button__hotkey_hint {
+  opacity: 1;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -169,6 +222,7 @@ a {
 
 .dialog_box__background {
   position: fixed;
+  z-index: 1;
   top: 0;
   right: 0;
   width: 100%;
@@ -178,9 +232,9 @@ a {
 }
 
 .dialog_box {
-  margin-top: 70px;
   position: fixed;
-  z-index: 1;
+  z-index: 2;
+  margin-top: 70px;
   display: flex;
   flex-direction: column;
   border-radius: 10px;

@@ -16,6 +16,7 @@ import { DialogBox } from '../../../shared/ui/index';
 import { Loading } from '../../../shared/ui/index';
 import { getThingsList } from '../api/getThingsList';
 import { autofocus } from '@solid-primitives/autofocus';
+import { ButtonHotkeyHint } from '../../../shared/ui/index';
 
 const [lostThingsList, reloadLostThingsList] = getThingsList('lost');
 const [foundThingsList, reloadFoundThingsList] = getThingsList('found');
@@ -139,6 +140,11 @@ export const HomePage: Component = () => {
                 }
               >
                 Я потерял вещь
+                <ButtonHotkeyHint
+                  hotkey='L'
+                  place='in'
+                  side='right'
+                />
               </button>
               <button
                 onClick={() =>
@@ -146,6 +152,11 @@ export const HomePage: Component = () => {
                 }
               >
                 Я нашёл вещь
+                <ButtonHotkeyHint
+                  hotkey='F'
+                  place='in'
+                  side='right'
+                />
               </button>
             </div>
           )}
@@ -221,6 +232,11 @@ export const HomePage: Component = () => {
                   }}
                 >
                   Отправить
+                  <ButtonHotkeyHint
+                    hotkey='Enter'
+                    place='in'
+                    side='right'
+                  />
                 </button>
               </form>
             </>
@@ -296,6 +312,11 @@ export const HomePage: Component = () => {
                   }}
                 >
                   Отправить
+                  <ButtonHotkeyHint
+                    hotkey='Enter'
+                    place='in'
+                    side='right'
+                  />
                 </button>
               </form>
             </>
@@ -313,6 +334,11 @@ export const HomePage: Component = () => {
               d={d.add}
               class={`${rotateAddButton() ? 'rotate' : ''}`}
             />
+            <ButtonHotkeyHint
+              hotkey='A'
+              place='out'
+              side='bottom'
+            />
           </button>
           <button
             tabIndex={tabIndex()}
@@ -322,6 +348,11 @@ export const HomePage: Component = () => {
             <SVG
               d={d.reload}
               class={`${rotateReloadButton() ? 'rotate' : ''}`}
+            />
+            <ButtonHotkeyHint
+              hotkey='R'
+              place='out'
+              side='bottom'
             />
           </button>
         </div>
