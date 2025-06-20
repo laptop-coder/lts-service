@@ -83,7 +83,7 @@ def get_things_list(type: Literal['lost'] | Literal['found']):
         cursor = connection.cursor()
         data = cursor.execute(
             f"""
-            SELECT * FROM {type}_thing WHERE verified=1 AND status=0 ORDER BY id DESC;
+            SELECT * FROM {type}_thing WHERE status=0 ORDER BY id DESC;
             """
         ).fetchall()
         formatted_data = []
