@@ -1,6 +1,7 @@
-env
-__pycache__
 *.sqlite3
-node_modules
+.env
+__pycache__
 dist
+env
+node_modules
 storage
