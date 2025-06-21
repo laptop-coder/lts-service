@@ -13,7 +13,7 @@ render(
         component={ModeratorPage}
       />
       <Route
-        path='/status/:type/:id'
+        path='/status'
         component={StatusPage}
       />
       <Route
