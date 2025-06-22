@@ -69,6 +69,13 @@ with sqlite3.connect(PATH_TO_DB) as connection:
         status INTEGER NOT NULL
     );
     """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS moderator (
+        id INTEGER PRIMARY KEY,
+        username varchar(32) NOT NULL,
+        password TEXT NOT NULL
+    );
+    """)
 
 
 def write_photo_to_the_storage(
