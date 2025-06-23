@@ -288,7 +288,7 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
         )
 
 
-@app.post('/moderator/redister')
+@app.post('/moderator/register')
 def moderator_register(data: ModeratorRegister):
     with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
