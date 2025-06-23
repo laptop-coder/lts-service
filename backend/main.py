@@ -2,7 +2,7 @@ import base64
 import os
 from pathlib import Path
 import sqlite3
-import hashlib
+from argon2 import PasswordHasher
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +22,8 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
+
+ph = PasswordHasher()
 
 
 class LostThingData(BaseModel):
@@ -252,17 +254,13 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
 
 @app.post('/moderator/redister')
 def moderator_register(data: ModeratorRegister):
-    salt = 'salt'
-    password_hash = hashlib.sha3_512(
-        (data.password + salt).encode()
-    ).hexdigest()
     with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
             INSERT INTO moderator (username, password) VALUES (
             '{data.username}',
-            '{password_hash}'
+            '{ph.hash(data.password)}'
             );
             """
         )
