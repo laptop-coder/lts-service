@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import sqlite3
 from argon2 import PasswordHasher
+from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
+from cryptography.hazmat.primitives import serialization
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,8 +15,39 @@ from PIL import Image
 
 PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
 PATH_TO_ENV = os.getenv('PATH_TO_ENV', '/env')
+PATH_TO_PRIVATE_KEY = f'{PATH_TO_ENV}/rsa_key'
+PATH_TO_PUBLIC_KEY = f'{PATH_TO_ENV}/rsa_key.pub'
 PATH_TO_STORAGE = os.getenv('PATH_TO_STORAGE', '/backend/data/storage')
 PORT = os.getenv('PORT', 80)
+PRIVATE_KEY_ENCRYPTION_PASSWORD = os.getenv(
+    'PRIVATE_KEY_ENCRYPTION_PASSWORD', ''
+)
+
+
+# Create RSA keys if not exist
+if not os.path.isfile(PATH_TO_PRIVATE_KEY) and not os.path.isfile(
+    PATH_TO_PUBLIC_KEY
+):
+    private_key = generate_private_key(public_exponent=65537, key_size=4096)
+    public_key = private_key.public_key()
+
+    private_key_serialized = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.BestAvailableEncryption(
+            PRIVATE_KEY_ENCRYPTION_PASSWORD.encode()
+        ),
+    ).decode()
+    public_key_serialized = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode()
+
+    with open(PATH_TO_PRIVATE_KEY, 'w') as file:
+        file.write(private_key_serialized)
+    with open(PATH_TO_PUBLIC_KEY, 'w') as file:
+        file.write(public_key_serialized)
+
 
 app = FastAPI()
 app.add_middleware(
@@ -23,6 +56,7 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
+
 
 ph = PasswordHasher()
 
@@ -252,6 +286,7 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
             UPDATE {type}_thing SET status=1 WHERE id={id};
             """
         )
+
 
 @app.post('/moderator/redister')
 def moderator_register(data: ModeratorRegister):
