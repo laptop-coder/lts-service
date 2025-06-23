@@ -5,9 +5,11 @@ services:
     container_name: backend
     volumes:
       - db:/backend/data/db
+      - env:/env
       - storage:/backend/data/storage
     environment:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
+      - PATH_TO_ENV=/env
       - PATH_TO_STORAGE=/backend/data/storage
     env_file:
       - .env
@@ -32,6 +34,7 @@ services:
 
 volumes:
   db:
+  env:
   storage:
 
 networks:

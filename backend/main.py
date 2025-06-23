@@ -12,6 +12,7 @@ from PIL import Image
 
 
 PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
+PATH_TO_ENV = os.getenv('PATH_TO_ENV', '/env')
 PATH_TO_STORAGE = os.getenv('PATH_TO_STORAGE', '/backend/data/storage')
 PORT = os.getenv('PORT', 80)
 
