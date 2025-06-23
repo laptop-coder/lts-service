@@ -2,6 +2,7 @@ import base64
 import os
 from pathlib import Path
 import sqlite3
+import hashlib
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,6 +36,11 @@ class FoundThingData(BaseModel):
     thing_location: str
     custom_text: str
     thing_photo: Optional[str] = None
+
+
+class ModeratorRegister(BaseModel):
+    username: str
+    password: str
 
 
 # Creating storage directories
@@ -241,5 +247,22 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
         cursor.execute(
             f"""
             UPDATE {type}_thing SET status=1 WHERE id={id};
+            """
+        )
+
+@app.post('/moderator/redister')
+def moderator_register(data: ModeratorRegister):
+    salt = 'salt'
+    password_hash = hashlib.sha3_512(
+        (data.password + salt).encode()
+    ).hexdigest()
+    with sqlite3.connect(PATH_TO_DB) as connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"""
+            INSERT INTO moderator (username, password) VALUES (
+            '{data.username}',
+            '{password_hash}'
+            );
             """
         )
