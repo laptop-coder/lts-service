@@ -5,8 +5,9 @@ import sqlite3
 from argon2 import PasswordHasher
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from cryptography.hazmat.primitives import serialization
+import jwt
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Literal, Optional
@@ -299,14 +300,29 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
 
 
 @app.post('/moderator/register')
-def moderator_register(data: ModeratorRegister):
+def moderator_register(response: Response, data: ModeratorRegister):
+    password_hash = ph.hash(data.password)
     with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
             INSERT INTO moderator (username, password) VALUES (
             '{data.username}',
-            '{ph.hash(data.password)}'
+            '{password_hash}'
             );
             """
         )
+    jwt_payload = {
+        'username': data.username,
+        'password': password_hash,
+    }
+    jwt_encoded = jwt.encode(
+        jwt_payload,
+        private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ),
+        algorithm='RS256',
+    )
+    response.set_cookie(key='jwt', value=jwt_encoded)
