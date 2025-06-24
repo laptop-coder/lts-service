@@ -49,6 +49,16 @@ if not os.path.isfile(PATH_TO_PRIVATE_KEY) and not os.path.isfile(
         file.write(public_key_serialized)
 
 
+# Read keys
+with open(PATH_TO_PRIVATE_KEY, 'rb') as file:
+    private_key = serialization.load_pem_private_key(
+        file.read(),
+        password=PRIVATE_KEY_ENCRYPTION_PASSWORD.encode(),
+    )
+with open(PATH_TO_PUBLIC_KEY, 'rb') as file:
+    public_key = serialization.load_pem_public_key(file.read())
+
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
