@@ -1,7 +1,7 @@
 import type { Component } from 'solid-js';
-import { children } from 'solid-js';
 import type { DialogBoxProps } from '../model/index';
 import { autofocus } from '@solid-primitives/autofocus';
+import { children } from 'solid-js';
 
 const keyDown = (event: KeyboardEvent, actionToClose) => {
   switch (event.key) {

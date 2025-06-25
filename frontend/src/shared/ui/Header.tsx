@@ -1,7 +1,6 @@
 import type { Component, JSX } from 'solid-js';
-import { children } from 'solid-js';
-
 import type { HeaderProps } from '../model/index';
+import { children } from 'solid-js';
 
 export const Header: Component<HeaderProps> = (props) => {
   return (

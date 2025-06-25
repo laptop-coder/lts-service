@@ -1,8 +1,7 @@
-import type { Component } from 'solid-js';
-import { useSearchParams } from '@solidjs/router';
 import '../../../app/styles.css';
-
+import type { Component } from 'solid-js';
 import { Header } from '../../../shared/ui/index';
+import { useSearchParams } from '@solidjs/router';
 
 export const StatusPage: Component = () => {
   const [searchParams, setSearchParams] = useSearchParams();

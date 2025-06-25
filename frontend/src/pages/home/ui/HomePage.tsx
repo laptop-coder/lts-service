@@ -1,22 +1,21 @@
+import '../../../app/styles.css';
 import type { Component } from 'solid-js';
-import { createSignal, createMemo, Switch, Match } from 'solid-js';
-
-import { Header } from '../../../shared/ui/index';
 import type {
   LostThingProps,
   FoundThingProps,
 } from '../../../entities/thing/index';
-import { fileToBase64 } from '../../../shared/lib/utils/index';
-import { POST } from '../../../shared/lib/utils/index';
-import '../../../app/styles.css';
-import { Thing } from '../../../entities/thing/index';
-import { d } from '../../../shared/assets/index';
-import { SVG } from '../../../shared/ui/index';
-import { DialogBox } from '../../../shared/ui/index';
-import { Loading } from '../../../shared/ui/index';
-import { getThingsList } from '../api/getThingsList';
-import { autofocus } from '@solid-primitives/autofocus';
 import { ButtonHotkeyHint } from '../../../shared/ui/index';
+import { DialogBox } from '../../../shared/ui/index';
+import { Header } from '../../../shared/ui/index';
+import { Loading } from '../../../shared/ui/index';
+import { POST } from '../../../shared/lib/utils/index';
+import { SVG } from '../../../shared/ui/index';
+import { Thing } from '../../../entities/thing/index';
+import { autofocus } from '@solid-primitives/autofocus';
+import { createSignal, createMemo, Switch, Match } from 'solid-js';
+import { d } from '../../../shared/assets/index';
+import { fileToBase64 } from '../../../shared/lib/utils/index';
+import { getThingsList } from '../api/getThingsList';
 
 const [lostThingsList, reloadLostThingsList] = getThingsList('lost');
 const [foundThingsList, reloadFoundThingsList] = getThingsList('found');

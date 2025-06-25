@@ -1,6 +1,5 @@
-import type { Component } from 'solid-js';
 import '../../../app/styles.css';
-
+import type { Component } from 'solid-js';
 import { Header } from '../../../shared/ui/index';
 
 export const ModeratorPage: Component = () => {
