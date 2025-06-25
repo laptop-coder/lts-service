@@ -2,6 +2,7 @@ from PIL import Image
 from argon2 import PasswordHasher
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
+from exceptions import MultipleModeratorsHaveTheSameUsername
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
@@ -11,7 +12,6 @@ import base64
 import jwt
 import os
 import sqlite3
-import sys
 
 
 PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
@@ -308,37 +308,48 @@ def check_moderator_exists(username: str):
             """
         ).fetchone()
         if count == 1:
+            # Moderator with this username exists
             return True
         elif count == 0:
+            # Moderator with this username doesn't exist
             return False
         else:
-            sys.exit('Error! Multiple moderators have the same username')
+            # More than one moderator with this username exist, error
+            raise MultipleModeratorsHaveTheSameUsername
 
 
 @app.post('/moderator/register')
 def moderator_register(response: Response, data: ModeratorRegister):
-    password_hash = ph.hash(data.password)
-    with sqlite3.connect(PATH_TO_DB) as connection:
-        cursor = connection.cursor()
-        cursor.execute(
-            f"""
-            INSERT INTO moderator (username, password) VALUES (
-            '{data.username}',
-            '{password_hash}'
-            );
-            """
-        )
-    jwt_payload = {
-        'username': data.username,
-        'password': password_hash,
-    }
-    jwt_encoded = jwt.encode(
-        jwt_payload,
-        private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption(),
-        ),
-        algorithm='RS256',
-    )
-    response.set_cookie(key='jwt', value=jwt_encoded)
+    try:
+        if not check_moderator_exists(data.username):
+            password_hash = ph.hash(data.password)
+            with sqlite3.connect(PATH_TO_DB) as connection:
+                cursor = connection.cursor()
+                cursor.execute(
+                    f"""
+                    INSERT INTO moderator (username, password) VALUES (
+                    '{data.username}',
+                    '{password_hash}'
+                    );
+                    """
+                )
+            jwt_payload = {
+                'username': data.username,
+                'password': password_hash,
+            }
+            jwt_encoded = jwt.encode(
+                jwt_payload,
+                private_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption(),
+                ),
+                algorithm='RS256',
+            )
+            response.set_cookie(key='jwt', value=jwt_encoded)
+        else:
+            return {
+                'Message': 'moderator with this username already exists, use a different username'
+            }
+    except MultipleModeratorsHaveTheSameUsername:
+        return {'Error': 'multiple moderators have the same username'}
