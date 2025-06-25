@@ -1,5 +1,6 @@
 import base64
 import os
+import sys
 from pathlib import Path
 import sqlite3
 from argon2 import PasswordHasher
@@ -297,6 +298,22 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
             UPDATE {type}_thing SET status=1 WHERE id={id};
             """
         )
+
+
+def check_moderator_exists(username: str):
+    with sqlite3.connect(PATH_TO_DB) as connection:
+        cursor = connection.cursor()
+        [count] = cursor.execute(
+            f"""
+            SELECT COUNT(*) FROM moderator WHERE username='{username}';
+            """
+        ).fetchone()
+        if count == 1:
+            return True
+        elif count == 0:
+            return False
+        else:
+            sys.exit('Error! Multiple moderators have the same username')
 
 
 @app.post('/moderator/register')
