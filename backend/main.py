@@ -346,7 +346,7 @@ def moderator_register(response: Response, data: ModeratorRegister):
                 ),
                 algorithm='RS256',
             )
-            response.set_cookie(key='jwt', value=jwt_encoded)
+            response.set_cookie(key='jwt', value=jwt_encoded, httponly=True)
         else:
             return {
                 'Message': 'moderator with this username already exists, use a different username'
