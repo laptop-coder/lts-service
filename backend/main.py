@@ -1,18 +1,17 @@
-import base64
-import os
-import sys
-from pathlib import Path
-import sqlite3
+from PIL import Image
 from argon2 import PasswordHasher
-from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from cryptography.hazmat.primitives import serialization
-import jwt
-
+from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 from pydantic import BaseModel
 from typing import Literal, Optional
-from PIL import Image
+import base64
+import jwt
+import os
+import sqlite3
+import sys
 
 
 PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
