@@ -1,6 +1,7 @@
 from PIL import Image
 from argon2 import PasswordHasher
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from exceptions import MultipleModeratorsHaveTheSameUsername
 from fastapi import FastAPI, Response
@@ -9,6 +10,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from typing import Literal, Optional
 import base64
+import datetime
 import jwt
 import os
 import sqlite3
@@ -52,12 +54,28 @@ if not os.path.isfile(PATH_TO_PRIVATE_KEY) and not os.path.isfile(
 
 # Read keys
 with open(PATH_TO_PRIVATE_KEY, 'rb') as file:
-    private_key = serialization.load_pem_private_key(
-        file.read(),
-        password=PRIVATE_KEY_ENCRYPTION_PASSWORD.encode(),
+    private_key = (
+        serialization.load_pem_private_key(
+            file.read(),
+            password=PRIVATE_KEY_ENCRYPTION_PASSWORD.encode(),
+        )
+        .private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        .decode()
     )
+
 with open(PATH_TO_PUBLIC_KEY, 'rb') as file:
-    public_key = serialization.load_pem_public_key(file.read())
+    public_key = (
+        serialization.load_pem_public_key(file.read())
+        .public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
+    )
 
 
 app = FastAPI()
@@ -300,6 +318,11 @@ def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
 
 
 def check_moderator_exists(username: str):
+    """
+    Return 1 if moderator with this username exists.
+    Return 0 if moderator with this username doesn't exist.
+    Raise error if more than one moderator with this username exist.
+    """
     with sqlite3.connect(PATH_TO_DB) as connection:
         cursor = connection.cursor()
         [count] = cursor.execute(
@@ -308,14 +331,26 @@ def check_moderator_exists(username: str):
             """
         ).fetchone()
         if count == 1:
-            # Moderator with this username exists
             return True
         elif count == 0:
-            # Moderator with this username doesn't exist
             return False
         else:
-            # More than one moderator with this username exist, error
             raise MultipleModeratorsHaveTheSameUsername
+
+
+jwt_exp: dict[str, int] = {
+    'access': 900,  # 900 seconds = 15 minutes
+    'refresh': 2592000,  # 2592000 seconds = 30 days
+}
+
+
+def create_jwt(
+    private_key: RSAPrivateKey | str,
+    payload: dict[str, int | str],
+    type: Literal['access'] | Literal['refresh'],
+) -> str:
+    payload['exp'] = int(datetime.datetime.now().timestamp()) + jwt_exp[type]
+    return jwt.encode(payload, private_key, algorithm='RS256')
 
 
 @app.post('/moderator/register')
@@ -333,20 +368,15 @@ def moderator_register(response: Response, data: ModeratorRegister):
                     );
                     """
                 )
-            jwt_payload = {
+            jwt_payload: dict[str, int | str] = {
                 'username': data.username,
                 'password': password_hash,
             }
-            jwt_encoded = jwt.encode(
-                jwt_payload,
-                private_key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.PKCS8,
-                    encryption_algorithm=serialization.NoEncryption(),
-                ),
-                algorithm='RS256',
+            response.set_cookie(
+                key='jwt',
+                value=create_jwt(private_key, jwt_payload, 'access'),
+                httponly=True,
             )
-            response.set_cookie(key='jwt', value=jwt_encoded, httponly=True)
         else:
             return {
                 'Message': 'moderator with this username already exists, use a different username'
