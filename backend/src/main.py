@@ -10,26 +10,16 @@ from pathlib import Path
 from pydantic import BaseModel
 from typing import Literal, Optional
 import base64
+import consts
 import datetime
 import jwt
 import os
 import sqlite3
 
 
-PATH_TO_DB = os.getenv('PATH_TO_DB', '/backend/data/db/db.sqlite3')
-PATH_TO_ENV = os.getenv('PATH_TO_ENV', '/env')
-PATH_TO_PRIVATE_KEY = f'{PATH_TO_ENV}/rsa_key'
-PATH_TO_PUBLIC_KEY = f'{PATH_TO_ENV}/rsa_key.pub'
-PATH_TO_STORAGE = os.getenv('PATH_TO_STORAGE', '/backend/data/storage')
-PORT = os.getenv('PORT', 80)
-PRIVATE_KEY_ENCRYPTION_PASSWORD = os.getenv(
-    'PRIVATE_KEY_ENCRYPTION_PASSWORD', ''
-)
-
-
 # Create RSA keys if not exist
-if not os.path.isfile(PATH_TO_PRIVATE_KEY) and not os.path.isfile(
-    PATH_TO_PUBLIC_KEY
+if not os.path.isfile(consts.PATH_TO_PRIVATE_KEY) and not os.path.isfile(
+    consts.PATH_TO_PUBLIC_KEY
 ):
     private_key = generate_private_key(public_exponent=65537, key_size=4096)
     public_key = private_key.public_key()
@@ -38,7 +28,7 @@ if not os.path.isfile(PATH_TO_PRIVATE_KEY) and not os.path.isfile(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.BestAvailableEncryption(
-            PRIVATE_KEY_ENCRYPTION_PASSWORD.encode()
+            consts.PRIVATE_KEY_ENCRYPTION_PASSWORD.encode()
         ),
     ).decode()
     public_key_serialized = public_key.public_bytes(
@@ -46,18 +36,18 @@ if not os.path.isfile(PATH_TO_PRIVATE_KEY) and not os.path.isfile(
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
     ).decode()
 
-    with open(PATH_TO_PRIVATE_KEY, 'w') as file:
+    with open(consts.PATH_TO_PRIVATE_KEY, 'w') as file:
         file.write(private_key_serialized)
-    with open(PATH_TO_PUBLIC_KEY, 'w') as file:
+    with open(consts.PATH_TO_PUBLIC_KEY, 'w') as file:
         file.write(public_key_serialized)
 
 
 # Read keys
-with open(PATH_TO_PRIVATE_KEY, 'rb') as file:
+with open(consts.PATH_TO_PRIVATE_KEY, 'rb') as file:
     private_key = (
         serialization.load_pem_private_key(
             file.read(),
-            password=PRIVATE_KEY_ENCRYPTION_PASSWORD.encode(),
+            password=consts.PRIVATE_KEY_ENCRYPTION_PASSWORD.encode(),
         )
         .private_bytes(
             encoding=serialization.Encoding.PEM,
@@ -67,7 +57,7 @@ with open(PATH_TO_PRIVATE_KEY, 'rb') as file:
         .decode()
     )
 
-with open(PATH_TO_PUBLIC_KEY, 'rb') as file:
+with open(consts.PATH_TO_PUBLIC_KEY, 'rb') as file:
     public_key = (
         serialization.load_pem_public_key(file.read())
         .public_bytes(
@@ -81,7 +71,7 @@ with open(PATH_TO_PUBLIC_KEY, 'rb') as file:
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=f'http://localhost:{PORT}',
+    allow_origins=f'http://localhost:{consts.PORT}',
     allow_methods=['*'],
     allow_headers=['*'],
 )
@@ -110,12 +100,12 @@ class ModeratorRegister(BaseModel):
 
 
 # Creating storage directories
-Path(f'{PATH_TO_STORAGE}/lost').mkdir(parents=True, exist_ok=True)
-Path(f'{PATH_TO_STORAGE}/found').mkdir(parents=True, exist_ok=True)
+Path(f'{consts.PATH_TO_STORAGE}/lost').mkdir(parents=True, exist_ok=True)
+Path(f'{consts.PATH_TO_STORAGE}/found').mkdir(parents=True, exist_ok=True)
 
 
 # Creating database tables
-with sqlite3.connect(PATH_TO_DB) as connection:
+with sqlite3.connect(consts.PATH_TO_DB) as connection:
     cursor = connection.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS lost_thing (
@@ -153,7 +143,7 @@ with sqlite3.connect(PATH_TO_DB) as connection:
 def write_photo_to_the_storage(
     type: Literal['lost'] | Literal['found'], id: int, photo_base64: str
 ):
-    path_to_photo = f'{PATH_TO_STORAGE}/{type}/{id}.jpeg'
+    path_to_photo = f'{consts.PATH_TO_STORAGE}/{type}/{id}.jpeg'
     with open(path_to_photo, 'wb') as photo:
         photo.write(base64.b64decode(photo_base64))
     photo = Image.open(path_to_photo)
@@ -162,7 +152,7 @@ def write_photo_to_the_storage(
 
 @app.get('/get_things_list')
 def get_things_list(type: Literal['lost'] | Literal['found']):
-    with sqlite3.connect(PATH_TO_DB) as connection:
+    with sqlite3.connect(consts.PATH_TO_DB) as connection:
         cursor = connection.cursor()
         data = cursor.execute(
             f"""
@@ -204,7 +194,7 @@ def get_things_list(type: Literal['lost'] | Literal['found']):
 
 @app.get('/get_thing_data')
 def get_thing_data(type: Literal['lost'] | Literal['found'], id: int):
-    with sqlite3.connect(PATH_TO_DB) as connection:
+    with sqlite3.connect(consts.PATH_TO_DB) as connection:
         cursor = connection.cursor()
         data = cursor.execute(
             f"""
@@ -240,7 +230,7 @@ def get_thing_data(type: Literal['lost'] | Literal['found'], id: int):
 
 @app.post('/add_new_lost_thing')
 def add_new_lost_thing(data: LostThingData):
-    with sqlite3.connect(PATH_TO_DB) as connection:
+    with sqlite3.connect(consts.PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
@@ -274,7 +264,7 @@ def add_new_lost_thing(data: LostThingData):
 
 @app.post('/add_new_found_thing')
 def add_new_found_thing(data: FoundThingData):
-    with sqlite3.connect(PATH_TO_DB) as connection:
+    with sqlite3.connect(consts.PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
@@ -308,7 +298,7 @@ def add_new_found_thing(data: FoundThingData):
 
 @app.get('/change_thing_status')
 def change_thing_status(type: Literal['lost'] | Literal['found'], id: int):
-    with sqlite3.connect(PATH_TO_DB) as connection:
+    with sqlite3.connect(consts.PATH_TO_DB) as connection:
         cursor = connection.cursor()
         cursor.execute(
             f"""
@@ -323,7 +313,7 @@ def check_moderator_exists(username: str):
     Return 0 if moderator with this username doesn't exist.
     Raise error if more than one moderator with this username exist.
     """
-    with sqlite3.connect(PATH_TO_DB) as connection:
+    with sqlite3.connect(consts.PATH_TO_DB) as connection:
         cursor = connection.cursor()
         [count] = cursor.execute(
             f"""
@@ -358,7 +348,7 @@ def moderator_register(response: Response, data: ModeratorRegister):
     try:
         if not check_moderator_exists(data.username):
             password_hash = ph.hash(data.password)
-            with sqlite3.connect(PATH_TO_DB) as connection:
+            with sqlite3.connect(consts.PATH_TO_DB) as connection:
                 cursor = connection.cursor()
                 cursor.execute(
                     f"""
