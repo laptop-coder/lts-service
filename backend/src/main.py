@@ -104,40 +104,12 @@ Path(f'{consts.PATH_TO_STORAGE}/lost').mkdir(parents=True, exist_ok=True)
 Path(f'{consts.PATH_TO_STORAGE}/found').mkdir(parents=True, exist_ok=True)
 
 
-# Creating database tables
-with sqlite3.connect(consts.PATH_TO_DB) as connection:
-    cursor = connection.cursor()
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS lost_thing (
-        id INTEGER PRIMARY KEY,
-        publication_date TEXT NOT NULL,
-        publication_time TEXT NOT NULL,
-        thing_name TEXT NOT NULL,
-        email varchar(254) NOT NULL,
-        custom_text TEXT NOT NULL,
-        verified INTEGER NOT NULL,
-        status INTEGER NOT NULL
-    );
-    """)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS found_thing (
-        id INTEGER PRIMARY KEY,
-        publication_date TEXT NOT NULL,
-        publication_time TEXT NOT NULL,
-        thing_name TEXT NOT NULL,
-        thing_location TEXT NOT NULL,
-        custom_text TEXT NOT NULL,
-        verified INTEGER NOT NULL,
-        status INTEGER NOT NULL
-    );
-    """)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS moderator (
-        id INTEGER PRIMARY KEY,
-        username varchar(32) NOT NULL,
-        password TEXT NOT NULL
-    );
-    """)
+# Initial SQL-requests (creating database tables)
+with (
+    sqlite3.connect(consts.PATH_TO_DB) as connection,
+    open('./db.sql', 'r') as sql_requests,
+):
+    connection.cursor().executescript(sql_requests.read())
 
 
 def write_photo_to_the_storage(
