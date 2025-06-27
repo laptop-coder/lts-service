@@ -1,19 +1,17 @@
 from pathlib import Path
 from typing import Literal, Optional
 import base64
-import datetime
 import sqlite3
 
 from PIL import Image
 from argon2 import PasswordHasher
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import jwt
 
-from exceptions import MultipleModeratorsHaveTheSameUsername
+from auth.jwt_setup import create_jwt
 from auth.rsa_keys import private_key, public_key
+from exceptions import MultipleModeratorsHaveTheSameUsername
 import consts
 
 
@@ -245,21 +243,6 @@ def check_moderator_exists(username: str):
             return False
         else:
             raise MultipleModeratorsHaveTheSameUsername
-
-
-jwt_exp: dict[str, int] = {
-    'access': 900,  # 900 seconds = 15 minutes
-    'refresh': 2592000,  # 2592000 seconds = 30 days
-}
-
-
-def create_jwt(
-    private_key: RSAPrivateKey | str,
-    payload: dict[str, int | str],
-    type: Literal['access'] | Literal['refresh'],
-) -> str:
-    payload['exp'] = int(datetime.datetime.now().timestamp()) + jwt_exp[type]
-    return jwt.encode(payload, private_key, algorithm='RS256')
 
 
 @app.post('/moderator/register')
