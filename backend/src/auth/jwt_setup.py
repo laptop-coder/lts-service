@@ -1,5 +1,6 @@
 from typing import Literal
 import datetime
+import uuid
 
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 import jwt
@@ -17,4 +18,6 @@ def create_jwt(
     type: Literal['access'] | Literal['refresh'],
 ) -> str:
     payload['exp'] = int(datetime.datetime.now().timestamp()) + jwt_exp[type]
+    payload['iat'] = int(datetime.datetime.now().timestamp())
+    payload['jti'] = str(uuid.uuid4())
     return jwt.encode(payload, private_key, algorithm='RS256')
