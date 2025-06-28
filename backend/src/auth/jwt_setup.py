@@ -4,7 +4,7 @@ import uuid
 
 import jwt
 
-from .rsa_keys import private_key
+from .rsa_keys import private_key, public_key
 
 
 jwt_exp: dict[str, int] = {
@@ -21,3 +21,12 @@ def create_jwt(
     payload['iat'] = int(datetime.datetime.now().timestamp())
     payload['jti'] = str(uuid.uuid4())
     return jwt.encode(payload, private_key, algorithm='RS256')
+
+
+def read_jwt(token: str) -> dict[str, int | str]:
+    return jwt.decode(
+        token,
+        public_key,
+        algorithm=['RS256'],
+        options={'verify_exp': True, 'verify_iat': True},
+    )

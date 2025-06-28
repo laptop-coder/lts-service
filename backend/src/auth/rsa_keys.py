@@ -3,7 +3,7 @@ import os
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 
-from .. import consts
+import consts
 
 
 # Create RSA keys if not exist
