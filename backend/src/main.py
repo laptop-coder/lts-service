@@ -10,7 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from auth.jwt_setup import create_jwt
-from auth.rsa_keys import private_key, public_key
 from exceptions import MultipleModeratorsHaveTheSameUsername
 import consts
 
@@ -266,7 +265,7 @@ def moderator_register(response: Response, data: ModeratorRegister):
             }
             response.set_cookie(
                 key='jwt',
-                value=create_jwt(private_key, jwt_payload, 'access'),
+                value=create_jwt(jwt_payload, 'access'),
                 httponly=True,
             )
         else:

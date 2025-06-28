@@ -2,8 +2,9 @@ from typing import Literal
 import datetime
 import uuid
 
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 import jwt
+
+from .rsa_keys import private_key
 
 
 jwt_exp: dict[str, int] = {
@@ -13,7 +14,6 @@ jwt_exp: dict[str, int] = {
 
 
 def create_jwt(
-    private_key: RSAPrivateKey | str,
     payload: dict[str, int | str],
     type: Literal['access'] | Literal['refresh'],
 ) -> str:
