@@ -4,7 +4,7 @@ import { children } from 'solid-js';
 
 export const Header: Component<HeaderProps> = (props) => {
   return (
-    <div class='header'>
+    <header>
       <a
         class='header__wrapper'
         href='/'
@@ -18,6 +18,6 @@ export const Header: Component<HeaderProps> = (props) => {
         <div class='header__title'>Сервис поиска потерянных вещей</div>
       </a>
       {<>{children(() => props.children)}</>}
-    </div>
+    </header>
   );
 };

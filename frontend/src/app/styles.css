@@ -152,7 +152,7 @@ textarea {
   min-height: calc(100vh - 90px);
 }
 
-.header {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
