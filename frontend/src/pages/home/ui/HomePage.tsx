@@ -303,7 +303,7 @@ export const HomePage: Component = () => {
                       });
                       POST('add_new_found_thing', data()).then(() => {
                         reloadFoundThingsList();
-                        clear;
+                        clear();
                       });
                     } else {
                       alert('Обязательные поля не заполнены');
