@@ -13,7 +13,6 @@ export const Header: Component<HeaderProps> = (props) => {
         <img
           class='header__logo'
           src='/logo-512.png'
-          style='cursor: pointer'
         />
         <div class='header__title'>Сервис поиска потерянных вещей</div>
       </a>
