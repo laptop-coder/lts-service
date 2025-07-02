@@ -358,8 +358,7 @@ a {
 .auth-container__title {
   font-weight: bold;
   font-size: 25px;
-  color: #000;
-  opacity: 0.6;
+  color: rgba(0 0 0 / 0.5);
   width: 100%;
   text-align: center;
 }
