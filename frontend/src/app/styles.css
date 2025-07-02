@@ -318,3 +318,115 @@ a {
   height: 40px;
   aspect-ratio: 1/1;
 }
+
+.auth-container__wrapper {
+  background: url('/auth_background.jpeg');
+  background-position: center;
+  background-size: cover;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-container:before {
+  content: 'LTS-сервис';
+  color: #fff;
+  position: absolute;
+  margin-top: -105px;
+  margin-left: -30px;
+  font-size: 45px;
+  font-weight: 200;
+}
+
+.auth-container {
+  background: white;
+  border-radius: 10px;
+  width: 70%;
+  max-width: 500px;
+  padding: 40px;
+  gap: 10px;
+  box-sizing: border-box;
+  background-color: rgba(255 255 255 / 0.9);
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-container__title {
+  font-weight: bold;
+  font-size: 25px;
+  color: #000;
+  opacity: 0.6;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-container__form {
+  margin-top: 15px;
+  gap: 25px;
+  display: flex;
+}
+
+.auth-container__input-group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.auth-container__input {
+  width: auto;
+  border: none;
+  outline-style: none;
+  padding: 0;
+  background-color: transparent;
+}
+
+.auth-container__input:focus ~ .auth-container__label,
+.auth-container__input:not(:placeholder-shown) ~ .auth-container__label {
+  font-size: 15px;
+  margin-bottom: 35px;
+  color: #2451a4;
+}
+
+.auth-container__input:focus ~ .auth-container__underline {
+  background-color: #2451a4;
+}
+
+.auth-container__label {
+  color: #aaa;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 10px;
+  user-select: none;
+  transition:
+    font-size 0.2s ease,
+    margin-bottom 0.2s ease;
+}
+
+.auth-container__underline {
+  height: 2px;
+  width: 100%;
+  background-color: #ccc;
+  transition: background-color 0.2s ease;
+}
+
+body:has(.auth-container__wrapper) {
+  overflow: hidden;
+}
+
+.auth-container__submit-button {
+  background-color: #2451a4;
+  color: #fff;
+  margin-top: 10px;
+}
+
+.auth-container__submit-button:hover {
+  background-color: #144194;
+}
+
+.auth-container__another-action {
+  color: #4f4f4f;
+}
