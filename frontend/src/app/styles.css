@@ -408,7 +408,7 @@ a {
 }
 
 .auth-container__underline {
-  height: 2px;
+  height: 1px;
   width: 100%;
   background-color: #ccc;
   transition: background-color 0.2s ease;
