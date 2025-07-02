@@ -431,3 +431,19 @@ body:has(.auth-container__wrapper) {
 .auth-container__another-action {
   color: #4f4f4f;
 }
+
+.auth-container__label.error {
+  color: #cc0000 !important;
+}
+
+.auth-container__label.success {
+  color: #008800 !important;
+}
+
+.auth-container__underline.error {
+  background-color: #cc0000 !important;
+}
+
+.auth-container__input:focus ~ .auth-container__underline.success {
+  background-color: #008800 !important;
+}

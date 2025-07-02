@@ -58,12 +58,30 @@ export const ModeratorRegisterPage: Component = () => {
                 onInput={(event) => setPasswordRepeat(event.target.value)}
               />
               <label
-                class='auth-container__label'
+                class={
+                  'auth-container__label' +
+                  (passwordRepeat() !== '' && passwordRepeat() !== password()
+                    ? ' error'
+                    : '') +
+                  (passwordRepeat() !== '' && passwordRepeat() === password()
+                    ? ' success'
+                    : '')
+                }
                 for='password-repeat'
               >
                 Повторите пароль
               </label>
-              <span class='auth-container__underline' />
+              <span
+                class={
+                  'auth-container__underline' +
+                  (passwordRepeat() !== '' && passwordRepeat() !== password()
+                    ? ' error'
+                    : '') +
+                  (passwordRepeat() !== '' && passwordRepeat() === password()
+                    ? ' success'
+                    : '')
+                }
+              />
             </div>
             <button class='auth-container__submit-button'>
               Создать аккаунт
