@@ -1,0 +1,69 @@
+import '../../../app/styles.css';
+import type { Component } from 'solid-js';
+
+export const ModeratorRegisterPage: Component = () => {
+  document.title = 'Модератор: регистрация (LTS-сервис)';
+  return (
+    <div class='page'>
+      <div class='auth-container__wrapper'>
+        <div class='auth-container'>
+          <div class='auth-container__title'>Создание аккаунта модератора</div>
+          <form class='auth-container__form'>
+            <div class='auth-container__input-group'>
+              <input
+                class='auth-container__input'
+                id='username'
+                // Placeholder is needed here to check if the input field is not empty.
+                // :not(:placeholder-shown)
+                placeholder=''
+              />
+              <label
+                class='auth-container__label'
+                for='username'
+              >
+                Имя пользователя
+              </label>
+              <span class='auth-container__underline' />
+            </div>
+            <div class='auth-container__input-group'>
+              <input
+                class='auth-container__input'
+                id='password'
+                placeholder=''
+                type='password'
+              />
+              <label
+                class='auth-container__label'
+                for='password'
+              >
+                Пароль
+              </label>
+              <span class='auth-container__underline' />
+            </div>
+            <div class='auth-container__input-group'>
+              <input
+                class='auth-container__input'
+                id='password-repeat'
+                placeholder=''
+                type='password'
+              />
+              <label
+                class='auth-container__label'
+                for='password-repeat'
+              >
+                Повторите пароль
+              </label>
+              <span class='auth-container__underline' />
+            </div>
+            <button class='auth-container__submit-button'>
+              Создать аккаунт
+            </button>
+            <span class='auth-container__another-action'>
+              Уже есть аккаунт? <a href='/moderator/login'>Вход</a>
+            </span>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
