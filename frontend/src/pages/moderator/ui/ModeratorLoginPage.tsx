@@ -1,8 +1,11 @@
 import '../../../app/styles.css';
 import type { Component } from 'solid-js';
+import { createSignal } from 'solid-js';
 
 export const ModeratorLoginPage: Component = () => {
   document.title = 'Модератор: вход в аккаунт (LTS-сервис)';
+  const [username, setUsername] = createSignal('');
+  const [password, setPassword] = createSignal('');
   return (
     <div class='page'>
       <div class='auth-container__wrapper'>
@@ -16,6 +19,8 @@ export const ModeratorLoginPage: Component = () => {
                 // Placeholder is needed here to check if the input field is not empty.
                 // :not(:placeholder-shown)
                 placeholder=''
+                value={username()}
+                onInput={(event) => setUsername(event.target.value)}
               />
               <label
                 class='auth-container__label'
@@ -31,6 +36,8 @@ export const ModeratorLoginPage: Component = () => {
                 id='password'
                 placeholder=''
                 type='password'
+                value={password()}
+                onInput={(event) => setPassword(event.target.value)}
               />
               <label
                 class='auth-container__label'

@@ -1,8 +1,12 @@
 import '../../../app/styles.css';
 import type { Component } from 'solid-js';
+import { createSignal } from 'solid-js';
 
 export const ModeratorRegisterPage: Component = () => {
   document.title = 'Модератор: регистрация (LTS-сервис)';
+  const [username, setUsername] = createSignal('');
+  const [password, setPassword] = createSignal('');
+  const [passwordRepeat, setPasswordRepeat] = createSignal('');
   return (
     <div class='page'>
       <div class='auth-container__wrapper'>
@@ -16,6 +20,8 @@ export const ModeratorRegisterPage: Component = () => {
                 // Placeholder is needed here to check if the input field is not empty.
                 // :not(:placeholder-shown)
                 placeholder=''
+                value={username()}
+                onInput={(event) => setUsername(event.target.value)}
               />
               <label
                 class='auth-container__label'
@@ -31,6 +37,8 @@ export const ModeratorRegisterPage: Component = () => {
                 id='password'
                 placeholder=''
                 type='password'
+                value={password()}
+                onInput={(event) => setPassword(event.target.value)}
               />
               <label
                 class='auth-container__label'
@@ -46,6 +54,8 @@ export const ModeratorRegisterPage: Component = () => {
                 id='password-repeat'
                 placeholder=''
                 type='password'
+                value={passwordRepeat()}
+                onInput={(event) => setPasswordRepeat(event.target.value)}
               />
               <label
                 class='auth-container__label'
