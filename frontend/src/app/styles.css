@@ -396,6 +396,7 @@ a {
 }
 
 .auth-container__label {
+  cursor: text;
   color: #aaa;
   position: absolute;
   bottom: 0;
