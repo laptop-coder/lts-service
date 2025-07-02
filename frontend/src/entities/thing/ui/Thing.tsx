@@ -1,7 +1,6 @@
 import '../../../app/styles.css';
 import type { Component } from 'solid-js';
-import { FoundThingProps } from '../model/ThingProps';
-import { LostThingProps } from '../model/ThingProps';
+import { FoundThingProps, LostThingProps } from '../model/ThingProps';
 import { changeThingStatus } from '../api/changeThingStatus';
 import { createSignal } from 'solid-js';
 import { months } from '../../../shared/constants/index';

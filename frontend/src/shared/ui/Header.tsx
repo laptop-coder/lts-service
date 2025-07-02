@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js';
+import type { Component } from 'solid-js';
 import type { HeaderProps } from '../model/index';
 import { children } from 'solid-js';
 
