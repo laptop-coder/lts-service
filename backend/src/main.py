@@ -5,6 +5,7 @@ import sqlite3
 
 from PIL import Image
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -38,7 +39,7 @@ class FoundThingData(BaseModel):
     thing_photo: Optional[str] = None
 
 
-class ModeratorRegister(BaseModel):
+class ModeratorAuth(BaseModel):
     username: str
     password: str
 
@@ -245,7 +246,7 @@ def check_moderator_exists(username: str):
 
 
 @app.post('/moderator/register')
-def moderator_register(response: Response, data: ModeratorRegister):
+def moderator_register(response: Response, data: ModeratorAuth):
     try:
         if not check_moderator_exists(data.username):
             password_hash = ph.hash(data.password)
@@ -271,6 +272,29 @@ def moderator_register(response: Response, data: ModeratorRegister):
         else:
             return {
                 'Message': 'moderator with this username already exists, use a different username'
+            }
+    except MultipleModeratorsHaveTheSameUsername:
+        return {'Error': 'multiple moderators have the same username'}
+
+
+@app.post('/moderator/login')
+def moderator_login(response: Response, data: ModeratorAuth):
+    try:
+        if check_moderator_exists(data.username):
+            with sqlite3.connect(consts.PATH_TO_DB) as connection:
+                cursor = connection.cursor()
+                [password_hash] = cursor.execute(
+                    f"""
+                    SELECT password FROM moderator WHERE username='{data.username}' LIMIT 1;
+                    """
+                ).fetchone()
+                try:
+                    ph.verify(password_hash, data.password)
+                except VerifyMismatchError:
+                    return {'Message': 'passwords do not match'}
+        else:
+            return {
+                'Message': 'moderator with this username does not exist, please register first'
             }
     except MultipleModeratorsHaveTheSameUsername:
         return {'Error': 'multiple moderators have the same username'}
