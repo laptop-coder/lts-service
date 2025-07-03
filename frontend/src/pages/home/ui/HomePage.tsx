@@ -45,8 +45,6 @@ const [thingLocation, setThingLocation] = createSignal('');
 const [customText, setCustomText] = createSignal('');
 const [thingPhoto, setThingPhoto] = createSignal();
 
-const [data, setData] = createSignal({});
-
 const [uploadPhotoFocus, setUploadPhotoFocus] = createSignal(false);
 
 const clear = () => {
@@ -57,7 +55,6 @@ const clear = () => {
   setThingLocation('');
   setCustomText('');
   setThingPhoto();
-  setData({});
   setUploadPhotoFocus(false);
 };
 
@@ -216,13 +213,12 @@ export const HomePage: Component = () => {
                   onClick={(event) => {
                     event.preventDefault();
                     if (thingName() !== '' && email() !== '') {
-                      setData({
+                      POST('add_new_lost_thing', {
                         thing_name: thingName(),
                         email: email(),
                         custom_text: customText(),
                         thing_photo: thingPhoto(),
-                      });
-                      POST('add_new_lost_thing', data()).then(() => {
+                      }).then(() => {
                         reloadLostThingsList();
                         clear();
                       });
@@ -296,13 +292,12 @@ export const HomePage: Component = () => {
                   onClick={(event) => {
                     event.preventDefault();
                     if (thingName() !== '' && thingLocation() !== '') {
-                      setData({
+                      POST('add_new_found_thing', {
                         thing_name: thingName(),
                         thing_location: thingLocation(),
                         custom_text: customText(),
                         thing_photo: thingPhoto(),
-                      });
-                      POST('add_new_found_thing', data()).then(() => {
+                      }).then(() => {
                         reloadFoundThingsList();
                         clear();
                       });
