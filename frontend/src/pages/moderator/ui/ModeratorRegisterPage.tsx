@@ -1,6 +1,5 @@
 import '../../../app/styles.css';
 import type { Component } from 'solid-js';
-import { Navigate } from '@solidjs/router';
 import { POST } from '../../../shared/lib/utils/index';
 import { createSignal } from 'solid-js';
 
@@ -100,12 +99,7 @@ export const ModeratorRegisterPage: Component = () => {
                   POST('moderator/register', {
                     username: username(),
                     password: password(),
-                  }).then(() => (
-                    <Navigate
-                      href='/moderator'
-                      state
-                    />
-                  ));
+                  }).then(() => (window.location.href = '/moderator'));
                 } else {
                   if (
                     username() === '' ||
