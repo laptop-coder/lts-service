@@ -97,7 +97,7 @@ export const ModeratorRegisterPage: Component = () => {
                   password() !== '' &&
                   passwordRepeat() === password()
                 ) {
-                  POST('/moderator/register', {
+                  POST('moderator/register', {
                     username: username(),
                     password: password(),
                   }).then(() => (
