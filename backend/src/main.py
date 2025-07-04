@@ -298,6 +298,15 @@ def moderator_login(response: Response, data: ModeratorAuth):
                             UPDATE moderator SET password='{password_hash}' WHERE username='{data.username}';
                             """
                         )
+                    jwt_payload: dict[str, int | str] = {
+                        'username': data.username,
+                        'password': password_hash,
+                    }
+                    response.set_cookie(
+                        key='jwt',
+                        value=create_jwt(jwt_payload, 'access'),
+                        httponly=True,
+                    )
                 except VerifyMismatchError:
                     return {'Message': 'passwords do not match'}
         else:
