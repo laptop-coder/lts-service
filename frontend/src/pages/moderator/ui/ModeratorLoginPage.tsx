@@ -57,7 +57,7 @@ export const ModeratorLoginPage: Component = () => {
               onClick={(event) => {
                 event.preventDefault();
                 if (username() !== '' && password() !== '') {
-                  POST('/moderator/login', {
+                  POST('moderator/login', {
                     username: username(),
                     password: password(),
                   }).then(() => (
