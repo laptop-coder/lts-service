@@ -290,6 +290,14 @@ def moderator_login(response: Response, data: ModeratorAuth):
                 ).fetchone()
                 try:
                     ph.verify(password_hash, data.password)
+                    if ph.check_needs_rehash(password_hash):
+                        # See https://argon2-cffi.readthedocs.io/en/stable/api.html#argon2.PasswordHasher.check_needs_rehash
+                        password_hash = ph.hash(data.password)
+                        cursor.execute(
+                            f"""
+                            UPDATE moderator SET password='{password_hash}' WHERE username='{data.username}';
+                            """
+                        )
                 except VerifyMismatchError:
                     return {'Message': 'passwords do not match'}
         else:
