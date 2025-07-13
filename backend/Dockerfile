@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r ./requirements.txt
 COPY ./src ./src
 WORKDIR /backend/src
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "443", "--ssl-certfile=/env/backend-certfile.crt", "--ssl-keyfile=/env/backend-keyfile.key"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "443", "--ssl-certfile=/env/certfile.crt", "--ssl-keyfile=/env/keyfile.key"]
