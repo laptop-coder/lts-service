@@ -19,7 +19,7 @@ ph = PasswordHasher()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=f'http://localhost:{consts.PORT}',
+    allow_origins='https://172.16.1.3',
     allow_methods=['*'],
     allow_headers=['*'],
 )

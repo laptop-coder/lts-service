@@ -21,9 +21,8 @@ services:
     build: ./frontend
     container_name: frontend
     volumes:
+      - env:/env
       - storage:/usr/share/nginx/html/storage
-    ports:
-      - "${PORT:-80}:80"
     env_file:
       - .env
     networks:
