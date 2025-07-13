@@ -1,7 +1,6 @@
 *.sqlite3
 .env
 __pycache__
+data
 dist
-env
 node_modules
-storage

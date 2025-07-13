@@ -4,9 +4,9 @@ services:
     build: ./backend
     container_name: backend
     volumes:
-      - db:/backend/data/db
-      - env:/env
-      - storage:/backend/data/storage
+      - ./data/db:/backend/data/db
+      - ./data/env:/env
+      - ./data/storage:/backend/data/storage
     environment:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
       - PATH_TO_ENV=/env
@@ -21,8 +21,8 @@ services:
     build: ./frontend
     container_name: frontend
     volumes:
-      - env:/env
-      - storage:/usr/share/nginx/html/storage
+      - ./data/env:/env
+      - ./data/storage:/usr/share/nginx/html/storage
     env_file:
       - .env
     networks:
