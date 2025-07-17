@@ -1,0 +1,43 @@
+services:
+
+  backend:
+    image: laptopcoder/lts-service-backend
+    container_name: backend-prod
+    volumes:
+      - ./data/db:/backend/data/db
+      - ./data/env:/env
+      - ./data/storage:/backend/data/storage
+    environment:
+      - PATH_TO_DB=/backend/data/db/db.sqlite3
+      - PATH_TO_ENV=/env
+      - PATH_TO_STORAGE=/backend/data/storage
+    env_file:
+      - .env
+    networks:
+      network:
+        ipv4_address: 172.16.1.2
+
+  frontend:
+    image: laptopcoder/lts-service-frontend
+    container_name: frontend-prod
+    volumes:
+      - ./data/env:/env
+      - ./data/storage:/usr/share/nginx/html/storage
+    env_file:
+      - .env
+    networks:
+      network:
+        ipv4_address: 172.16.1.3
+    depends_on:
+      - backend
+
+volumes:
+  db:
+  env:
+  storage:
+
+networks:
+  network:
+    ipam:
+      config:
+        - subnet: 172.16.1.0/24
