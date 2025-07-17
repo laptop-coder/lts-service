@@ -1,7 +1,7 @@
 services:
 
   backend:
-    image: laptopcoder/lts-service-backend
+    image: laptopcoder/lts-service-backend:latest
     container_name: backend-prod
     volumes:
       - ./data/db:/backend/data/db
@@ -18,7 +18,7 @@ services:
         ipv4_address: 172.16.1.2
 
   frontend:
-    image: laptopcoder/lts-service-frontend
+    image: laptopcoder/lts-service-frontend:latest
     container_name: frontend-prod
     volumes:
       - ./data/env:/env
