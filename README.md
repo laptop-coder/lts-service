@@ -44,6 +44,6 @@
    ```
 6. Run project:
    ```
-   docker compose up
+   docker compose -f ./compose-dev.yaml up
    ```
 7. Open https://172.16.1.3 in your browser
