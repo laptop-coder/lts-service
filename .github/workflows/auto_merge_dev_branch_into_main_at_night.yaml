@@ -1,0 +1,15 @@
+name: Auto merge the dev branch into main at night
+on:
+  schedule:
+    - cron: "0 1 * * *"  # 01:00 (24-hour format)
+jobs:
+  merge-dev-into-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Switch to the main branch
+        run: git switch main
+      - name: Merge the dev branch into main
+        run: git merge dev
+      - name: Push the main branch
+        run: git push origin main
