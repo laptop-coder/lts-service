@@ -3,7 +3,7 @@ import type { Component } from 'solid-js';
 import { FoundThingProps, LostThingProps } from '../model/ThingProps';
 import { changeThingStatus } from '../api/changeThingStatus';
 import { createSignal } from 'solid-js';
-import { months } from '@/shared/constants/index';
+import { months } from '@/shared/assets/index';
 
 export const Thing: Component<LostThingProps & FoundThingProps> = (props) => {
   const monthNumber = () => Number(props.publication_date.slice(5, 7));
