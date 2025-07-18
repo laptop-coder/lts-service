@@ -10,8 +10,8 @@ from pydantic import BaseModel
 
 from auth.jwt_setup import create_jwt
 from exceptions import MultipleModeratorsHaveTheSameUsername
-import consts
 from utils.write_photo_to_the_storage import write_photo_to_the_storage
+import consts
 
 
 ph = PasswordHasher()
