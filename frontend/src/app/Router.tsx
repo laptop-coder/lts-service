@@ -1,9 +1,11 @@
-import { HomePage } from '../pages/home/index';
-import { ModeratorPage } from '../pages/moderator/index';
-import { ModeratorLoginPage } from '../pages/moderator/index';
-import { ModeratorRegisterPage } from '../pages/moderator/index';
+import { HomePage } from '@/pages/home/index';
+import {
+  ModeratorLoginPage,
+  ModeratorPage,
+  ModeratorRegisterPage,
+} from '@/pages/moderator/index';
 import { Router, Route, Navigate } from '@solidjs/router';
-import { StatusPage } from '../pages/status/index';
+import { StatusPage } from '@/pages/status/index';
 import { render } from 'solid-js/web';
 
 const root = document.getElementById('root');

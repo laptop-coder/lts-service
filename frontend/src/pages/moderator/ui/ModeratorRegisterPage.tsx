@@ -1,6 +1,6 @@
-import '../../../app/styles.css';
+import '@/app/styles.css';
 import type { Component } from 'solid-js';
-import { POST } from '../../../shared/lib/utils/index';
+import { POST } from '@/shared/lib/utils/index';
 import { createSignal } from 'solid-js';
 
 export const ModeratorRegisterPage: Component = () => {

@@ -1,6 +1,6 @@
-import '../../../app/styles.css';
+import '@/app/styles.css';
 import type { Component } from 'solid-js';
-import { Header } from '../../../shared/ui/index';
+import { Header } from '@/shared/ui/index';
 
 export const ModeratorPage: Component = () => {
   document.title = 'Модератор: ' + document.title;

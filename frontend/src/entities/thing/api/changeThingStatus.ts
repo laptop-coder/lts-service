@@ -1,4 +1,4 @@
-import { GET } from '../../../shared/lib/utils/index';
+import { GET } from '@/shared/lib/utils/index';
 
 export const changeThingStatus = (type: string, id: number) => {
   return new Promise((resolve, reject) => {

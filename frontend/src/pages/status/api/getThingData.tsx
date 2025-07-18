@@ -1,4 +1,4 @@
-import { GET } from '../../../shared/lib/utils/index';
+import { GET } from '@/shared/lib/utils/index';
 import { createResource } from 'solid-js';
 
 export const getThingData = (type: string, id: number) => {

@@ -1,21 +1,18 @@
-import '../../../app/styles.css';
+import '@/app/styles.css';
 import type { Component } from 'solid-js';
-import type {
-  LostThingProps,
-  FoundThingProps,
-} from '../../../entities/thing/index';
+import type { LostThingProps, FoundThingProps } from '@/entities/thing/index';
 import {
   ButtonHotkeyHint,
   DialogBox,
   Header,
   Loading,
   SVG,
-} from '../../../shared/ui/index';
-import { POST, fileToBase64 } from '../../../shared/lib/utils/index';
-import { Thing } from '../../../entities/thing/index';
+} from '@/shared/ui/index';
+import { POST, fileToBase64 } from '@/shared/lib/utils/index';
+import { Thing } from '@/entities/thing/index';
 import { autofocus } from '@solid-primitives/autofocus';
 import { createSignal, createMemo, Switch, Match } from 'solid-js';
-import { d } from '../../../shared/assets/index';
+import { d } from '@/shared/assets/index';
 import { getThingsList } from '../api/getThingsList';
 
 const [lostThingsList, reloadLostThingsList] = getThingsList('lost');
@@ -30,7 +27,8 @@ const [foundThingsListCache, setFoundThingsListCache] =
   createSignal<FoundThingProps[]>();
 
 const [addNewThing, setAddNewThing] = createSignal(false);
-enum AddNewThingStatuses { // type of elements is number
+enum AddNewThingStatuses {
+  // type of elements is number
   ChooseThingType,
   AddLostThing,
   AddFoundThing,
