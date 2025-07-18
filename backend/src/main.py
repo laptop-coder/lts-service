@@ -1,9 +1,7 @@
 from pathlib import Path
 from typing import Literal, Optional
-import base64
 import sqlite3
 
-from PIL import Image
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from fastapi import FastAPI, Response
@@ -13,6 +11,7 @@ from pydantic import BaseModel
 from auth.jwt_setup import create_jwt
 from exceptions import MultipleModeratorsHaveTheSameUsername
 import consts
+from utils.write_photo_to_the_storage import write_photo_to_the_storage
 
 
 ph = PasswordHasher()
@@ -55,16 +54,6 @@ with (
     open('./db.sql', 'r') as sql_requests,
 ):
     connection.cursor().executescript(sql_requests.read())
-
-
-def write_photo_to_the_storage(
-    type: Literal['lost'] | Literal['found'], id: int, photo_base64: str
-):
-    path_to_photo = f'{consts.PATH_TO_STORAGE}/{type}/{id}.jpeg'
-    with open(path_to_photo, 'wb') as photo:
-        photo.write(base64.b64decode(photo_base64))
-    photo = Image.open(path_to_photo)
-    photo.save(path_to_photo, quality=25)
 
 
 @app.get('/get_things_list')
