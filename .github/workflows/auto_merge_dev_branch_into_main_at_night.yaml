@@ -7,8 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Switch to the main branch
-        run: git switch main
+      - name: Checkout the dev branch
+        run: git checkout dev
+      - name: Checkout the main branch
+        run: git checkout main
       - name: Merge the dev branch into main
         run: git merge dev
       - name: Push the main branch
