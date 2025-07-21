@@ -1,6 +1,7 @@
 *.sqlite3
 .env
 __pycache__
+backend.log
 data
 dist
 node_modules
