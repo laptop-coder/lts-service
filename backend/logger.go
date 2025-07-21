@@ -15,3 +15,5 @@ func initLogger() *slog.Logger {
 	wrt := io.MultiWriter(os.Stdout, logfile)
 	return slog.New(slog.NewJSONHandler(wrt, nil))
 }
+
+var logger = initLogger()

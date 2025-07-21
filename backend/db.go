@@ -6,7 +6,6 @@ import (
 )
 
 func initDB() *sql.DB {
-	logger := initLogger()
 	const PATH_TO_DB string = "./db.sqlite3" // TODO: move const
 	db, err := sql.Open("sqlite3", PATH_TO_DB)
 	if err != nil {
