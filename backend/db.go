@@ -5,7 +5,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var initQueries = `
+var initialQueries = `
 CREATE TABLE IF NOT EXISTS lost_thing (
     id INTEGER PRIMARY KEY,
     publication_date TEXT NOT NULL,
@@ -48,7 +48,7 @@ func initDB() *sql.DB {
 	} else {
 		logger.Info("Pinged successfully. Can connect to the database")
 	}
-	if _, err := db.Exec(initQueries); err != nil {
+	if _, err := db.Exec(initialQueries); err != nil {
 		logger.Error("Error in running initial SQL queries")
 	} else {
 		logger.Info("Initial SQL queries completed")
