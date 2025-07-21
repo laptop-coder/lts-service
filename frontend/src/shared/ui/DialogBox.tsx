@@ -3,7 +3,7 @@ import type { DialogBoxProps } from '../model/index';
 import { autofocus } from '@solid-primitives/autofocus';
 import { children } from 'solid-js';
 
-const keyDown = (event: KeyboardEvent, actionToClose) => {
+const keyDown = (event: KeyboardEvent, actionToClose: Function) => {
   switch (event.key) {
     case 'Escape':
       actionToClose();
@@ -23,7 +23,7 @@ export const DialogBox: Component<DialogBoxProps> = (props) => {
       <div class='dialog_box'>{<>{children(() => props.children)}</>}</div>
       <div
         class='dialog_box__background'
-        onClick={props.actionToClose}
+        onClick={() => props.actionToClose}
       />
     </div>
   );

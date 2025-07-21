@@ -41,7 +41,7 @@ const [thingName, setThingName] = createSignal('');
 const [email, setEmail] = createSignal('');
 const [thingLocation, setThingLocation] = createSignal('');
 const [customText, setCustomText] = createSignal('');
-const [thingPhoto, setThingPhoto] = createSignal();
+const [thingPhoto, setThingPhoto] = createSignal('');
 
 const [uploadPhotoFocus, setUploadPhotoFocus] = createSignal(false);
 
@@ -52,7 +52,7 @@ const clear = () => {
   setEmail('');
   setThingLocation('');
   setCustomText('');
-  setThingPhoto();
+  setThingPhoto('');
   setUploadPhotoFocus(false);
 };
 
