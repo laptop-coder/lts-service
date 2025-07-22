@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	. "backend/logger"
@@ -58,4 +58,4 @@ func initDB() *sql.DB {
 	return db
 }
 
-var db = initDB()
+var DB = initDB()
