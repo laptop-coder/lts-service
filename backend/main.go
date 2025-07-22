@@ -2,6 +2,7 @@ package main
 
 import (
 	. "backend/database"
+	"backend/handlers"
 	. "backend/logger"
 	"fmt"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 func main() {
 	defer DB.Close()
 
+	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, World!")
 	})
