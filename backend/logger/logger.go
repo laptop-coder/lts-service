@@ -1,4 +1,4 @@
-package main
+package logger
 
 import (
 	"io"
@@ -16,4 +16,4 @@ func initLogger() *slog.Logger {
 	return slog.New(slog.NewJSONHandler(wrt, nil))
 }
 
-var logger = initLogger()
+var Logger = initLogger()
