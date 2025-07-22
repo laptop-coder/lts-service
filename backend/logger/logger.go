@@ -12,8 +12,18 @@ func initLogger() *slog.Logger {
 	if err != nil {
 		panic(err)
 	}
+
+	logLevel := new(slog.LevelVar)
+	if os.Getenv("LTS_SERVICE_DEV_MODE") == "true" {
+		logLevel.Set(slog.LevelDebug)
+	} else {
+		logLevel.Set(slog.LevelInfo)
+	}
+
 	wrt := io.MultiWriter(os.Stdout, logfile)
-	return slog.New(slog.NewJSONHandler(wrt, nil))
+	return slog.New(slog.NewJSONHandler(wrt, &slog.HandlerOptions{
+		Level: logLevel,
+	}))
 }
 
 var Logger = initLogger()
