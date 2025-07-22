@@ -1,6 +1,7 @@
 package main
 
 import (
+	. "backend/logger"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -39,19 +40,19 @@ func initDB() *sql.DB {
 	const PATH_TO_DB string = "./db.sqlite3" // TODO: move const
 	db, err := sql.Open("sqlite3", PATH_TO_DB)
 	if err != nil {
-		logger.Error("Error. Can't open database file: " + err.Error())
+		Logger.Error("Error. Can't open database file: " + err.Error())
 	} else {
-		logger.Info("The database file is open")
+		Logger.Info("The database file is open")
 	}
 	if err := db.Ping(); err != nil {
-		logger.Error("Error. Can't connect to the database: " + err.Error())
+		Logger.Error("Error. Can't connect to the database: " + err.Error())
 	} else {
-		logger.Info("Pinged successfully. Can connect to the database")
+		Logger.Info("Pinged successfully. Can connect to the database")
 	}
 	if _, err := db.Exec(initialQueries); err != nil {
-		logger.Error("Error in running initial SQL queries")
+		Logger.Error("Error in running initial SQL queries")
 	} else {
-		logger.Info("Initial SQL queries completed")
+		Logger.Info("Initial SQL queries completed")
 	}
 
 	return db
