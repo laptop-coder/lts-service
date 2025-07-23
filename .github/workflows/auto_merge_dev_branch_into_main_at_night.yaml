@@ -16,9 +16,5 @@ jobs:
         run: git checkout main
       - name: Merge the dev branch into main
         run: git merge dev
-      - name: Configure Git (username and email)
-        run: |
-          git config --global user.name ${{ vars.GIT_USERNAME }}
-          git config --global user.email ${{ vars.GIT_EMAIL }}
       - name: Push the main branch
         run: git push origin main
