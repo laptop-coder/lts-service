@@ -5,7 +5,6 @@ on:
 jobs:
   merge-dev-into-main:
     runs-on: ubuntu-latest
-    environment: auto-merge-dev-branch-into-main-at-night-actions-env
     steps:
       - uses: actions/checkout@v4
       - name: Fetch branches
