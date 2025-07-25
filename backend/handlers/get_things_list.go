@@ -54,7 +54,8 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		} else {
 			Logger.Info(fmt.Sprintf("Success. Received list of %s things", thingsType))
 			// Serialize data and send it in response
-			if thingsType == "lost" {
+			switch thingsType {
+			case "lost":
 				var lostThingsList []lostThing
 				var thing lostThing
 				for rows.Next() {
@@ -84,7 +85,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				w.Write(jsonData)
 				return
-			} else {
+			case "found":
 				var foundThingsList []foundThing
 				var thing foundThing
 				for rows.Next() {
