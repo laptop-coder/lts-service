@@ -4,7 +4,6 @@ import (
 	. "backend/database"
 	"backend/handlers"
 	. "backend/logger"
-	"fmt"
 	"net/http"
 )
 
@@ -13,9 +12,6 @@ func main() {
 
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
 	http.HandleFunc("/things/get_list", handlers.GetThingsList)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, World!")
-	})
 	Logger.Info("Starting server at port 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
