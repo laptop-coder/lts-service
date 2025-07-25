@@ -31,25 +31,29 @@ type foundThing struct {
 }
 
 func GetThingsList(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	if r.Method == http.MethodGet {
 		thingsType := r.URL.Query().Get("things_type")
 		// Parameter is empty
 		if thingsType == "" {
-			Logger.Error("Error. Send request with \"?things_type=lost\" or \"?things_type=found\"")
-			fmt.Fprintf(w, "Error. Send request with \"?things_type=lost\" or \"?things_type=found\"")
+			msg := "Error. Send request with \"?things_type=lost\" or \"?things_type=found\""
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
 		// Parameter is incorrect
 		if thingsType != "lost" && thingsType != "found" {
-			Logger.Error("Error. Things type should be \"lost\" or \"found\"")
-			fmt.Fprintf(w, "Error. Things type should be \"lost\" or \"found\"")
+			msg := "Error. Things type should be \"lost\" or \"found\""
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
 		// Get data from the database
 		sqlQuery := fmt.Sprintf("SELECT * FROM %s_thing WHERE status=0 ORDER BY id DESC;", thingsType)
 		if rows, err := DB.Query(sqlQuery); err != nil {
-			Logger.Error("Error getting things list from the database: " + err.Error())
-			fmt.Fprintf(w, "Error getting things list from the database: %s", err.Error())
+			msg := "Error getting things list from the database: " + err.Error()
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		} else {
 			Logger.Info(fmt.Sprintf("Success. Received list of %s things", thingsType))
@@ -69,20 +73,20 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 						&thing.Verified,
 						&thing.Status,
 					); err != nil {
-						Logger.Error("Error creating \"thing\" object: " + err.Error())
-						fmt.Fprintf(w, "Error creating \"thing\" object: %s", err.Error())
+						msg := "Error creating \"thing\" object: " + err.Error()
+						Logger.Error(msg)
+						http.Error(w, msg, http.StatusInternalServerError)
 						return
 					}
 					lostThingsList = append(lostThingsList, thing)
 				}
 				jsonData, err := json.Marshal(lostThingsList)
 				if err != nil {
-					Logger.Error("Json serialization error: " + err.Error())
-					fmt.Fprintf(w, "Json serialization error: %s", err.Error())
+					msg := "Json serialization error: " + err.Error()
+					Logger.Error(msg)
+					http.Error(w, msg, http.StatusInternalServerError)
 					return
 				}
-				// TODO: refactor. Response in JSON format
-				w.Header().Set("Content-Type", "application/json")
 				w.Write(jsonData)
 				return
 			case "found":
@@ -99,28 +103,29 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 						&thing.Verified,
 						&thing.Status,
 					); err != nil {
-						Logger.Error("Error creating \"thing\" object: " + err.Error())
-						fmt.Fprintf(w, "Error creating \"thing\" object: %s", err.Error())
+						msg := "Error creating \"thing\" object: " + err.Error()
+						Logger.Error(msg)
+						http.Error(w, msg, http.StatusInternalServerError)
 						return
 					}
 					foundThingsList = append(foundThingsList, thing)
 				}
 				jsonData, err := json.Marshal(foundThingsList)
 				if err != nil {
-					Logger.Error("Json serialization error: " + err.Error())
-					fmt.Fprintf(w, "Json serialization error: %s", err.Error())
+					msg := "Json serialization error: " + err.Error()
+					Logger.Error(msg)
+					http.Error(w, msg, http.StatusInternalServerError)
 					return
 				}
-				// TODO: refactor. Response in JSON format
-				w.Header().Set("Content-Type", "application/json")
 				w.Write(jsonData)
 				return
 			}
 
 		}
 	} else {
-		fmt.Fprintf(w, "A GET request is required")
-		Logger.Warn("A GET request is required")
+		msg := "A GET request is required"
+		Logger.Warn(msg)
+		http.Error(w, msg, http.StatusMethodNotAllowed)
 		return
 	}
 }
