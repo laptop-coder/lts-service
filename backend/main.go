@@ -12,6 +12,7 @@ func main() {
 	defer DB.Close()
 
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
+	http.HandleFunc("/things/get_list", handlers.GetThingsList)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello, World!")
 	})
