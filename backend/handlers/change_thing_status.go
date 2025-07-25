@@ -20,6 +20,12 @@ func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
 		thingId, thingType :=
 			r.FormValue("thing_id"),
 			r.FormValue("thing_type")
+		if thingId == "" || thingType == "" {
+			msg := "error: the \"thing_id\" and \"thing_type\" parameters are required"
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusBadRequest)
+			return
+		}
 		if thingType != "lost" && thingType != "found" {
 			msg := "Error. Thing type should be \"lost\" or \"found\""
 			Logger.Error(msg)
