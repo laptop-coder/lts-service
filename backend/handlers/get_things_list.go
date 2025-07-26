@@ -38,14 +38,14 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		if thingsType == "" {
 			msg := "Error. Send request with \"?things_type=lost\" or \"?things_type=found\""
 			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
+			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
 		// Parameter is incorrect
 		if thingsType != "lost" && thingsType != "found" {
 			msg := "Error. Things type should be \"lost\" or \"found\""
 			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
+			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
 		// Get data from the database
