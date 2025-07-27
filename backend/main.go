@@ -13,6 +13,7 @@ func main() {
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
 	http.HandleFunc("/thing/get_data", handlers.GetThingData)
 	http.HandleFunc("/things/get_list", handlers.GetThingsList)
+	http.HandleFunc("/thing/add", handlers.AddThing)
 	Logger.Info("Starting server at port 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
