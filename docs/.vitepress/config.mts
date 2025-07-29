@@ -8,7 +8,7 @@ export default defineConfig({
     nav: [
       {
         text: 'Документация',
-        link: '/documentation/detailed/01-intro',
+        link: '/documentation/01-intro',
       },
       { text: 'Примеры', link: '/examples/01-intro' },
     ],
@@ -16,17 +16,37 @@ export default defineConfig({
     sidebar: {
       '/documentation': [
         {
-          text: 'Начало работы',
+          text: 'Введение',
           base: '/documentation',
-          link: '/getting-started',
+          link: '/01-intro',
         },
         {
-          text: 'Подробная документация',
-          base: '/documentation/detailed',
+          text: 'Пользователям',
+          base: '/documentation/01-for-users',
           items: [
             {
-              text: 'Введение',
-              link: '/01-intro',
+              text: 'Быстрый старт',
+              link: '/01-quick-start',
+            },
+          ],
+        },
+        {
+          text: 'Администраторам',
+          base: '/documentation/02-for-admins',
+          items: [
+            {
+              text: 'Развёртывание на сервере',
+              link: '/01-deploy',
+            },
+          ],
+        },
+        {
+          text: 'Разработчикам',
+          base: '/documentation/03-for-developers',
+          items: [
+            {
+              text: 'Подготовка к работе',
+              link: '/01-preparation-for-work',
             },
           ],
         },

@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Начало работы
-      link: /documentation/getting-started
+      link: /documentation/01-intro
     - theme: alt
       text: Примеры
       link: /examples/01-intro
