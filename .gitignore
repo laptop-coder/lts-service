@@ -5,6 +5,7 @@
 *.sqlite3
 .env
 __pycache__
+cache
 data
 db
 dist
