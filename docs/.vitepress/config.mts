@@ -25,8 +25,8 @@ export default defineConfig({
           base: '/documentation/01-for-users',
           items: [
             {
-              text: 'Быстрый старт',
-              link: '/01-quick-start',
+              text: 'Сценарии использования',
+              link: '/01-use-cases',
             },
           ],
         },
@@ -35,8 +35,12 @@ export default defineConfig({
           base: '/documentation/02-for-admins',
           items: [
             {
+              text: 'Установка зависимостей',
+              link: '/01-installing-dependencies',
+            },
+            {
               text: 'Развёртывание на сервере',
-              link: '/01-deploy',
+              link: '/02-deploy',
             },
           ],
         },
@@ -45,8 +49,24 @@ export default defineConfig({
           base: '/documentation/03-for-developers',
           items: [
             {
+              text: 'Установка зависимостей',
+              link: '/01-installing-dependencies',
+            },
+            {
               text: 'Подготовка к работе',
-              link: '/01-preparation-for-work',
+              link: '/02-preparation-for-work',
+            },
+            {
+              text: 'Где хранятся данные',
+              link: '/03-where-the-data-is-stored',
+            },
+            {
+              text: 'Бэкап данных',
+              link: '/04-data-backup',
+            },
+            {
+              text: 'CI/CD',
+              link: '/05-ci-cd',
             },
           ],
         },
@@ -67,7 +87,6 @@ export default defineConfig({
         },
       ],
     },
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/laptop-coder/lts-service' },
     ],
