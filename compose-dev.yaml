@@ -11,6 +11,10 @@ services:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
       - PATH_TO_ENV=/env
       - PATH_TO_STORAGE=/backend/data/storage
+      - RSA_PRIVATE_KEY="private_key.pem"
+      - RSA_PUBLIC_KEY="public_key.pem"
+      - SSL_CERT="certfile.crt"
+      - SSL_KEY="keyfile.key"
     env_file:
       - .env
     networks:
