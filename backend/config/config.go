@@ -17,6 +17,10 @@ type EnvConfig struct {
 	PathTo string
 }
 
+type LogsConfig struct {
+	PathToBackend string
+}
+
 type RSAConfig struct {
 	PrivateKeyPassword string
 	PathToPrivateKey   string
@@ -36,6 +40,7 @@ type Config struct {
 	App     AppConfig
 	DB      DBConfig
 	Env     EnvConfig
+	Logs    LogsConfig
 	RSA     RSAConfig
 	SSL     SSLConfig
 	Storage StorageConfig
@@ -51,6 +56,13 @@ func New() *Config {
 		},
 		Env: EnvConfig{
 			PathTo: getEnv("PATH_TO_ENV"),
+		},
+		Logs: LogsConfig{
+			PathToBackend: fmt.Sprintf(
+				"%s/%s",
+				getEnv("PATH_TO_LOGS"),
+				getEnv("BACKEND_LOG"),
+			),
 		},
 		RSA: RSAConfig{
 			PathToPrivateKey: fmt.Sprintf(
