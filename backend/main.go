@@ -1,20 +1,16 @@
 package main
 
 import (
+	"backend/config"
 	. "backend/database"
 	"backend/handlers"
 	. "backend/logger"
-	// "flag"
 	"net/http"
 )
 
 func main() {
 	defer DB.Close()
-
-	// var pathToCert string
-	// var pathToKey string
-	// flag.StringVar(&pathToCert, "path-to-cert", "", "Путь к файлу SSL-сертификата")
-	// flag.StringVar(&pathToKey, "path-to-key", "", "Путь к файлу SSL-ключа")
+	cfg := config.New()
 
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
 	http.HandleFunc("/thing/get_data", handlers.GetThingData)
@@ -22,8 +18,7 @@ func main() {
 	http.HandleFunc("/thing/add", handlers.AddThing)
 
 	Logger.Info("Starting server")
-	// err := http.ListenAndServeTLS(":443", pathToCert, pathToKey, nil)
-	err := http.ListenAndServe(":80", nil)
+	err := http.ListenAndServeTLS(":443", cfg.SSL.PathToCert, cfg.SSL.PathToKey, nil)
 	if err != nil {
 		Logger.Error("Error starting the server: " + err.Error())
 	}
