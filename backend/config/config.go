@@ -46,7 +46,7 @@ type Config struct {
 	Storage StorageConfig
 }
 
-func New() *Config {
+func newConfig() *Config {
 	return &Config{
 		App: AppConfig{
 			DevMode: getEnv("LTS_SERVICE_DEV_MODE"),
@@ -102,3 +102,5 @@ func getEnv(key string) string {
 	}
 	panic(fmt.Sprintf("The required environment variable \"%s\" is not set", key))
 }
+
+var Cfg = newConfig()
