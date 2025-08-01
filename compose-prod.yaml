@@ -6,6 +6,7 @@ services:
     volumes:
       - ./data/db:/backend/data/db
       - ./data/env:/env
+      - ./data/logs:/backend/data/logs
       - ./data/storage:/backend/data/storage
     environment:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
@@ -15,6 +16,8 @@ services:
       - RSA_PUBLIC_KEY="public_key.pem"
       - SSL_CERT="certfile.crt"
       - SSL_KEY="keyfile.key"
+      - PATH_TO_LOGS="/backend/data/logs"
+      - BACKEND_LOG="backend.log"
     env_file:
       - .env
     networks:
