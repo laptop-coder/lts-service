@@ -1,7 +1,7 @@
 package main
 
 import (
-	"backend/config"
+	. "backend/config"
 	. "backend/database"
 	"backend/handlers"
 	. "backend/logger"
@@ -10,7 +10,6 @@ import (
 
 func main() {
 	defer DB.Close()
-	cfg := config.New()
 
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
 	http.HandleFunc("/thing/get_data", handlers.GetThingData)
@@ -18,7 +17,7 @@ func main() {
 	http.HandleFunc("/thing/add", handlers.AddThing)
 
 	Logger.Info("Starting server")
-	err := http.ListenAndServeTLS(":443", cfg.SSL.PathToCert, cfg.SSL.PathToKey, nil)
+	err := http.ListenAndServeTLS(":443", Cfg.SSL.PathToCert, Cfg.SSL.PathToKey, nil)
 	if err != nil {
 		Logger.Error("Error starting the server: " + err.Error())
 	}

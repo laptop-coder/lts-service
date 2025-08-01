@@ -1,6 +1,7 @@
 package database
 
 import (
+	. "backend/config"
 	. "backend/logger"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
@@ -37,8 +38,7 @@ CREATE TABLE IF NOT EXISTS moderator (
 `
 
 func initDB() *sql.DB {
-	const PATH_TO_DB string = "./db.sqlite3" // TODO: move const
-	db, err := sql.Open("sqlite3", PATH_TO_DB)
+	db, err := sql.Open("sqlite3", Cfg.DB.PathTo)
 	if err != nil {
 		Logger.Error("Error. Can't open database file: " + err.Error())
 	} else {

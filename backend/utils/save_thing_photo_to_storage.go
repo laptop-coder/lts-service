@@ -2,6 +2,7 @@
 package utils
 
 import (
+	. "backend/config"
 	. "backend/logger"
 	"bytes"
 	"encoding/base64"
@@ -19,8 +20,6 @@ import (
 //
 // POSSIBLY OUTDATED
 func SaveThingPhotoToStorage(photoBase64 string, thingId int64, thingType string) error {
-	const PATH_TO_STORAGE = "./storage" // TODO: move constant
-
 	// Check base64 format
 	// if photoBase64[:10] != "data:image" {
 	// 	const msg = "base-64 string should contain \"data:image\""
@@ -48,7 +47,7 @@ func SaveThingPhotoToStorage(photoBase64 string, thingId int64, thingType string
 
 	pathToPhoto := fmt.Sprintf(
 		"%s/%s/%d.jpeg",
-		PATH_TO_STORAGE,
+		Cfg.Storage.PathTo,
 		thingType,
 		thingId,
 	)
