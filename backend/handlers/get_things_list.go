@@ -3,6 +3,7 @@ package handlers
 import (
 	. "backend/database"
 	. "backend/logger"
+	. "backend/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -31,6 +32,7 @@ type foundThing struct {
 }
 
 func GetThingsList(w http.ResponseWriter, r *http.Request) {
+	SetupCORS(&w)
 	if r.Method != http.MethodGet {
 		msg := "A GET request is required"
 		Logger.Warn(msg)

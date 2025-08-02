@@ -3,12 +3,14 @@ package handlers
 import (
 	. "backend/database"
 	. "backend/logger"
+	. "backend/utils"
 	"fmt"
 	"io"
 	"net/http"
 )
 
 func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
+	SetupCORS(&w)
 	if r.Method != http.MethodPost {
 		msg := "A POST request is required"
 		Logger.Warn(msg)

@@ -15,6 +15,7 @@ import (
 )
 
 func AddThing(w http.ResponseWriter, r *http.Request) {
+	SetupCORS(&w)
 	if r.Method != http.MethodPost {
 		msg := "A POST request is required"
 		Logger.Warn(msg)
