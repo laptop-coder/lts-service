@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type AppConfig struct {
@@ -58,33 +59,28 @@ func newConfig() *Config {
 			PathTo: getEnv("PATH_TO_ENV"),
 		},
 		Logs: LogsConfig{
-			PathToBackend: fmt.Sprintf(
-				"%s/%s",
+			PathToBackend: filepath.Join(
 				getEnv("PATH_TO_LOGS"),
 				getEnv("BACKEND_LOG"),
 			),
 		},
 		RSA: RSAConfig{
-			PathToPrivateKey: fmt.Sprintf(
-				"%s/%s",
+			PathToPrivateKey: filepath.Join(
 				getEnv("PATH_TO_ENV"),
 				getEnv("RSA_PRIVATE_KEY"),
 			),
-			PathToPublicKey: fmt.Sprintf(
-				"%s/%s",
+			PathToPublicKey: filepath.Join(
 				getEnv("PATH_TO_ENV"),
 				getEnv("RSA_PUBLIC_KEY"),
 			),
 			PrivateKeyPassword: getEnv("PRIVATE_KEY_ENCRYPTION_PASSWORD"),
 		},
 		SSL: SSLConfig{
-			PathToCert: fmt.Sprintf(
-				"%s/%s",
+			PathToCert: filepath.Join(
 				getEnv("PATH_TO_ENV"),
 				getEnv("SSL_CERT"),
 			),
-			PathToKey: fmt.Sprintf(
-				"%s/%s",
+			PathToKey: filepath.Join(
 				getEnv("PATH_TO_ENV"),
 				getEnv("SSL_KEY"),
 			),
