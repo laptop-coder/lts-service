@@ -60,7 +60,7 @@ export const Thing: Component<LostThingProps & FoundThingProps> = (props) => {
           if (confirm('Вы уверены?')) {
             setThingHidden(true);
             setTimeout(() => {
-              changeThingStatus(props.type, props.id).then(() =>
+              changeThingStatus(props.id, props.type).then(() =>
                 props.reloadList(),
               );
             }, 500);

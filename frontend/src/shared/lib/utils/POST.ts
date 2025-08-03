@@ -3,9 +3,9 @@ export const POST = (path: string, data: object) => {
     fetch(`https://172.16.1.2/${path}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(data),
+      body: new URLSearchParams(JSON.stringify(data)),
     })
       .then((response) => {
         if (!response.ok) {

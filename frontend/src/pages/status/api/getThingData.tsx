@@ -3,7 +3,7 @@ import { createResource } from 'solid-js';
 
 export const getThingData = (type: string, id: number) => {
   const [thingData, { refetch: reloadThingData }] = createResource(
-    `get_thing_data?type=${type}&id=${id}`,
+    `thing/get_data?thing_id=${id}&thing_type=${type}`,
     GET,
   );
   return [thingData, reloadThingData];

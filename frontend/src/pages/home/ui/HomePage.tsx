@@ -211,7 +211,7 @@ export const HomePage: Component = () => {
                   onClick={(event) => {
                     event.preventDefault();
                     if (thingName() !== '' && email() !== '') {
-                      POST('add_new_lost_thing', {
+                      POST('thing/add?thing_type=lost', {
                         thing_name: thingName(),
                         email: email(),
                         custom_text: customText(),
@@ -290,7 +290,7 @@ export const HomePage: Component = () => {
                   onClick={(event) => {
                     event.preventDefault();
                     if (thingName() !== '' && thingLocation() !== '') {
-                      POST('add_new_found_thing', {
+                      POST('thing/add?thing_type=found', {
                         thing_name: thingName(),
                         thing_location: thingLocation(),
                         custom_text: customText(),

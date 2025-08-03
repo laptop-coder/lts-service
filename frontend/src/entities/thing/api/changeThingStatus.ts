@@ -1,9 +1,10 @@
-import { GET } from '@/shared/lib/utils/index';
+import { POST } from '@/shared/lib/utils/index';
 
-export const changeThingStatus = (type: string, id: number) => {
+export const changeThingStatus = (thingId: number, thingType: string) => {
   return new Promise((resolve, reject) => {
-    GET(`change_thing_status?type=${type}&id=${id}`)
-      .then((response) => resolve(response))
-      .catch((error) => reject(error));
+    POST(`thing/change_status`, {
+      thing_id: thingId,
+      thing_type: thingType,
+    });
   });
 };
