@@ -38,6 +38,15 @@ services:
     depends_on:
       - backend
 
+  docs:
+    build: ./docs
+    container_name: docs-dev
+    volumes:
+      - ./data/env:/env
+    networks:
+      network:
+        ipv4_address: 172.16.1.4
+
 volumes:
   db:
   env:
