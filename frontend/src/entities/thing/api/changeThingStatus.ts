@@ -5,6 +5,8 @@ export const changeThingStatus = (thingId: number, thingType: string) => {
     POST(`thing/change_status`, {
       thing_id: thingId,
       thing_type: thingType,
-    });
+    })
+      .then((response) => resolve(response))
+      .catch((error) => reject(error));
   });
 };
