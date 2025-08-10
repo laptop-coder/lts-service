@@ -3,7 +3,7 @@ import { JSX } from "solid-js";
 import { A } from "@solidjs/router";
 
 import { HOME_ROUTE } from "../../utils/consts";
-import styles from "./logo.module.css";
+import styles from "./Logo.module.css";
 
 const Logo = (): JSX.Element => {
   return (
