@@ -1,0 +1,9 @@
+.logo {
+  width: 100%;
+}
+
+.logo a {
+  display: flex;
+  width: fit-content;
+}
+
