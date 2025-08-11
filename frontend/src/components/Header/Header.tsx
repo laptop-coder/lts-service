@@ -12,7 +12,10 @@ const Header = (props: ParentProps): JSX.Element => {
       {/* Main module is the left part of the header*/}
       <div class={styles.main_module}>
         <Logo />
-        <A href={HOME_ROUTE}>
+        <A
+          href={HOME_ROUTE}
+          title='На главную'
+        >
           <h1>Сервис поиска потерянных вещей</h1>
         </A>
       </div>
