@@ -1,9 +1,9 @@
 .logo {
-  width: 100%;
-}
-
-.logo a {
+  aspect-ratio: 1/1;
   display: flex;
-  width: fit-content;
 }
 
+.logo svg,
+.logo image {
+  width: 40px;
+}
