@@ -1,15 +1,26 @@
-import { JSX } from "solid-js";
+import { JSX } from 'solid-js';
 
-import { Router, Route, Navigate } from "@solidjs/router";
+import { Router, Route, Navigate } from '@solidjs/router';
 
-import HomePage from "./pages/HomePage";
-import { HOME_ROUTE } from "./utils/consts";
+import HomePage from './pages/HomePage';
+import { HOME_ROUTE } from './utils/consts';
 
 const AppRouter = (): JSX.Element => {
   return (
     <Router>
-      <Route path={HOME_ROUTE} component={() => <HomePage />} />
-      <Route path="/*" component={() => <Navigate href={HOME_ROUTE} state />} />
+      <Route
+        path={HOME_ROUTE}
+        component={() => <HomePage />}
+      />
+      <Route
+        path='/*'
+        component={() => (
+          <Navigate
+            href={HOME_ROUTE}
+            state
+          />
+        )}
+      />
     </Router>
   );
 };
