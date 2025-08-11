@@ -1,5 +1,10 @@
 .logo {
   display: flex;
+  height: fit-content;
+  width: fit-content;
+}
+
+.logo img {
+  height: 40px;
   width: 40px;
-  aspect-ratio: 1/1;
 }

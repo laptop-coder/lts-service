@@ -1,10 +1,16 @@
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background-color: #fff;
   padding: 10px;
   border-radius: 10px;
-  position: relative;
+}
+
+/* Main module is the left part of the header*/
+.main_module {
+  display: flex;
+  align-items: center;
 }
 
 .header a {
@@ -13,7 +19,6 @@
 }
 
 .header h1 {
-  font-family: nunito;
   margin-left: 10px;
   font-size: 20px;
 }
@@ -23,8 +28,5 @@
   height: 100%;
   display: flex;
   align-items: center;
-  right: 0;
-  position: absolute;
-  padding: 10px;
   gap: 10px;
 }
