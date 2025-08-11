@@ -1,0 +1,16 @@
+.footer {
+  background-color: #fff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  gap: 10px;
+}
+
+.footer a {
+  display: flex;
+}
+
+.footer img {
+  width: 40px;
+}
