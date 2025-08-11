@@ -11,9 +11,7 @@ const Logo = (): JSX.Element => {
       class={styles.logo}
       href={HOME_ROUTE}
     >
-      <svg>
-        <image href='/src/assets/logo.svg'></image>
-      </svg>
+      <img src='/src/assets/logo.svg'></img>
     </A>
   );
 };
