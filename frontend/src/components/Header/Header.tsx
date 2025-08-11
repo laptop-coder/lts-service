@@ -1,4 +1,4 @@
-import { JSX } from 'solid-js';
+import { JSX, ParentProps } from 'solid-js';
 
 import { A } from '@solidjs/router';
 
@@ -6,13 +6,15 @@ import styles from './Header.module.css';
 import Logo from '../../ui/Logo/Logo';
 import { HOME_ROUTE } from '../../utils/consts';
 
-const Header = (): JSX.Element => {
+const Header = (props: ParentProps): JSX.Element => {
   return (
     <header class={styles.header}>
       <Logo />
       <A href={HOME_ROUTE}>
         <h1>Сервис поиска потерянных вещей</h1>
       </A>
+      {/* Custom module is the right part of the header*/}
+      <div class={styles.custom_module}>{props.children}</div>
     </header>
   );
 };

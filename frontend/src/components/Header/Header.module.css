@@ -4,6 +4,7 @@
   background-color: #fff;
   padding: 10px;
   border-radius: 10px;
+  position: relative;
 }
 
 .header a {
@@ -15,4 +16,15 @@
   font-family: nunito;
   margin-left: 10px;
   font-size: 20px;
+}
+
+/* Custom module is the right part of the header*/
+.custom_module {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  right: 0;
+  position: absolute;
+  padding: 10px;
+  gap: 10px;
 }
