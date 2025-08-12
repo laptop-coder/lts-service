@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.15.3",
+    "axios": "^1.11.0",
     "solid-js": "^1.9.5"
   }
 }
