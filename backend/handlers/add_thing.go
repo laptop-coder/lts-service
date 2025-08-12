@@ -51,45 +51,43 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 
 	switch thingType {
 	case "lost":
-		thingName := r.FormValue("thing_name")
-		email := r.FormValue("email")
-		customText := r.FormValue("custom_text")
-		thingPhoto = r.FormValue("thing_photo")
-		if thingName == "" || email == "" || customText == "" {
-			msg := "Error. Thing type is \"lost\", so the POST parameters thing_name, email and custom_text are required"
+		thingName := r.FormValue("thingName")
+		userEmail := r.FormValue("userEmail")
+		customText := r.FormValue("customText")
+		thingPhoto = r.FormValue("thingPhoto")
+		if thingName == "" || userEmail == "" {
+			msg := "Error. Thing type is \"lost\", so the POST parameters thingName and userEmail are required"
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
 		sqlQuery = fmt.Sprintf(`
             INSERT INTO lost_thing (
-                publication_date,
-                publication_time,
+                publication_datetime,
                 thing_name,
-                email,
+                user_email,
                 custom_text,
                 verified,
                 status
             )
             VALUES (
-				date('now'), substr(time('now'), 1, 5), '%s', '%s', '%s', 0, 0
+				datetime('now'), '%s', '%s', '%s', 0, 0
             );
-		`, thingName, email, customText)
+		`, thingName, userEmail, customText)
 	case "found":
-		thingName := r.FormValue("thing_name")
-		thingLocation := r.FormValue("thing_location")
-		customText := r.FormValue("custom_text")
-		thingPhoto = r.FormValue("thing_photo")
-		if thingName == "" || thingLocation == "" || customText == "" {
-			msg := "Error. Thing type is \"found\", so the POST parameters thing_name, thing_location and custom_text are required"
+		thingName := r.FormValue("thingName")
+		thingLocation := r.FormValue("thingLocation")
+		customText := r.FormValue("customText")
+		thingPhoto = r.FormValue("thingPhoto")
+		if thingName == "" || thingLocation == "" {
+			msg := "Error. Thing type is \"found\", so the POST parameters thingName and thingLocation are required"
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
 		sqlQuery = fmt.Sprintf(`
             INSERT INTO found_thing (
-                publication_date,
-                publication_time,
+                publication_datetime,
                 thing_name,
                 thing_location,
                 custom_text,
@@ -97,7 +95,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
                 status
             )
             VALUES (
-                date('now'), substr(time('now'), 1, 5), '%s', '%s', '%s', 0, 0
+                datetime('now'), '%s', '%s', '%s', 0, 0
             );
 		`, thingName, thingLocation, customText)
 	}

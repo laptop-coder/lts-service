@@ -39,7 +39,8 @@ func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	sqlQuery := fmt.Sprintf("UPDATE %s_thing SET status=1 WHERE id=%s;",
+	sqlQuery := fmt.Sprintf("UPDATE %s_thing SET status=1 WHERE %s_thing_id=%s;",
+		thingType,
 		thingType,
 		thingId,
 	)

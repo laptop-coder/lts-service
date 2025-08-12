@@ -44,17 +44,16 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get data from the database
-	sqlQuery := fmt.Sprintf("SELECT * FROM %s_thing WHERE id=%s;", thingType, thingId)
+	sqlQuery := fmt.Sprintf("SELECT * FROM %s_thing WHERE %s_thing_id=%s;", thingType, thingType, thingId)
 	row := DB.QueryRow(sqlQuery)
 	switch thingType {
 	case "lost":
 		var thing lostThing
 		err := row.Scan(
-			&thing.Id,
-			&thing.PublicationDate,
-			&thing.PublicationTime,
+			&thing.LostThingId,
+			&thing.PublicationDatetime,
 			&thing.ThingName,
-			&thing.Email,
+			&thing.UserEmail,
 			&thing.CustomText,
 			&thing.Verified,
 			&thing.Status,
@@ -89,9 +88,8 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 	case "found":
 		var thing foundThing
 		err := row.Scan(
-			&thing.Id,
-			&thing.PublicationDate,
-			&thing.PublicationTime,
+			&thing.FoundThingId,
+			&thing.PublicationDatetime,
 			&thing.ThingName,
 			&thing.ThingLocation,
 			&thing.CustomText,

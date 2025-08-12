@@ -10,25 +10,23 @@ import (
 )
 
 type lostThing struct {
-	Id              int
-	PublicationDate string
-	PublicationTime string
-	ThingName       string
-	Email           string
-	CustomText      string
-	Verified        int
-	Status          int
+	LostThingId         int
+	PublicationDatetime string
+	ThingName           string
+	UserEmail           string
+	CustomText          string
+	Verified            int
+	Status              int
 }
 
 type foundThing struct {
-	Id              int
-	PublicationDate string
-	PublicationTime string
-	ThingName       string
-	ThingLocation   string
-	CustomText      string
-	Verified        int
-	Status          int
+	FoundThingId        int
+	PublicationDatetime string
+	ThingName           string
+	ThingLocation       string
+	CustomText          string
+	Verified            int
+	Status              int
 }
 
 func GetThingsList(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +54,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get data from the database
-	sqlQuery := fmt.Sprintf("SELECT * FROM %s_thing WHERE status=0 ORDER BY id DESC;", thingsType)
+	sqlQuery := fmt.Sprintf("SELECT * FROM %s_thing WHERE status=0 ORDER BY %s_thing_id DESC;", thingsType, thingsType)
 	if rows, err := DB.Query(sqlQuery); err != nil {
 		msg := "Error getting things list from the database: " + err.Error()
 		Logger.Error(msg)
@@ -71,11 +69,10 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 			var thing lostThing
 			for rows.Next() {
 				if err := rows.Scan(
-					&thing.Id,
-					&thing.PublicationDate,
-					&thing.PublicationTime,
+					&thing.LostThingId,
+					&thing.PublicationDatetime,
 					&thing.ThingName,
-					&thing.Email,
+					&thing.UserEmail,
 					&thing.CustomText,
 					&thing.Verified,
 					&thing.Status,
@@ -101,9 +98,8 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 			var thing foundThing
 			for rows.Next() {
 				if err := rows.Scan(
-					&thing.Id,
-					&thing.PublicationDate,
-					&thing.PublicationTime,
+					&thing.FoundThingId,
+					&thing.PublicationDatetime,
 					&thing.ThingName,
 					&thing.ThingLocation,
 					&thing.CustomText,
