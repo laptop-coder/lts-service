@@ -1,6 +1,6 @@
 import { JSX } from 'solid-js';
 
-import styles from './Thing.module.css';
+import styles from './FormatUTCDatetime.module.css';
 import type utcDatetime from '../../types/utcDatetime';
 import { months } from '../../utils/consts';
 
@@ -17,14 +17,16 @@ const FormatUTCDatetime = (props: { datetime: utcDatetime }): JSX.Element => {
    */
   const dt = new Date(props.datetime);
   return (
-    <div
+    <span
       class={styles.datetime}
       title={dt.toLocaleString()}
     >
-      {dt.getDate().toString().padStart(2, '0')} {months[dt.getMonth()]},
-      {dt.getHours().toString().padStart(2, '0')}:
+      {dt.getDate().toString().padStart(2, '0')} {months[dt.getMonth()]}
+      {', '}
+      {dt.getHours().toString().padStart(2, '0')}
+      {':'}
       {dt.getMinutes().toString().padStart(2, '0')}
-    </div>
+    </span>
   );
 };
 
