@@ -1,23 +1,105 @@
-import { JSX } from 'solid-js';
+import { JSX, createResource, For, Switch, Match } from 'solid-js';
 
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
+import List from '../components/List/List';
+import ListsGroup from '../components/ListsGroup/ListsGroup';
 import Footer from '../components/Footer/Footer';
 import Page from '../ui/Page/Page';
+import Loading from '../ui/Loading/Loading';
+import Error from '../ui/Error/Error';
 import SquareImageButton from '../ui/SquareImageButton/SquareImageButton';
+import fetchThingsList from '../utils/fetchThingsList';
+import type lostThing from '../types/lostThing';
+import type foundThing from '../types/foundThing';
+import LostThing from '../ui/LostThing/LostThing';
+import FoundThing from '../ui/FoundThing/FoundThing';
+import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
 
 const HomePage = (): JSX.Element => {
+  const [lostThingsList, { refetch: reloadLostThingsList }]: ResourceReturn<
+    lostThing[]
+  > = createResource('lost', fetchThingsList);
+  const [foundThingsList, { refetch: reloadFoundThingsList }]: ResourceReturn<
+    foundThing[]
+  > = createResource('found', fetchThingsList);
   return (
     <Page>
       <Header>
         <SquareImageButton>
-          <img src='/src/assets/add.svg'></img>
+          <img src='/src/assets/add.svg' />
         </SquareImageButton>
-        <SquareImageButton>
-          <img src='/src/assets/reload.svg'></img>
+        <SquareImageButton
+          onclick={() => {
+            reloadLostThingsList();
+            reloadFoundThingsList();
+          }}
+        >
+          <img src='/src/assets/reload.svg' />
         </SquareImageButton>
       </Header>
-      <Content></Content>
+      <Content>
+        <ListsGroup>
+          <List title='Потерянные вещи'>
+            {/*TODO: is it normal to use Loading in the fallback here?*/}
+            <Switch fallback={<Loading />}>
+              <Match
+                when={
+                  lostThingsList.state === 'unresolved' ||
+                  lostThingsList.state === 'pending'
+                }
+              >
+                <Loading />
+              </Match>
+              <Match
+                when={
+                  lostThingsList.state === 'ready' ||
+                  lostThingsList.state === 'refreshing'
+                }
+              >
+                <For
+                  each={lostThingsList()}
+                  fallback='Данных нет'
+                >
+                  {(item: lostThing) => <LostThing {...item} />}
+                </For>
+              </Match>
+              <Match when={lostThingsList.state === 'errored'}>
+                <Error />
+              </Match>
+            </Switch>
+          </List>
+          <List title='Найденные вещи'>
+            {/*TODO: is it normal to use Loading in the fallback here?*/}
+            <Switch fallback={<Loading />}>
+              <Match
+                when={
+                  foundThingsList.state === 'unresolved' ||
+                  foundThingsList.state === 'pending'
+                }
+              >
+                <Loading />
+              </Match>
+              <Match
+                when={
+                  foundThingsList.state === 'ready' ||
+                  foundThingsList.state === 'refreshing'
+                }
+              >
+                <For
+                  each={foundThingsList()}
+                  fallback='Данных нет'
+                >
+                  {(item: foundThing) => <FoundThing {...item} />}
+                </For>
+              </Match>
+              <Match when={foundThingsList.state === 'errored'}>
+                <Error />
+              </Match>
+            </Switch>
+          </List>
+        </ListsGroup>
+      </Content>
       <Footer></Footer>
     </Page>
   );
