@@ -1,3 +1,10 @@
-.datetime {
-  cursor: help;
+.thing {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 0 7px 3px #ccc;
+  padding: 10px;
+  gap: 5px;
 }
+
