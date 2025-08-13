@@ -1,0 +1,12 @@
+.thing_description_item {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: flex-start;
+}
+
+.thing_description_item img {
+  width: 20px;
+  cursor: help;
+  user-select: none;
+}
