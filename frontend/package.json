@@ -16,6 +16,7 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
+    "@solid-primitives/transition-group": "^1.1.2",
     "@solidjs/router": "^0.15.3",
     "axios": "^1.11.0",
     "solid-js": "^1.9.5"
