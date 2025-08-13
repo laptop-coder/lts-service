@@ -25,10 +25,10 @@ func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	// TODO: is it normal that thingId is string, not int?
 	thingId, thingType :=
-		r.FormValue("thing_id"),
-		r.FormValue("thing_type")
+		r.FormValue("thingId"),
+		r.FormValue("thingType")
 	if thingId == "" || thingType == "" {
-		msg := "error: the \"thing_id\" and \"thing_type\" parameters are required"
+		msg := "error: the \"thingId\" and \"thingType\" parameters are required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
