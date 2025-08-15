@@ -6,7 +6,7 @@ const SquareImageButton = (
   props: JSX.ButtonHTMLAttributes<HTMLButtonElement>,
 ): JSX.Element => (
   <button
-    class={styles.button}
+    class={styles.square_image_button}
     onclick={props.onclick}
     type='button'
   >

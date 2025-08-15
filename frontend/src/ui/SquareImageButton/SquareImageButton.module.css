@@ -1,4 +1,4 @@
-.button {
+.square_image_button {
   height: 40px;
   aspect-ratio: 1/1;
   border: none;
@@ -7,6 +7,6 @@
   padding: 5px;
 }
 
-.button:hover {
+.square_image_button:hover {
   background-color: #b1e0ff;
 }
