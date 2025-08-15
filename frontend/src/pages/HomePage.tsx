@@ -100,7 +100,7 @@ const HomePage = (): JSX.Element => {
           </List>
         </ListsGroup>
       </Content>
-      <Footer></Footer>
+      <Footer />
     </Page>
   );
 };
