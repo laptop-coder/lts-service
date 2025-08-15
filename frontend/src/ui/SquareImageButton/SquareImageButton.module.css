@@ -5,6 +5,7 @@
   border-radius: 10px;
   background-color: #d3eeff;
   padding: 5px;
+  cursor: pointer
 }
 
 .square_image_button:hover {
