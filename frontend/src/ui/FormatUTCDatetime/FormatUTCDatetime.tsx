@@ -15,17 +15,20 @@ const FormatUTCDatetime = (props: { datetime: utcDatetime }): JSX.Element => {
    * with a more detailed datetime format like "01.01.1970, 00:00:00" is
    * displayed.
    */
-  const dt = new Date(props.datetime);
+
+  /*TODO: is it normal to create new Date every time? If assign it to a
+    variable, it doesn't updates when the props update.*/
   return (
     <span
       class={styles.datetime}
-      title={dt.toLocaleString()}
+      title={new Date(props.datetime).toLocaleString()}
     >
-      {dt.getDate().toString().padStart(2, '0')} {months[dt.getMonth()]}
+      {new Date(props.datetime).getDate().toString().padStart(2, '0')}{' '}
+      {months[new Date(props.datetime).getMonth()]}
       {', '}
-      {dt.getHours().toString().padStart(2, '0')}
+      {new Date(props.datetime).getHours().toString().padStart(2, '0')}
       {':'}
-      {dt.getMinutes().toString().padStart(2, '0')}
+      {new Date(props.datetime).getMinutes().toString().padStart(2, '0')}
     </span>
   );
 };
