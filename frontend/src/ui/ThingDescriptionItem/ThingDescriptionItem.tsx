@@ -7,4 +7,3 @@ const ThingDescriptionItem = (props: ParentProps): JSX.Element => (
 );
 
 export default ThingDescriptionItem;
-
