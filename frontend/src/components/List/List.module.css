@@ -2,8 +2,6 @@
 .list {
   display: flex;
   flex-direction: column;
-  min-width: 140px;
-  width: 30%;
   gap: 40px;
 }
 

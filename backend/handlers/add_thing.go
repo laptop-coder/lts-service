@@ -10,11 +10,18 @@ import (
 	. "backend/database"
 	. "backend/logger"
 	. "backend/utils"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
+type Response struct {
+	Info    string
+	ThingId int64
+}
+
 func AddThing(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	SetupCORS(&w)
 	if r.Method != http.MethodPost {
 		msg := "A POST request is required"
@@ -108,15 +115,15 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if thingPhoto != "" {
-		thingId, err := sqlResult.LastInsertId()
-		if err != nil {
-			msg := "Error getting id of the added " + thingType + " thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
+	thingId, err := sqlResult.LastInsertId()
+	if err != nil {
+		msg := "Error getting id of the added " + thingType + " thing: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
 
+	if thingPhoto != "" {
 		if err := SaveThingPhotoToStorage(thingPhoto, thingId, thingType); err != nil {
 			msg := "Error saving thing photo to the storage: " + err.Error()
 			Logger.Error(msg)
@@ -127,5 +134,13 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 
 	msg := "Success. Added a new " + thingType + " thing"
 	Logger.Info(msg)
-	w.Write([]byte(msg))
+
+	response, err := json.Marshal(Response{Info: msg,
+		ThingId: thingId})
+	if err != nil {
+		http.Error(w, "Error when encoding JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(response)
 }

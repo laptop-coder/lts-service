@@ -10,24 +10,30 @@ import Loading from '../ui/Loading/Loading';
 import Error from '../ui/Error/Error';
 import SquareImageButton from '../ui/SquareImageButton/SquareImageButton';
 import fetchThingsList from '../utils/fetchThingsList';
-import type lostThing from '../types/lostThing';
-import type foundThing from '../types/foundThing';
-import LostThing from '../ui/LostThing/LostThing';
-import FoundThing from '../ui/FoundThing/FoundThing';
+import type LostThing from '../types/LostThing';
+import type FoundThing from '../types/FoundThing';
+import LostThingContainer from '../ui/LostThingContainer/LostThingContainer';
+import FoundThingContainer from '../ui/FoundThingContainer/FoundThingContainer';
 import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
+
+import { A } from '@solidjs/router';
+
+import { ADD_THING_ROUTE } from '../utils/consts';
 
 const HomePage = (): JSX.Element => {
   const [lostThingsList, { refetch: reloadLostThingsList }]: ResourceReturn<
-    lostThing[]
-  > = createResource('lost', fetchThingsList);
+    LostThing[]
+  > = createResource({ thingsType: 'lost' }, fetchThingsList);
   const [foundThingsList, { refetch: reloadFoundThingsList }]: ResourceReturn<
-    foundThing[]
-  > = createResource('found', fetchThingsList);
+    FoundThing[]
+  > = createResource({ thingsType: 'found' }, fetchThingsList);
   return (
     <Page>
       <Header>
         <SquareImageButton>
-          <img src='/src/assets/add.svg' />
+          <A href={ADD_THING_ROUTE}>
+            <img src='/src/assets/add.svg' />
+          </A>
         </SquareImageButton>
         <SquareImageButton
           onclick={() => {
@@ -61,7 +67,7 @@ const HomePage = (): JSX.Element => {
                   each={lostThingsList()}
                   fallback='Данных нет'
                 >
-                  {(item: lostThing) => <LostThing {...item} />}
+                  {(item: LostThing) => <LostThingContainer {...item} />}
                 </For>
               </Match>
               <Match when={lostThingsList.state === 'errored'}>
@@ -90,7 +96,7 @@ const HomePage = (): JSX.Element => {
                   each={foundThingsList()}
                   fallback='Данных нет'
                 >
-                  {(item: foundThing) => <FoundThing {...item} />}
+                  {(item: FoundThing) => <FoundThingContainer {...item} />}
                 </For>
               </Match>
               <Match when={foundThingsList.state === 'errored'}>
