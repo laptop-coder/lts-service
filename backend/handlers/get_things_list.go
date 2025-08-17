@@ -86,7 +86,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 			}
 			jsonData, err := json.Marshal(lostThingsList)
 			if err != nil {
-				msg := "Json serialization error: " + err.Error()
+				msg := "JSON serialization error: " + err.Error()
 				Logger.Error(msg)
 				http.Error(w, msg, http.StatusInternalServerError)
 				return
@@ -115,7 +115,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 			}
 			jsonData, err := json.Marshal(foundThingsList)
 			if err != nil {
-				msg := "Json serialization error: " + err.Error()
+				msg := "JSON serialization error: " + err.Error()
 				Logger.Error(msg)
 				http.Error(w, msg, http.StatusInternalServerError)
 				return

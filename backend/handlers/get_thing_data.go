@@ -64,9 +64,13 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 			msg := "Thing not found"
 			Logger.Info(msg)
 			w.Header().Set("Content-Type", "text/plain")
-			// TODO: refactor?
 			w.Write([]byte(msg))
 			return
+			// TODO: maybe rewrite to this:
+			// msg := "Thing not found"
+			// Logger.Warn(msg)
+			// http.Error(w, msg, http.StatusNotFound)
+			// return
 		case err != nil:
 			msg := "Error creating \"thing\" object: " + err.Error()
 			Logger.Error(msg)
@@ -77,7 +81,7 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 			Logger.Info("Serializing data of " + thingType + " thing")
 			jsonData, err := json.Marshal(thing)
 			if err != nil {
-				msg := "Json serialization error: " + err.Error()
+				msg := "JSON serialization error: " + err.Error()
 				Logger.Error(msg)
 				http.Error(w, msg, http.StatusInternalServerError)
 				return
@@ -115,7 +119,7 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 			Logger.Info("Serializing data of " + thingType + " thing")
 			jsonData, err := json.Marshal(thing)
 			if err != nil {
-				msg := "Json serialization error: " + err.Error()
+				msg := "JSON serialization error: " + err.Error()
 				Logger.Error(msg)
 				http.Error(w, msg, http.StatusInternalServerError)
 				return
