@@ -1,4 +1,4 @@
-interface lostThing {
+interface LostThing {
   LostThingId: number;
   PublicationDatetime: string;
   ThingName: string;
@@ -8,4 +8,4 @@ interface lostThing {
   Status: number;
 }
 
-export default lostThing;
+export default LostThing;

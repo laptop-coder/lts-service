@@ -1,4 +1,4 @@
-interface foundThing {
+interface FoundThing {
   FoundThingId: number;
   PublicationDatetime: string;
   ThingName: string;
@@ -8,4 +8,4 @@ interface foundThing {
   Status: number;
 }
 
-export default foundThing;
+export default FoundThing;
