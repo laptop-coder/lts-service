@@ -5,10 +5,10 @@ import Thing from '../Thing/Thing';
 import ThingDescriptionTitle from '../ThingDescriptionTitle/ThingDescriptionTitle';
 import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGroup';
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
-import type foundThing from '../../types/foundThing';
+import type FoundThing from '../../types/FoundThing';
 import type utcDatetime from '../../types/utcDatetime';
 
-const FoundThing = (props: foundThing): JSX.Element => {
+const FoundThingContainer = (props: FoundThing): JSX.Element => {
   return (
     <Thing>
       <ThingDescriptionTitle
@@ -46,4 +46,4 @@ const FoundThing = (props: foundThing): JSX.Element => {
   );
 };
 
-export default FoundThing;
+export default FoundThingContainer;

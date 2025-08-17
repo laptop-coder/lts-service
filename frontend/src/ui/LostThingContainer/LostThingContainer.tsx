@@ -7,10 +7,10 @@ import ThingDescriptionTitle from '../ThingDescriptionTitle/ThingDescriptionTitl
 import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGroup';
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
 import type email from '../../types/email';
-import type lostThing from '../../types/lostThing';
+import type LostThing from '../../types/LostThing';
 import type utcDatetime from '../../types/utcDatetime';
 
-const LostThing = (props: lostThing): JSX.Element => {
+const LostThingContainer = (props: LostThing): JSX.Element => {
   return (
     <Thing>
       <ThingDescriptionTitle
@@ -48,4 +48,4 @@ const LostThing = (props: lostThing): JSX.Element => {
   );
 };
 
-export default LostThing;
+export default LostThingContainer;
