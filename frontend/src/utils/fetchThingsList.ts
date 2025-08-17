@@ -1,8 +1,8 @@
 import axiosInstanceUnauthorized from '../utils/axiosInstanceUnauthorized';
 
-const fetchThingsList = async (thingsType: 'lost' | 'found') => {
+const fetchThingsList = async (props: { thingsType: 'lost' | 'found' }) => {
   return axiosInstanceUnauthorized
-    .get(`/things/get_list?things_type=${thingsType}`)
+    .get(`/things/get_list?things_type=${props.thingsType}`)
     .then((response) => {
       return response.data;
     })
