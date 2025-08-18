@@ -1,13 +1,14 @@
-import { Show, JSX, ParentProps } from 'solid-js';
+import { JSX, Show } from 'solid-js';
 
 import styles from './ThingPhoto.module.css';
 
 const ThingPhoto = (
-  props: JSX.InputHTMLAttributes<HTMLInputElement>,
+  props: JSX.ImgHTMLAttributes<HTMLImageElement>,
 ): JSX.Element => (
   <Show when={props.src}>
     <img
       src={props.src}
+      title={props.title}
       class={styles.thing_photo}
     />
   </Show>
