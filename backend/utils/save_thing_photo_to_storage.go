@@ -12,7 +12,7 @@ import (
 	"image/jpeg"
 	_ "image/png"
 	"os"
-	// "strings"
+	"strings"
 )
 
 // TODO: in frontend, when loading new photo from device, write to the start of
@@ -28,7 +28,7 @@ func SaveThingPhotoToStorage(photoBase64 string, thingId int64, thingType string
 	// }
 
 	// Remove data like "data:image/png;base64,"
-	// photoBase64 = photoBase64[strings.Index(photoBase64, ",")+1:]
+	photoBase64 = photoBase64[strings.Index(photoBase64, ",")+1:]
 
 	// Decode photo from base64
 	decodedPhoto, err := base64.StdEncoding.DecodeString(photoBase64)

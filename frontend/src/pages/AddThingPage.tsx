@@ -41,6 +41,7 @@ const AddThingPage = (): JSX.Element => {
           thingName: thingName(),
           userEmail: userEmail(),
           customText: customText(),
+          thingPhoto: thingPhoto(),
         });
       } else {
         fieldsAreNotFilledMessage();
@@ -52,6 +53,7 @@ const AddThingPage = (): JSX.Element => {
           thingName: thingName(),
           thingLocation: thingLocation(),
           customText: customText(),
+          thingPhoto: thingPhoto(),
         });
       } else {
         fieldsAreNotFilledMessage();
