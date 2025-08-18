@@ -1,16 +1,21 @@
 import { JSX } from 'solid-js';
 
 import EmailLink from '../EmailLink/EmailLink';
+import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import FormatUTCDatetime from '../FormatUTCDatetime/FormatUTCDatetime';
 import Thing from '../Thing/Thing';
 import ThingDescriptionTitle from '../ThingDescriptionTitle/ThingDescriptionTitle';
 import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGroup';
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
+import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
+import { STORAGE_ROUTE } from '../../utils/consts';
 import type email from '../../types/email';
 import type LostThing from '../../types/LostThing';
 import type utcDatetime from '../../types/utcDatetime';
 
 const LostThingContainer = (props: LostThing): JSX.Element => {
+  const pathToPhoto = `${STORAGE_ROUTE}/lost/${props.LostThingId}.jpeg`;
+  const thingPhotoIsAvailable = checkPhotoAvailability({ pathToPhoto });
   return (
     <Thing>
       <ThingDescriptionTitle
@@ -42,6 +47,12 @@ const LostThingContainer = (props: LostThing): JSX.Element => {
             />
             {props.CustomText}
           </ThingDescriptionItem>
+        )}
+        {thingPhotoIsAvailable && (
+          <ThingPhoto
+            src={pathToPhoto}
+            title='Изображение потерянной вещи'
+          />
         )}
       </ThingDescriptionGroup>
     </Thing>

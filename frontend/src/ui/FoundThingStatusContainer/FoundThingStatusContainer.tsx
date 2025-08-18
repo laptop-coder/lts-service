@@ -1,6 +1,7 @@
 import { JSX, Switch, Match } from 'solid-js';
 
 import FormatUTCDatetime from '../FormatUTCDatetime/FormatUTCDatetime';
+import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import Thing from '../Thing/Thing';
 import ThingDescriptionTitle from '../ThingDescriptionTitle/ThingDescriptionTitle';
 import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGroup';
@@ -8,8 +9,12 @@ import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
 import type FoundThing from '../../types/FoundThing';
 import type utcDatetime from '../../types/utcDatetime';
 import ThingStatus from '../ThingStatus/ThingStatus';
+import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
+import { STORAGE_ROUTE } from '../../utils/consts';
 
 const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
+  const pathToPhoto = `${STORAGE_ROUTE}/found/${props.FoundThingId}.jpeg`;
+  const thingPhotoIsAvailable = checkPhotoAvailability({ pathToPhoto });
   return (
     <Thing>
       <ThingDescriptionTitle
@@ -51,6 +56,12 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
             />
             {props.CustomText}
           </ThingDescriptionItem>
+        )}
+        {thingPhotoIsAvailable && (
+          <ThingPhoto
+            src={pathToPhoto}
+            title='Изображение найденной вещи'
+          />
         )}
       </ThingDescriptionGroup>
     </Thing>
