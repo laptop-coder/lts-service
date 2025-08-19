@@ -11,9 +11,20 @@ import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
 import { STORAGE_ROUTE } from '../../utils/consts';
 import type email from '../../types/email';
 import type LostThing from '../../types/LostThing';
+import type FoundThing from '../../types/FoundThing';
 import type utcDatetime from '../../types/utcDatetime';
+import ChangeThingStatusButton from '../../ui/ChangeThingStatusButton/ChangeThingStatusButton';
 
-const LostThingContainer = (props: LostThing): JSX.Element => {
+const LostThingContainer = (
+  props: LostThing & {
+    reloadLostThingsList: (
+      info?: unknown,
+    ) => LostThing[] | Promise<LostThing[] | undefined> | null | undefined;
+    reloadFoundThingsList: (
+      info?: unknown,
+    ) => FoundThing[] | Promise<FoundThing[] | undefined> | null | undefined;
+  },
+): JSX.Element => {
   const pathToPhoto = `${STORAGE_ROUTE}/lost/${props.LostThingId}.jpeg`;
   const thingPhotoIsAvailable = checkPhotoAvailability({ pathToPhoto });
   return (
@@ -55,6 +66,12 @@ const LostThingContainer = (props: LostThing): JSX.Element => {
           />
         )}
       </ThingDescriptionGroup>
+      <ChangeThingStatusButton
+        thingType='lost'
+        thingId={props.LostThingId}
+        reloadLostThingsList={props.reloadLostThingsList}
+        reloadFoundThingsList={props.reloadFoundThingsList}
+      />
     </Thing>
   );
 };

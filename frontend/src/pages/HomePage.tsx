@@ -67,7 +67,13 @@ const HomePage = (): JSX.Element => {
                   each={lostThingsList()}
                   fallback='Данных нет'
                 >
-                  {(item: LostThing) => <LostThingContainer {...item} />}
+                  {(item: LostThing) => (
+                    <LostThingContainer
+                      {...item}
+                      reloadLostThingsList={reloadLostThingsList}
+                      reloadFoundThingsList={reloadFoundThingsList}
+                    />
+                  )}
                 </For>
               </Match>
               <Match when={lostThingsList.state === 'errored'}>
@@ -96,7 +102,13 @@ const HomePage = (): JSX.Element => {
                   each={foundThingsList()}
                   fallback='Данных нет'
                 >
-                  {(item: FoundThing) => <FoundThingContainer {...item} />}
+                  {(item: FoundThing) => (
+                    <FoundThingContainer
+                      {...item}
+                      reloadLostThingsList={reloadLostThingsList}
+                      reloadFoundThingsList={reloadFoundThingsList}
+                    />
+                  )}
                 </For>
               </Match>
               <Match when={foundThingsList.state === 'errored'}>
