@@ -1,5 +1,6 @@
-import { JSX } from 'solid-js';
+import { JSX, createSignal } from 'solid-js';
 
+import { ASSETS_ROUTE } from '../../utils/consts';
 import EmailLink from '../EmailLink/EmailLink';
 import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import FormatUTCDatetime from '../FormatUTCDatetime/FormatUTCDatetime';
@@ -26,7 +27,11 @@ const LostThingContainer = (
   },
 ): JSX.Element => {
   const pathToPhoto = `${STORAGE_ROUTE}/lost/${props.LostThingId}.jpeg`;
-  const thingPhotoIsAvailable = checkPhotoAvailability({ pathToPhoto });
+  const [thingPhotoIsAvailable, setThingPhotoIsAvailable] = createSignal(false);
+  checkPhotoAvailability({
+    pathToPhoto: pathToPhoto,
+    success: () => setThingPhotoIsAvailable(true),
+  });
   return (
     <Thing>
       <ThingDescriptionTitle
@@ -36,7 +41,7 @@ const LostThingContainer = (
       <ThingDescriptionGroup>
         <ThingDescriptionItem>
           <img
-            src='/src/assets/datetime.svg'
+            src={`${ASSETS_ROUTE}/datetime.svg`}
             title='Дата и время публикации'
           />
           <FormatUTCDatetime
@@ -45,7 +50,7 @@ const LostThingContainer = (
         </ThingDescriptionItem>
         <ThingDescriptionItem>
           <img
-            src='/src/assets/email.svg'
+            src={`${ASSETS_ROUTE}/email.svg`}
             title='Email автора объявления'
           />
           <EmailLink userEmail={props.UserEmail as email} />
@@ -53,13 +58,13 @@ const LostThingContainer = (
         {props.CustomText && (
           <ThingDescriptionItem>
             <img
-              src='/src/assets/text.svg'
+              src={`${ASSETS_ROUTE}/text.svg`}
               title='Сообщение автора объявления'
             />
             {props.CustomText}
           </ThingDescriptionItem>
         )}
-        {thingPhotoIsAvailable && (
+        {thingPhotoIsAvailable() && (
           <ThingPhoto
             src={pathToPhoto}
             title='Изображение потерянной вещи'

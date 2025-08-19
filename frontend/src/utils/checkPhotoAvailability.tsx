@@ -1,18 +1,20 @@
-import { createSignal } from 'solid-js';
-
-const checkPhotoAvailability = (props: { pathToPhoto: string }): boolean => {
+const checkPhotoAvailability = (props: {
+  pathToPhoto: string;
+  success: () => boolean;
+  // failure: () => boolean; // you can use it if you need
+}): void => {
   /**
-   * This function checks if the photo is available and returns the result
+   * This function changes the value of the signal if the photo is available.
    *
    * @param pathToPhoto<string> - Path to photo on the server.
-   * @returns <boolean> - Returns true if the photo on the server is available
-   * and false if not.
+   * @param success<() => boolean> - Signal setter (e. g., `() => set(true)`).
+   * Performed if the photo is available.
+   * @returns <undefined> - The function doesn't returns anything.
    */
-  const [thingPhotoIsAvailable, setThingPhotoIsAvailable] = createSignal(false);
-  const photo = new Image();
-  photo.onload = () => setThingPhotoIsAvailable(true);
+  var photo = new Image();
+  photo.onload = props.success;
+  // photo.onerror = props.failure;
   photo.src = props.pathToPhoto;
-  return thingPhotoIsAvailable();
 };
 
 export default checkPhotoAvailability;

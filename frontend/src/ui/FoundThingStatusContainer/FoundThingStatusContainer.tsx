@@ -1,5 +1,6 @@
-import { JSX, Switch, Match } from 'solid-js';
+import { JSX, createSignal } from 'solid-js';
 
+import { ASSETS_ROUTE } from '../../utils/consts';
 import FormatUTCDatetime from '../FormatUTCDatetime/FormatUTCDatetime';
 import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import Thing from '../Thing/Thing';
@@ -14,7 +15,11 @@ import { STORAGE_ROUTE } from '../../utils/consts';
 
 const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
   const pathToPhoto = `${STORAGE_ROUTE}/found/${props.FoundThingId}.jpeg`;
-  const thingPhotoIsAvailable = checkPhotoAvailability({ pathToPhoto });
+  const [thingPhotoIsAvailable, setThingPhotoIsAvailable] = createSignal(false);
+  checkPhotoAvailability({
+    pathToPhoto: pathToPhoto,
+    success: () => setThingPhotoIsAvailable(true),
+  });
   return (
     <Thing>
       <ThingDescriptionTitle
@@ -24,7 +29,7 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
       <ThingDescriptionGroup>
         <ThingDescriptionItem>
           <img
-            src='/src/assets/status.svg'
+            src={`${ASSETS_ROUTE}/status.svg`}
             title='Статус объявления'
           />
           <ThingStatus
@@ -34,7 +39,7 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
         </ThingDescriptionItem>
         <ThingDescriptionItem>
           <img
-            src='/src/assets/datetime.svg'
+            src={`${ASSETS_ROUTE}/datetime.svg`}
             title='Дата и время публикации'
           />
           <FormatUTCDatetime
@@ -43,7 +48,7 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
         </ThingDescriptionItem>
         <ThingDescriptionItem>
           <img
-            src='/src/assets/location.svg'
+            src={`${ASSETS_ROUTE}/location.svg`}
             title='Где забрать'
           />
           {props.ThingLocation}
@@ -51,13 +56,13 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
         {props.CustomText && (
           <ThingDescriptionItem>
             <img
-              src='/src/assets/text.svg'
+              src={`${ASSETS_ROUTE}/text.svg`}
               title='Сообщение автора объявления'
             />
             {props.CustomText}
           </ThingDescriptionItem>
         )}
-        {thingPhotoIsAvailable && (
+        {thingPhotoIsAvailable() && (
           <ThingPhoto
             src={pathToPhoto}
             title='Изображение найденной вещи'
