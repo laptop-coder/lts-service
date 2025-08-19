@@ -11,7 +11,7 @@ import { useSearchParams } from '@solidjs/router';
 
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
-import List from '../components/List/List';
+import SingleList from '../components/SingleList/SingleList';
 import ListsGroup from '../components/ListsGroup/ListsGroup';
 import Footer from '../components/Footer/Footer';
 import Page from '../ui/Page/Page';
@@ -41,7 +41,7 @@ const ThingStatusPage = (): JSX.Element => {
       </Header>
       <Content>
         {/*TODO: is it normal to use Loading in the fallback here?*/}
-        <List>
+        <SingleList>
           <Switch fallback={<Loading />}>
             <Match when={thingData() === 'Thing not found'}>
               <Error>Объявление не найдено</Error>
@@ -70,7 +70,7 @@ const ThingStatusPage = (): JSX.Element => {
               <Error />
             </Match>
           </Switch>
-        </List>
+        </SingleList>
       </Content>
       <Footer />
     </Page>

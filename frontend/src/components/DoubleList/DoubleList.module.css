@@ -1,0 +1,6 @@
+/*Wrapper around title and items*/
+.double_list {
+  width: 40%;
+  min-width: 140px;
+  max-width: 350px;
+}

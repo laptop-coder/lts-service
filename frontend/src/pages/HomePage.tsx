@@ -2,7 +2,7 @@ import { JSX, createResource, For, Switch, Match } from 'solid-js';
 
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
-import List from '../components/List/List';
+import DoubleList from '../components/DoubleList/DoubleList';
 import ListsGroup from '../components/ListsGroup/ListsGroup';
 import Footer from '../components/Footer/Footer';
 import Page from '../ui/Page/Page';
@@ -46,7 +46,7 @@ const HomePage = (): JSX.Element => {
       </Header>
       <Content>
         <ListsGroup>
-          <List title='Потерянные вещи'>
+          <DoubleList title='Потерянные вещи'>
             {/*TODO: is it normal to use Loading in the fallback here?*/}
             <Switch fallback={<Loading />}>
               <Match
@@ -80,8 +80,8 @@ const HomePage = (): JSX.Element => {
                 <Error />
               </Match>
             </Switch>
-          </List>
-          <List title='Найденные вещи'>
+          </DoubleList>
+          <DoubleList title='Найденные вещи'>
             {/*TODO: is it normal to use Loading in the fallback here?*/}
             <Switch fallback={<Loading />}>
               <Match
@@ -115,7 +115,7 @@ const HomePage = (): JSX.Element => {
                 <Error />
               </Match>
             </Switch>
-          </List>
+          </DoubleList>
         </ListsGroup>
       </Content>
       <Footer />
