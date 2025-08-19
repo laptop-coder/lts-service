@@ -1,7 +1,7 @@
 .content {
   display: flex;
   justify-content: center;
-  flex: 1;
+  flex-grow: 1;
   background-color: #fff;
   border-radius: 10px;
   padding: 4% 1% 4% 1%; /* clockwise */
