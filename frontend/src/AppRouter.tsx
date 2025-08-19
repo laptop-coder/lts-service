@@ -1,10 +1,11 @@
 import { JSX } from 'solid-js';
 
-import { Router, Route, Navigate } from '@solidjs/router';
+import { Router, Route } from '@solidjs/router';
 
 import HomePage from './pages/HomePage';
 import AddThingPage from './pages/AddThingPage';
 import ThingStatusPage from './pages/ThingStatusPage';
+import NotFoundPage from './pages/errors/NotFoundPage/NotFoundPage';
 import {
   HOME_ROUTE,
   ADD_THING_ROUTE,
@@ -27,13 +28,8 @@ const AppRouter = (): JSX.Element => {
         component={() => <HomePage />}
       />
       <Route
-        path='/*'
-        component={() => (
-          <Navigate
-            href={HOME_ROUTE}
-            state
-          />
-        )}
+        path='*404'
+        component={NotFoundPage}
       />
     </Router>
   );
