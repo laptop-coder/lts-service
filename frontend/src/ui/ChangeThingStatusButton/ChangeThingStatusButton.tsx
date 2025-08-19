@@ -2,6 +2,7 @@ import { JSX } from 'solid-js';
 
 import styles from './ChangeThingStatusButton.module.css';
 import changeThingStatus from '../../utils/changeThingStatus';
+import { CONFIRM_ACTION_MESSAGE } from '../../utils/consts';
 import type LostThing from '../../types/LostThing';
 import type FoundThing from '../../types/FoundThing';
 import type ThingType from '../../types/ThingType';
@@ -21,9 +22,14 @@ const ChangeThingStatusButton = (
   <button
     class={styles.change_thing_status_button}
     onclick={() => {
-      changeThingStatus({ thingType: props.thingType, thingId: props.thingId });
-      props.reloadLostThingsList();
-      props.reloadFoundThingsList();
+      if (confirm(CONFIRM_ACTION_MESSAGE)) {
+        changeThingStatus({
+          thingType: props.thingType,
+          thingId: props.thingId,
+        });
+        props.reloadLostThingsList();
+        props.reloadFoundThingsList();
+      }
     }}
     type='button'
   >

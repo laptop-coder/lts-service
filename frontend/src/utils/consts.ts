@@ -6,6 +6,8 @@ export const STORAGE_ROUTE = '/storage';
 export const BACKEND_URL = 'https://172.16.1.2';
 export const SOURCE_CODE_URL = 'https://github.com/laptop-coder/lts-service';
 
+export const CONFIRM_ACTION_MESSAGE = 'Вы уверены? Подтвердите действие';
+
 export const months = [
   'января',
   'февраля',
