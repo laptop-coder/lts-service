@@ -4,8 +4,8 @@
 }
 
 .select {
+  background-color: #fff;
   border: 1px solid #ccc;
-  background: #fff;
   padding: 5px;
   border-radius: 10px;
   height: 40px;
