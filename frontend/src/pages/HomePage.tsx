@@ -1,5 +1,6 @@
 import { JSX, createResource, For, Switch, Match } from 'solid-js';
 
+import { ASSETS_ROUTE } from '../utils/consts';
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
 import DoubleList from '../components/DoubleList/DoubleList';
@@ -32,7 +33,7 @@ const HomePage = (): JSX.Element => {
       <Header>
         <SquareImageButton>
           <A href={ADD_THING_ROUTE}>
-            <img src='/src/assets/add.svg' />
+            <img src={`${ASSETS_ROUTE}/add.svg`} />
           </A>
         </SquareImageButton>
         <SquareImageButton
@@ -41,7 +42,7 @@ const HomePage = (): JSX.Element => {
             reloadFoundThingsList();
           }}
         >
-          <img src='/src/assets/reload.svg' />
+          <img src={`${ASSETS_ROUTE}/reload.svg`} />
         </SquareImageButton>
       </Header>
       <Content>

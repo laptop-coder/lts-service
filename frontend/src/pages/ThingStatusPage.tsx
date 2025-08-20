@@ -9,6 +9,7 @@ import {
 
 import { useSearchParams } from '@solidjs/router';
 
+import { ASSETS_ROUTE } from '../utils/consts';
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
 import SingleList from '../components/SingleList/SingleList';
@@ -36,7 +37,7 @@ const ThingStatusPage = (): JSX.Element => {
     <Page>
       <Header>
         <SquareImageButton onclick={reloadThingData}>
-          <img src='/src/assets/reload.svg' />
+          <img src={`${ASSETS_ROUTE}/reload.svg`} />
         </SquareImageButton>
       </Header>
       <Content>

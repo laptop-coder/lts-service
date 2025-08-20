@@ -1,5 +1,6 @@
 import { JSX, createSignal } from 'solid-js';
 
+import { ASSETS_ROUTE } from '../utils/consts';
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
 import Footer from '../components/Footer/Footer';
@@ -86,7 +87,7 @@ const AddThingPage = (): JSX.Element => {
       <Header>
         {window.history.length > 1 && (
           <SquareImageButton onclick={() => window.history.back()}>
-            <img src='/src/assets/arrow_back.svg' />
+            <img src={`${ASSETS_ROUTE}/arrow_back.svg`} />
           </SquareImageButton>
         )}
       </Header>

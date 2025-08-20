@@ -1,10 +1,11 @@
 import { JSX } from 'solid-js';
 
 import styles from './Loading.module.css';
+import { ASSETS_ROUTE } from '../../utils/consts';
 
 const Loading = (): JSX.Element => (
   <img
-    src='/src/assets/loading.svg'
+    src={`${ASSETS_ROUTE}/loading.svg`}
     class={styles.loading}
   />
 );

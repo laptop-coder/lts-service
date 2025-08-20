@@ -29,7 +29,8 @@ services:
     container_name: frontend-dev
     volumes:
       - ./data/env:/env
-      - ./data/storage:/usr/share/nginx/html/storage
+      - ./data/storage:/usr/share/nginx/html/storage/storage
+      - ./frontend/assets:/usr/share/nginx/html/storage/assets
     env_file:
       - .env
     networks:
