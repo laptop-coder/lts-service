@@ -1,0 +1,12 @@
+.moderator_auth_page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 15px;
+}
+
+body:has(.moderator_auth_page) {
+  overflow: hidden;
+}
