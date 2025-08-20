@@ -1,6 +1,6 @@
 export const HOME_ROUTE = '/';
-export const ADD_THING_ROUTE = '/add_thing';
-export const THING_STATUS_ROUTE = '/thing_status';
+export const ADD_THING_ROUTE = '/thing/add';
+export const THING_STATUS_ROUTE = '/thing/status';
 
 export const ASSETS_ROUTE = '/storage/assets';
 export const STORAGE_ROUTE = '/storage/storage';

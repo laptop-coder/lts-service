@@ -1,6 +1,7 @@
 import { JSX, createSignal } from 'solid-js';
 
 import { ASSETS_ROUTE } from '../utils/consts';
+import { THING_STATUS_ROUTE } from '../utils/consts';
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
 import Footer from '../components/Footer/Footer';
@@ -75,7 +76,7 @@ const AddThingPage = (): JSX.Element => {
           sendingErrorMessage();
         } else {
           window.location.replace(
-            `/thing_status?thing_type=${thingType()}&thing_id=${response.data.ThingId}`,
+            `${THING_STATUS_ROUTE}?thing_type=${thingType()}&thing_id=${response.data.ThingId}`,
           );
         }
       })
