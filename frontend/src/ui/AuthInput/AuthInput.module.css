@@ -1,0 +1,44 @@
+.auth_input_group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.auth_input {
+  width: auto;
+  border: none;
+  outline-style: none;
+  background-color: transparent;
+  height: 40px;
+  font-size: 16px;
+}
+
+.auth_input:focus ~ .auth_input_label,
+.auth_input:not(:placeholder-shown) ~ .auth_input_label {
+  font-size: 15px;
+  margin-bottom: 35px;
+  color: #2451a4;
+}
+
+.auth_input:focus ~ .auth_input_underline {
+  background-color: #2451a4;
+}
+
+.auth_input_label {
+  cursor: text;
+  color: #aaa;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 10px;
+  user-select: none;
+  transition:
+    font-size 0.2s ease,
+    margin-bottom 0.2s ease;
+}
+
+.auth_input_underline {
+  height: 1px;
+  width: 100%;
+  background-color: #ccc;
+  transition: background-color 0.2s ease;
+}
