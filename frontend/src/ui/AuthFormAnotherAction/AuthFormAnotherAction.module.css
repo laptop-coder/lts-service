@@ -1,0 +1,8 @@
+.auth_form_another_action {
+  display: flex;
+  gap: 5px;
+}
+
+.auth_form_another_action a {
+  text-decoration: none;
+}
