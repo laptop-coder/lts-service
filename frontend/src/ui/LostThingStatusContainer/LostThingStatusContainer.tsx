@@ -25,6 +25,7 @@ const LostThingStatusContainer = (props: LostThing): JSX.Element => {
   return (
     <Thing>
       <ThingDescriptionTitle
+        thingType='lost'
         thingId={props.LostThingId}
         thingName={props.ThingName}
       />

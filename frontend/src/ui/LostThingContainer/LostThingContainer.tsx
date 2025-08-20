@@ -35,6 +35,7 @@ const LostThingContainer = (
   return (
     <Thing>
       <ThingDescriptionTitle
+        thingType='lost'
         thingId={props.LostThingId}
         thingName={props.ThingName}
       />

@@ -33,6 +33,7 @@ const FoundThingContainer = (
   return (
     <Thing>
       <ThingDescriptionTitle
+        thingType='found'
         thingId={props.FoundThingId}
         thingName={props.ThingName}
       />

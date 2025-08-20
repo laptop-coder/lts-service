@@ -23,6 +23,7 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
   return (
     <Thing>
       <ThingDescriptionTitle
+        thingType='found'
         thingId={props.FoundThingId}
         thingName={props.ThingName}
       />
