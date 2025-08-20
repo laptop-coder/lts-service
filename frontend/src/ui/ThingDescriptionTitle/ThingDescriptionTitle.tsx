@@ -16,6 +16,7 @@ const ThingDescriptionTitle = (
   <h3 class={styles.thing_description_title}>
     <A
       href={`${THING_STATUS_ROUTE}?thing_type=${props.thingType}&thing_id=${props.thingId}`}
+      title='Открыть страницу статуса'
     >
       {props.thingId}. {props.thingName}
     </A>
