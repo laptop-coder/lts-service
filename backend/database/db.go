@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS found_thing (
 
 CREATE TABLE IF NOT EXISTS moderator (
     moderator_id INTEGER PRIMARY KEY,
-    username VARCHAR(32) NOT NULL,
+    username VARCHAR(32) NOT NULL UNIQUE,
     password TEXT NOT NULL
 );
 `
