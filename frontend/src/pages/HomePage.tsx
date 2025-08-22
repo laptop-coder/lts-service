@@ -1,4 +1,11 @@
-import { JSX, createResource, For, Switch, Match } from 'solid-js';
+import {
+  JSX,
+  createResource,
+  For,
+  Switch,
+  Match,
+  createSignal,
+} from 'solid-js';
 
 import { ASSETS_ROUTE } from '../utils/consts';
 import Header from '../components/Header/Header';
@@ -16,6 +23,7 @@ import type FoundThing from '../types/FoundThing';
 import LostThingContainer from '../ui/LostThingContainer/LostThingContainer';
 import FoundThingContainer from '../ui/FoundThingContainer/FoundThingContainer';
 import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
+import ToggleSwitch from '../ui/ToggleSwitch/ToggleSwitch';
 
 import { A } from '@solidjs/router';
 
@@ -28,9 +36,17 @@ const HomePage = (): JSX.Element => {
   const [foundThingsList, { refetch: reloadFoundThingsList }]: ResourceReturn<
     FoundThing[]
   > = createResource({ thingsType: 'found' }, fetchThingsList);
+  const [pagination, setPagination] = createSignal(true);
   return (
     <Page>
       <Header>
+        <ToggleSwitch
+          title='Пагинация (разбиение списков по страницам)'
+          sliderText='П'
+          checked={pagination()}
+          onchange={() => setPagination((prev) => !prev)}
+          id='pagination'
+        />
         <SquareImageButton>
           <A href={ADD_THING_ROUTE}>
             <img src={`${ASSETS_ROUTE}/add.svg`} />
