@@ -1,6 +1,6 @@
 .toggle_switch {
   position: relative;
-  width: 60px;
+  width: 90px;
   height: 40px;
   display: flex;
   cursor: pointer;
@@ -45,5 +45,5 @@
 }
 
 .checkbox:checked ~ .slider {
-  transform: translateX(20px);
+  transform: translateX(50px);
 }

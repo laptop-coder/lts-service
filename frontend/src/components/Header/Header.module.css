@@ -5,6 +5,7 @@
   background-color: #fff;
   padding: 10px;
   border-radius: 10px;
+  min-height: 60px;
 }
 
 /* Main module is the left part of the header*/
@@ -25,8 +26,10 @@
 
 /* Custom module is the right part of the header*/
 .custom_module {
-  height: 100%;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: right;
   align-items: center;
+  height: 100%;
   gap: 10px;
 }

@@ -5,6 +5,7 @@
   justify-content: center;
   padding: 10px;
   gap: 10px;
+  min-height: 60px;
 }
 
 .footer a {

@@ -47,19 +47,21 @@ const HomePage = (): JSX.Element => {
           onchange={() => setPagination((prev) => !prev)}
           id='pagination'
         />
-        <SquareImageButton>
-          <A href={ADD_THING_ROUTE}>
-            <img src={`${ASSETS_ROUTE}/add.svg`} />
-          </A>
-        </SquareImageButton>
-        <SquareImageButton
-          onclick={() => {
-            reloadLostThingsList();
-            reloadFoundThingsList();
-          }}
-        >
-          <img src={`${ASSETS_ROUTE}/reload.svg`} />
-        </SquareImageButton>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <SquareImageButton>
+            <A href={ADD_THING_ROUTE}>
+              <img src={`${ASSETS_ROUTE}/add.svg`} />
+            </A>
+          </SquareImageButton>
+          <SquareImageButton
+            onclick={() => {
+              reloadLostThingsList();
+              reloadFoundThingsList();
+            }}
+          >
+            <img src={`${ASSETS_ROUTE}/reload.svg`} />
+          </SquareImageButton>
+        </div>
       </Header>
       <Content>
         <ListsGroup>
