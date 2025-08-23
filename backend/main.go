@@ -5,11 +5,13 @@ import (
 	. "backend/database"
 	"backend/handlers"
 	. "backend/logger"
+	"backend/utils"
 	"net/http"
 )
 
 func main() {
 	defer DB.Close()
+	utils.GenKeysIfNotExist()
 
 	http.HandleFunc("/thing/add", handlers.AddThing)
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)

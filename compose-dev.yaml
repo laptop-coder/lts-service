@@ -12,8 +12,8 @@ services:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
       - PATH_TO_ENV=/env
       - PATH_TO_STORAGE=/backend/data/storage
-      - RSA_PRIVATE_KEY=private_key.pem
-      - RSA_PUBLIC_KEY=public_key.pem
+      - ED25519_PRIVATE_KEY=ED25519_private_key.pem
+      - ED25519_PUBLIC_KEY=ED25519_public_key.pem
       - SSL_CERT=certfile.crt
       - SSL_KEY=keyfile.key
       - PATH_TO_LOGS=/backend/data/logs
