@@ -22,9 +22,9 @@ type LogsConfig struct {
 	PathToBackend string
 }
 
-type ED25519Config struct {
+type RSAConfig struct {
 	PathToPrivateKey string
-	PathToPublicKey  string
+	PathToPublicKey string
 }
 
 type SSLConfig struct {
@@ -41,7 +41,7 @@ type Config struct {
 	DB      DBConfig
 	Env     EnvConfig
 	Logs    LogsConfig
-	ED25519 ED25519Config
+	RSA     RSAConfig
 	SSL     SSLConfig
 	Storage StorageConfig
 }
@@ -63,14 +63,14 @@ func newConfig() *Config {
 				getEnv("BACKEND_LOG"),
 			),
 		},
-		ED25519: ED25519Config{
+		RSA: RSAConfig{
 			PathToPrivateKey: filepath.Join(
 				getEnv("PATH_TO_ENV"),
-				getEnv("ED25519_PRIVATE_KEY"),
+				getEnv("RSA_PRIVATE_KEY"),
 			),
 			PathToPublicKey: filepath.Join(
 				getEnv("PATH_TO_ENV"),
-				getEnv("ED25519_PUBLIC_KEY"),
+				getEnv("RSA_PUBLIC_KEY"),
 			),
 		},
 		SSL: SSLConfig{

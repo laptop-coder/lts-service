@@ -1,44 +1,42 @@
-// see https://pkg.go.dev/crypto/ed25519
 package utils
 
 import (
 	. "backend/config"
-	"crypto/ed25519"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"os"
 )
 
 func GenKeysIfNotExist() error {
-	publicKeyExists, err := CheckFileExistence(&Cfg.ED25519.PathToPublicKey)
+	privateKeyExists, err := CheckFileExistence(&Cfg.RSA.PathToPrivateKey)
 	if err != nil {
 		return err
 	}
-	privateKeyExists, err := CheckFileExistence(&Cfg.ED25519.PathToPrivateKey)
+	publicKeyExists, err := CheckFileExistence(&Cfg.RSA.PathToPublicKey)
 	if err != nil {
 		return err
 	}
 
-	if !*publicKeyExists || !*privateKeyExists {
-		// nil means using the default crypto/rand.Reader
-		publicKey, privateKey, err := ed25519.GenerateKey(nil)
+	if !*privateKeyExists && !*publicKeyExists {
+		privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
 		if err != nil {
 			return err
 		}
-
-		publicPEM := pem.EncodeToMemory(&pem.Block{
-			Type:  "ED25519 PUBLIC KEY",
-			Bytes: publicKey,
+		privatePem := pem.EncodeToMemory(&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
 		})
-		privatePEM := pem.EncodeToMemory(&pem.Block{
-			Type:  "ED25519 PRIVATE KEY",
-			Bytes: privateKey,
+		publicPem := pem.EncodeToMemory(&pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(&privateKey.PublicKey),
 		})
-
-		if err := os.WriteFile(Cfg.ED25519.PathToPublicKey, publicPEM, 0400); err != nil {
+		if err := os.WriteFile(Cfg.RSA.PathToPrivateKey, privatePem, 0444); err != nil {
 			return err
 		}
-		if err := os.WriteFile(Cfg.ED25519.PathToPrivateKey, privatePEM, 0400); err != nil {
+		if err := os.WriteFile(Cfg.RSA.PathToPublicKey, publicPem, 0444); err != nil {
 			return err
 		}
 	}
@@ -46,38 +44,46 @@ func GenKeysIfNotExist() error {
 	return nil
 }
 
-func GetPublicKey() (ed25519.PublicKey, error) {
-	publicPEM, err := os.ReadFile(Cfg.ED25519.PathToPublicKey)
+func GetPrivateKey() (*rsa.PrivateKey, error) {
+	pemData, err := os.ReadFile(Cfg.RSA.PathToPrivateKey)
 	if err != nil {
 		return nil, err
 	}
-
-	block, _ := pem.Decode(publicPEM)
-	if block == nil {
-		return nil, errors.New("error decoding public key PEM")
-	}
-
-	if block.Type != "ED25519 PUBLIC KEY" {
-		return nil, errors.New("wrong public key type")
-	}
-
-	return block.Bytes, nil
-}
-
-func GetPrivateKey() (ed25519.PrivateKey, error) {
-	privatePEM, err := os.ReadFile(Cfg.ED25519.PathToPrivateKey)
-	if err != nil {
-		return nil, err
-	}
-
-	block, _ := pem.Decode(privatePEM)
+	block, _ := pem.Decode(pemData)
 	if block == nil {
 		return nil, errors.New("error decoding private key PEM")
 	}
 
-	if block.Type != "ED25519 PRIVATE KEY" {
+	if block.Type != "RSA PRIVATE KEY" {
 		return nil, errors.New("wrong private key type")
 	}
 
-	return block.Bytes, nil
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return privateKey, nil
+}
+
+func GetPublicKey() (*rsa.PublicKey, error) {
+	pemData, err := os.ReadFile(Cfg.RSA.PathToPublicKey)
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(pemData)
+	if block == nil {
+		return nil, errors.New("error decoding public key PEM")
+	}
+
+	if block.Type != "RSA PUBLIC KEY" {
+		return nil, errors.New("wrong public key type")
+	}
+
+	publicKey, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return publicKey, nil
 }
