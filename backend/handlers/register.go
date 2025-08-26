@@ -29,11 +29,12 @@ func ModeratorRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	username, password :=
+	username, email, password :=
 		r.FormValue("username"),
+		r.FormValue("email"),
 		r.FormValue("password")
 	if username == "" || password == "" {
-		msg := "error: the \"username\" and \"password\" parameters are required"
+		msg := "error: the \"username\", \"email\" and \"password\" parameters are required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
@@ -55,8 +56,9 @@ func ModeratorRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sqlQuery := fmt.Sprintf(
-		"INSERT INTO moderator (username, password) VALUES ('%s', '%s');",
+		"INSERT INTO moderator (username, email, password) VALUES ('%s', '%s', '%s');",
 		username,
+		email,
 		passwordHash,
 	)
 	if _, err := DB.Exec(sqlQuery); err != nil {
