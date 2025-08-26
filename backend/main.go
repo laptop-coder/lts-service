@@ -11,6 +11,7 @@ import (
 
 func main() {
 	defer DB.Close()
+	defer Valkey.Close()
 	utils.GenKeysIfNotExist()
 
 	http.HandleFunc("/thing/add", handlers.AddThing)

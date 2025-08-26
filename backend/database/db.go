@@ -41,16 +41,19 @@ func initDB() *sql.DB {
 	db, err := sql.Open("sqlite3", Cfg.DB.PathTo)
 	if err != nil {
 		Logger.Error("Error. Can't open database file: " + err.Error())
+		return nil
 	} else {
 		Logger.Info("The database file is open")
 	}
 	if err := db.Ping(); err != nil {
 		Logger.Error("Error. Can't connect to the database: " + err.Error())
+		return nil
 	} else {
 		Logger.Info("Pinged successfully. Can connect to the database")
 	}
 	if _, err := db.Exec(initialQueries); err != nil {
 		Logger.Error("Error in running initial SQL queries")
+		return nil
 	} else {
 		Logger.Info("Initial SQL queries completed")
 	}

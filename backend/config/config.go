@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type AppConfig struct {
@@ -24,7 +25,7 @@ type LogsConfig struct {
 
 type RSAConfig struct {
 	PathToPrivateKey string
-	PathToPublicKey string
+	PathToPublicKey  string
 }
 
 type SSLConfig struct {
@@ -36,6 +37,11 @@ type StorageConfig struct {
 	PathTo string
 }
 
+type ValkeyConfig struct {
+	Host string
+	Port int
+}
+
 type Config struct {
 	App     AppConfig
 	DB      DBConfig
@@ -44,9 +50,14 @@ type Config struct {
 	RSA     RSAConfig
 	SSL     SSLConfig
 	Storage StorageConfig
+	Valkey  ValkeyConfig
 }
 
 func newConfig() *Config {
+	var VALKEY_PORT, err = strconv.Atoi(getEnv("VALKEY_PORT"))
+	if err != nil {
+		panic(err)
+	}
 	return &Config{
 		App: AppConfig{
 			DevMode: getEnv("LTS_SERVICE_DEV_MODE"),
@@ -85,6 +96,10 @@ func newConfig() *Config {
 		},
 		Storage: StorageConfig{
 			PathTo: getEnv("PATH_TO_STORAGE"),
+		},
+		Valkey: ValkeyConfig{
+			Host: getEnv("VALKEY_HOST"),
+			Port: VALKEY_PORT,
 		},
 	}
 }
