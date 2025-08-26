@@ -7,13 +7,47 @@ import AuthForm from './AuthForm/AuthForm';
 import AuthFormAnotherAction from './AuthFormAnotherAction/AuthFormAnotherAction';
 import AuthInput from './AuthInput/AuthInput';
 import { MODERATOR_LOGIN_ROUTE } from '../utils/consts';
+import axiosInstanceUnauthorized from '../utils/axiosInstanceUnauthorized';
 
 const ModeratorRegisterForm = (): JSX.Element => {
+  const fieldsAreNotFilledMessage = () => alert('Не все поля заполнены');
+  const sendingErrorMessage = () =>
+    alert('Ошибка отправки. Попробуйте ещё раз');
+
   const [username, setUsername] = createSignal('');
   const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
   const [passwordRepetition, setPasswordRepetition] = createSignal('');
-  const register = () => {};
+  const register = async (event: SubmitEvent) => {
+    event.preventDefault();
+    if (username() != '' && email() != '' && password() != '') {
+      await axiosInstanceUnauthorized
+        .post(
+          '/moderator/register',
+          {
+            username: username(),
+            email: email(),
+            password: password(),
+          },
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+        )
+        .then((response) => {
+          if (response.status !== 200) {
+            sendingErrorMessage();
+          } else {
+            window.location.replace('/moderator/login');
+          }
+        })
+        .catch((error) => console.log(error));
+    } else {
+      fieldsAreNotFilledMessage();
+      return;
+    }
+  };
   return (
     <AuthForm
       onsubmit={register}
