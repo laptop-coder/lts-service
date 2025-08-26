@@ -7,12 +7,45 @@ import AuthForm from './AuthForm/AuthForm';
 import AuthFormAnotherAction from './AuthFormAnotherAction/AuthFormAnotherAction';
 import AuthInput from './AuthInput/AuthInput';
 import { MODERATOR_REGISTER_ROUTE } from '../utils/consts';
+import axiosInstanceUnauthorized from '../utils/axiosInstanceUnauthorized';
 
 const ModeratorLoginForm = (): JSX.Element => {
+  const fieldsAreNotFilledMessage = () => alert('Не все поля заполнены');
+  const sendingErrorMessage = () =>
+    alert('Ошибка отправки. Попробуйте ещё раз');
+
   const [username, setUsername] = createSignal('');
-  const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
-  const login = () => {};
+  const login = async (event: SubmitEvent) => {
+    event.preventDefault();
+    if (username() != ''&& password() != '') {
+      await axiosInstanceUnauthorized
+        .post(
+          '/moderator/login',
+          {
+            username: username(),
+            password: password(),
+          },
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+        )
+        .then((response) => {
+          if (response.status == 200) {
+            window.location.replace('/moderator');
+          }
+        })
+        .catch((error) => {
+          sendingErrorMessage();
+          console.log(error);
+        });
+    } else {
+      fieldsAreNotFilledMessage();
+      return;
+    }
+  };
   return (
     <AuthForm
       onsubmit={login}
@@ -23,13 +56,6 @@ const ModeratorLoginForm = (): JSX.Element => {
         id='username'
         value={username()}
         onChange={(event) => setUsername(event.target.value)}
-      />
-      <AuthInput
-        placeholder='Email'
-        id='email'
-        type='email'
-        value={email()}
-        onchange={(event) => setEmail(event.target.value)}
       />
       <AuthInput
         placeholder='Пароль'
