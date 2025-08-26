@@ -72,15 +72,16 @@ const AddThingPage = (): JSX.Element => {
         },
       })
       .then((response) => {
-        if (response.status !== 200) {
-          sendingErrorMessage();
-        } else {
+        if (response.status == 200) {
           window.location.replace(
             `${THING_STATUS_ROUTE}?thing_type=${thingType()}&thing_id=${response.data.ThingId}`,
           );
         }
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        sendingErrorMessage();
+        console.log(error);
+      });
   };
 
   return (

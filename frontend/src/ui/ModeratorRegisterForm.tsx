@@ -36,13 +36,14 @@ const ModeratorRegisterForm = (): JSX.Element => {
           },
         )
         .then((response) => {
-          if (response.status !== 200) {
-            sendingErrorMessage();
-          } else {
+          if (response.status == 200) {
             window.location.replace('/moderator/login');
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          sendingErrorMessage();
+          console.log(error);
+        });
     } else {
       fieldsAreNotFilledMessage();
       return;
