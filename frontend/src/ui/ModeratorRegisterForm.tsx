@@ -10,6 +10,7 @@ import { MODERATOR_LOGIN_ROUTE } from '../utils/consts';
 
 const ModeratorRegisterForm = (): JSX.Element => {
   const [username, setUsername] = createSignal('');
+  const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
   const [passwordRepetition, setPasswordRepetition] = createSignal('');
   const register = () => {};
@@ -23,6 +24,13 @@ const ModeratorRegisterForm = (): JSX.Element => {
         id='username'
         value={username()}
         onchange={(event) => setUsername(event.target.value)}
+      />
+      <AuthInput
+        placeholder='Email'
+        id='email'
+        type='email'
+        value={email()}
+        onchange={(event) => setEmail(event.target.value)}
       />
       <AuthInput
         placeholder='Пароль'
