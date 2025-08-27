@@ -15,7 +15,7 @@ const Select = (
     <select
       class={styles.select}
       id={props.id}
-      onchange={props.onchange}
+      oninput={props.oninput}
     >
       {props.children}
     </select>

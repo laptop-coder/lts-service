@@ -9,7 +9,7 @@ const TextArea = (
     class={styles.textarea}
     placeholder={props.placeholder}
     value={props.value}
-    onchange={props.onchange}
+    oninput={props.oninput}
   />
 );
 

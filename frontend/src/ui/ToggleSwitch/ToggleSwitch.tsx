@@ -15,7 +15,7 @@ const ToggleSwitch = (
       id={props.id}
       class={styles.checkbox}
       checked={props.checked}
-      onchange={props.onchange}
+      oninput={props.oninput}
     />
     <span class={styles.slider_wrapper} />
     <span class={styles.slider}>{props.sliderText}</span>

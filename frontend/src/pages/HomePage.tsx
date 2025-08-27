@@ -44,7 +44,7 @@ const HomePage = (): JSX.Element => {
           title='Пагинация (разбиение списков по страницам)'
           sliderText='П'
           checked={pagination()}
-          onchange={() => setPagination((prev) => !prev)}
+          oninput={() => setPagination((prev) => !prev)}
           id='pagination'
         />
         <div style={{ display: 'flex', gap: '10px' }}>

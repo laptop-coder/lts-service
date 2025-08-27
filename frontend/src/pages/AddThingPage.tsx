@@ -102,7 +102,7 @@ const AddThingPage = (): JSX.Element => {
           <Select
             id='thingTypeSelect'
             value={thingType()}
-            onchange={(event) => setThingType(event.target.value)}
+            oninput={(event) => setThingType(event.target.value)}
             label='Что произошло?*'
           >
             <option value='lost'>Я потерял свою вещь</option>
@@ -113,13 +113,13 @@ const AddThingPage = (): JSX.Element => {
               <Input
                 placeholder='Что Вы потеряли?*'
                 value={thingName()}
-                onchange={(event) => setThingName(event.target.value)}
+                oninput={(event) => setThingName(event.target.value)}
               />
               <Input
                 type='email'
                 placeholder='Email для связи с Вами*'
                 value={userEmail()}
-                onchange={(event) => setUserEmail(event.target.value)}
+                oninput={(event) => setUserEmail(event.target.value)}
               />
             </>
           )}
@@ -128,25 +128,25 @@ const AddThingPage = (): JSX.Element => {
               <Input
                 placeholder='Что Вы нашли?*'
                 value={thingName()}
-                onchange={(event) => setThingName(event.target.value)}
+                oninput={(event) => setThingName(event.target.value)}
               />
               <Input
                 placeholder='Где забрать вещь?*'
                 value={thingLocation()}
-                onchange={(event) => setThingLocation(event.target.value)}
+                oninput={(event) => setThingLocation(event.target.value)}
               />
             </>
           )}
           <TextArea
             placeholder='Здесь можно оставить сообщение'
             value={customText()}
-            onchange={(event) => setCustomText(event.target.value)}
+            oninput={(event) => setCustomText(event.target.value)}
           />
           <AttachFile
             accept='image/jpeg,image/png'
             id='attachThingPhoto'
             label='Выберите фото'
-            onchange={(event) =>
+            oninput={(event) =>
               event.target.files &&
               fileToBase64(event.target.files[0]).then((photoBase64) =>
                 setThingPhoto(photoBase64),

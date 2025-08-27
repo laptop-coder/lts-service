@@ -18,7 +18,7 @@ const ModeratorLoginForm = (): JSX.Element => {
   const [password, setPassword] = createSignal('');
   const login = async (event: SubmitEvent) => {
     event.preventDefault();
-    if (username() != ''&& password() != '') {
+    if (username() != '' && password() != '') {
       await axiosInstanceUnauthorized
         .post(
           '/moderator/login',
@@ -55,14 +55,14 @@ const ModeratorLoginForm = (): JSX.Element => {
         placeholder='Имя пользователя'
         id='username'
         value={username()}
-        onChange={(event) => setUsername(event.target.value)}
+        oninput={(event) => setUsername(event.target.value)}
       />
       <AuthInput
         placeholder='Пароль'
         id='password'
         type='password'
         value={password()}
-        onChange={(event) => setPassword(event.target.value)}
+        oninput={(event) => setPassword(event.target.value)}
       />
       <AuthButton>Войти</AuthButton>
       <AuthFormAnotherAction>

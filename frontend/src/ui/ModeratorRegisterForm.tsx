@@ -58,28 +58,28 @@ const ModeratorRegisterForm = (): JSX.Element => {
         placeholder='Имя пользователя'
         id='username'
         value={username()}
-        onchange={(event) => setUsername(event.target.value)}
+        oninput={(event) => setUsername(event.target.value)}
       />
       <AuthInput
         placeholder='Email'
         id='email'
         type='email'
         value={email()}
-        onchange={(event) => setEmail(event.target.value)}
+        oninput={(event) => setEmail(event.target.value)}
       />
       <AuthInput
         placeholder='Пароль'
         id='password'
         type='password'
         value={password()}
-        onchange={(event) => setPassword(event.target.value)}
+        oninput={(event) => setPassword(event.target.value)}
       />
       <AuthInput
         placeholder='Повторите пароль'
         id='password_repetition'
         type='password'
         value={passwordRepetition()}
-        onchange={(event) => setPasswordRepetition(event.target.value)}
+        oninput={(event) => setPasswordRepetition(event.target.value)}
       />
       <AuthButton>Зарегистрироваться</AuthButton>
       <AuthFormAnotherAction>

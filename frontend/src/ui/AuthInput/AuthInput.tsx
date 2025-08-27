@@ -13,7 +13,7 @@ const AuthInput = (
       // Using :not(:placeholder-shown)
       placeholder=''
       value={props.value}
-      onchange={props.onchange}
+      oninput={props.oninput}
       id={props.id}
     />
     <label

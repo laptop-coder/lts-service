@@ -11,7 +11,7 @@ const AttachFile = (
       accept={props.accept}
       id={props.id}
       class={styles.attach_file}
-      onchange={props.onchange}
+      oninput={props.oninput}
       tabindex='-1'
     />
     <label
