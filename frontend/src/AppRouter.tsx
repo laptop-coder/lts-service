@@ -21,15 +21,15 @@ const AppRouter = (): JSX.Element => {
     <Router>
       <Route
         path={ADD_THING_ROUTE}
-        component={() => <AddThingPage />}
+        component={AddThingPage}
       />
       <Route
         path={THING_STATUS_ROUTE}
-        component={() => <ThingStatusPage />}
+        component={ThingStatusPage}
       />
       <Route
         path={HOME_ROUTE}
-        component={() => <HomePage />}
+        component={HomePage}
       />
       <Route
         path={MODERATOR_REGISTER_ROUTE}
