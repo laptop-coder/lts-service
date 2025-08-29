@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Пользователь
-      link: /documentation/01-for-users/01-intro
+      link: /documentation/01-for-users/01-use-cases
     - theme: alt
       text: Администратор
       link: /documentation/02-for-admins/01-installing-dependencies
