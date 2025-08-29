@@ -4,6 +4,7 @@ services:
     image: valkey/valkey:8.1.3-alpine
     container_name: valkey-dev
     volumes:
+      - /etc/localtime:/etc/localtime
       - ./valkey/sysctl.conf:/etc/sysctl.conf
     networks:
       network:
@@ -13,6 +14,7 @@ services:
     build: ./backend
     container_name: backend-dev
     volumes:
+      - /etc/localtime:/etc/localtime
       - ./data/db:/backend/data/db
       - ./data/env:/env
       - ./data/logs:/backend/data/logs
@@ -41,6 +43,7 @@ services:
     build: ./frontend
     container_name: frontend-dev
     volumes:
+      - /etc/localtime:/etc/localtime
       - ./data/env:/env
       - ./data/storage:/usr/share/nginx/html/storage/storage
       - ./frontend/assets:/usr/share/nginx/html/storage/assets
@@ -56,6 +59,7 @@ services:
     build: ./docs
     container_name: docs-dev
     volumes:
+      - /etc/localtime:/etc/localtime
       - ./data/env:/env
     networks:
       network:
