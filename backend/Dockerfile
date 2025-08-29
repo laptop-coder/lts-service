@@ -1,11 +1,15 @@
-FROM golang:1.24.5-bookworm AS build
-WORKDIR /build
-COPY . .
-RUN go mod tidy &&\
-    go build -o app .
+FROM golang:1.24.5-bookworm AS deps
+WORKDIR /app
+COPY go.mod go.sum .
+RUN go mod download
 
-FROM debian:12.11-slim AS production
-WORKDIR /production
-COPY --from=build /build/app /production/app
+FROM golang:1.24.5-bookworm AS builder
+WORKDIR /app
+COPY --from=deps /go /go
+COPY . .
+RUN GOOS=linux go build -o main .
+
+FROM debian:12.11-slim
+COPY --from=builder /app/main /app/main
 EXPOSE 443
-CMD ["/production/app"]
+CMD ["/app/main"]
