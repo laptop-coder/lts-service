@@ -6,7 +6,8 @@
   flex-direction: row;
 }
 
-.error img {
-  height: 30px;
-  width: 30px;
+.img {
+  height: 20px;
+  width: 20px;
+  aspect-ratio: 1/1;
 }
