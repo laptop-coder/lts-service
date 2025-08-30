@@ -2,7 +2,8 @@
   color: #2451a4;
 }
 
-.thing_not_found_text {
+.thing_not_found_text,
+.moderation_failed_text {
   color: #b00;
 }
 

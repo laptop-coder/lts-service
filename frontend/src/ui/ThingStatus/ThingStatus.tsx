@@ -9,6 +9,15 @@ const ThingStatus = (props: {
   status: number;
 }): JSX.Element => (
   <Switch fallback={<Error />}>
+    <Match when={props.status === 0 && props.verified === -1}>
+      <TextAnimation>
+        Объявление{' '}
+        <span class={styles.moderation_failed_text}>
+          <b>не прошло модерацию</b>
+        </span>
+        , <b>не опубликовано</b>
+      </TextAnimation>
+    </Match>
     <Match when={props.status === 0 && props.verified === 0}>
       <TextAnimation>
         Объявление на{' '}

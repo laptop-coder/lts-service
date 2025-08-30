@@ -3,6 +3,7 @@ export const ADD_THING_ROUTE = '/thing/add';
 export const THING_STATUS_ROUTE = '/thing/status';
 export const MODERATOR_LOGIN_ROUTE = '/moderator/login';
 export const MODERATOR_REGISTER_ROUTE = '/moderator/register';
+export const MODERATOR_ROUTE = '/moderator';
 
 export const ASSETS_ROUTE = '/storage/assets';
 export const STORAGE_ROUTE = '/storage/storage';

@@ -1,0 +1,16 @@
+.accept_button {
+  border: none;
+  border-radius: 10px;
+  background-color: #dcedc8;
+  padding: 5px;
+  height: 40px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.accept_button:hover {
+  background-color: #c5e1a5;
+}

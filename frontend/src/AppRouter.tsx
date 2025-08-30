@@ -8,12 +8,14 @@ import ThingStatusPage from './pages/ThingStatusPage';
 import NotFoundPage from './pages/errors/NotFoundPage/NotFoundPage';
 import ModeratorRegisterPage from './pages/ModeratorRegisterPage';
 import ModeratorLoginPage from './pages/ModeratorLoginPage';
+import ModeratorPage from './pages/ModeratorPage';
 import {
-  HOME_ROUTE,
   ADD_THING_ROUTE,
-  THING_STATUS_ROUTE,
-  MODERATOR_REGISTER_ROUTE,
+  HOME_ROUTE,
   MODERATOR_LOGIN_ROUTE,
+  MODERATOR_REGISTER_ROUTE,
+  MODERATOR_ROUTE,
+  THING_STATUS_ROUTE,
 } from './utils/consts';
 
 const AppRouter = (): JSX.Element => {
@@ -38,6 +40,10 @@ const AppRouter = (): JSX.Element => {
       <Route
         path={MODERATOR_LOGIN_ROUTE}
         component={ModeratorLoginPage}
+      />
+      <Route
+        path={MODERATOR_ROUTE}
+        component={ModeratorPage}
       />
       <Route
         path='*404'

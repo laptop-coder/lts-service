@@ -16,6 +16,7 @@ func main() {
 
 	http.HandleFunc("/thing/add", handlers.AddThing)
 	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
+	http.HandleFunc("/thing/verify", handlers.VerifyThing)
 	http.HandleFunc("/thing/get_data", handlers.GetThingData)
 	http.HandleFunc("/things/get_list", handlers.GetThingsList)
 	http.HandleFunc("/moderator/register", handlers.ModeratorRegister)

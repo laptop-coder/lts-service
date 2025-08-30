@@ -20,23 +20,18 @@ import SquareImageButton from '../ui/SquareImageButton/SquareImageButton';
 import fetchThingsList from '../utils/fetchThingsList';
 import type LostThing from '../types/LostThing';
 import type FoundThing from '../types/FoundThing';
-import LostThingContainer from '../ui/LostThingContainer/LostThingContainer';
-import FoundThingContainer from '../ui/FoundThingContainer/FoundThingContainer';
+import LostThingContainerModerator from '../ui/LostThingContainerModerator/LostThingContainerModerator';
+import FoundThingContainerModerator from '../ui/FoundThingContainerModerator/FoundThingContainerModerator';
 import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
-import ToggleSwitch from '../ui/ToggleSwitch/ToggleSwitch';
 import { ThingsListsSelectionCriteria } from '../enums/thingsListsSelectionCriteria';
 
-import { A } from '@solidjs/router';
-
-import { ADD_THING_ROUTE } from '../utils/consts';
-
-const HomePage = (): JSX.Element => {
+const ModeratorPage = (): JSX.Element => {
   const [lostThingsList, { refetch: reloadLostThingsList }]: ResourceReturn<
     LostThing[] | undefined
   > = createResource(
     {
       thingsType: 'lost',
-      selectBy: ThingsListsSelectionCriteria.NotReceivedVerifiedThings,
+      selectBy: ThingsListsSelectionCriteria.NotVerifiedThings,
     },
     fetchThingsList,
   );
@@ -45,36 +40,21 @@ const HomePage = (): JSX.Element => {
   > = createResource(
     {
       thingsType: 'found',
-      selectBy: ThingsListsSelectionCriteria.NotReceivedVerifiedThings,
+      selectBy: ThingsListsSelectionCriteria.NotVerifiedThings,
     },
     fetchThingsList,
   );
-  const [pagination, setPagination] = createSignal(true);
   return (
     <Page>
       <Header>
-        <ToggleSwitch
-          title='Пагинация (разбиение списков по страницам)'
-          sliderText='П'
-          checked={pagination()}
-          oninput={() => setPagination((prev) => !prev)}
-          id='pagination'
-        />
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <SquareImageButton>
-            <A href={ADD_THING_ROUTE}>
-              <img src={`${ASSETS_ROUTE}/add.svg`} />
-            </A>
-          </SquareImageButton>
-          <SquareImageButton
-            onclick={() => {
-              reloadLostThingsList();
-              reloadFoundThingsList();
-            }}
-          >
-            <img src={`${ASSETS_ROUTE}/reload.svg`} />
-          </SquareImageButton>
-        </div>
+        <SquareImageButton
+          onclick={() => {
+            reloadLostThingsList();
+            reloadFoundThingsList();
+          }}
+        >
+          <img src={`${ASSETS_ROUTE}/reload.svg`} />
+        </SquareImageButton>
       </Header>
       <Content>
         <ListsGroup>
@@ -100,7 +80,7 @@ const HomePage = (): JSX.Element => {
                   fallback='Данных нет'
                 >
                   {(item: LostThing) => (
-                    <LostThingContainer
+                    <LostThingContainerModerator
                       {...item}
                       reloadLostThingsList={reloadLostThingsList}
                       reloadFoundThingsList={reloadFoundThingsList}
@@ -135,7 +115,7 @@ const HomePage = (): JSX.Element => {
                   fallback='Данных нет'
                 >
                   {(item: FoundThing) => (
-                    <FoundThingContainer
+                    <FoundThingContainerModerator
                       {...item}
                       reloadLostThingsList={reloadLostThingsList}
                       reloadFoundThingsList={reloadFoundThingsList}
@@ -155,4 +135,4 @@ const HomePage = (): JSX.Element => {
   );
 };
 
-export default HomePage;
+export default ModeratorPage;
