@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/thing/get_data", handlers.GetThingData)
 	http.HandleFunc("/things/get_list", handlers.GetThingsList)
 	http.HandleFunc("/moderator/register", handlers.ModeratorRegister)
+	http.HandleFunc("/moderator/login", handlers.ModeratorLogin)
 
 	Logger.Info("Starting server")
 	err := http.ListenAndServeTLS(":443", Cfg.SSL.PathToCert, Cfg.SSL.PathToKey, nil)

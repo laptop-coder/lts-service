@@ -12,11 +12,11 @@ type JWTPair struct {
 }
 
 func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*JWTPair, error) {
-	issuedAt := time.Now().Unix()
+	issuedAt := time.Now()
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
 		"sub": username,
 		"iat": issuedAt,
-		"exp": (issuedAt + int64(5*60)), // 5 minutes
+		"exp": (issuedAt.Add(5 * time.Minute).Unix()), // 5 minutes
 	}).SignedString(privateKey)
 	if err != nil {
 		return nil, err
@@ -24,8 +24,8 @@ func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*JWTPair, error
 	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
 		"sub":                 username,
 		"iat":                 issuedAt,
-		"exp":                 (issuedAt + int64(30*24*60*60)), // 30 days
-		"credentials_version": 0,                               // TODO: maybe set from the function parameter
+		"exp":                 (issuedAt.Add(30 * 24 * time.Hour).Unix()), // 30 days
+		"credentials_version": 0,                                          // TODO: maybe set from the function parameter
 	}).SignedString(privateKey)
 	if err != nil {
 		return nil, err

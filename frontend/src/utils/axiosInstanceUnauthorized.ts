@@ -4,6 +4,7 @@ import { BACKEND_URL } from './consts';
 
 const axiosInstanceUnauthorized: AxiosInstance = axios.create({
   baseURL: BACKEND_URL,
+  withCredentials: true,
 });
 
 export default axiosInstanceUnauthorized;
