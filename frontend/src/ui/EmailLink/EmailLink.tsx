@@ -1,13 +1,13 @@
 import { JSX } from 'solid-js';
 
 import styles from './EmailLink.module.css';
-import type email from '../../types/email';
+import type Email from '../../types/email';
 
-const EmailLink = (props: { userEmail: email }): JSX.Element => {
+const EmailLink = (props: { userEmail: Email }): JSX.Element => {
   /**
    * EmailLink
    *
-   * @param userEmail<email> - Email
+   * @param userEmail<Email> - Email
    * @returns <JSX.Element> - Returns JSX element with the "mailto" link.
    */
   return (

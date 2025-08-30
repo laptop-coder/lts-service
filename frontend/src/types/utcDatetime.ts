@@ -1,3 +1,3 @@
-type utcDatetime = `${string}T${string}Z`;
+type UTCDatetime = `${string}T${string}Z`;
 
-export default utcDatetime;
+export default UTCDatetime;

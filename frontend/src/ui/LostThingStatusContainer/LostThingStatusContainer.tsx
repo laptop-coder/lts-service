@@ -8,9 +8,9 @@ import Thing from '../Thing/Thing';
 import ThingDescriptionTitle from '../ThingDescriptionTitle/ThingDescriptionTitle';
 import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGroup';
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
-import type email from '../../types/email';
+import type Email from '../../types/email';
 import type LostThing from '../../types/LostThing';
-import type utcDatetime from '../../types/utcDatetime';
+import type UTCDatetime from '../../types/utcDatetime';
 import ThingStatus from '../ThingStatus/ThingStatus';
 import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
 import { STORAGE_ROUTE } from '../../utils/consts';
@@ -46,7 +46,7 @@ const LostThingStatusContainer = (props: LostThing): JSX.Element => {
             title='Дата и время публикации'
           />
           <FormatUTCDatetime
-            datetime={props.PublicationDatetime as utcDatetime}
+            datetime={props.PublicationDatetime as UTCDatetime}
           />
         </ThingDescriptionItem>
         <ThingDescriptionItem>
@@ -54,7 +54,7 @@ const LostThingStatusContainer = (props: LostThing): JSX.Element => {
             src={`${ASSETS_ROUTE}/email.svg`}
             title='Email автора объявления'
           />
-          <EmailLink userEmail={props.UserEmail as email} />
+          <EmailLink userEmail={props.UserEmail as Email} />
         </ThingDescriptionItem>
         {props.CustomText && (
           <ThingDescriptionItem>

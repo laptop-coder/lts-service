@@ -9,7 +9,7 @@ import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGrou
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
 import type FoundThing from '../../types/FoundThing';
 import type LostThing from '../../types/LostThing';
-import type utcDatetime from '../../types/utcDatetime';
+import type UTCDatetime from '../../types/utcDatetime';
 import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
 import { STORAGE_ROUTE } from '../../utils/consts';
 import ChangeThingStatusButton from '../../ui/ChangeThingStatusButton/ChangeThingStatusButton';
@@ -44,7 +44,7 @@ const FoundThingContainer = (
             title='Дата и время публикации'
           />
           <FormatUTCDatetime
-            datetime={props.PublicationDatetime as utcDatetime}
+            datetime={props.PublicationDatetime as UTCDatetime}
           />
         </ThingDescriptionItem>
         <ThingDescriptionItem>

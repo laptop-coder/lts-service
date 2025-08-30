@@ -10,7 +10,7 @@ import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGrou
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
 import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
 import { STORAGE_ROUTE } from '../../utils/consts';
-import type email from '../../types/email';
+import type Email from '../../types/email';
 import type LostThing from '../../types/LostThing';
 import type FoundThing from '../../types/FoundThing';
 import type utcDatetime from '../../types/utcDatetime';
@@ -54,7 +54,7 @@ const LostThingContainer = (
             src={`${ASSETS_ROUTE}/email.svg`}
             title='Email автора объявления'
           />
-          <EmailLink userEmail={props.UserEmail as email} />
+          <EmailLink userEmail={props.UserEmail as Email} />
         </ThingDescriptionItem>
         {props.CustomText && (
           <ThingDescriptionItem>

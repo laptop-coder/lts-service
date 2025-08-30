@@ -8,7 +8,7 @@ import ThingDescriptionTitle from '../ThingDescriptionTitle/ThingDescriptionTitl
 import ThingDescriptionGroup from '../ThingDescriptionGroup/ThingDescriptionGroup';
 import ThingDescriptionItem from '../ThingDescriptionItem/ThingDescriptionItem';
 import type FoundThing from '../../types/FoundThing';
-import type utcDatetime from '../../types/utcDatetime';
+import type UTCDatetime from '../../types/utcDatetime';
 import ThingStatus from '../ThingStatus/ThingStatus';
 import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
 import { STORAGE_ROUTE } from '../../utils/consts';
@@ -44,7 +44,7 @@ const FoundThingStatusContainer = (props: FoundThing): JSX.Element => {
             title='Дата и время публикации'
           />
           <FormatUTCDatetime
-            datetime={props.PublicationDatetime as utcDatetime}
+            datetime={props.PublicationDatetime as UTCDatetime}
           />
         </ThingDescriptionItem>
         <ThingDescriptionItem>

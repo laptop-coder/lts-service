@@ -1,14 +1,14 @@
 import { JSX } from 'solid-js';
 
 import styles from './FormatUTCDatetime.module.css';
-import type utcDatetime from '../../types/utcDatetime';
+import type UTCDatetime from '../../types/utcDatetime';
 import { months } from '../../utils/consts';
 
-const FormatUTCDatetime = (props: { datetime: utcDatetime }): JSX.Element => {
+const FormatUTCDatetime = (props: { datetime: UTCDatetime }): JSX.Element => {
   /**
    * FormatUTCDatetime
    *
-   * @param datetime<utcDatetime> - Time in the UTC format
+   * @param datetime<UTCDatetime> - Time in the UTC format
    * @returns <JSX.Element> - Returns JSX element with the formatted datetime
    * from the UTC to the format like "01 января, 00:00". When you hover the
    * cursor over this element, the cursor style changes (to "help") and a hint
