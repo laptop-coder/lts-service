@@ -13,7 +13,6 @@ import (
 
 func ModeratorRegister(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
-	EnableCORSCredentials(&w)
 	const bcryptCost = 15 // minimal is 4, maximum is 31, default is 10
 
 	if r.Method != http.MethodPost {
