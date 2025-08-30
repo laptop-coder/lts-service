@@ -11,7 +11,9 @@ services:
         ipv4_address: 172.16.1.5
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: backend-dev
     volumes:
       - /etc/localtime:/etc/localtime
@@ -38,9 +40,15 @@ services:
         ipv4_address: 172.16.1.2
     depends_on:
       - valkey
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: frontend-dev
     volumes:
       - /etc/localtime:/etc/localtime
@@ -54,9 +62,15 @@ services:
         ipv4_address: 172.16.1.3
     depends_on:
       - backend
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend
 
   docs:
-    build: ./docs
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
     container_name: docs-dev
     volumes:
       - /etc/localtime:/etc/localtime
@@ -64,6 +78,10 @@ services:
     networks:
       network:
         ipv4_address: 172.16.1.4
+    develop:
+      watch:
+        - action: rebuild
+          path: ./docs
 
 networks:
   network:
