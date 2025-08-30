@@ -36,7 +36,7 @@ func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
 	if thingType != "lost" && thingType != "found" {
 		msg := "Error. Thing type should be \"lost\" or \"found\""
 		Logger.Error(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	sqlQuery := fmt.Sprintf("UPDATE %s_thing SET status=1 WHERE %s_thing_id=%s;",
@@ -47,7 +47,7 @@ func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
 	if _, err := DB.Exec(sqlQuery); err != nil {
 		msg := "Error updating thing status: " + err.Error()
 		Logger.Error(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	} else {
 		msg := "Success. If a thing with this id and type exists, its status has been updated"
