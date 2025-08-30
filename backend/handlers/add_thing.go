@@ -9,16 +9,12 @@ package handlers
 import (
 	. "backend/database"
 	. "backend/logger"
+	"backend/types"
 	. "backend/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
-
-type Response struct {
-	Info    string
-	ThingId int64
-}
 
 func AddThing(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -135,7 +131,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 	msg := "Success. Added a new " + thingType + " thing"
 	Logger.Info(msg)
 
-	response, err := json.Marshal(Response{Info: msg,
+	response, err := json.Marshal(types.AddThingResponse{Info: msg,
 		ThingId: thingId})
 	if err != nil {
 		http.Error(w, "Error when encoding JSON response", http.StatusInternalServerError)

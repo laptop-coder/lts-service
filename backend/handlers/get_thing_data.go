@@ -3,6 +3,7 @@ package handlers
 import (
 	. "backend/database"
 	. "backend/logger"
+	"backend/types"
 	. "backend/utils"
 	"database/sql"
 	"encoding/json"
@@ -48,7 +49,7 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 	row := DB.QueryRow(sqlQuery)
 	switch thingType {
 	case "lost":
-		var thing lostThing
+		var thing types.LostThing
 		err := row.Scan(
 			&thing.LostThingId,
 			&thing.PublicationDatetime,
@@ -90,7 +91,7 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "found":
-		var thing foundThing
+		var thing types.FoundThing
 		err := row.Scan(
 			&thing.FoundThingId,
 			&thing.PublicationDatetime,

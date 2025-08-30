@@ -4,6 +4,7 @@ package handlers
 import (
 	. "backend/database"
 	. "backend/logger"
+	"backend/types"
 	. "backend/utils"
 	"database/sql"
 	"encoding/json"
@@ -12,16 +13,6 @@ import (
 	"net/http"
 	"time"
 )
-
-type Email string
-
-type ModeratorAccount struct {
-	ModeratorId        int64
-	Username           string
-	Email              Email
-	PasswordHash       string
-	CredentialsVersion int
-}
 
 func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
@@ -63,7 +54,7 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 		username,
 	)
 	row := DB.QueryRow(sqlQuery)
-	var moderatorAccountData ModeratorAccount
+	var moderatorAccountData types.ModeratorAccount
 	err := row.Scan(
 		&moderatorAccountData.ModeratorId,
 		&moderatorAccountData.Username,

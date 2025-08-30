@@ -1,17 +1,13 @@
 package utils
 
 import (
+	"backend/types"
 	"crypto/rsa"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
-type JWTPair struct {
-	AccessToken  *string
-	RefreshToken *string
-}
-
-func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*JWTPair, error) {
+func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*types.JWTPair, error) {
 	issuedAt := time.Now()
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
 		"sub": username,
@@ -30,7 +26,7 @@ func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*JWTPair, error
 	if err != nil {
 		return nil, err
 	}
-	return &JWTPair{
+	return &types.JWTPair{
 		AccessToken:  &accessToken,
 		RefreshToken: &refreshToken,
 	}, nil

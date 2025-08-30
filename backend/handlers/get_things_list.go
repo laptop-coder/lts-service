@@ -3,31 +3,12 @@ package handlers
 import (
 	. "backend/database"
 	. "backend/logger"
+	"backend/types"
 	. "backend/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
-
-type lostThing struct {
-	LostThingId         int
-	PublicationDatetime string
-	ThingName           string
-	UserEmail           string
-	CustomText          string
-	Verified            int
-	Status              int
-}
-
-type foundThing struct {
-	FoundThingId        int
-	PublicationDatetime string
-	ThingName           string
-	ThingLocation       string
-	CustomText          string
-	Verified            int
-	Status              int
-}
 
 func GetThingsList(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
@@ -65,8 +46,8 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		// Serialize data and send it in response
 		switch thingsType {
 		case "lost":
-			var lostThingsList []lostThing
-			var thing lostThing
+			var lostThingsList []types.LostThing
+			var thing types.LostThing
 			for rows.Next() {
 				if err := rows.Scan(
 					&thing.LostThingId,
@@ -94,8 +75,8 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 			w.Write(jsonData)
 			return
 		case "found":
-			var foundThingsList []foundThing
-			var thing foundThing
+			var foundThingsList []types.FoundThing
+			var thing types.FoundThing
 			for rows.Next() {
 				if err := rows.Scan(
 					&thing.FoundThingId,
