@@ -1,13 +1,17 @@
-FROM node:24.4.1-bookworm-slim AS build
-WORKDIR /docs
+FROM node:24.7.0-alpine3.21 AS deps
+WORKDIR /app
 COPY package.json package-lock.json .
 RUN npm i
+
+FROM node:24.7.0-alpine3.21 AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules node_modules
 COPY .vitepress .vitepress
 COPY src src
-RUN npm run docs:build
+RUN npx vitepress build
 
-FROM nginx:1.29.0-alpine-slim AS production
+FROM nginx:1.29.1-alpine3.22-slim
 COPY ./default.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /docs/.vitepress/dist /usr/share/nginx/html
+COPY --from=builder /app/.vitepress/dist /usr/share/nginx/html
 EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]
