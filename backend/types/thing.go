@@ -4,7 +4,7 @@ type LostThing struct {
 	LostThingId         int
 	PublicationDatetime string
 	ThingName           string
-	UserEmail           string
+	UserEmail           Email
 	CustomText          string
 	Verified            int
 	Status              int
