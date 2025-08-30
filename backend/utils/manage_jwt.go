@@ -11,7 +11,7 @@ func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*types.JWTPair,
 	issuedAt := time.Now()
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
 		"sub": username,
-		"iat": issuedAt,
+		"iat": issuedAt.Unix(),
 		"exp": (issuedAt.Add(5 * time.Minute).Unix()), // 5 minutes
 	}).SignedString(privateKey)
 	if err != nil {
@@ -19,7 +19,7 @@ func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*types.JWTPair,
 	}
 	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
 		"sub":                 username,
-		"iat":                 issuedAt,
+		"iat":                 issuedAt.Unix(),
 		"exp":                 (issuedAt.Add(30 * 24 * time.Hour).Unix()), // 30 days
 		"credentials_version": 0,                                          // TODO: maybe set from the function parameter
 	}).SignedString(privateKey)
