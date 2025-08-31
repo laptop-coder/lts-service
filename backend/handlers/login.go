@@ -99,28 +99,32 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		jwtAccessCookie := http.Cookie{
-			Name:        "jwt_access",
-			Value:       *pair.AccessToken,
-			Secure:      true,
-			HttpOnly:    true,
-			Partitioned: true,
-			SameSite:    http.SameSiteNoneMode,
-			Path:        "/",
-			Expires:     time.Now().Add(5 * time.Minute),
-		}
-		jwtRefreshCookie := http.Cookie{
-			Name:        "jwt_refresh",
-			Value:       *pair.RefreshToken,
-			Secure:      true,
-			HttpOnly:    true,
-			Partitioned: true,
-			SameSite:    http.SameSiteNoneMode,
-			Path:        "/",
-			Expires:     time.Now().Add(30 * 24 * time.Hour),
-		}
-		http.SetCookie(w, &jwtAccessCookie)
-		http.SetCookie(w, &jwtRefreshCookie)
+		http.SetCookie(
+			w,
+			&http.Cookie{
+				Name:        "jwt_access",
+				Value:       *pair.AccessToken,
+				Secure:      true,
+				HttpOnly:    true,
+				Partitioned: true,
+				SameSite:    http.SameSiteNoneMode,
+				Path:        "/",
+				Expires:     time.Now().Add(5 * time.Minute),
+			},
+		)
+		http.SetCookie(
+			w,
+			&http.Cookie{
+				Name:        "jwt_refresh",
+				Value:       *pair.RefreshToken,
+				Secure:      true,
+				HttpOnly:    true,
+				Partitioned: true,
+				SameSite:    http.SameSiteNoneMode,
+				Path:        "/",
+				Expires:     time.Now().Add(30 * 24 * time.Hour),
+			},
+		)
 
 		jsonData, err := json.Marshal(pair)
 		if err != nil {
