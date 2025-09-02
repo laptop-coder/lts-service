@@ -1,9 +1,6 @@
 import { JSX } from 'solid-js';
 
 import styles from './ModeratorThingControlButtons.module.css';
-import changeThingStatus from '../../utils/changeThingStatus';
-import { CONFIRM_ACTION_MESSAGE } from '../../utils/consts';
-import { ASSETS_ROUTE } from '../../utils/consts';
 import type LostThing from '../../types/LostThing';
 import type FoundThing from '../../types/FoundThing';
 import type ThingType from '../../types/ThingType';
