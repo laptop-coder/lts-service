@@ -44,46 +44,48 @@ func GenKeysIfNotExist() error {
 	return nil
 }
 
-func GetPrivateKey() (*rsa.PrivateKey, error) {
+func GetPrivateKey() (*rsa.PrivateKey, *[]byte, error) {
 	pemData, err := os.ReadFile(Cfg.RSA.PathToPrivateKey)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	block, _ := pem.Decode(pemData)
 	if block == nil {
-		return nil, errors.New("error decoding private key PEM")
+		return nil, nil, errors.New("error decoding private key PEM")
 	}
 
 	if block.Type != "RSA PRIVATE KEY" {
-		return nil, errors.New("wrong private key type")
+		return nil, nil, errors.New("wrong private key type")
 	}
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+	privateKeyBytes := pem.EncodeToMemory(block)
 
-	return privateKey, nil
+	return privateKey, &privateKeyBytes, nil
 }
 
-func GetPublicKey() (*rsa.PublicKey, error) {
+func GetPublicKey() (*rsa.PublicKey, *[]byte, error) {
 	pemData, err := os.ReadFile(Cfg.RSA.PathToPublicKey)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	block, _ := pem.Decode(pemData)
 	if block == nil {
-		return nil, errors.New("error decoding public key PEM")
+		return nil, nil, errors.New("error decoding public key PEM")
 	}
 
 	if block.Type != "RSA PUBLIC KEY" {
-		return nil, errors.New("wrong public key type")
+		return nil, nil, errors.New("wrong public key type")
 	}
 
 	publicKey, err := x509.ParsePKCS1PublicKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+	publicKeyBytes := pem.EncodeToMemory(block)
 
-	return publicKey, nil
+	return publicKey, &publicKeyBytes, nil
 }
