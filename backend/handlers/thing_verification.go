@@ -46,7 +46,32 @@ func VerifyThing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: add moderator authentication
+	// Verify JWT
+
+	publicKey, _, err := GetPublicKey()
+	if err != nil {
+		msg := "Error getting public key: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	accessToken, err := r.Cookie("jwt_access")
+	if err != nil {
+		msg := "Error getting JWT access from the cookie: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	if err := VerifyJWTAccess(&accessToken.Value, publicKey); err != nil {
+		msg := "JWT access verification error: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	// Database query
 
 	var newVerificationStatus string // TODO: is it OK? (string instead of int)
 	switch action {

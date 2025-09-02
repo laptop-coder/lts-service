@@ -83,7 +83,7 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 
 		// JWT
 
-		privateKey, err := GetPrivateKey()
+		privateKey, _, err := GetPrivateKey()
 		if err != nil {
 			msg := "Error getting private key: " + err.Error()
 			Logger.Error(msg)
@@ -108,7 +108,8 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 				HttpOnly:    true,
 				Partitioned: true,
 				SameSite:    http.SameSiteNoneMode,
-				Path:        "/",
+				Path:        "/", // TODO: is it OK?
+				Domain:      "server.ltsservice.ru",
 				Expires:     time.Now().Add(5 * time.Minute),
 			},
 		)
@@ -121,8 +122,23 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 				HttpOnly:    true,
 				Partitioned: true,
 				SameSite:    http.SameSiteNoneMode,
-				Path:        "/",
+				Path:        "/", // TODO: is it OK?
+				Domain:      "server.ltsservice.ru",
 				Expires:     time.Now().Add(30 * 24 * time.Hour),
+			},
+		)
+		http.SetCookie(
+			w,
+			&http.Cookie{
+				Name:        "authorized",
+				Value:       "true",
+				Secure:      true,
+				HttpOnly:    false,
+				Partitioned: true,
+				SameSite:    http.SameSiteNoneMode,
+				Path:        "/moderator", // TODO: is it OK?
+				Domain:      "ltsservice.ru",
+				Expires:     time.Now().Add(5 * time.Minute),
 			},
 		)
 

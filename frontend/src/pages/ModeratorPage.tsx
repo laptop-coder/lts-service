@@ -6,6 +6,7 @@ import {
   Match,
   createSignal,
 } from 'solid-js';
+import type { Setter } from 'solid-js';
 
 import { ASSETS_ROUTE } from '../utils/consts';
 import Header from '../components/Header/Header';
@@ -22,8 +23,17 @@ import type LostThing from '../types/LostThing';
 import type FoundThing from '../types/FoundThing';
 import LostThingContainerModerator from '../ui/LostThingContainerModerator/LostThingContainerModerator';
 import FoundThingContainerModerator from '../ui/FoundThingContainerModerator/FoundThingContainerModerator';
+import ModeratorUnauthorized from '../ui/ModeratorUnauthorized/ModeratorUnauthorized';
 import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
 import { ThingsListsSelectionCriteria } from '../enums/thingsListsSelectionCriteria';
+import getCookie from '../utils/getCookie';
+
+const updateAuthorizedCookie = (setAuthorized: Setter<boolean>) => {
+  var authorizedCookie = getCookie('authorized');
+  if (authorizedCookie != undefined) {
+    setAuthorized(JSON.parse(authorizedCookie));
+  }
+};
 
 const ModeratorPage = (): JSX.Element => {
   const [lostThingsList, { refetch: reloadLostThingsList }]: ResourceReturn<
@@ -44,91 +54,100 @@ const ModeratorPage = (): JSX.Element => {
     },
     fetchThingsList,
   );
+
+  const [authorized, setAuthorized] = createSignal(false);
+  updateAuthorizedCookie(setAuthorized);
+
   return (
     <Page>
       <Header>
-        <SquareImageButton
-          onclick={() => {
-            reloadLostThingsList();
-            reloadFoundThingsList();
-          }}
-        >
-          <img src={`${ASSETS_ROUTE}/reload.svg`} />
-        </SquareImageButton>
+        {authorized() && (
+          <SquareImageButton
+            onclick={() => {
+              reloadLostThingsList();
+              reloadFoundThingsList();
+            }}
+          >
+            <img src={`${ASSETS_ROUTE}/reload.svg`} />
+          </SquareImageButton>
+        )}
       </Header>
       <Content>
-        <ListsGroup>
-          <DoubleList title='Потерянные вещи'>
-            {/*TODO: is it normal to use Loading in the fallback here?*/}
-            <Switch fallback={<Loading />}>
-              <Match
-                when={
-                  lostThingsList.state === 'unresolved' ||
-                  lostThingsList.state === 'pending'
-                }
-              >
-                <Loading />
-              </Match>
-              <Match
-                when={
-                  lostThingsList.state === 'ready' ||
-                  lostThingsList.state === 'refreshing'
-                }
-              >
-                <For
-                  each={lostThingsList()}
-                  fallback='Данных нет'
+        {!authorized() && <ModeratorUnauthorized />}
+        {authorized() && (
+          <ListsGroup>
+            <DoubleList title='Потерянные вещи'>
+              {/*TODO: is it normal to use Loading in the fallback here?*/}
+              <Switch fallback={<Loading />}>
+                <Match
+                  when={
+                    lostThingsList.state === 'unresolved' ||
+                    lostThingsList.state === 'pending'
+                  }
                 >
-                  {(item: LostThing) => (
-                    <LostThingContainerModerator
-                      {...item}
-                      reloadLostThingsList={reloadLostThingsList}
-                      reloadFoundThingsList={reloadFoundThingsList}
-                    />
-                  )}
-                </For>
-              </Match>
-              <Match when={lostThingsList.state === 'errored'}>
-                <Error />
-              </Match>
-            </Switch>
-          </DoubleList>
-          <DoubleList title='Найденные вещи'>
-            {/*TODO: is it normal to use Loading in the fallback here?*/}
-            <Switch fallback={<Loading />}>
-              <Match
-                when={
-                  foundThingsList.state === 'unresolved' ||
-                  foundThingsList.state === 'pending'
-                }
-              >
-                <Loading />
-              </Match>
-              <Match
-                when={
-                  foundThingsList.state === 'ready' ||
-                  foundThingsList.state === 'refreshing'
-                }
-              >
-                <For
-                  each={foundThingsList()}
-                  fallback='Данных нет'
+                  <Loading />
+                </Match>
+                <Match
+                  when={
+                    lostThingsList.state === 'ready' ||
+                    lostThingsList.state === 'refreshing'
+                  }
                 >
-                  {(item: FoundThing) => (
-                    <FoundThingContainerModerator
-                      {...item}
-                      reloadLostThingsList={reloadLostThingsList}
-                      reloadFoundThingsList={reloadFoundThingsList}
-                    />
-                  )}
-                </For>
-              </Match>
-              <Match when={foundThingsList.state === 'errored'}>
-                <Error />
-              </Match>
-            </Switch>
-          </DoubleList>
-        </ListsGroup>
+                  <For
+                    each={lostThingsList()}
+                    fallback='Данных нет'
+                  >
+                    {(item: LostThing) => (
+                      <LostThingContainerModerator
+                        {...item}
+                        reloadLostThingsList={reloadLostThingsList}
+                        reloadFoundThingsList={reloadFoundThingsList}
+                      />
+                    )}
+                  </For>
+                </Match>
+                <Match when={lostThingsList.state === 'errored'}>
+                  <Error />
+                </Match>
+              </Switch>
+            </DoubleList>
+            <DoubleList title='Найденные вещи'>
+              {/*TODO: is it normal to use Loading in the fallback here?*/}
+              <Switch fallback={<Loading />}>
+                <Match
+                  when={
+                    foundThingsList.state === 'unresolved' ||
+                    foundThingsList.state === 'pending'
+                  }
+                >
+                  <Loading />
+                </Match>
+                <Match
+                  when={
+                    foundThingsList.state === 'ready' ||
+                    foundThingsList.state === 'refreshing'
+                  }
+                >
+                  <For
+                    each={foundThingsList()}
+                    fallback='Данных нет'
+                  >
+                    {(item: FoundThing) => (
+                      <FoundThingContainerModerator
+                        {...item}
+                        reloadLostThingsList={reloadLostThingsList}
+                        reloadFoundThingsList={reloadFoundThingsList}
+                      />
+                    )}
+                  </For>
+                </Match>
+                <Match when={foundThingsList.state === 'errored'}>
+                  <Error />
+                </Match>
+              </Switch>
+            </DoubleList>
+          </ListsGroup>
+        )}
       </Content>
       <Footer />
     </Page>
