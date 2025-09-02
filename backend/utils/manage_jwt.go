@@ -8,10 +8,11 @@ import (
 	"time"
 )
 
-func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*types.JWTPair, error) {
+func CreateJWTPair(username *string, privateKey *rsa.PrivateKey) (*types.JWTPair, error) {
+	// TODO: refactor, the code is duplicated
 	issuedAt := time.Now()
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
-		"sub": username,
+		"sub": *username,
 		"iat": issuedAt.Unix(),
 		"exp": (issuedAt.Add(5 * time.Minute).Unix()), // 5 minutes
 	}).SignedString(privateKey)
@@ -19,7 +20,7 @@ func CreateJWTPair(username string, privateKey *rsa.PrivateKey) (*types.JWTPair,
 		return nil, err
 	}
 	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
-		"sub":                 username,
+		"sub":                 *username,
 		"iat":                 issuedAt.Unix(),
 		"exp":                 (issuedAt.Add(30 * 24 * time.Hour).Unix()), // 30 days
 		"credentials_version": 0,                                          // TODO: maybe set from the function parameter
@@ -68,4 +69,19 @@ func VerifyJWTAccess(accessToken *string, publicKey *rsa.PublicKey) error {
 	default:
 		return errors.New("couldn't handle JWT access token: " + err.Error())
 	}
+}
+
+func RefreshJWTAccess(refreshToken *string, username *string, privateKey *rsa.PrivateKey) (*string, error) {
+	// verify JWT refresh here
+	// TODO: refactor, the code is duplicated
+	issuedAt := time.Now()
+	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
+		"sub": username,
+		"iat": issuedAt.Unix(),
+		"exp": (issuedAt.Add(5 * time.Minute).Unix()), // 5 minutes
+	}).SignedString(privateKey)
+	if err != nil {
+		return nil, err
+	}
+	return &accessToken, nil
 }
