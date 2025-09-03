@@ -9,6 +9,7 @@ import NotFoundPage from './pages/errors/NotFoundPage/NotFoundPage';
 import ModeratorRegisterPage from './pages/ModeratorRegisterPage';
 import ModeratorLoginPage from './pages/ModeratorLoginPage';
 import ModeratorPage from './pages/ModeratorPage';
+import ModeratorAccountSettingsPage from './pages/ModeratorAccountSettingsPage';
 import {
   ADD_THING_ROUTE,
   HOME_ROUTE,
@@ -16,6 +17,7 @@ import {
   MODERATOR_REGISTER_ROUTE,
   MODERATOR_ROUTE,
   THING_STATUS_ROUTE,
+  MODERATOR_ACCOUNT_SETTINGS_ROUTE,
 } from './utils/consts';
 
 const AppRouter = (): JSX.Element => {
@@ -40,6 +42,10 @@ const AppRouter = (): JSX.Element => {
       <Route
         path={MODERATOR_LOGIN_ROUTE}
         component={ModeratorLoginPage}
+      />
+      <Route
+        path={MODERATOR_ACCOUNT_SETTINGS_ROUTE}
+        component={ModeratorAccountSettingsPage}
       />
       <Route
         path={MODERATOR_ROUTE}
