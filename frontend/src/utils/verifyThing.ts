@@ -4,7 +4,7 @@ import { VERIFY_THING_ROUTE } from '../utils/consts';
 
 type ThingVerificationAction = 'accept' | 'reject';
 
-const verifyThing = (props: {
+const verifyThing = async (props: {
   thingType: ThingType;
   thingId: number;
   action: ThingVerificationAction;
