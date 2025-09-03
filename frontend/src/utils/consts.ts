@@ -5,6 +5,7 @@ export const MODERATOR_LOGIN_ROUTE = '/moderator/login';
 export const MODERATOR_REGISTER_ROUTE = '/moderator/register';
 export const MODERATOR_ROUTE = '/moderator';
 export const VERIFY_THING_ROUTE = '/thing/verify';
+export const MODERATOR_ACCOUNT_SETTINGS_ROUTE = '/moderator/account/settings';
 
 export const ASSETS_ROUTE = '/storage/assets';
 export const STORAGE_ROUTE = '/storage/storage';

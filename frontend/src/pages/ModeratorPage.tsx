@@ -8,7 +8,10 @@ import {
 } from 'solid-js';
 import type { Setter } from 'solid-js';
 
-import { ASSETS_ROUTE } from '../utils/consts';
+import {
+  ASSETS_ROUTE,
+  MODERATOR_ACCOUNT_SETTINGS_ROUTE,
+} from '../utils/consts';
 import Header from '../components/Header/Header';
 import Content from '../components/Content/Content';
 import DoubleList from '../components/DoubleList/DoubleList';
@@ -27,6 +30,8 @@ import ModeratorUnauthorized from '../ui/ModeratorUnauthorized/ModeratorUnauthor
 import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
 import { ThingsListsSelectionCriteria } from '../enums/thingsListsSelectionCriteria';
 import getCookie from '../utils/getCookie';
+
+import { A } from '@solidjs/router';
 
 const updateAuthorizedCookie = (setAuthorized: Setter<boolean>) => {
   var authorizedCookie = getCookie('authorized');
@@ -62,14 +67,21 @@ const ModeratorPage = (): JSX.Element => {
     <Page>
       <Header>
         {authorized() && (
-          <SquareImageButton
-            onclick={() => {
-              reloadLostThingsList();
-              reloadFoundThingsList();
-            }}
-          >
-            <img src={`${ASSETS_ROUTE}/reload.svg`} />
-          </SquareImageButton>
+          <>
+            <SquareImageButton
+              onclick={() => {
+                reloadLostThingsList();
+                reloadFoundThingsList();
+              }}
+            >
+              <img src={`${ASSETS_ROUTE}/reload.svg`} />
+            </SquareImageButton>
+            <SquareImageButton>
+              <A href={MODERATOR_ACCOUNT_SETTINGS_ROUTE}>
+                <img src={`${ASSETS_ROUTE}/account.svg`} />
+              </A>
+            </SquareImageButton>
+          </>
         )}
       </Header>
       <Content>
