@@ -4,15 +4,15 @@ import { A } from '@solidjs/router';
 
 import styles from './Header.module.css';
 import Logo from '../../ui/Logo/Logo';
-import { HOME_ROUTE } from '../../utils/consts';
+import { HOME_ROUTE, MODERATOR_ROUTE } from '../../utils/consts';
 
-const Header = (props: ParentProps): JSX.Element => (
+const Header = (props: ParentProps & { moderator?: boolean }): JSX.Element => (
   <header class={styles.header}>
     {/* Main module is the left part of the header*/}
     <div class={styles.main_module}>
-      <Logo />
+      <Logo moderator={props.moderator} />
       <A
-        href={HOME_ROUTE}
+        href={props.moderator ? MODERATOR_ROUTE : HOME_ROUTE}
         title='На главную'
       >
         <h1>Сервис поиска потерянных вещей</h1>

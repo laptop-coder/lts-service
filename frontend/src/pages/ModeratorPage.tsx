@@ -65,7 +65,7 @@ const ModeratorPage = (): JSX.Element => {
 
   return (
     <Page>
-      <Header>
+      <Header moderator>
         {authorized() && (
           <>
             <SquareImageButton
