@@ -6,7 +6,6 @@ import {
   Match,
   createSignal,
 } from 'solid-js';
-import type { Setter } from 'solid-js';
 
 import {
   ASSETS_ROUTE,
@@ -29,16 +28,9 @@ import FoundThingContainerModerator from '../ui/FoundThingContainerModerator/Fou
 import ModeratorUnauthorized from '../ui/ModeratorUnauthorized/ModeratorUnauthorized';
 import type { ResourceReturn } from 'solid-js'; // TODO: is it used correctly?
 import { ThingsListsSelectionCriteria } from '../enums/thingsListsSelectionCriteria';
-import getCookie from '../utils/getCookie';
+import updateAuthorizedCookie from '../utils/updateAuthorizedCookie';
 
 import { A } from '@solidjs/router';
-
-const updateAuthorizedCookie = (setAuthorized: Setter<boolean>) => {
-  var authorizedCookie = getCookie('authorized');
-  if (authorizedCookie != undefined) {
-    setAuthorized(JSON.parse(authorizedCookie));
-  }
-};
 
 const ModeratorPage = (): JSX.Element => {
   const [lostThingsList, { refetch: reloadLostThingsList }]: ResourceReturn<
