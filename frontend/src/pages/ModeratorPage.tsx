@@ -77,8 +77,7 @@ const ModeratorPage = (): JSX.Element => {
         )}
       </Header>
       <Content>
-        {!authorized() && <ModeratorUnauthorized />}
-        {authorized() && (
+        {authorized() ? (
           <ListsGroup>
             <DoubleList title='Потерянные вещи'>
               {/*TODO: is it normal to use Loading in the fallback here?*/}
@@ -151,6 +150,8 @@ const ModeratorPage = (): JSX.Element => {
               </Switch>
             </DoubleList>
           </ListsGroup>
+        ) : (
+          <ModeratorUnauthorized />
         )}
       </Content>
       <Footer />
