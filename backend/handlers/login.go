@@ -91,7 +91,7 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		pair, err := CreateJWTPair(&moderatorAccountData.Username, privateKey)
+		pair, err := CreateJWTPair(&moderatorAccountData.Username, &moderatorAccountData.CredentialsVersion, privateKey)
 		if err != nil {
 			msg := "Error creating new JWT pair: " + err.Error()
 			Logger.Error(msg)

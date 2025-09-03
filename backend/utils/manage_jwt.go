@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func CreateJWTPair(username *string, privateKey *rsa.PrivateKey) (*types.JWTPair, error) {
+func CreateJWTPair(username *string, credentialsVersion *int, privateKey *rsa.PrivateKey) (*types.JWTPair, error) {
 	// TODO: refactor, the code is duplicated
 	issuedAt := time.Now()
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodRS512, jwt.MapClaims{
@@ -26,7 +26,7 @@ func CreateJWTPair(username *string, privateKey *rsa.PrivateKey) (*types.JWTPair
 		"sub":                 *username,
 		"iat":                 issuedAt.Unix(),
 		"exp":                 (issuedAt.Add(30 * 24 * time.Hour).Unix()), // 30 days
-		"credentials_version": 0,                                          // TODO: maybe set from the function parameter
+		"credentials_version": *credentialsVersion,
 	}).SignedString(privateKey)
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func VerifyJWTRefresh(refreshToken *string, publicKey *rsa.PublicKey) (*string, 
 		if !ok {
 			return nil, errors.New("can't make type assertion (*jwt.Token to jwt.MapClaims)")
 		}
-		credentialsVersionFromToken := claims["credentials_version"].(float64)
+		credentialsVersionFromToken := claims["credentials_version"].(float64) // I don't know why the type of this is float64 :)
 		if !ok {
 			return nil, errors.New("can't get JWT refresh \"credentials_version\" claim or can't make type assertion (any to float64)")
 		}
