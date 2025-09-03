@@ -138,7 +138,7 @@ func ModeratorLogin(w http.ResponseWriter, r *http.Request) {
 				SameSite:    http.SameSiteNoneMode,
 				Path:        "/moderator", // TODO: is it OK?
 				Domain:      "ltsservice.ru",
-				Expires:     time.Now().Add(5 * time.Minute),
+				Expires:     time.Now().Add(30 * 24 * time.Hour),
 			},
 		)
 
