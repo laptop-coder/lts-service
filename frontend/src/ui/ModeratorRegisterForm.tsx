@@ -7,6 +7,7 @@ import AuthForm from './AuthForm/AuthForm';
 import AuthFormAnotherAction from './AuthFormAnotherAction/AuthFormAnotherAction';
 import AuthInput from './AuthInput/AuthInput';
 import { MODERATOR_LOGIN_ROUTE } from '../utils/consts';
+import { MODERATOR_REGISTER_ROUTE } from '../utils/consts';
 import axiosInstanceUnauthorized from '../utils/axiosInstanceUnauthorized';
 
 const ModeratorRegisterForm = (): JSX.Element => {
@@ -23,7 +24,7 @@ const ModeratorRegisterForm = (): JSX.Element => {
     if (username() != '' && email() != '' && password() != '') {
       await axiosInstanceUnauthorized
         .post(
-          '/moderator/register',
+          MODERATOR_REGISTER_ROUTE,
           {
             username: username(),
             email: email(),
