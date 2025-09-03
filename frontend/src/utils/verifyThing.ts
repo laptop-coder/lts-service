@@ -1,5 +1,6 @@
 import ThingType from '../types/ThingType';
 import axiosInstanceUnauthorized from './axiosInstanceUnauthorized';
+import { VERIFY_THING_ROUTE } from '../utils/consts';
 
 type ThingVerificationAction = 'accept' | 'reject';
 
@@ -9,7 +10,7 @@ const verifyThing = (props: {
   action: ThingVerificationAction;
 }) => {
   axiosInstanceUnauthorized.post(
-    '/thing/verify',
+    VERIFY_THING_ROUTE,
     {
       thingType: props.thingType,
       thingId: props.thingId,
