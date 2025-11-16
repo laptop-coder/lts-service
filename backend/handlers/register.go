@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	. "backend/config"
 	. "backend/database"
 	. "backend/logger"
 	. "backend/utils"
@@ -13,7 +14,6 @@ import (
 
 func ModeratorRegister(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
-	const bcryptCost = 15 // minimal is 4, maximum is 31, default is 10
 
 	if r.Method != http.MethodPost {
 		msg := "A POST request is required"
@@ -46,7 +46,7 @@ func ModeratorRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcryptCost)
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), Cfg.App.BcryptCost)
 	if err != nil {
 		msg := "Error generating password hash: " + err.Error()
 		Logger.Error(msg)

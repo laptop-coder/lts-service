@@ -1,20 +1,10 @@
 services:
 
-  valkey:
-    image: valkey/valkey:8.1.3-alpine
-    container_name: valkey-dev
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - ./valkey/sysctl.conf:/etc/sysctl.conf
-    networks:
-      network:
-        ipv4_address: 172.16.1.5
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: backend-dev
+    container_name: lts-backend
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/db:/backend/data/db
@@ -27,19 +17,14 @@ services:
       - PATH_TO_STORAGE=/backend/data/storage
       - RSA_PRIVATE_KEY=RSA_private_key.pem
       - RSA_PUBLIC_KEY=RSA_public_key.pem
-      - SSL_CERT=certfile.crt
-      - SSL_KEY=keyfile.key
       - PATH_TO_LOGS=/backend/data/logs
       - BACKEND_LOG=backend.log
-      - VALKEY_HOST=172.16.1.5
-      - VALKEY_PORT=6379
     env_file:
       - .env
     networks:
-      network:
-        ipv4_address: 172.16.1.2
-    depends_on:
-      - valkey
+      - lts_network
+    ports:
+      - "37190:37190"
     develop:
       watch:
         - action: rebuild
@@ -49,7 +34,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend-dev
+    container_name: lts-frontend
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/env:/env
@@ -58,8 +43,9 @@ services:
     env_file:
       - .env
     networks:
-      network:
-        ipv4_address: 172.16.1.3
+      - lts_network
+    ports:
+      - "${FRONTEND_PORT:-31022}:${FRONTEND_PORT:-31022}"
     depends_on:
       - backend
     develop:
@@ -71,20 +57,19 @@ services:
     build:
       context: ./docs
       dockerfile: Dockerfile
-    container_name: docs-dev
+    container_name: lts-docs
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/env:/env
     networks:
-      network:
-        ipv4_address: 172.16.1.4
+      - lts_network
+    ports:
+      - "${DOCS_PORT:-32782}:${DOCS_PORT:-32782}"
     develop:
       watch:
         - action: rebuild
           path: ./docs
 
 networks:
-  network:
-    ipam:
-      config:
-        - subnet: 172.16.1.0/24
+  lts_network:
+    driver: bridge

@@ -23,7 +23,6 @@ func ChangeThingStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	// TODO: is it normal that thingId is string, not int?
 	thingId, thingType :=
 		r.FormValue("thingId"),
 		r.FormValue("thingType")

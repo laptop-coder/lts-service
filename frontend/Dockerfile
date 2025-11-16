@@ -8,10 +8,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules node_modules
 COPY vite.config.ts tsconfig.json index.html .
 COPY src src
+COPY .env* .
 RUN npx vite build
 
 FROM nginx:1.29.1-alpine3.22-slim
-COPY default.conf /etc/nginx/conf.d/default.conf
+WORKDIR app
+COPY nginx.conf.template .
 COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 443
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 31022
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+ENTRYPOINT /app/entrypoint.sh

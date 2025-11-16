@@ -5,17 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 func newConfig() *types.Config {
-	var VALKEY_PORT, err = strconv.Atoi(getEnv("VALKEY_PORT"))
-	if err != nil {
-		panic(err)
-	}
 	return &types.Config{
 		App: types.AppConfig{
-			DevMode: getEnv("LTS_SERVICE_DEV_MODE"),
+			PortBackend:  "37190",
+			PortFrontend: getEnv("FRONTEND_PORT"),
+			BcryptCost:   15, // minimal is 4, maximum is 31, default is 10
 		},
 		DB: types.DBConfig{
 			PathTo: getEnv("PATH_TO_DB"),
@@ -39,22 +36,8 @@ func newConfig() *types.Config {
 				getEnv("RSA_PUBLIC_KEY"),
 			),
 		},
-		SSL: types.SSLConfig{
-			PathToCert: filepath.Join(
-				getEnv("PATH_TO_ENV"),
-				getEnv("SSL_CERT"),
-			),
-			PathToKey: filepath.Join(
-				getEnv("PATH_TO_ENV"),
-				getEnv("SSL_KEY"),
-			),
-		},
 		Storage: types.StorageConfig{
 			PathTo: getEnv("PATH_TO_STORAGE"),
-		},
-		Valkey: types.ValkeyConfig{
-			Host: getEnv("VALKEY_HOST"),
-			Port: VALKEY_PORT,
 		},
 	}
 }

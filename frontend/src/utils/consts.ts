@@ -9,7 +9,7 @@ export const MODERATOR_ACCOUNT_SETTINGS_ROUTE = '/moderator/account/settings';
 
 export const ASSETS_ROUTE = '/storage/assets';
 export const STORAGE_ROUTE = '/storage/storage';
-export const BACKEND_URL = 'https://server.ltsservice.ru';
+export const BACKEND_URL = 'http://localhost:37190';
 export const SOURCE_CODE_URL = 'https://github.com/laptop-coder/lts-service';
 
 export const CONFIRM_ACTION_MESSAGE = 'Вы уверены? Подтвердите действие';

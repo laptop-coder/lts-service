@@ -8,10 +8,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules node_modules
 COPY .vitepress .vitepress
 COPY src src
+COPY .env* .
 RUN npx vitepress build
 
 FROM nginx:1.29.1-alpine3.22-slim
-COPY ./default.conf /etc/nginx/conf.d/default.conf
+WORKDIR app
+COPY nginx.conf.template .
 COPY --from=builder /app/.vitepress/dist /usr/share/nginx/html
-EXPOSE 443
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 32782
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+ENTRYPOINT /app/entrypoint.sh

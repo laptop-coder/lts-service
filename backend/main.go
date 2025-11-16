@@ -11,19 +11,22 @@ import (
 
 func main() {
 	defer DB.Close()
-	defer Valkey.Close()
+	// defer Valkey.Close()
 	utils.GenKeysIfNotExist()
 
-	http.HandleFunc("/thing/add", handlers.AddThing)
-	http.HandleFunc("/thing/change_status", handlers.ChangeThingStatus)
-	http.HandleFunc("/thing/verify", handlers.VerifyThing)
-	http.HandleFunc("/thing/get_data", handlers.GetThingData)
-	http.HandleFunc("/things/get_list", handlers.GetThingsList)
-	http.HandleFunc("/moderator/register", handlers.ModeratorRegister)
-	http.HandleFunc("/moderator/login", handlers.ModeratorLogin)
+	mux := http.NewServeMux()
 
-	Logger.Info("Starting server")
-	err := http.ListenAndServeTLS(":443", Cfg.SSL.PathToCert, Cfg.SSL.PathToKey, nil)
+	// For all users
+	mux.Handle("/thing/add", http.HandlerFunc(handlers.AddThing))
+	mux.Handle("/thing/change_status", http.HandlerFunc(handlers.ChangeThingStatus))
+	mux.Handle("/thing/verify", http.HandlerFunc(handlers.VerifyThing))
+	mux.Handle("/thing/get_data", http.HandlerFunc(handlers.GetThingData))
+	mux.Handle("/things/get_list", http.HandlerFunc(handlers.GetThingsList))
+	mux.Handle("/moderator/register", http.HandlerFunc(handlers.ModeratorRegister))
+	mux.Handle("/moderator/login", http.HandlerFunc(handlers.ModeratorLogin))
+
+	Logger.Info("Starting server via HTTP...")
+	err := http.ListenAndServe(":"+Cfg.App.PortBackend, mux)
 	if err != nil {
 		Logger.Error("Error starting the server: " + err.Error())
 	}

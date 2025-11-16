@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 )
 
 func GetThingData(w http.ResponseWriter, r *http.Request) {
@@ -31,13 +30,6 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Parameters are incorrect
-	if !regexp.MustCompile(`^[1-9]\d*$`).MatchString(thingId) {
-		// Regular expression: string is a number without leading zeros
-		msg := "Error. Thing id should be a number without leading zeros"
-		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
-		return
-	}
 	if thingType != "lost" && thingType != "found" {
 		msg := "Error. Thing type should be \"lost\" or \"found\""
 		Logger.Error(msg)

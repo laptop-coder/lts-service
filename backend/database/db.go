@@ -9,7 +9,7 @@ import (
 
 var initialQueries = `
 CREATE TABLE IF NOT EXISTS lost_thing (
-    lost_thing_id INTEGER PRIMARY KEY,
+    lost_thing_id VARCHAR(36) PRIMARY KEY,
     publication_datetime DATETIME,
     thing_name TEXT NOT NULL,
     user_email VARCHAR(254) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS lost_thing (
 );
 
 CREATE TABLE IF NOT EXISTS found_thing (
-    found_thing_id INTEGER PRIMARY KEY,
+    found_thing_id VARCHAR(36) PRIMARY KEY,
     publication_datetime DATETIME,
     thing_name TEXT NOT NULL,
     thing_location TEXT NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS found_thing (
 );
 
 CREATE TABLE IF NOT EXISTS moderator (
-    moderator_id INTEGER PRIMARY KEY,
+    moderator_id VARCHAR(36) PRIMARY KEY,
     username VARCHAR(32) NOT NULL UNIQUE,
     email VARCHAR(254) NOT NULL UNIQUE,
     password VARCHAR(128) NOT NULL,

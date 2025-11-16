@@ -1,7 +1,5 @@
 # LostThingsSearch service
 
-[![CodeFactor](https://www.codefactor.io/repository/github/laptop-coder/lts-service/badge)](https://www.codefactor.io/repository/github/laptop-coder/lts-service)
-
 ## Installation (dev)
 
 0. Install requirements:
