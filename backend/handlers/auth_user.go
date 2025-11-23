@@ -99,7 +99,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(
 			w,
 			&http.Cookie{
-				Name:     "user_jwt_access",
+				Name:     "jwt_access",
 				Value:    *accessToken,
 				HttpOnly: true,
 				Path:     "/",                                 // TODO: is it OK?
@@ -112,7 +112,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(
 			w,
 			&http.Cookie{
-				Name:     "user_authorized",
+				Name:     "authorized",
 				Value:    "true",
 				HttpOnly: false,
 				Path:     "/",                                 // TODO: is it OK?
@@ -213,7 +213,7 @@ func UserLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(
 		w,
 		&http.Cookie{
-			Name:     "user_jwt_access",
+			Name:     "jwt_access",
 			Value:    "",
 			HttpOnly: true,
 			Path:     "/",
@@ -223,7 +223,7 @@ func UserLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(
 		w,
 		&http.Cookie{
-			Name:     "user_authorized",
+			Name:     "authorized",
 			Value:    "",
 			HttpOnly: true,
 			Path:     "/",
