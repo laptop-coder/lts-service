@@ -29,8 +29,8 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get data from the database
-
-	if thingsType == "lost" {
+	switch thingsType {
+	case "lost":
 		rows, err := DB.Query(
 			"SELECT * FROM lost_thing ORDER BY name;",
 		)
@@ -47,11 +47,13 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			if err := rows.Scan(
 				&lostThing.Id,
+				&lostThing.PublicationDatetime,
 				&lostThing.Name,
 				&lostThing.UserEmail,
 				&lostThing.UserMessage,
 				&lostThing.Verified,
 				&lostThing.Found,
+				&lostThing.AdvertisementOwner,
 			); err != nil {
 				msg := "Error (\"lost thing\" object): " + err.Error()
 				Logger.Error(msg)
@@ -70,7 +72,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 		return
 
-	} else if thingsType == "found" {
+	case "found":
 		rows, err := DB.Query(
 			"SELECT * FROM found_thing ORDER BY name;",
 		)
@@ -87,11 +89,13 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			if err := rows.Scan(
 				&foundThing.Id,
+				&foundThing.PublicationDatetime,
 				&foundThing.Name,
 				&foundThing.Location,
 				&foundThing.UserMessage,
 				&foundThing.Verified,
 				&foundThing.Found,
+				&foundThing.AdvertisementOwner,
 			); err != nil {
 				msg := "Error (\"found thing\" object): " + err.Error()
 				Logger.Error(msg)
@@ -110,7 +114,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 		return
 
-	} else {
+	default:
 		msg := "Error. GET parameter \"things_type\" could be \"lost\" or \"found\""
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)

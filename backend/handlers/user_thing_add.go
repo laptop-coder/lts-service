@@ -28,13 +28,40 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
-	} else if thingType == "lost" {
+	}
+
+	// Get username from the JWT access
+	publicKey, _, err := GetPublicKey()
+	if err != nil {
+		msg := "Error getting public key: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	accessToken, err := GetJWTAccess(r)
+	if err != nil {
+		msg := err.Error()
+		http.Error(w, msg, http.StatusUnauthorized)
+		return
+	}
+	advertisementOwner, err := GetUsername(accessToken, publicKey)
+	if err != nil {
+		msg := "Can't get username from JWT access: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	thingId := uuid.New().String()
+
+	switch thingType {
+	case "lost":
 		thingName := r.FormValue("thingName")
 		userEmail := r.FormValue("userEmail")
 		userMessage := r.FormValue("userMessage")
 		thingPhoto := r.FormValue("thingPhoto")
 
-		if thingName == "" || userEmail = "" {
+		if thingName == "" || userEmail == "" {
 			msg := "Error. \"thingType\" is \"lost\", so POST parameters \"thingName\" and \"userEmail\" are required"
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
@@ -57,7 +84,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// User email
-		isSecure, err := CheckStringSecurity(userEmail)
+		isSecure, err = CheckStringSecurity(userEmail)
 		if err != nil {
 			Logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -71,7 +98,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// User message
-		isSecure, err := CheckStringSecurity(userMessage)
+		isSecure, err = CheckStringSecurity(userMessage)
 		if err != nil {
 			Logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -85,7 +112,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Thing photo
-		isSecure, err := CheckStringSecurity(thingPhoto)
+		isSecure, err = CheckStringSecurity(thingPhoto)
 		if err != nil {
 			Logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -98,12 +125,8 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: get advertisement owner from the JWT access here and check it's
-		// security (maybe)
-
-		thingId := uuid.New().String()
 		if _, err := DB.Exec(
-			"INSERT INTO lost_thing (id, name, user_email, user_message, verified, found, advertisement_owner) VALUES (?, ?, ?, ?);",
+			"INSERT INTO lost_thing (id, publication_datetime, name, user_email, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?);",
 			thingId,
 			thingName,
 			userEmail,
@@ -130,13 +153,13 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		msg := "Success. Added new lost thing"
 		Logger.Info(msg)
 		w.Write([]byte(msg))
-	} else if thingType == "found" {
+	case "found":
 		thingName := r.FormValue("thingName")
 		thingLocation := r.FormValue("thingLocation")
 		userMessage := r.FormValue("userMessage")
 		thingPhoto := r.FormValue("thingPhoto")
 
-		if thingName == "" || thingLocation = "" {
+		if thingName == "" || thingLocation == "" {
 			msg := "Error. \"thingType\" is \"found\", so POST parameters \"thingName\" and \"thingLocation\" are required"
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
@@ -159,7 +182,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Thing location
-		isSecure, err := CheckStringSecurity(thingLocation)
+		isSecure, err = CheckStringSecurity(thingLocation)
 		if err != nil {
 			Logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -173,7 +196,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// User message
-		isSecure, err := CheckStringSecurity(userMessage)
+		isSecure, err = CheckStringSecurity(userMessage)
 		if err != nil {
 			Logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -187,7 +210,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Thing photo
-		isSecure, err := CheckStringSecurity(thingPhoto)
+		isSecure, err = CheckStringSecurity(thingPhoto)
 		if err != nil {
 			Logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -200,12 +223,8 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: get advertisement owner from the JWT access here and check it's
-		// security (maybe)
-
-		thingId := uuid.New().String()
 		if _, err := DB.Exec(
-			"INSERT INTO found_thing (id, name, thing_location, user_message, verified, found, advertisement_owner) VALUES (?, ?, ?, ?);",
+			"INSERT INTO found_thing (id, publication_datetime, name, thing_location, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?);",
 			thingId,
 			thingName,
 			thingLocation,
@@ -232,7 +251,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		msg := "Success. Added new found thing"
 		Logger.Info(msg)
 		w.Write([]byte(msg))
-	} else {
+	default:
 		msg := "Error. POST parameter \"thingType\" can be \"lost\" or \"found\""
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)

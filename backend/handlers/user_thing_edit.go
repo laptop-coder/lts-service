@@ -145,7 +145,6 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
-
 		if *advertisementEditor != advertisementOwner {
 			msg := "Access denied: it is not your advertisement"
 			Logger.Error(msg)
@@ -265,7 +264,6 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
-
 		if *advertisementEditor != advertisementOwner {
 			msg := "Access denied: it is not your advertisement"
 			Logger.Error(msg)
