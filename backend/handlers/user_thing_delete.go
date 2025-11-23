@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func DeleteThing(w http.ResponseWriter, r *http.Request) {
+func UserDeleteThing(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
 	if r.Method != http.MethodPost {
 		msg := "A POST request is required"

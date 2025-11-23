@@ -28,12 +28,13 @@ func main() {
 	mux.Handle("/thing/get_data", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingData)))
 	mux.Handle("/thing/add", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.AddThing)))
 	mux.Handle("/thing/edit", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.EditThing)))
-	mux.Handle("/thing/delete", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.DeleteThing)))
+	mux.Handle("/thing/delete/user", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserDeleteThing)))
 	mux.Handle("/thing/delete_photo", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.DeleteThingPhoto)))
 	mux.Handle("/thing/mark_as_found", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.MarkThingAsFound)))
 
 	// For moderators
 	mux.Handle("/thing/verify", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.VerifyThing)))
+	mux.Handle("/thing/delete/moderator", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.ModeratorDeleteThing)))
 
 	Logger.Info("Starting server via HTTP...")
 	err := http.ListenAndServe(":"+Cfg.App.PortBackend, mux)
