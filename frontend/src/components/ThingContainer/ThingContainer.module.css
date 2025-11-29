@@ -1,0 +1,30 @@
+.thing_container {
+  background-color: var(--indigo);
+  color: var(--white);
+  border-radius: 5px;
+  padding: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.thing_container_title {
+  font-weight: normal;
+  font-size: 18px;
+  text-align: center;
+}
+
+.thing_container_content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.green_text {
+  color: #0b0;
+}
+
+.red_text {
+  color: #b00;
+}
