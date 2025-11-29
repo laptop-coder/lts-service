@@ -61,12 +61,11 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 	switch thingType {
 	case "lost":
 		newThingName := r.FormValue("newThingName")
-		newUserEmail := r.FormValue("newUserEmail")
 		newUserMessage := r.FormValue("newUserMessage")
 		newThingPhoto := r.FormValue("newThingPhoto")
 
-		if newThingName == "" || newUserEmail == "" {
-			msg := "Error. \"thingType\" is \"lost\", so POST parameters \"newThingName\" and \"newUserEmail\" are required"
+		if newThingName == "" {
+			msg := "Error. \"thingType\" is \"lost\", so POST parameter \"newThingName\" is required"
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
@@ -82,20 +81,6 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 		}
 		if !(*isSecure) {
 			msg := "Error. Found forbidden symbols in POST parameter \"newThingName\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// User email
-		isSecure, err = CheckStringSecurity(newUserEmail)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newUserEmail\"."
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
@@ -154,9 +139,8 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 
 		// Update advertisement
 		if _, err := DB.Exec(
-			"UPDATE lost_thing SET name=?, user_email=?, user_message=? WHERE id=?;",
+			"UPDATE lost_thing SET name=?, user_message=? WHERE id=?;",
 			newThingName,
-			newUserEmail,
 			newUserMessage,
 			thingId,
 		); err != nil {

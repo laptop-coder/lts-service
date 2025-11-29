@@ -2,6 +2,7 @@ package types
 
 type UserAccountAuthorizationData struct {
 	Username     string
+	Email        string
 	PasswordHash string
 }
 

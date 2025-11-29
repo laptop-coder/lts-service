@@ -57,12 +57,11 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 	switch thingType {
 	case "lost":
 		thingName := r.FormValue("thingName")
-		userEmail := r.FormValue("userEmail")
 		userMessage := r.FormValue("userMessage")
 		thingPhoto := r.FormValue("thingPhoto")
 
-		if thingName == "" || userEmail == "" {
-			msg := "Error. \"thingType\" is \"lost\", so POST parameters \"thingName\" and \"userEmail\" are required"
+		if thingName == "" {
+			msg := "Error. \"thingType\" is \"lost\", so POST parameter \"thingName\" is required"
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
@@ -78,20 +77,6 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 		if !(*isSecure) {
 			msg := "Error. Found forbidden symbols in POST parameter \"thingName\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// User email
-		isSecure, err = CheckStringSecurity(userEmail)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"userEmail\"."
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
@@ -126,10 +111,9 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if _, err := DB.Exec(
-			"INSERT INTO lost_thing (id, publication_datetime, name, user_email, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?);",
+			"INSERT INTO lost_thing (id, publication_datetime, name, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?);",
 			thingId,
 			thingName,
-			userEmail,
 			userMessage,
 			0,
 			0,
@@ -224,7 +208,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if _, err := DB.Exec(
-			"INSERT INTO found_thing (id, publication_datetime, name, thing_location, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?);",
+			"INSERT INTO found_thing (id, publication_datetime, name, location, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?);",
 			thingId,
 			thingName,
 			thingLocation,

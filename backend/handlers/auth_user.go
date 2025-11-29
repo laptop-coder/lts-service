@@ -55,6 +55,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var userAccountData types.UserAccountAuthorizationData
 	err := row.Scan(
 		&userAccountData.Username,
+		&userAccountData.Email, // not used
 		&userAccountData.PasswordHash,
 	)
 	switch {
@@ -152,11 +153,12 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	username, password :=
+	username, email, password :=
 		r.FormValue("username"),
+		r.FormValue("email"),
 		r.FormValue("password")
-	if username == "" || password == "" {
-		msg := "Error: the \"username\" and \"password\" parameters are required"
+	if username == "" || email == "" || password == "" {
+		msg := "Error: the \"username\", \"email\" and \"password\" parameters are required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
@@ -178,8 +180,9 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := DB.Exec(
-		"INSERT INTO user (username, password_hash) VALUES (?, ?);",
+		"INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?);",
 		username,
+		email,
 		passwordHash,
 	); err != nil {
 		msg := "Error registering new user account: " + err.Error()

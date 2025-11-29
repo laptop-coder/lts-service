@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS lost_thing (
     id VARCHAR(36) PRIMARY KEY,
     publication_datetime DATETIME,
     name TEXT NOT NULL,
-    user_email VARCHAR(254) NOT NULL,
     user_message TEXT NOT NULL,
     verified INTEGER NOT NULL,
     found INTEGER NOT NULL,
@@ -26,7 +25,7 @@ CREATE TABLE IF NOT EXISTS found_thing (
     publication_datetime DATETIME,
     name TEXT NOT NULL,
     location TEXT NOT NULL,
-    message TEXT NOT NULL,
+    user_message TEXT NOT NULL,
     verified INTEGER NOT NULL,
     found INTEGER NOT NULL, -- sorry for the naming)
 	advertisement_owner VARCHAR(36) NOT NULL,
@@ -35,6 +34,7 @@ CREATE TABLE IF NOT EXISTS found_thing (
 
 CREATE TABLE IF NOT EXISTS user (
     username TEXT PRIMARY KEY,
+    email VARCHAR(254) NOT NULL,
 	password_hash TEXT NOT NULL
 );
 

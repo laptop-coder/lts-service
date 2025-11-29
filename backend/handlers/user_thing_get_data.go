@@ -95,7 +95,6 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 				&lostThing.Id,
 				&lostThing.PublicationDatetime,
 				&lostThing.Name,
-				&lostThing.UserEmail,
 				&lostThing.UserMessage,
 				&lostThing.Verified,
 				&lostThing.Found,
