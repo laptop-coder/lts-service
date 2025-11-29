@@ -11,6 +11,12 @@ import {
 } from '../../utils/consts';
 import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import ThingContainerItem from '../../ui/ThingContainerItem/ThingContainerItem';
+import WriteToUserButton from '../../ui/WriteToUserButton/WriteToUserButton';
+import getOtherUserEmail from '../../utils/getOtherUserEmail';
+import getUsername from '../../utils/getUsername';
+import ThingEditButton from '../../ui/ThingEditButton/ThingEditButton';
+import ThingDeleteButton from '../../ui/ThingDeleteButton/ThingDeleteButton';
+import FormButtonsGroup from '../../ui/FormButtonsGroup/FormButtonsGroup';
 
 import { Motion } from 'solid-motionone';
 
@@ -25,6 +31,18 @@ const ThingContainer = (props: {
     pathToPhoto: pathToPhoto,
     success: () => setThingPhotoIsAvailable(true),
   });
+
+  // Username of own user
+  const [username, setUsername] = createSignal('');
+  getUsername().then((data) => setUsername(data));
+
+  // Email of advertisement owner
+  const [advertisementOwnerEmail, setAdvertisementOwnerEmail] =
+    createSignal('');
+  getOtherUserEmail({ username: props.thing.AdvertisementOwner }).then((data) =>
+    setAdvertisementOwnerEmail(data),
+  );
+
   return (
     <Motion
       class={styles.thing_container}
@@ -67,6 +85,19 @@ const ThingContainer = (props: {
             src={pathToPhoto}
             title={`${props.thing.Name} (изображение)`}
           />
+        )}
+        {username() === props.thing.AdvertisementOwner ? (
+          <FormButtonsGroup>
+            <ThingEditButton thingId={props.thing.Id} />
+            <ThingDeleteButton
+              thingType={props.thingType}
+              thingId={props.thing.Id}
+              thingName={props.thing.Name}
+              role={props.role}
+            />
+          </FormButtonsGroup>
+        ) : (
+          <WriteToUserButton email={advertisementOwnerEmail()} />
         )}
       </div>
     </Motion>
