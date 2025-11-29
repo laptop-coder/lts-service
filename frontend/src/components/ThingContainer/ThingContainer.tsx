@@ -46,7 +46,7 @@ const ThingContainer = (props: {
         >
           {props.thing.PublicationDatetime}
         </ThingContainerItem>
-        {props.thingType === ThingType.found && props.thing.Location !== '' && (
+        {props.thingType === ThingType.found && (
           <ThingContainerItem
             pathToImage={`${ASSETS_ROUTE}/location.svg`}
             title={`${props.thing.Name} (местоположение вещи)`}
