@@ -35,6 +35,12 @@ const ThingContainer = (props: {
       <h2 class={styles.thing_container_title}>{props.thing.Name}</h2>
       <div class={styles.thing_container_content}>
         <ThingContainerItem
+          pathToImage={`${ASSETS_ROUTE}/profile.svg`}
+          title={`${props.thing.AdvertisementOwner} (автор объявления)`}
+        >
+          {props.thing.AdvertisementOwner}
+        </ThingContainerItem>
+        <ThingContainerItem
           pathToImage={`${ASSETS_ROUTE}/datetime.svg`}
           title={`${props.thing.Name} (дата и время публикации)`}
         >
