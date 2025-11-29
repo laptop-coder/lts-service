@@ -1,0 +1,15 @@
+.textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--gray);
+  resize: vertical;
+  min-height: 100px;
+  font-size: 25px;
+  width: 100%;
+  color: var(--white);
+  background-color: var(--indigo);
+}
+
+.textarea::placeholder {
+  color: var(--gray-2);
+}
