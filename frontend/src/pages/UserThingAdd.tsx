@@ -4,10 +4,14 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role } from '../utils/consts';
+import { Role, ThingType } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
+import UserThingAddForm from '../components/UserThingAddForm';
+
+import { useSearchParams } from '@solidjs/router';
 
 const UserThingAddPage = (): JSX.Element => {
+  const [searchParams] = useSearchParams();
   const [authorized, setAuthorized] = createSignal(false);
   getAuthorizedCookie(setAuthorized);
   return (
@@ -19,7 +23,15 @@ const UserThingAddPage = (): JSX.Element => {
         role={Role.user}
         authorized={authorized()}
       />
-      <Content></Content>
+      <Content>
+        <UserThingAddForm
+          defaultThingType={
+            searchParams.default_thing_type === ThingType.found
+              ? ThingType.found
+              : ThingType.lost
+          }
+        />
+      </Content>
       <Footer />
     </Page>
   );

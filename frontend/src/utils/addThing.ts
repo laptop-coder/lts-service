@@ -1,28 +1,32 @@
 import { createSignal } from 'solid-js';
 import axiosInstance from './axiosInstance';
-import type { LostThing, FoundThing } from '../types/thing';
 import { HOME__ROUTE, ThingType } from './consts';
 
 const addThing = async (props: {
-  thingType: ThingType;
-  thing: LostThing & FoundThing;
+  thing: {
+    type: ThingType;
+    name: string;
+    userMessage: string;
+    photo: string;
+    location: string;
+  };
 }) => {
   const [data, setData] = createSignal();
-  switch (props.thingType) {
+  switch (props.thing.type) {
     case ThingType.lost:
       setData({
-        thingType: props.thingType,
-        thingName: props.thing.Name,
-        userMessage: props.thing.UserMessage,
-        thingPhoto: props.thing.Photo,
+        thingType: props.thing.type,
+        thingName: props.thing.name,
+        userMessage: props.thing.userMessage,
+        thingPhoto: props.thing.photo,
       });
     case ThingType.found:
       setData({
-        thingType: props.thingType,
-        thingName: props.thing.Name,
-        thingLocation: props.thing.Location,
-        userMessage: props.thing.UserMessage,
-        thingPhoto: props.thing.Photo,
+        thingType: props.thing.type,
+        thingName: props.thing.name,
+        thingLocation: props.thing.location,
+        userMessage: props.thing.userMessage,
+        thingPhoto: props.thing.photo,
       });
   }
 
