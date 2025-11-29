@@ -23,6 +23,7 @@ const HomePage = (): JSX.Element => {
       <Header
         role={authorized() ? Role.user : Role.none}
         authorized={authorized()}
+        addThingDefaultThingType={thingsType()}
       />
       <Content>
         <ThingsTypeToggle setter={setThingsType} />

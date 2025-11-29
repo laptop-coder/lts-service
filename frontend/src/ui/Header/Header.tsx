@@ -4,11 +4,20 @@ import { A } from '@solidjs/router';
 
 import styles from './Header.module.css';
 import Logo from '../Logo/Logo';
-import { Role, HOME__ROUTE, MODERATOR__HOME__ROUTE } from '../../utils/consts';
+import {
+  Role,
+  HOME__ROUTE,
+  MODERATOR__HOME__ROUTE,
+  ThingType,
+} from '../../utils/consts';
 import ProfileButton from '../ProfileButton/ProfileButton';
 import ThingAddButton from '../ThingAddButton/ThingAddButton';
 
-const Header = (props: { role: Role; authorized: boolean }): JSX.Element => (
+const Header = (props: {
+  role: Role;
+  authorized: boolean;
+  addThingDefaultThingType?: ThingType;
+}): JSX.Element => (
   <header class={styles.header}>
     <div class={styles.header_wrapper}>
       <Logo role={props.role} />
@@ -25,7 +34,15 @@ const Header = (props: { role: Role; authorized: boolean }): JSX.Element => (
       </A>
     </div>
     <div class={styles.header_buttons}>
-      {props.role === Role.user && <ThingAddButton />}
+      {props.role === Role.user && (
+        <ThingAddButton
+          defaultThingType={
+            props.addThingDefaultThingType !== undefined
+              ? props.addThingDefaultThingType
+              : ThingType.lost
+          }
+        />
+      )}
       <ProfileButton
         role={props.role}
         authorized={props.authorized}
