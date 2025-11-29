@@ -1,0 +1,21 @@
+.select_wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.select {
+  background-color: var(--indigo);
+  border: 1px solid var(--gray);
+  border-radius: 10px;
+  height: 70px;
+  font-size: 25px;
+  padding: 10px;
+  color: var(--white);
+}
+
+.select_label {
+  font-size: 14px;
+  font-weight: normal;
+  color: var(--gray-2);
+}
