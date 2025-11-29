@@ -1,0 +1,12 @@
+.tabs_toggle_wrapper,
+.tabs_toggle_wrapper_fullscreen {
+  position: relative;
+  background-color: var(--indigo);
+  height: 100px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabs_toggle_wrapper_fullscreen {
+  position: absolute;
+}

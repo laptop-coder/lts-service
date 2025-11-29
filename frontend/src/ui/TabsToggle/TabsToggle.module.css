@@ -1,0 +1,35 @@
+.tabs {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: space-evenly;
+}
+
+.tab {
+  border: none;
+  background: none;
+  padding: 20px;
+  height: 100%;
+  color: var(--white);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.tab_text {
+  position: relative;
+  z-index: 2;
+  user-select: none;
+}
+
+.pointer {
+  top: 20px;
+  bottom: 20px;
+  height: 40px;
+  border-radius: 10px;
+  position: absolute;
+  background-color: var(--indigo-2);
+  z-index: 1;
+  height: calc(100% - 40px);
+}

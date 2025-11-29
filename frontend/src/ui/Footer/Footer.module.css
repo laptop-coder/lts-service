@@ -1,0 +1,15 @@
+.footer {
+  min-height: 60px;
+  background-color: var(--indigo-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.footer .link {
+  font-family: inter, sans-serif;
+  text-decoration: none;
+  color: white;
+}

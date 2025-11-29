@@ -1,0 +1,12 @@
+.thing_container_item {
+  display: flex;
+  gap: 5px;
+  flex-direction: row;
+  white-space: pre-wrap;
+}
+
+.img {
+  height: 20px;
+  width: 20px;
+  aspect-ratio: 1/1;
+}

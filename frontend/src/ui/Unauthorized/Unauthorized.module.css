@@ -1,0 +1,10 @@
+.unauthorized {
+  color: var(--white);
+  margin: auto 20px;
+  text-align: center;
+}
+
+/*TODO: move "a" to the main .css file (apply gray color to all "a" elements)*/
+.unauthorized a {
+  color: var(--gray);
+}

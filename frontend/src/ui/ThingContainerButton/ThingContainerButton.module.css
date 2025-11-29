@@ -1,0 +1,19 @@
+.thing_container_button {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--indigo);
+  border: none;
+  color: var(--white);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 20px;
+  height: 70px;
+}
+
+.thing_container_button img {
+  height: 100%;
+}
