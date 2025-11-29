@@ -1,0 +1,22 @@
+* {
+  box-sizing: border-box;
+  font-family: nunito, sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent; /*Remove blue highlight when tap on phone*/
+}
+
+body {
+  overflow-y: scroll;
+}
+
+:root {
+  --white: #fff;
+  --gray: #9eaecd;
+  --gray-1: #7aa3da;
+  --gray-2: rgba(158, 174, 205, 0.75);
+  --gray-3: #ecedf2;
+  --black: #333d54;
+  --indigo: #333d54;
+  --indigo-2: #272e3f;
+}
