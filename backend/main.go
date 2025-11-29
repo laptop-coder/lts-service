@@ -12,6 +12,7 @@ import (
 func main() {
 	defer DB.Close()
 	utils.GenKeysIfNotExist()
+	// TODO: refactor handlers (like in frontend)
 
 	mux := http.NewServeMux()
 
@@ -25,6 +26,9 @@ func main() {
 	mux.Handle("/things/get_list", http.HandlerFunc(handlers.GetThingsList))
 
 	// For registered users
+	mux.Handle("/user/get_username", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserGetUsername)))
+	mux.Handle("/user/get_email", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserGetEmail)))
+	mux.Handle("/user/get_email/other", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserOtherGetEmail)))
 	mux.Handle("/thing/get_data", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingData)))
 	mux.Handle("/thing/add", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.AddThing)))
 	mux.Handle("/thing/edit", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.EditThing)))
