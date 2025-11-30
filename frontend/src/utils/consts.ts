@@ -26,6 +26,7 @@ export const USER__THING_STATUS__ROUTE = HOME__ROUTE + 'thing/status';
 // TODO: move other backend rotes here
 // For all users
 export const BACKEND__REGISTER_USER__ROUTE = 'user/register';
+export const BACKEND__LOGIN_USER__ROUTE = 'user/login';
 
 // ----------------------------------------------------------------------------
 
