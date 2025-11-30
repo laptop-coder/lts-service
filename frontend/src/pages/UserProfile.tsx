@@ -8,6 +8,7 @@ import { Role, UserProfileSection, ThingType } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 import ThingsTypeToggle from '../components/ThingsTypeToggle'; // TODO: refactor naming (plural)
 import UserProfileSectionsToggle from '../components/UserProfileSectionsToggle';
+import ThingsList from '../components/ThingsList/ThingsList';
 
 const UserProfilePage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
@@ -28,7 +29,14 @@ const UserProfilePage = (): JSX.Element => {
       <Content>
         <UserProfileSectionsToggle setter={setSection} />
         {section() === UserProfileSection.advertisements && (
-          <ThingsTypeToggle setter={setThingsType} />
+          <>
+            <ThingsTypeToggle setter={setThingsType} />
+            <ThingsList
+              thingsType={thingsType}
+              role={Role.user}
+              my
+            />
+          </>
         )}
       </Content>
       <Footer />
