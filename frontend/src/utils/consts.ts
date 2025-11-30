@@ -46,3 +46,8 @@ export enum ThingType {
   'lost' = 'lost',
   'found' = 'found',
 }
+
+export enum UserProfileSection {
+  'advertisements' = 'advertisements',
+  'settings' = 'settings',
+}
