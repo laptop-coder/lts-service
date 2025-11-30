@@ -19,10 +19,9 @@ func main() {
 	// For all users
 	mux.Handle("/user/register", http.HandlerFunc(handlers.UserRegister))
 	mux.Handle("/user/login", http.HandlerFunc(handlers.UserLogin))
-	mux.Handle("/user/logout", http.HandlerFunc(handlers.UserLogout))
 	mux.Handle("/moderator/register", http.HandlerFunc(handlers.ModeratorRegister))
 	mux.Handle("/moderator/login", http.HandlerFunc(handlers.ModeratorLogin))
-	mux.Handle("/moderator/logout", http.HandlerFunc(handlers.ModeratorLogout))
+	mux.Handle("/logout", http.HandlerFunc(handlers.Logout))
 	mux.Handle("/things/get_list", http.HandlerFunc(handlers.GetThingsList))
 
 	// For registered users
