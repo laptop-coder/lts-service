@@ -6,6 +6,7 @@ import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
 import { Role } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
+import RegisterUserForm from '../components/RegisterUserForm';
 
 const RegisterUserPage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
@@ -19,7 +20,9 @@ const RegisterUserPage = (): JSX.Element => {
         role={Role.user}
         authorized={authorized()}
       />
-      <Content></Content>
+      <Content>
+        <RegisterUserForm />
+      </Content>
       <Footer />
     </Page>
   );

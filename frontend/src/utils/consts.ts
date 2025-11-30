@@ -22,12 +22,17 @@ export const USER__THING_ADD__ROUTE = HOME__ROUTE + 'thing/add';
 export const USER__THING_EDIT__ROUTE = HOME__ROUTE + 'thing/edit';
 export const USER__THING_STATUS__ROUTE = HOME__ROUTE + 'thing/status';
 
+// ----- Backend (the BACKEND prefix is also added) ---------------------------
+// TODO: move other backend rotes here
+// For all users
+export const BACKEND__REGISTER_USER__ROUTE = 'user/register';
+
 // ----------------------------------------------------------------------------
 
 export const ASSETS_ROUTE = '/storage/assets';
 export const STORAGE_ROUTE = '/storage/storage';
 
-export const BACKEND_URL = 'http://localhost:37190';
+export const BACKEND_URL = 'http://localhost:37190/';
 export const SCHOOL_URL = 'https://лицей369.рф';
 export const TECH_SUPPORT_URL = 'https://help.licey369.ru';
 

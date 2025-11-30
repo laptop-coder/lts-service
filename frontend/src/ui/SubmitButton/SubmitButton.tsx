@@ -9,6 +9,7 @@ const SubmitButton = (
     class={styles.submit_button}
     type='submit'
     name={props.name}
+    title={props.title}
   >
     {props.children}
   </button>

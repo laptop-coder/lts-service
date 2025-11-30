@@ -1,0 +1,7 @@
+.auth_form_other_choice {
+  color: var(--white);
+}
+
+.auth_form_other_choice a {
+  color: var(--gray);
+}
