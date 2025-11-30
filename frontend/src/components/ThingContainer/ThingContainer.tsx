@@ -74,7 +74,7 @@ const ThingContainer = (props: {
         )}
         {props.thing.UserMessage !== '' && (
           <ThingContainerItem
-            pathToImage={`${ASSETS_ROUTE}/message.svg`}
+            pathToImage={`${ASSETS_ROUTE}/comment.svg`}
             title={`${props.thing.Name} (сообщение пользователя)`}
           >
             {props.thing.UserMessage}
