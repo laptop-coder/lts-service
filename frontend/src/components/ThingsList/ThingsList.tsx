@@ -12,7 +12,8 @@ import type { Accessor, ResourceReturn } from 'solid-js';
 import styles from './ThingsList.module.css';
 import getThingsList from '../../utils/getThingsList';
 import getThingsListMy from '../../utils/getThingsListMy';
-import { ThingType, Role } from '../../utils/consts';
+import getThingsListNotMy from '../../utils/getThingsListNotMy';
+import { ThingType, Role, AdvertisementsOwnership } from '../../utils/consts';
 import type { LostThing, FoundThing } from '../../types/thing';
 import ThingContainer from '../ThingContainer/ThingContainer';
 import Loading from '../../ui/Loading/Loading';
@@ -22,7 +23,7 @@ import NoData from '../../ui/NoData/NoData';
 const ThingsList = (props: {
   thingsType: Accessor<ThingType>;
   role: Role;
-  my?: boolean;
+  advertisementsOwnership: Accessor<AdvertisementsOwnership>;
 }): JSX.Element => {
   const [data, setData] = createSignal();
   const [state, setState] = createSignal();
@@ -32,7 +33,11 @@ const ThingsList = (props: {
         {
           thingsType: props.thingsType(),
         },
-        props.my ? getThingsListMy : getThingsList,
+        props.advertisementsOwnership() === AdvertisementsOwnership.my
+          ? getThingsListMy
+          : props.advertisementsOwnership() === AdvertisementsOwnership.not_my
+            ? getThingsListNotMy
+            : getThingsList,
       );
     createEffect(() => {
       setData(thingsListResource());

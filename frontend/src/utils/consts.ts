@@ -47,7 +47,8 @@ export enum ThingType {
   'found' = 'found',
 }
 
-export enum UserProfileSection {
-  'advertisements' = 'advertisements',
-  'settings' = 'settings',
+export enum AdvertisementsOwnership {
+  'my' = 'my',
+  'not_my' = 'not_my',
+  'all' = 'all',
 }

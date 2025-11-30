@@ -30,6 +30,7 @@ func main() {
 	mux.Handle("/user/get_email", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserGetEmail)))
 	mux.Handle("/user/get_email/other", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserOtherGetEmail)))
 	mux.Handle("/things/get_list/my", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingsListMy)))
+	mux.Handle("/things/get_list/not_my", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingsListNotMy)))
 	mux.Handle("/thing/get_data", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingData)))
 	mux.Handle("/thing/add", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.AddThing)))
 	mux.Handle("/thing/edit", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.EditThing)))

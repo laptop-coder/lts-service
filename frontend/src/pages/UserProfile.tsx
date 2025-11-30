@@ -4,18 +4,12 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role, UserProfileSection, ThingType } from '../utils/consts';
+import { Role } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
-import ThingsTypeToggle from '../components/ThingsTypeToggle'; // TODO: refactor naming (plural)
-import UserProfileSectionsToggle from '../components/UserProfileSectionsToggle';
-import ThingsList from '../components/ThingsList/ThingsList';
 
 const UserProfilePage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
   getAuthorizedCookie(setAuthorized);
-
-  const [section, setSection] = createSignal(UserProfileSection.advertisements);
-  const [thingsType, setThingsType] = createSignal(ThingType.lost);
 
   return (
     <Page
@@ -26,19 +20,7 @@ const UserProfilePage = (): JSX.Element => {
         role={Role.user}
         authorized={authorized()}
       />
-      <Content>
-        <UserProfileSectionsToggle setter={setSection} />
-        {section() === UserProfileSection.advertisements && (
-          <>
-            <ThingsTypeToggle setter={setThingsType} />
-            <ThingsList
-              thingsType={thingsType}
-              role={Role.user}
-              my
-            />
-          </>
-        )}
-      </Content>
+      <Content></Content>
       <Footer />
     </Page>
   );
