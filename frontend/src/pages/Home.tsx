@@ -15,7 +15,7 @@ const HomePage = (): JSX.Element => {
   getAuthorizedCookie(setAuthorized);
 
   const [advertisementsOwnership, setAdvertisementsOwnership] = createSignal(
-    AdvertisementsOwnership.not_my,
+    authorized() ? AdvertisementsOwnership.not_my : AdvertisementsOwnership.all,
   );
   const [thingsType, setThingsType] = createSignal(ThingType.lost);
 
@@ -30,7 +30,9 @@ const HomePage = (): JSX.Element => {
         addThingDefaultThingType={thingsType()}
       />
       <Content>
-        <AdvertisementsOwnershipToggle setter={setAdvertisementsOwnership} />
+        {authorized() && (
+          <AdvertisementsOwnershipToggle setter={setAdvertisementsOwnership} />
+        )}
         <ThingsTypeToggle setter={setThingsType} />
         <ThingsList
           thingsType={thingsType}
