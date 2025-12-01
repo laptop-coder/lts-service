@@ -17,6 +17,7 @@ const Header = (props: {
   role: Role;
   authorized: boolean;
   addThingDefaultThingType?: ThingType;
+  showLogout?: boolean;
 }): JSX.Element => (
   <header class={styles.header}>
     <div class={styles.header_wrapper}>
@@ -46,6 +47,7 @@ const Header = (props: {
       <ProfileButton
         role={props.role}
         authorized={props.authorized}
+        showLogout={props.showLogout}
       />
     </div>
   </header>

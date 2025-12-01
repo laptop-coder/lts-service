@@ -9,22 +9,39 @@ import {
   ASSETS_ROUTE,
   Role,
 } from '../../utils/consts';
+import logout from '../../utils/logout';
 
 const ProfileButton = (props: {
   role: Role;
   authorized: boolean;
+  showLogout?: boolean;
 }): JSX.Element => (
+  //TODO: refactor (rewrite)
   <>
     {props.authorized === true ? (
-      <button
-        class={styles.profile_button}
-        title='Перейти в профиль'
-        onclick={() =>
-          (window.location.href = `${props.role === Role.user ? USER__PROFILE__ROUTE : ''}${props.role === Role.moderator ? MODERATOR__PROFILE__ROUTE : ''}`)
-        }
-      >
-        <img src={`${ASSETS_ROUTE}/profile.svg`} />
-      </button>
+      props.showLogout ? (
+        <button
+          class={styles.profile_button}
+          title='Выйти из аккаунта'
+          onclick={() => {
+            if (confirm('Подтвердите выход из аккаунта')) {
+              logout({ role: props.role });
+            }
+          }}
+        >
+          <img src={`${ASSETS_ROUTE}/logout.svg`} />
+        </button>
+      ) : (
+        <button
+          class={styles.profile_button}
+          title='Перейти в профиль'
+          onclick={() =>
+            (window.location.href = `${props.role === Role.user ? USER__PROFILE__ROUTE : ''}${props.role === Role.moderator ? MODERATOR__PROFILE__ROUTE : ''}`)
+          }
+        >
+          <img src={`${ASSETS_ROUTE}/profile.svg`} />
+        </button>
+      )
     ) : (
       <button
         class={styles.login_button}

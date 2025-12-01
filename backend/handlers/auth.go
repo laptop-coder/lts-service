@@ -9,6 +9,7 @@ import (
 func Logout(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
 	if r.Method != http.MethodPost {
+		// TODO: maybe rewrite to GET requests
 		msg := "A POST request is required"
 		Logger.Warn(msg)
 		http.Error(w, msg, http.StatusMethodNotAllowed)

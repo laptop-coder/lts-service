@@ -27,6 +27,7 @@ const LoginUserForm = (): JSX.Element => {
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
     await axiosInstance
+      //TODO: refactor(move to a separate file, in utils module)
       .post(
         BACKEND__LOGIN_USER__ROUTE,
         {
