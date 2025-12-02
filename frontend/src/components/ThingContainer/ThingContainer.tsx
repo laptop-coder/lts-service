@@ -14,6 +14,7 @@ import ThingContainerItem from '../../ui/ThingContainerItem/ThingContainerItem';
 import WriteToUserButton from '../../ui/WriteToUserButton/WriteToUserButton';
 import getOtherUserEmail from '../../utils/getOtherUserEmail';
 import getUsername from '../../utils/getUsername';
+import ThingStatusButton from '../../ui/ThingStatusButton/ThingStatusButton';
 import ThingEditButton from '../../ui/ThingEditButton/ThingEditButton';
 import ThingDeleteButton from '../../ui/ThingDeleteButton/ThingDeleteButton';
 import FormButtonsGroup from '../../ui/FormButtonsGroup/FormButtonsGroup';
@@ -88,6 +89,7 @@ const ThingContainer = (props: {
         )}
         {username() === props.thing.AdvertisementOwner ? (
           <FormButtonsGroup>
+            <ThingStatusButton thingId={props.thing.Id} />
             <ThingEditButton thingId={props.thing.Id} />
             <ThingDeleteButton
               thingType={props.thingType}
