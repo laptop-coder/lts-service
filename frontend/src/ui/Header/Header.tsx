@@ -1,4 +1,4 @@
-import { JSX } from 'solid-js';
+import { JSX, For, Switch, Match } from 'solid-js';
 
 import { A } from '@solidjs/router';
 
@@ -9,15 +9,17 @@ import {
   HOME__ROUTE,
   MODERATOR__HOME__ROUTE,
   ThingType,
+  HeaderButton,
 } from '../../utils/consts';
-import ProfileButton from '../ProfileButton/ProfileButton';
+import HeaderProfileButton from '../HeaderProfileButton/HeaderProfileButton';
 import ThingAddButton from '../ThingAddButton/ThingAddButton';
+import HeaderLogoutButton from '../HeaderLogoutButton/HeaderLogoutButton';
+import HeaderLoginButton from '../HeaderLoginButton/HeaderLoginButton';
 
 const Header = (props: {
   role: Role;
-  authorized: boolean;
   addThingDefaultThingType?: ThingType;
-  showLogout?: boolean;
+  buttons: HeaderButton[];
 }): JSX.Element => (
   <header class={styles.header}>
     <div class={styles.header_wrapper}>
@@ -35,20 +37,30 @@ const Header = (props: {
       </A>
     </div>
     <div class={styles.header_buttons}>
-      {props.role === Role.user && (
-        <ThingAddButton
-          defaultThingType={
-            props.addThingDefaultThingType !== undefined
-              ? props.addThingDefaultThingType
-              : ThingType.lost
-          }
-        />
-      )}
-      <ProfileButton
-        role={props.role}
-        authorized={props.authorized}
-        showLogout={props.showLogout}
-      />
+      <For each={props.buttons as HeaderButton[]}>
+        {(item: HeaderButton) => (
+          <Switch>
+            <Match when={item === HeaderButton.add_thing}>
+              <ThingAddButton
+                defaultThingType={
+                  props.addThingDefaultThingType !== undefined
+                    ? props.addThingDefaultThingType
+                    : ThingType.lost
+                }
+              />
+            </Match>
+            <Match when={item === HeaderButton.profile}>
+              <HeaderProfileButton role={props.role} />
+            </Match>
+            <Match when={item === HeaderButton.login}>
+              <HeaderLoginButton role={props.role} />
+            </Match>
+            <Match when={item === HeaderButton.logout}>
+              <HeaderLogoutButton role={props.role} />
+            </Match>
+          </Switch>
+        )}
+      </For>
     </div>
   </header>
 );

@@ -4,7 +4,7 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role } from '../utils/consts';
+import { Role, HeaderButton } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 import getUserEmail from '../utils/getUserEmail';
 import getUsername from '../utils/getUsername';
@@ -27,8 +27,7 @@ const UserProfilePage = (): JSX.Element => {
     >
       <Header
         role={Role.user}
-        authorized={authorized()}
-        showLogout
+        buttons={[authorized() ? HeaderButton.logout : HeaderButton.login]}
       />
       <Content>
         <UserProfileContent

@@ -59,3 +59,11 @@ export enum AdvertisementsOwnership {
   'not_my' = 'not_my',
   'all' = 'all',
 }
+
+export enum HeaderButton {
+  'add_thing' = 'add_thing',
+  'profile' = 'profile',
+  'login' = 'login',
+  'logout' = 'logout',
+  'none' = 'none',
+}

@@ -4,7 +4,7 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role } from '../utils/consts';
+import { Role, HeaderButton } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 import LoginUserForm from '../components/LoginUserForm';
 
@@ -18,7 +18,7 @@ const LoginUserPage = (): JSX.Element => {
     >
       <Header
         role={Role.user}
-        authorized={authorized()}
+        buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
       />
       <Content>
         <LoginUserForm />

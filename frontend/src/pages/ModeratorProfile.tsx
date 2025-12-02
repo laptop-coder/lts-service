@@ -4,7 +4,7 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role } from '../utils/consts';
+import { Role, HeaderButton } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 
 const ModeratorProfilePage = (): JSX.Element => {
@@ -17,7 +17,7 @@ const ModeratorProfilePage = (): JSX.Element => {
     >
       <Header
         role={Role.moderator}
-        authorized={authorized()}
+        buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
       />
       <Content></Content>
       <Footer />

@@ -4,7 +4,12 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role, ThingType, AdvertisementsOwnership } from '../utils/consts';
+import {
+  Role,
+  ThingType,
+  AdvertisementsOwnership,
+  HeaderButton,
+} from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 import ThingsTypeToggle from '../components/ThingsTypeToggle';
 import AdvertisementsOwnershipToggle from '../components/AdvertisementsOwnershipToggle';
@@ -26,8 +31,11 @@ const HomePage = (): JSX.Element => {
     >
       <Header
         role={authorized() ? Role.user : Role.none}
-        authorized={authorized()}
         addThingDefaultThingType={thingsType()}
+        buttons={[
+          authorized() ? HeaderButton.add_thing : HeaderButton.none,
+          authorized() ? HeaderButton.profile : HeaderButton.login,
+        ]}
       />
       <Content>
         {authorized() && (
