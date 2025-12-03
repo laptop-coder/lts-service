@@ -25,6 +25,7 @@ const ThingContainer = (props: {
   thing: LostThing & FoundThing;
   thingType: ThingType;
   role: Role;
+  status?: boolean;
 }): JSX.Element => {
   const pathToPhoto = `${STORAGE_ROUTE}/${props.thing.Id}.jpeg`;
   const [thingPhotoIsAvailable, setThingPhotoIsAvailable] = createSignal(false);
@@ -46,7 +47,9 @@ const ThingContainer = (props: {
 
   return (
     <Motion
-      class={styles.thing_container}
+      class={
+        props.status ? styles.thing_container_status : styles.thing_container
+      }
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -81,26 +84,63 @@ const ThingContainer = (props: {
             {props.thing.UserMessage}
           </ThingContainerItem>
         )}
+        {props.status && (
+          <>
+            <ThingContainerItem
+              pathToImage={`${ASSETS_ROUTE}/category.svg`}
+              title={`${props.thing.Name} (тип объявления)`}
+            >
+              {props.thingType === ThingType.lost &&
+                'В категории потерянных вещей'}
+              {props.thingType === ThingType.found &&
+                'В категории найденных вещей'}
+            </ThingContainerItem>
+            <ThingContainerItem
+              pathToImage={`${ASSETS_ROUTE}/arrow_circle_right.svg`}
+              title={`${props.thing.Name} (статус)`}
+            >
+              {props.thing.Verified ? (
+                props.thing.Found ? (
+                  <span class={styles.green_text}>
+                    Вещь найдена, объявление снято с публикации
+                  </span>
+                ) : (
+                  <span class={styles.yellow_text}>
+                    Вещь не найдена, объявление опубликовано
+                  </span>
+                )
+              ) : (
+                <span class={styles.red_text}>
+                  Объявление на модерации, не опубликовано
+                </span>
+              )}
+            </ThingContainerItem>
+          </>
+        )}
         {thingPhotoIsAvailable() && (
           <ThingPhoto
             src={pathToPhoto}
             title={`${props.thing.Name} (изображение)`}
           />
         )}
-        {username() === props.thing.AdvertisementOwner ? (
-          <FormButtonsGroup>
-            <ThingStatusButton thingId={props.thing.Id} />
-            <ThingEditButton thingId={props.thing.Id} />
-            <ThingDeleteButton
-              thingType={props.thingType}
-              thingId={props.thing.Id}
-              thingName={props.thing.Name}
-              role={props.role}
-            />
-          </FormButtonsGroup>
-        ) : (
-          <WriteToUserButton email={advertisementOwnerEmail()} />
-        )}
+        {!props.status &&
+          (username() === props.thing.AdvertisementOwner ? (
+            <FormButtonsGroup>
+              <ThingStatusButton
+                thingType={props.thingType}
+                thingId={props.thing.Id}
+              />
+              <ThingEditButton thingId={props.thing.Id} />
+              <ThingDeleteButton
+                thingType={props.thingType}
+                thingId={props.thing.Id}
+                thingName={props.thing.Name}
+                role={props.role}
+              />
+            </FormButtonsGroup>
+          ) : (
+            <WriteToUserButton email={advertisementOwnerEmail()} />
+          ))}
       </div>
     </Motion>
   );
