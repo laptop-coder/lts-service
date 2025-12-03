@@ -6,10 +6,17 @@ import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
 import { Role, HeaderButton } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
+import getUsernameModerator from '../utils/getUsernameModerator';
+import ModeratorProfileContent from '../components/ModeratorProfileContent/ModeratorProfileContent';
 
 const ModeratorProfilePage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
   getAuthorizedCookie(setAuthorized);
+
+  const [username, setUsername] = createSignal('');
+
+  getUsernameModerator().then((data) => setUsername(data));
+
   return (
     <Page
       role={Role.moderator}
@@ -17,9 +24,11 @@ const ModeratorProfilePage = (): JSX.Element => {
     >
       <Header
         role={Role.moderator}
-        buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
+        buttons={[authorized() ? HeaderButton.logout : HeaderButton.login]}
       />
-      <Content></Content>
+      <Content>
+        <ModeratorProfileContent username={username()} />
+      </Content>
       <Footer />
     </Page>
   );

@@ -193,3 +193,46 @@ func ModeratorRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func ModeratorGetUsername(w http.ResponseWriter, r *http.Request) {
+	SetupCORS(&w)
+
+	if r.Method != http.MethodGet {
+		msg := "A GET request is required"
+		Logger.Warn(msg)
+		http.Error(w, msg, http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get username from the JWT access
+	publicKey, _, err := GetPublicKey()
+	if err != nil {
+		msg := "Error getting public key: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	accessToken, err := GetJWTAccess(r)
+	if err != nil {
+		msg := err.Error()
+		http.Error(w, msg, http.StatusUnauthorized)
+		return
+	}
+	username, err := GetUsername(accessToken, publicKey)
+	if err != nil {
+		msg := "Can't get moderator username from JWT access: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := json.Marshal(username)
+	if err != nil {
+		msg := "JSON serialization error: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonData)
+	Logger.Info("Success. Received moderator username")
+}

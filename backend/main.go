@@ -38,6 +38,7 @@ func main() {
 	mux.Handle("/thing/mark_as_found", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.MarkThingAsFound)))
 
 	// For moderators
+	mux.Handle("/moderator/get_username", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.ModeratorGetUsername)))
 	mux.Handle("/thing/verify", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.VerifyThing)))
 	mux.Handle("/thing/delete/moderator", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.ModeratorDeleteThing)))
 
