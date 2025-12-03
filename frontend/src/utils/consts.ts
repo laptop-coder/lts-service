@@ -28,6 +28,7 @@ export const USER__THING_STATUS__ROUTE = HOME__ROUTE + 'thing/status';
 export const BACKEND__REGISTER_USER__ROUTE = 'user/register';
 export const BACKEND__LOGIN_USER__ROUTE = 'user/login';
 export const BACKEND__REGISTER_MODERATOR__ROUTE = 'moderator/register';
+export const BACKEND__LOGIN_MODERATOR__ROUTE = 'moderator/login';
 export const BACKEND__LOGOUT__ROUTE = 'logout';
 
 // ----------------------------------------------------------------------------

@@ -6,6 +6,7 @@ import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
 import { Role, HeaderButton } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
+import LoginModeratorForm from '../components/LoginModeratorForm';
 
 const LoginModeratorPage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
@@ -19,7 +20,9 @@ const LoginModeratorPage = (): JSX.Element => {
         role={Role.moderator}
         buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
       />
-      <Content></Content>
+      <Content>
+        <LoginModeratorForm />
+      </Content>
       <Footer />
     </Page>
   );
