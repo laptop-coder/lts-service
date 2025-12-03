@@ -18,6 +18,7 @@ import ThingStatusButton from '../../ui/ThingStatusButton/ThingStatusButton';
 import ThingEditButton from '../../ui/ThingEditButton/ThingEditButton';
 import ThingDeleteButton from '../../ui/ThingDeleteButton/ThingDeleteButton';
 import FormButtonsGroup from '../../ui/FormButtonsGroup/FormButtonsGroup';
+import formatDate from '../../utils/formatDate';
 
 import { Motion } from 'solid-motionone';
 
@@ -66,7 +67,7 @@ const ThingContainer = (props: {
           pathToImage={`${ASSETS_ROUTE}/datetime.svg`}
           title={`${props.thing.Name} (дата и время публикации)`}
         >
-          {props.thing.PublicationDatetime}
+          {formatDate(props.thing.PublicationDatetime)}
         </ThingContainerItem>
         {props.thingType === ThingType.found && (
           <ThingContainerItem
