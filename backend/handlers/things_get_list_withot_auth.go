@@ -25,16 +25,17 @@ func GetThingsListWithoutAuth(w http.ResponseWriter, r *http.Request) {
 	// Get data from the database
 	var rows *sql.Rows
 	var err error
-	if thingsType == "" {
+	switch thingsType {
+	case "":
 		rows, err = DB.Query(
 			"SELECT * FROM thing ORDER BY publication_datetime;",
 		)
-	} else if thingsType == "lost" || thingsType == "found" {
+	case "lost", "found":
 		rows, err = DB.Query(
 			"SELECT * FROM thing WHERE type=? ORDER BY publication_datetime;",
 			thingsType,
 		)
-	} else {
+	default:
 		msg := "Error. GET parameter \"things_type\" must be \"lost\", \"found\" or empty"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
@@ -77,5 +78,4 @@ func GetThingsListWithoutAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(jsonData)
-	return
 }
