@@ -69,3 +69,9 @@ export enum HeaderButton {
   'logout' = 'logout',
   'none' = 'none',
 }
+
+export enum NoticesVerification {
+  'not_verified' = 'not_verified',
+  'approved' = 'approved',
+  'rejected' = 'rejected',
+}

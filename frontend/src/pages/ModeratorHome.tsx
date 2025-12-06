@@ -4,12 +4,17 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role, HeaderButton } from '../utils/consts';
+import { Role, HeaderButton, NoticesVerification } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
+import NoticesVerificationToggle from '../components/NoticesVerificationToggle';
 
 const ModeratorHomePage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
   getAuthorizedCookie(setAuthorized);
+
+  const [noticesVerification, setNoticesVerification] = createSignal(
+    NoticesVerification.not_verified,
+  );
   return (
     <Page
       role={Role.moderator}
@@ -19,7 +24,9 @@ const ModeratorHomePage = (): JSX.Element => {
         role={Role.moderator}
         buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
       />
-      <Content></Content>
+      <Content>
+        <NoticesVerificationToggle setter={setNoticesVerification} />
+      </Content>
       <Footer />
     </Page>
   );
