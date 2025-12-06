@@ -52,7 +52,7 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newThingName := r.FormValue("newThingName")
-	newThingType := r.FormValue("thingType")
+	newThingType := r.FormValue("newThingType")
 	newUserMessage := r.FormValue("newUserMessage")
 	newThingPhoto := r.FormValue("newThingPhoto")
 

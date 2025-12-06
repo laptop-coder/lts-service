@@ -8,7 +8,7 @@ import {
 
 const logout = async (props: { role: Role }) => {
   return axiosInstance
-    .post(BACKEND__LOGOUT__ROUTE)
+    .get(BACKEND__LOGOUT__ROUTE)
     .then(() => {
       window.location.href =
         props.role === Role.moderator ? MODERATOR__HOME__ROUTE : HOME__ROUTE;

@@ -6,8 +6,13 @@ import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
 import { Role, HeaderButton } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
+import UserThingEditForm from '../components/UserThingEditForm';
+import { useSearchParams } from '@solidjs/router';
 
 const UserThingEditPage = (): JSX.Element => {
+  const [searchParams] = useSearchParams();
+  const thingId = (searchParams.thing_id || '').toString();
+
   const [authorized, setAuthorized] = createSignal(false);
   getAuthorizedCookie(setAuthorized);
   return (
@@ -19,7 +24,9 @@ const UserThingEditPage = (): JSX.Element => {
         role={Role.user}
         buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
       />
-      <Content></Content>
+      <Content>
+        <UserThingEditForm thingId={thingId} />
+      </Content>
       <Footer />
     </Page>
   );
