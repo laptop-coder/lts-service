@@ -22,14 +22,13 @@ func main() {
 	mux.Handle("/moderator/register", http.HandlerFunc(handlers.ModeratorRegister))
 	mux.Handle("/moderator/login", http.HandlerFunc(handlers.ModeratorLogin))
 	mux.Handle("/logout", http.HandlerFunc(handlers.Logout))
-	mux.Handle("/things/get_list", http.HandlerFunc(handlers.GetThingsList))
+	mux.Handle("/things/get_list/without_auth", http.HandlerFunc(handlers.GetThingsListWithoutAuth))
 
 	// For registered users
 	mux.Handle("/user/get_username", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserGetUsername)))
 	mux.Handle("/user/get_email", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserGetEmail)))
 	mux.Handle("/user/get_email/other", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.UserOtherGetEmail)))
-	mux.Handle("/things/get_list/my", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingsListMy)))
-	mux.Handle("/things/get_list/not_my", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingsListNotMy)))
+	mux.Handle("/things/get_list", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingsList)))
 	mux.Handle("/thing/get_data", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.GetThingData)))
 	mux.Handle("/thing/add", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.AddThing)))
 	mux.Handle("/thing/edit", utils.AuthMiddleware(&Cfg.Role.User, http.HandlerFunc(handlers.EditThing)))

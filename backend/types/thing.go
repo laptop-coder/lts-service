@@ -1,22 +1,12 @@
 package types
 
-type LostThing struct {
+type Thing struct {
 	Id                  string
+	Type                string
 	PublicationDatetime string
 	Name                string
 	UserMessage         string
 	Verified            int
 	Found               int
-	AdvertisementOwner  string
-}
-
-type FoundThing struct {
-	Id                  string
-	PublicationDatetime string
-	Name                string
-	Location            string
-	UserMessage         string
-	Verified            int
-	Found               int
-	AdvertisementOwner  string
+	NoticeOwner         string
 }

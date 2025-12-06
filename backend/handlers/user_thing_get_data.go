@@ -19,11 +19,10 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 
-	thingType := r.URL.Query().Get("thing_type")
 	thingId := r.URL.Query().Get("thing_id")
 
-	if thingType == "" || thingId == "" {
-		msg := "Error. GET parameters \"thing_type\" and \"thing_id\" are required"
+	if thingId == "" {
+		msg := "Error. GET parameter \"thing_id\" is required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
@@ -43,7 +42,7 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusUnauthorized)
 		return
 	}
-	advertisementEditor, err := GetUsername(accessToken, publicKey)
+	noticeEditor, err := GetUsername(accessToken, publicKey)
 	if err != nil {
 		msg := "Can't get username from JWT access: " + err.Error()
 		Logger.Error(msg)
@@ -52,138 +51,67 @@ func GetThingData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get data from the database
-	switch thingType {
-	case "lost":
-		// Check if advertisement belongs to registered user (compare username
-		// in database and username in JWT)
-		row := DB.QueryRow(
-			"SELECT advertisement_owner FROM lost_thing WHERE id=?;",
-			thingId,
-		)
-		var advertisementOwner string
-		err = row.Scan(
-			&advertisementOwner,
-		)
-		if err != nil {
-			msg := "Error getting advertisement owner: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		if *advertisementEditor != advertisementOwner {
-			msg := "Access denied: it is not your advertisement"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusForbidden)
-			return
-		}
-
-		rows, err := DB.Query(
-			"SELECT * FROM lost_thing WHERE id=?;",
-			thingId,
-		)
-		if err != nil {
-			msg := "Error getting lost thing data from the database: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		Logger.Info("Success. Received lost thing data")
-		// Serialize data and send it in response
-		var lostThing types.LostThing
-		for rows.Next() {
-			if err := rows.Scan(
-				&lostThing.Id,
-				&lostThing.PublicationDatetime,
-				&lostThing.Name,
-				&lostThing.UserMessage,
-				&lostThing.Verified,
-				&lostThing.Found,
-				&lostThing.AdvertisementOwner,
-			); err != nil {
-				msg := "Error (\"lost thing\" object): " + err.Error()
-				Logger.Error(msg)
-				http.Error(w, msg, http.StatusInternalServerError)
-				return
-			}
-		}
-		jsonData, err := json.Marshal(lostThing)
-		if err != nil {
-			msg := "JSON serialization error: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		w.Write(jsonData)
-		return
-
-	case "found":
-		// Check if advertisement belongs to registered user (compare username
-		// in database and username in JWT)
-		row := DB.QueryRow(
-			"SELECT advertisement_owner FROM found_thing WHERE id=?;",
-			thingId,
-		)
-		var advertisementOwner string
-		err = row.Scan(
-			&advertisementOwner,
-		)
-		if err != nil {
-			msg := "Error getting advertisement owner: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		if *advertisementEditor != advertisementOwner {
-			msg := "Access denied: it is not your advertisement"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusForbidden)
-			return
-		}
-
-		rows, err := DB.Query(
-			"SELECT * FROM found_thing WHERE id=?;",
-			thingId,
-		)
-		if err != nil {
-			msg := "Error getting found thing data from the database: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		Logger.Info("Success. Received found thing data")
-		// Serialize data and send it in response
-		var foundThing types.FoundThing
-		for rows.Next() {
-			if err := rows.Scan(
-				&foundThing.Id,
-				&foundThing.PublicationDatetime,
-				&foundThing.Name,
-				&foundThing.Location,
-				&foundThing.UserMessage,
-				&foundThing.Verified,
-				&foundThing.Found,
-				&foundThing.AdvertisementOwner,
-			); err != nil {
-				msg := "Error (\"found thing\" object): " + err.Error()
-				Logger.Error(msg)
-				http.Error(w, msg, http.StatusInternalServerError)
-				return
-			}
-		}
-		jsonData, err := json.Marshal(foundThing)
-		if err != nil {
-			msg := "JSON serialization error: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		w.Write(jsonData)
-		return
-
-	default:
-		msg := "Error. GET parameter \"things_type\" could be \"lost\" or \"found\""
+	// Check if notice belongs to registered user (compare username in database
+	// and username in JWT)
+	row := DB.QueryRow(
+		"SELECT notice_owner FROM thing WHERE id=?;",
+		thingId,
+	)
+	var noticeOwner string
+	err = row.Scan(
+		&noticeOwner,
+	)
+	if err != nil {
+		msg := "Error getting notice owner: " + err.Error()
 		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
+	if *noticeEditor != noticeOwner {
+		msg := "Access denied: it is not your notice"
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusForbidden)
+		return
+	}
+
+	rows, err := DB.Query(
+		"SELECT * FROM thing WHERE id=?;",
+		thingId,
+	)
+	if err != nil {
+		msg := "Error getting thing data from the database: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	Logger.Info("Success. Received thing data")
+	// Serialize data and send it in response
+	var thing types.Thing
+	for rows.Next() {
+		if err := rows.Scan(
+			&thing.Id,
+			&thing.Type,
+			&thing.PublicationDatetime,
+			&thing.Name,
+			&thing.UserMessage,
+			&thing.Verified,
+			&thing.Found,
+			&thing.NoticeOwner,
+		); err != nil {
+			msg := "Error (\"thing\" object): " + err.Error()
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+	}
+	jsonData, err := json.Marshal(thing)
+	if err != nil {
+		msg := "JSON serialization error: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonData)
+	return
+
 }

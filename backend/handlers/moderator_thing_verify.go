@@ -21,52 +21,25 @@ func VerifyThing(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	thingType := r.FormValue("thingType")
 	thingId := r.FormValue("thingId")
-	if thingType == "" || thingId == "" {
-		msg := "Error. POST parameters \"thingType\" and \"thingId\" are required"
+	if thingId == "" {
+		msg := "Error. POST parameter \"thingId\" is required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
-	switch thingType {
-	case "lost":
-
-		// Verify advertisement
-		if _, err := DB.Exec(
-			"UPDATE lost_thing SET verified=1 WHERE id=?;",
-			thingId,
-		); err != nil {
-			msg := "Lost thing verification error: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		msg := "Success. Lost thing has been verified"
-		Logger.Info(msg)
-		w.Write([]byte(msg))
-
-	case "found":
-
-		// Verify advertisement
-		if _, err := DB.Exec(
-			"UPDATE found_thing SET verified=1 WHERE id=?;",
-			thingId,
-		); err != nil {
-			msg := "Found thing verification error: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		msg := "Success. Found thing has been verified"
-		Logger.Info(msg)
-		w.Write([]byte(msg))
-
-	default:
-		msg := "Error. POST parameter \"thingType\" can be \"lost\" or \"found\""
+	// Verify notice
+	if _, err := DB.Exec(
+		"UPDATE thing SET verified=1 WHERE id=?;",
+		thingId,
+	); err != nil {
+		msg := "Thing verification error: " + err.Error()
 		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
+	msg := "Success. Thing has been verified"
+	Logger.Info(msg)
+	w.Write([]byte(msg))
 }

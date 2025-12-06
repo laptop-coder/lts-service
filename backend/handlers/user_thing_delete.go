@@ -24,9 +24,8 @@ func UserDeleteThing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	thingId := r.FormValue("thingId")
-	thingType := r.FormValue("thingType")
-	if thingId == "" || thingType == "" {
-		msg := "Error. POST parameters \"thingId\" and \"thingType\" are required"
+	if thingId == "" {
+		msg := "Error. POST parameter \"thingId\" is required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
@@ -46,7 +45,7 @@ func UserDeleteThing(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusUnauthorized)
 		return
 	}
-	advertisementEditor, err := GetUsername(accessToken, publicKey)
+	noticeEditor, err := GetUsername(accessToken, publicKey)
 	if err != nil {
 		msg := "Can't get username from JWT access: " + err.Error()
 		Logger.Error(msg)
@@ -54,71 +53,32 @@ func UserDeleteThing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch thingType {
-	case "lost":
-		// Check if advertisement belongs to registered user (compare username
-		// in database and username in JWT)
-		row := DB.QueryRow(
-			"SELECT advertisement_owner FROM lost_thing WHERE id=?;",
-			thingId,
-		)
-		var advertisementOwner string
-		err := row.Scan(
-			&advertisementOwner,
-		)
-		if err != nil {
-			msg := "Error getting advertisement owner: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		if *advertisementEditor != advertisementOwner {
-			msg := "Access denied: it is not your advertisement"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusForbidden)
-			return
-		}
-		if _, err := DB.Exec("DELETE FROM lost_thing WHERE id=?;", thingId); err != nil {
-			msg := "Error deleting lost thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-	case "found":
-		// Check if advertisement belongs to registered user (compare username
-		// in database and username in JWT)
-		row := DB.QueryRow(
-			"SELECT advertisement_owner FROM found_thing WHERE id=?;",
-			thingId,
-		)
-		var advertisementOwner string
-		err := row.Scan(
-			&advertisementOwner,
-		)
-		if err != nil {
-			msg := "Error getting advertisement owner: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		if *advertisementEditor != advertisementOwner {
-			msg := "Access denied: it is not your advertisement"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusForbidden)
-			return
-		}
-		if _, err := DB.Exec("DELETE FROM found_thing WHERE id=?;", thingId); err != nil {
-			msg := "Error deleting found thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-	default:
-		msg := "Error. POST parameter \"thingType\" can be \"lost\" or \"found\""
+	// Check if advertisement belongs to registered user (compare username
+	// in database and username in JWT)
+	row := DB.QueryRow(
+		"SELECT notice_owner FROM thing WHERE id=?;",
+		thingId,
+	)
+	var noticeOwner string
+	err = row.Scan(
+		&noticeOwner,
+	)
+	if err != nil {
+		msg := "Error getting notice owner: " + err.Error()
 		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	if *noticeEditor != noticeOwner {
+		msg := "Access denied: it is not your notice"
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusForbidden)
+		return
+	}
+	if _, err := DB.Exec("DELETE FROM thing WHERE id=?;", thingId); err != nil {
+		msg := "Error deleting thing: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 

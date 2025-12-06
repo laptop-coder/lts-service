@@ -21,13 +21,6 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	thingType := r.FormValue("thingType")
-	if thingType == "" {
-		msg := "Error. POST parameter \"thingType\" is required"
-		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
-		return
-	}
 	thingId := r.FormValue("thingId")
 	if thingId == "" {
 		msg := "Error. POST parameter \"thingId\" is required"
@@ -50,7 +43,7 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusUnauthorized)
 		return
 	}
-	advertisementEditor, err := GetUsername(accessToken, publicKey)
+	noticeEditor, err := GetUsername(accessToken, publicKey)
 	if err != nil {
 		msg := "Can't get username from JWT access: " + err.Error()
 		Logger.Error(msg)
@@ -58,233 +51,135 @@ func EditThing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch thingType {
-	case "lost":
-		newThingName := r.FormValue("newThingName")
-		newUserMessage := r.FormValue("newUserMessage")
-		newThingPhoto := r.FormValue("newThingPhoto")
+	newThingName := r.FormValue("newThingName")
+	newThingType := r.FormValue("thingType")
+	newUserMessage := r.FormValue("newUserMessage")
+	newThingPhoto := r.FormValue("newThingPhoto")
 
-		if newThingName == "" {
-			msg := "Error. \"thingType\" is \"lost\", so POST parameter \"newThingName\" is required"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Regular expressions checks
-		// Thing name
-		isSecure, err := CheckStringSecurity(newThingName)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newThingName\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// User message
-		isSecure, err = CheckStringSecurity(newUserMessage)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newUserMessage\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Thing photo
-		isSecure, err = CheckStringSecurity(newThingPhoto)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newThingPhoto\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Check if advertisement belongs to registered user (compare username
-		// in database and username in JWT)
-		row := DB.QueryRow(
-			"SELECT advertisement_owner FROM lost_thing WHERE id=?;",
-			thingId,
-		)
-		var advertisementOwner string
-		err = row.Scan(
-			&advertisementOwner,
-		)
-		if err != nil {
-			msg := "Error getting advertisement owner: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		if *advertisementEditor != advertisementOwner {
-			msg := "Access denied: it is not your advertisement"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusForbidden)
-			return
-		}
-
-		// Update advertisement
-		if _, err := DB.Exec(
-			"UPDATE lost_thing SET name=?, user_message=? WHERE id=?;",
-			newThingName,
-			newUserMessage,
-			thingId,
-		); err != nil {
-			msg := "Error editing lost thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-		if newThingPhoto != "" {
-			if err := SaveThingPhotoToStorage(newThingPhoto, thingId); err != nil {
-				msg := "Error updating thing photo in storage: " + err.Error()
-				Logger.Error(msg)
-				http.Error(w, msg, http.StatusInternalServerError)
-				return
-			}
-		}
-
-		msg := "Success. Edited lost thing"
-		Logger.Info(msg)
-		w.Write([]byte(msg))
-	case "found":
-		newThingName := r.FormValue("newThingName")
-		newThingLocation := r.FormValue("newThingLocation")
-		newUserMessage := r.FormValue("newUserMessage")
-		newThingPhoto := r.FormValue("newThingPhoto")
-
-		if newThingName == "" || newThingLocation == "" {
-			msg := "Error. \"thingType\" is \"found\", so POST parameters \"newThingName\" and \"newThingLocation\" are required"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Regular expressions checks
-		// Thing name
-		isSecure, err := CheckStringSecurity(newThingName)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newThingName\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Thing location
-		isSecure, err = CheckStringSecurity(newThingLocation)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newThingLocation\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// User message
-		isSecure, err = CheckStringSecurity(newUserMessage)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newUserMessage\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Thing photo
-		isSecure, err = CheckStringSecurity(newThingPhoto)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"newThingPhoto\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Check if advertisement belongs to registered user (compare username
-		// in database and username in JWT)
-		row := DB.QueryRow(
-			"SELECT advertisement_owner FROM found_thing WHERE id=?;",
-			thingId,
-		)
-		var advertisementOwner string
-		err = row.Scan(
-			&advertisementOwner,
-		)
-		if err != nil {
-			msg := "Error getting advertisement owner: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-		if *advertisementEditor != advertisementOwner {
-			msg := "Access denied: it is not your advertisement"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusForbidden)
-			return
-		}
-
-		// Update advertisement
-		if _, err := DB.Exec(
-			"UPDATE found_thing SET name=?, location=?, user_message=? WHERE id=?;",
-			newThingName,
-			newThingLocation,
-			newUserMessage,
-			thingId,
-		); err != nil {
-			msg := "Error editing found thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-		if newThingPhoto != "" {
-			if err := SaveThingPhotoToStorage(newThingPhoto, thingId); err != nil {
-				msg := "Error updating thing photo in storage: " + err.Error()
-				Logger.Error(msg)
-				http.Error(w, msg, http.StatusInternalServerError)
-				return
-			}
-		}
-
-		msg := "Success. Edited found thing"
-		Logger.Info(msg)
-		w.Write([]byte(msg))
-	default:
-		msg := "Error. POST parameter \"thingType\" can be \"lost\" or \"found\""
+	if newThingType == "" {
+		msg := "Error. POST parameter \"newThingType\" is required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
+	if newThingType != "lost" && newThingType != "found" {
+		msg := "Error. POST parameter \"newThingType\" must be \"lost\" or \"found\""
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	if newThingName == "" {
+		msg := "Error. \"thingType\" is \"lost\", so POST parameter \"newThingName\" is required"
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Regular expressions checks
+	// Thing name
+	isSecure, err := CheckStringSecurity(newThingName)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"newThingName\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Thing type
+	isSecure, err = CheckStringSecurity(newThingType)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"newThingType\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// User message
+	isSecure, err = CheckStringSecurity(newUserMessage)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"newUserMessage\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Thing photo
+	isSecure, err = CheckStringSecurity(newThingPhoto)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"newThingPhoto\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Check if notice belongs to registered user (compare username
+	// in database and username in JWT)
+	row := DB.QueryRow(
+		"SELECT notice_owner FROM thing WHERE id=?;",
+		thingId,
+	)
+	var noticeOwner string
+	err = row.Scan(
+		&noticeOwner,
+	)
+	if err != nil {
+		msg := "Error getting notice owner: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	if *noticeEditor != noticeOwner {
+		msg := "Access denied: it is not your notice"
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusForbidden)
+		return
+	}
+
+	// Update notice
+	if _, err := DB.Exec(
+		"UPDATE thing SET name=?, type=?, user_message=? WHERE id=?;",
+		newThingName,
+		newThingType,
+		newUserMessage,
+		thingId,
+	); err != nil {
+		msg := "Error editing thing: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	if newThingPhoto != "" {
+		if err := SaveThingPhotoToStorage(newThingPhoto, thingId); err != nil {
+			msg := "Error updating thing photo in storage: " + err.Error()
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	msg := "Success. Edited thing"
+	Logger.Info(msg)
+	w.Write([]byte(msg))
 }

@@ -8,28 +8,18 @@ import (
 )
 
 // TODO: add length restrictions (VARCHAR(n) instead of TEXT)
+// TODO: rename thing type to thing category
 var initialQueries = `
-CREATE TABLE IF NOT EXISTS lost_thing (
+CREATE TABLE IF NOT EXISTS thing (
     id VARCHAR(36) PRIMARY KEY,
+	type VARCHAR(5) CHECK (type IN ('lost', 'found')),
     publication_datetime DATETIME,
     name TEXT NOT NULL,
     user_message TEXT NOT NULL,
     verified INTEGER NOT NULL,
     found INTEGER NOT NULL,
-	advertisement_owner VARCHAR(36) NOT NULL,
-	FOREIGN KEY(advertisement_owner) REFERENCES user(username)
-);
-
-CREATE TABLE IF NOT EXISTS found_thing (
-    id VARCHAR(36) PRIMARY KEY,
-    publication_datetime DATETIME,
-    name TEXT NOT NULL,
-    location TEXT NOT NULL,
-    user_message TEXT NOT NULL,
-    verified INTEGER NOT NULL,
-    found INTEGER NOT NULL, -- sorry for the naming)
-	advertisement_owner VARCHAR(36) NOT NULL,
-	FOREIGN KEY(advertisement_owner) REFERENCES user(username)
+	notice_owner VARCHAR(36) NOT NULL,
+	FOREIGN KEY(notice_owner) REFERENCES user(username)
 );
 
 CREATE TABLE IF NOT EXISTS user (

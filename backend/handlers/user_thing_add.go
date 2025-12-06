@@ -22,13 +22,6 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	thingType := r.FormValue("thingType")
-	if thingType == "" {
-		msg := "Error. POST parameter \"thingType\" is required"
-		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
-		return
-	}
 
 	// Get username from the JWT access
 	publicKey, _, err := GetPublicKey()
@@ -44,7 +37,7 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusUnauthorized)
 		return
 	}
-	advertisementOwner, err := GetUsername(accessToken, publicKey)
+	noticeOwner, err := GetUsername(accessToken, publicKey)
 	if err != nil {
 		msg := "Can't get username from JWT access: " + err.Error()
 		Logger.Error(msg)
@@ -54,191 +47,107 @@ func AddThing(w http.ResponseWriter, r *http.Request) {
 
 	thingId := uuid.New().String()
 
-	switch thingType {
-	case "lost":
-		thingName := r.FormValue("thingName")
-		userMessage := r.FormValue("userMessage")
-		thingPhoto := r.FormValue("thingPhoto")
-
-		if thingName == "" {
-			msg := "Error. \"thingType\" is \"lost\", so POST parameter \"thingName\" is required"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Regular expressions checks
-		// Thing name
-		isSecure, err := CheckStringSecurity(thingName)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"thingName\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// User message
-		isSecure, err = CheckStringSecurity(userMessage)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"userMessage\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Thing photo
-		isSecure, err = CheckStringSecurity(thingPhoto)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"thingPhoto\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		if _, err := DB.Exec(
-			"INSERT INTO lost_thing (id, publication_datetime, name, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?);",
-			thingId,
-			thingName,
-			userMessage,
-			0,
-			0,
-			advertisementOwner,
-		); err != nil {
-			msg := "Error adding new lost thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-		if thingPhoto != "" {
-			if err := SaveThingPhotoToStorage(thingPhoto, thingId); err != nil {
-				msg := "Error saving thing photo to storage: " + err.Error()
-				Logger.Error(msg)
-				http.Error(w, msg, http.StatusInternalServerError)
-				return
-			}
-		}
-
-		msg := "Success. Added new lost thing"
-		Logger.Info(msg)
-		w.Write([]byte(msg))
-	case "found":
-		thingName := r.FormValue("thingName")
-		thingLocation := r.FormValue("thingLocation")
-		userMessage := r.FormValue("userMessage")
-		thingPhoto := r.FormValue("thingPhoto")
-
-		if thingName == "" || thingLocation == "" {
-			msg := "Error. \"thingType\" is \"found\", so POST parameters \"thingName\" and \"thingLocation\" are required"
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Regular expressions checks
-		// Thing name
-		isSecure, err := CheckStringSecurity(thingName)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"thingName\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Thing location
-		isSecure, err = CheckStringSecurity(thingLocation)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"thingLocation\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// User message
-		isSecure, err = CheckStringSecurity(userMessage)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"userMessage\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		// Thing photo
-		isSecure, err = CheckStringSecurity(thingPhoto)
-		if err != nil {
-			Logger.Error(err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !(*isSecure) {
-			msg := "Error. Found forbidden symbols in POST parameter \"thingPhoto\"."
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusBadRequest)
-			return
-		}
-
-		if _, err := DB.Exec(
-			"INSERT INTO found_thing (id, publication_datetime, name, location, user_message, verified, found, advertisement_owner) VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?);",
-			thingId,
-			thingName,
-			thingLocation,
-			userMessage,
-			0,
-			0,
-			advertisementOwner,
-		); err != nil {
-			msg := "Error adding new found thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-		if thingPhoto != "" {
-			if err := SaveThingPhotoToStorage(thingPhoto, thingId); err != nil {
-				msg := "Error saving thing photo to storage: " + err.Error()
-				Logger.Error(msg)
-				http.Error(w, msg, http.StatusInternalServerError)
-				return
-			}
-		}
-
-		msg := "Success. Added new found thing"
-		Logger.Info(msg)
-		w.Write([]byte(msg))
-	default:
-		msg := "Error. POST parameter \"thingType\" can be \"lost\" or \"found\""
+	thingName := r.FormValue("thingName")
+	thingType := r.FormValue("thingType")
+	userMessage := r.FormValue("userMessage")
+	thingPhoto := r.FormValue("thingPhoto")
+	if thingName == "" {
+		msg := "Error. POST parameter \"thingName\" is required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
+	if thingType == "" {
+		msg := "Error. POST parameter \"thingType\" is required"
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Regular expressions checks
+	// Thing name
+	isSecure, err := CheckStringSecurity(thingName)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"thingName\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Thing type
+	isSecure, err = CheckStringSecurity(thingType)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"thingType\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// User message
+	isSecure, err = CheckStringSecurity(userMessage)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"userMessage\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	// Thing photo
+	isSecure, err = CheckStringSecurity(thingPhoto)
+	if err != nil {
+		Logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !(*isSecure) {
+		msg := "Error. Found forbidden symbols in POST parameter \"thingPhoto\"."
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+
+	if _, err := DB.Exec(
+		"INSERT INTO thing (id, type, publication_datetime, name, user_message, verified, found, notice_owner) VALUES (?, ?, datetime('now'), ?, ?, ?, ?, ?);",
+		thingId,
+		thingType,
+		thingName,
+		userMessage,
+		0,
+		0,
+		noticeOwner,
+	); err != nil {
+		msg := "Error adding new thing: " + err.Error()
+		Logger.Error(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	if thingPhoto != "" {
+		if err := SaveThingPhotoToStorage(thingPhoto, thingId); err != nil {
+			msg := "Error saving thing photo to storage: " + err.Error()
+			Logger.Error(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	msg := "Success. Added new thing"
+	Logger.Info(msg)
+	w.Write([]byte(msg))
+
 }

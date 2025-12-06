@@ -24,35 +24,17 @@ func ModeratorDeleteThing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	thingId := r.FormValue("thingId")
-	thingType := r.FormValue("thingType")
-	if thingId == "" || thingType == "" {
-		msg := "Error. POST parameters \"thingId\" and \"thingType\" are required"
+	if thingId == "" {
+		msg := "Error. POST parameter \"thingId\" is required"
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
-	switch thingType {
-	case "lost":
-		if _, err := DB.Exec("DELETE FROM lost_thing WHERE id=?;", thingId); err != nil {
-			msg := "Error deleting lost thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-	case "found":
-		if _, err := DB.Exec("DELETE FROM found_thing WHERE id=?;", thingId); err != nil {
-			msg := "Error deleting found thing: " + err.Error()
-			Logger.Error(msg)
-			http.Error(w, msg, http.StatusInternalServerError)
-			return
-		}
-
-	default:
-		msg := "Error. POST parameter \"thingType\" can be \"lost\" or \"found\""
+	if _, err := DB.Exec("DELETE FROM thing WHERE id=?;", thingId); err != nil {
+		msg := "Error deleting thing: " + err.Error()
 		Logger.Error(msg)
-		http.Error(w, msg, http.StatusBadRequest)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 
