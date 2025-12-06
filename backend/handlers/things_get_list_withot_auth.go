@@ -26,7 +26,7 @@ func GetThingsListWithoutAuth(w http.ResponseWriter, r *http.Request) {
 	var rows *sql.Rows
 	var err error
 	switch thingsType {
-	case "":
+	case "all":
 		rows, err = DB.Query(
 			"SELECT * FROM thing ORDER BY publication_datetime;",
 		)
@@ -36,7 +36,7 @@ func GetThingsListWithoutAuth(w http.ResponseWriter, r *http.Request) {
 			thingsType,
 		)
 	default:
-		msg := "Error. GET parameter \"things_type\" must be \"lost\", \"found\" or empty"
+		msg := "Error. GET parameter \"things_type\" must be \"lost\", \"found\" or \"all\""
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return

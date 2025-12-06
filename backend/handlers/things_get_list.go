@@ -49,7 +49,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 	// TODO: refactor
 	var rows *sql.Rows
 	switch thingsType {
-	case "":
+	case "all":
 		switch noticesOwnership {
 		case "all":
 			rows, err = DB.Query(
@@ -97,7 +97,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	default:
-		msg := "Error. GET parameter \"things_type\" must be \"lost\", \"found\" or empty"
+		msg := "Error. GET parameter \"things_type\" must be \"lost\", \"found\" or \"all\""
 		Logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
