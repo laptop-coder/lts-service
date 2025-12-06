@@ -43,9 +43,9 @@ const HomePage = (): JSX.Element => {
         )}
         <ThingsTypeToggle setter={setThingsType} />
         <ThingsList
-          thingsType={thingsType}
-          role={Role.user}
-          noticesOwnership={noticesOwnership}
+          thingsType={thingsType()}
+          role={authorized() ? Role.user : Role.none}
+          noticesOwnership={noticesOwnership()}
         />
       </Content>
       <Footer />

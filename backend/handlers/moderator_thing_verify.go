@@ -9,6 +9,7 @@ import (
 
 func VerifyThing(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
+	// Think about it: GET or POST is better for this handler?
 	if r.Method != http.MethodPost {
 		msg := "A POST request is required"
 		Logger.Warn(msg)

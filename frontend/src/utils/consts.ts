@@ -54,6 +54,7 @@ export enum Role {
 export enum ThingType {
   'lost' = 'lost',
   'found' = 'found',
+  'all' = 'all',
 }
 
 export enum NoticesOwnership {

@@ -1,13 +1,13 @@
 import axiosInstance from '../utils/axiosInstance';
 import { ThingType, NoticesOwnership } from './consts';
 
-const getThingsList = async (props: {
+const getThingsListUser = async (props: {
   thingsType: ThingType;
   noticesOwnership: NoticesOwnership;
 }) =>
   axiosInstance
     .get(
-      `/things/get_list?things_type=${props.thingsType}&notices_ownership=${props.noticesOwnership}`,
+      `/things/get_list/user?things_type=${props.thingsType}&notices_ownership=${props.noticesOwnership}`,
     )
     .then((response) => response.data)
     .catch((error) =>
@@ -15,4 +15,4 @@ const getThingsList = async (props: {
       console.log('error'),
     );
 
-export default getThingsList;
+export default getThingsListUser;

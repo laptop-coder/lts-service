@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func GetThingsList(w http.ResponseWriter, r *http.Request) {
+func GetThingsListModerator(w http.ResponseWriter, r *http.Request) {
 	SetupCORS(&w)
 	if r.Method != http.MethodGet {
 		msg := "A GET request is required"
@@ -21,77 +21,52 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	thingsType := r.URL.Query().Get("things_type")
-	noticesOwnership := r.URL.Query().Get("notices_ownership")
-
-	// Get username from the JWT access
-	publicKey, _, err := GetPublicKey()
-	if err != nil {
-		msg := "Error getting public key: " + err.Error()
-		Logger.Error(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	accessToken, err := GetJWTAccess(r)
-	if err != nil {
-		msg := err.Error()
-		http.Error(w, msg, http.StatusUnauthorized)
-		return
-	}
-	username, err := GetUsername(accessToken, publicKey)
-	if err != nil {
-		msg := "Can't get username from JWT access: " + err.Error()
-		Logger.Error(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
+	noticesVerification := r.URL.Query().Get("notices_verification")
 
 	// Get data from the database
 	// TODO: refactor
 	var rows *sql.Rows
+	var err error
 	switch thingsType {
 	case "all":
-		switch noticesOwnership {
-		case "all":
+		switch noticesVerification {
+		case "not_verified":
 			rows, err = DB.Query(
-				"SELECT * FROM thing ORDER BY publication_datetime;",
+				"SELECT * FROM thing WHERE verified=0 ORDER BY publication_datetime;",
 			)
-		case "my":
+		case "rejected":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE notice_owner=? ORDER BY publication_datetime;",
-				*username,
+				"SELECT * FROM thing WHERE verified=-1 ORDER BY publication_datetime;",
 			)
-		case "not_my":
+		case "approved":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE NOT notice_owner=? ORDER BY publication_datetime;",
-				*username,
+				"SELECT * FROM thing WHERE verified=1 ORDER BY publication_datetime;",
 			)
 		default:
-			msg := "Error. GET parameter \"notices_ownership\" must be \"my\", \"not_my\" or \"all\""
+			msg := "Error. GET parameter \"notices_verification\" must be \"not_verified\", \"rejected\" or \"approved\""
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
 	case "lost", "found":
-		switch noticesOwnership {
-		case "all":
+		switch noticesVerification {
+		case "not_verified":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? ORDER BY publication_datetime;",
+				"SELECT * FROM thing WHERE type=? AND verified=0 ORDER BY publication_datetime;",
 				thingsType,
 			)
-		case "my":
+		case "rejected":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND notice_owner=? ORDER BY publication_datetime;",
+				"SELECT * FROM thing WHERE type=? AND verified=-1 ORDER BY publication_datetime;",
 				thingsType,
-				*username,
 			)
-		case "not_my":
+		case "approved":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND NOT notice_owner=? ORDER BY publication_datetime;",
+				"SELECT * FROM thing WHERE type=? AND verified=1 ORDER BY publication_datetime;",
 				thingsType,
-				*username,
 			)
 		default:
-			msg := "Error. GET parameter \"notices_ownership\" must be \"my\", \"not_my\" or \"all\""
+			msg := "Error. GET parameter \"notices_verification\" must be \"not_verified\", \"rejected\" or \"approved\""
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return

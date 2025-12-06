@@ -7,11 +7,18 @@ import {
   Switch,
   Match,
 } from 'solid-js';
-import type { Accessor, ResourceReturn } from 'solid-js';
+import type { ResourceReturn } from 'solid-js';
 
 import styles from './ThingsList.module.css';
-import getThingsList from '../../utils/getThingsList';
-import { ThingType, Role, NoticesOwnership } from '../../utils/consts';
+import getThingsListUser from '../../utils/getThingsListUser';
+import getThingsListWithoutAuth from '../../utils/getThingsListWithoutAuth';
+import getThingsListModerator from '../../utils/getThingsListModerator';
+import {
+  ThingType,
+  Role,
+  NoticesOwnership,
+  NoticesVerification,
+} from '../../utils/consts';
 import type { Thing } from '../../types/thing';
 import ThingContainer from '../ThingContainer/ThingContainer';
 import Loading from '../../ui/Loading/Loading';
@@ -19,19 +26,33 @@ import Error from '../../ui/Error/Error';
 import NoData from '../../ui/NoData/NoData';
 
 const ThingsList = (props: {
-  thingsType: Accessor<ThingType>;
+  thingsType: ThingType;
   role: Role;
-  noticesOwnership: Accessor<NoticesOwnership>;
+  noticesOwnership?: NoticesOwnership;
+  noticesVerification?: NoticesVerification;
 }): JSX.Element => {
   const [data, setData] = createSignal();
   const [state, setState] = createSignal();
   createEffect(() => {
     const [thingsListResource]: ResourceReturn<Thing> = createResource(
-      {
-        thingsType: props.thingsType(),
-        noticesOwnership: props.noticesOwnership(),
-      },
-      getThingsList,
+      props.role === Role.moderator
+        ? {
+            thingsType: props.thingsType,
+            noticesVerification: props.noticesVerification,
+          }
+        : props.role === Role.user
+          ? {
+              thingsType: props.thingsType,
+              noticesOwnership: props.noticesOwnership,
+            }
+          : {
+              thingsType: props.thingsType,
+            },
+      props.role === Role.moderator
+        ? getThingsListModerator
+        : props.role === Role.user
+          ? getThingsListUser
+          : getThingsListWithoutAuth,
     );
     createEffect(() => {
       setData(thingsListResource());
