@@ -13,7 +13,10 @@ const logout = async (props: { role: Role }) => {
       window.location.href =
         props.role === Role.moderator ? MODERATOR__HOME__ROUTE : HOME__ROUTE;
     })
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error)
+      console.log('error'),
+    );
 };
 
 export default logout;

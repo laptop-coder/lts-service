@@ -4,6 +4,9 @@ const getUserEmail = async () =>
   axiosInstance
     .get(`/user/get_email`)
     .then((response) => response.data)
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error)
+      console.log('error'),
+    );
 
 export default getUserEmail;

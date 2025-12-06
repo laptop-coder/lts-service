@@ -21,7 +21,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	thingsType := r.URL.Query().Get("things_type")
-	ownership := r.URL.Query().Get("ownership")
+	noticesOwnership := r.URL.Query().Get("notices_ownership")
 
 	// Get username from the JWT access
 	publicKey, _, err := GetPublicKey()
@@ -49,8 +49,8 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 	// TODO: refactor
 	var rows *sql.Rows
 	if thingsType == "" {
-		switch ownership {
-		case "":
+		switch noticesOwnership {
+		case "all":
 			rows, err = DB.Query(
 				"SELECT * FROM thing ORDER BY publication_datetime;",
 			)
@@ -65,14 +65,14 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 				*username,
 			)
 		default:
-			msg := "Error. GET parameter \"ownership\" must be \"my\", \"not_my\" or empty"
+			msg := "Error. GET parameter \"notices_ownership\" must be \"my\", \"not_my\" or \"all\""
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
 	} else if thingsType == "lost" || thingsType == "found" {
-		switch ownership {
-		case "":
+		switch noticesOwnership {
+		case "all":
 			rows, err = DB.Query(
 				"SELECT * FROM thing WHERE type=? ORDER BY publication_datetime;",
 				thingsType,
@@ -90,7 +90,7 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 				*username,
 			)
 		default:
-			msg := "Error. GET parameter \"ownership\" must be \"my\", \"not_my\" or empty"
+			msg := "Error. GET parameter \"notices_ownership\" must be \"my\", \"not_my\" or \"all\""
 			Logger.Error(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
@@ -138,5 +138,4 @@ func GetThingsList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(jsonData)
-	return
 }

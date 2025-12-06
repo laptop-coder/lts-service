@@ -8,27 +8,15 @@ const addThing = async (props: {
     name: string;
     userMessage: string;
     photo: string;
-    location: string;
   };
 }) => {
   const [data, setData] = createSignal();
-  switch (props.thing.type) {
-    case ThingType.lost:
-      setData({
-        thingType: props.thing.type,
-        thingName: props.thing.name,
-        userMessage: props.thing.userMessage,
-        thingPhoto: props.thing.photo,
-      });
-    case ThingType.found:
-      setData({
-        thingType: props.thing.type,
-        thingName: props.thing.name,
-        thingLocation: props.thing.location,
-        userMessage: props.thing.userMessage,
-        thingPhoto: props.thing.photo,
-      });
-  }
+  setData({
+    thingType: props.thing.type,
+    thingName: props.thing.name,
+    userMessage: props.thing.userMessage,
+    thingPhoto: props.thing.photo,
+  });
 
   return axiosInstance
     .post(`/thing/add`, data(), {
@@ -39,7 +27,10 @@ const addThing = async (props: {
     .then(() => {
       window.location.href = HOME__ROUTE;
     })
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error) // think about it, how to make right
+      console.log('error'),
+    );
 };
 
 export default addThing;

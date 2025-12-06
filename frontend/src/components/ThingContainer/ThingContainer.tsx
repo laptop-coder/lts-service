@@ -1,7 +1,7 @@
 import { JSX, createSignal } from 'solid-js';
 
 import styles from './ThingContainer.module.css';
-import type { LostThing, FoundThing } from '../../types/thing';
+import type { Thing } from '../../types/thing';
 import checkPhotoAvailability from '../../utils/checkPhotoAvailability';
 import {
   ASSETS_ROUTE,
@@ -23,8 +23,7 @@ import formatDate from '../../utils/formatDate';
 import { Motion } from 'solid-motionone';
 
 const ThingContainer = (props: {
-  thing: LostThing & FoundThing;
-  thingType: ThingType;
+  thing: Thing;
   role: Role;
   status?: boolean;
 }): JSX.Element => {
@@ -39,11 +38,10 @@ const ThingContainer = (props: {
   const [username, setUsername] = createSignal('');
   getUsername().then((data) => setUsername(data));
 
-  // Email of advertisement owner
-  const [advertisementOwnerEmail, setAdvertisementOwnerEmail] =
-    createSignal('');
-  getOtherUserEmail({ username: props.thing.AdvertisementOwner }).then((data) =>
-    setAdvertisementOwnerEmail(data),
+  // Email of notice owner
+  const [noticeOwnerEmail, setNoticeOwnerEmail] = createSignal('');
+  getOtherUserEmail({ username: props.thing.NoticeOwner }).then((data) =>
+    setNoticeOwnerEmail(data),
   );
 
   return (
@@ -59,9 +57,9 @@ const ThingContainer = (props: {
       <div class={styles.thing_container_content}>
         <ThingContainerItem
           pathToImage={`${ASSETS_ROUTE}/profile.svg`}
-          title={`${props.thing.AdvertisementOwner} (автор объявления)`}
+          title={`${props.thing.NoticeOwner} (автор объявления)`}
         >
-          {props.thing.AdvertisementOwner}
+          {props.thing.NoticeOwner}
         </ThingContainerItem>
         <ThingContainerItem
           pathToImage={`${ASSETS_ROUTE}/datetime.svg`}
@@ -69,14 +67,6 @@ const ThingContainer = (props: {
         >
           {formatDate(props.thing.PublicationDatetime)}
         </ThingContainerItem>
-        {props.thingType === ThingType.found && (
-          <ThingContainerItem
-            pathToImage={`${ASSETS_ROUTE}/location.svg`}
-            title={`${props.thing.Name} (местоположение вещи)`}
-          >
-            {props.thing.Location}
-          </ThingContainerItem>
-        )}
         {props.thing.UserMessage !== '' && (
           <ThingContainerItem
             pathToImage={`${ASSETS_ROUTE}/comment.svg`}
@@ -91,9 +81,9 @@ const ThingContainer = (props: {
               pathToImage={`${ASSETS_ROUTE}/category.svg`}
               title={`${props.thing.Name} (тип объявления)`}
             >
-              {props.thingType === ThingType.lost &&
+              {props.thing.Type === ThingType.lost &&
                 'В категории потерянных вещей'}
-              {props.thingType === ThingType.found &&
+              {props.thing.Type === ThingType.found &&
                 'В категории найденных вещей'}
             </ThingContainerItem>
             <ThingContainerItem
@@ -125,22 +115,18 @@ const ThingContainer = (props: {
           />
         )}
         {!props.status &&
-          (username() === props.thing.AdvertisementOwner ? (
+          (username() === props.thing.NoticeOwner ? (
             <FormButtonsGroup>
-              <ThingStatusButton
-                thingType={props.thingType}
-                thingId={props.thing.Id}
-              />
+              <ThingStatusButton thingId={props.thing.Id} />
               <ThingEditButton thingId={props.thing.Id} />
               <ThingDeleteButton
-                thingType={props.thingType}
                 thingId={props.thing.Id}
                 thingName={props.thing.Name}
                 role={props.role}
               />
             </FormButtonsGroup>
           ) : (
-            <WriteToUserButton email={advertisementOwnerEmail()} />
+            <WriteToUserButton email={noticeOwnerEmail()} />
           ))}
       </div>
     </Motion>

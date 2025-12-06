@@ -4,6 +4,9 @@ const getUsernameModerator = async () =>
   axiosInstance
     .get(`/moderator/get_username`)
     .then((response) => response.data)
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error)
+      console.log('error'),
+    );
 
 export default getUsernameModerator;

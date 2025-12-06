@@ -1,22 +1,13 @@
-export interface LostThing {
-  Id: string;
-  PublicationDatetime: string;
-  Name: string;
-  Photo: string;
-  UserMessage: string;
-  Verified: number;
-  Found: number;
-  AdvertisementOwner: string;
-}
+import { ThingType } from '../utils/consts';
 
-export interface FoundThing {
+export interface Thing {
   Id: string;
+  Type: ThingType;
   PublicationDatetime: string;
   Name: string;
   Photo: string;
-  Location: string;
   UserMessage: string;
   Verified: number;
   Found: number;
-  AdvertisementOwner: string;
+  NoticeOwner: string;
 }

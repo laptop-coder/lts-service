@@ -11,10 +11,8 @@ import type { Accessor, ResourceReturn } from 'solid-js';
 
 import styles from './ThingsList.module.css';
 import getThingsList from '../../utils/getThingsList';
-import getThingsListMy from '../../utils/getThingsListMy';
-import getThingsListNotMy from '../../utils/getThingsListNotMy';
-import { ThingType, Role, AdvertisementsOwnership } from '../../utils/consts';
-import type { LostThing, FoundThing } from '../../types/thing';
+import { ThingType, Role, NoticesOwnership } from '../../utils/consts';
+import type { Thing } from '../../types/thing';
 import ThingContainer from '../ThingContainer/ThingContainer';
 import Loading from '../../ui/Loading/Loading';
 import Error from '../../ui/Error/Error';
@@ -23,22 +21,18 @@ import NoData from '../../ui/NoData/NoData';
 const ThingsList = (props: {
   thingsType: Accessor<ThingType>;
   role: Role;
-  advertisementsOwnership: Accessor<AdvertisementsOwnership>;
+  noticesOwnership: Accessor<NoticesOwnership>;
 }): JSX.Element => {
   const [data, setData] = createSignal();
   const [state, setState] = createSignal();
   createEffect(() => {
-    const [thingsListResource]: ResourceReturn<LostThing & FoundThing> =
-      createResource(
-        {
-          thingsType: props.thingsType(),
-        },
-        props.advertisementsOwnership() === AdvertisementsOwnership.my
-          ? getThingsListMy
-          : props.advertisementsOwnership() === AdvertisementsOwnership.not_my
-            ? getThingsListNotMy
-            : getThingsList,
-      );
+    const [thingsListResource]: ResourceReturn<Thing> = createResource(
+      {
+        thingsType: props.thingsType(),
+        noticesOwnership: props.noticesOwnership(),
+      },
+      getThingsList,
+    );
     createEffect(() => {
       setData(thingsListResource());
       setState(thingsListResource.state);
@@ -54,13 +48,12 @@ const ThingsList = (props: {
         </Match>
         <Match when={state() === 'ready' || state() === 'refreshing'}>
           <For
-            each={data() as unknown as (LostThing & FoundThing)[]}
+            each={data() as unknown as Thing[]}
             fallback={<NoData />}
           >
-            {(item: LostThing & FoundThing) => (
+            {(item: Thing) => (
               <ThingContainer
                 thing={item}
-                thingType={props.thingsType()}
                 role={props.role}
               />
             )}

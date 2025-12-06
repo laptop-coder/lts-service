@@ -1,12 +1,11 @@
 import { JSX } from 'solid-js';
 
 import styles from './ThingDeleteButton.module.css';
-import { ASSETS_ROUTE, Role, ThingType } from '../../utils/consts';
+import { ASSETS_ROUTE, Role } from '../../utils/consts';
 import deleteThing from '../../utils/deleteThing';
 
 const ThingDeleteButton = (props: {
   thingName: string;
-  thingType: ThingType;
   thingId: string;
   role: Role;
 }): JSX.Element => (
@@ -19,7 +18,6 @@ const ThingDeleteButton = (props: {
         )
       ) {
         deleteThing({
-          thingType: props.thingType,
           thingId: props.thingId,
           role: props.role,
         });

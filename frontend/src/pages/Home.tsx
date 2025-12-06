@@ -7,20 +7,20 @@ import Footer from '../ui/Footer/Footer';
 import {
   Role,
   ThingType,
-  AdvertisementsOwnership,
+  NoticesOwnership,
   HeaderButton,
 } from '../utils/consts';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 import ThingsTypeToggle from '../components/ThingsTypeToggle';
-import AdvertisementsOwnershipToggle from '../components/AdvertisementsOwnershipToggle';
+import NoticesOwnershipToggle from '../components/NoticesOwnershipToggle';
 import ThingsList from '../components/ThingsList/ThingsList';
 
 const HomePage = (): JSX.Element => {
   const [authorized, setAuthorized] = createSignal(false);
   getAuthorizedCookie(setAuthorized);
 
-  const [advertisementsOwnership, setAdvertisementsOwnership] = createSignal(
-    authorized() ? AdvertisementsOwnership.not_my : AdvertisementsOwnership.all,
+  const [noticesOwnership, setNoticesOwnership] = createSignal(
+    authorized() ? NoticesOwnership.not_my : NoticesOwnership.all,
   );
   const [thingsType, setThingsType] = createSignal(ThingType.lost);
 
@@ -39,13 +39,13 @@ const HomePage = (): JSX.Element => {
       />
       <Content>
         {authorized() && (
-          <AdvertisementsOwnershipToggle setter={setAdvertisementsOwnership} />
+          <NoticesOwnershipToggle setter={setNoticesOwnership} />
         )}
         <ThingsTypeToggle setter={setThingsType} />
         <ThingsList
           thingsType={thingsType}
           role={Role.user}
-          advertisementsOwnership={advertisementsOwnership}
+          noticesOwnership={noticesOwnership}
         />
       </Content>
       <Footer />

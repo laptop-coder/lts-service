@@ -12,6 +12,9 @@ const getOtherUserEmail = async (props: { username: string }) =>
       },
     )
     .then((response) => response.data)
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error)
+      console.log('error'),
+    );
 
 export default getOtherUserEmail;

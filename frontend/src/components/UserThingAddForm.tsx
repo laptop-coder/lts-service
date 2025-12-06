@@ -18,7 +18,6 @@ const UserThingAddForm = (props: {
 }): JSX.Element => {
   const [thingType, setThingType] = createSignal(props.defaultThingType);
   const [thingName, setThingName] = createSignal('');
-  const [thingLocation, setThingLocation] = createSignal('');
   const [thingPhoto, setThingPhoto] = createSignal('');
   const [userMessage, setUserMessage] = createSignal('');
 
@@ -28,9 +27,8 @@ const UserThingAddForm = (props: {
       thing: {
         type: thingType(),
         name: thingName(),
-        location: thingLocation(), // empty if the type of thing is found
-        photo: thingPhoto(),
         userMessage: userMessage(),
+        photo: thingPhoto(),
       },
     });
   };
@@ -43,9 +41,9 @@ const UserThingAddForm = (props: {
         id='thing_type_select'
         value={thingType()}
         oninput={(event) => {
-          event.target.value === ThingType.lost
-            ? setThingType(ThingType.lost)
-            : setThingType(ThingType.found);
+          event.target.value === ThingType.found
+            ? setThingType(ThingType.found)
+            : setThingType(ThingType.lost);
         }}
         label='Что случилось?*'
         required
@@ -75,16 +73,6 @@ const UserThingAddForm = (props: {
         required
         pattern={allSymbolsRegExpStr}
       />
-      {thingType() === ThingType.found && (
-        <Input
-          placeholder='Где забрать?*'
-          name='thing_location'
-          value={thingLocation()}
-          oninput={(event) => setThingLocation(event.target.value)}
-          required
-          pattern={allSymbolsRegExpStr}
-        />
-      )}
       <TextArea
         placeholder='Сообщение'
         name='user_message'

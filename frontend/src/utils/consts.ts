@@ -56,7 +56,7 @@ export enum ThingType {
   'found' = 'found',
 }
 
-export enum AdvertisementsOwnership {
+export enum NoticesOwnership {
   'my' = 'my',
   'not_my' = 'not_my',
   'all' = 'all',

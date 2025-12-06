@@ -4,6 +4,9 @@ const getUsername = async () =>
   axiosInstance
     .get(`/user/get_username`)
     .then((response) => response.data)
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error)
+      console.log('error'),
+    );
 
 export default getUsername;

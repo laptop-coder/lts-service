@@ -1,11 +1,7 @@
 import axiosInstance from './axiosInstance';
-import { HOME__ROUTE, ThingType, Role } from './consts';
+import { HOME__ROUTE, Role } from './consts';
 
-const deleteThing = async (props: {
-  thingType: ThingType;
-  thingId: string;
-  role: Role;
-}) => {
+const deleteThing = async (props: { thingId: string; role: Role }) => {
   if (props.role === Role.none) {
     return; // TODO: return error here
   }
@@ -13,7 +9,7 @@ const deleteThing = async (props: {
   return axiosInstance
     .post(
       `/thing/delete/${props.role}`,
-      { thingType: props.thingType, thingId: props.thingId },
+      { thingId: props.thingId },
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -23,7 +19,10 @@ const deleteThing = async (props: {
     .then(() => {
       window.location.href = HOME__ROUTE;
     })
-    .catch((error) => console.log(error));
+    .catch((error) =>
+      // console.log(error)
+      console.log('error'),
+    );
 };
 
 export default deleteThing;

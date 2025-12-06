@@ -12,36 +12,29 @@ import Page from '../ui/Page/Page';
 import Header from '../ui/Header/Header';
 import Content from '../ui/Content/Content';
 import Footer from '../ui/Footer/Footer';
-import { Role, HeaderButton, ThingType } from '../utils/consts';
-import { LostThing, FoundThing } from '../types/thing';
+import { Role, HeaderButton } from '../utils/consts';
+import { Thing } from '../types/thing';
 import getAuthorizedCookie from '../utils/getAuthorizedCookie';
 import ThingContainer from '../components/ThingContainer/ThingContainer';
 import getThingData from '../utils/getThingData';
 import Loading from '../ui/Loading/Loading';
 import Error from '../ui/Error/Error';
-import NoData from '../ui/NoData/NoData';
 
 import { useSearchParams } from '@solidjs/router';
 
 const UserThingStatusPage = (): JSX.Element => {
   const [searchParams] = useSearchParams();
   const thingId = (searchParams.thing_id || '').toString();
-  const thingType =
-    (searchParams.thing_type || '').toString() === ThingType.found
-      ? ThingType.found
-      : ThingType.lost;
 
   const [data, setData] = createSignal();
   const [state, setState] = createSignal();
   createEffect(() => {
-    const [thingDataResource]: ResourceReturn<LostThing & FoundThing> =
-      createResource(
-        {
-          thingId: thingId,
-          thingType: thingType,
-        },
-        getThingData,
-      );
+    const [thingDataResource]: ResourceReturn<Thing> = createResource(
+      {
+        thingId: thingId,
+      },
+      getThingData,
+    );
     createEffect(() => {
       setData(thingDataResource());
       setState(thingDataResource.state);
@@ -68,8 +61,7 @@ const UserThingStatusPage = (): JSX.Element => {
           <Match when={state() === 'ready' || state() === 'refreshing'}>
             <ThingContainer
               status
-              thing={data() as LostThing & FoundThing}
-              thingType={thingType}
+              thing={data() as Thing}
               role={Role.none}
             />
           </Match>
