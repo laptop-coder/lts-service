@@ -49,7 +49,8 @@ const RegisterUserForm = (): JSX.Element => {
         })
         .catch((error) => {
           alert('Ошибка отправки. Попробуйте ещё раз');
-          console.log(error);
+          // console.log(error);
+          console.log('error');
         });
     } else {
       alert('Пароли не совпадают');

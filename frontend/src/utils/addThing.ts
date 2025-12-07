@@ -28,7 +28,7 @@ const addThing = async (props: {
       window.location.href = HOME__ROUTE;
     })
     .catch((error) =>
-      // console.log(error) // think about it, how to make right
+      // console.log(error) // TODO: think about it, how to make right
       console.log('error'),
     );
 };

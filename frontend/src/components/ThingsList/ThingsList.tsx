@@ -33,8 +33,12 @@ const ThingsList = (props: {
 }): JSX.Element => {
   const [data, setData] = createSignal();
   const [state, setState] = createSignal();
+  var reloadThingsList: Function;
   createEffect(() => {
-    const [thingsListResource]: ResourceReturn<Thing> = createResource(
+    const [
+      thingsListResource,
+      { refetch: reloadThingsListResource },
+    ]: ResourceReturn<Thing> = createResource(
       props.role === Role.moderator
         ? {
             thingsType: props.thingsType,
@@ -55,6 +59,7 @@ const ThingsList = (props: {
           : getThingsListWithoutAuth,
     );
     createEffect(() => {
+      reloadThingsList = reloadThingsListResource;
       setData(thingsListResource());
       setState(thingsListResource.state);
     });
@@ -76,6 +81,7 @@ const ThingsList = (props: {
               <ThingContainer
                 thing={item}
                 role={props.role}
+                reload={reloadThingsList}
               />
             )}
           </For>

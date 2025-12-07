@@ -28,6 +28,7 @@ const ThingContainer = (props: {
   thing: Thing;
   role: Role;
   status?: boolean;
+  reload?: Function;
 }): JSX.Element => {
   const pathToPhoto = `${STORAGE_ROUTE}/${props.thing.Id}.jpeg`;
   const [thingPhotoIsAvailable, setThingPhotoIsAvailable] = createSignal(false);
@@ -139,12 +140,14 @@ const ThingContainer = (props: {
               <ThingChangeVerificationButton
                 thingId={props.thing.Id}
                 action={VerificationAction.approve}
+                reload={props.reload}
               />
             )}
             {props.thing.Verified == '1' && (
               <ThingChangeVerificationButton
                 thingId={props.thing.Id}
                 action={VerificationAction.reject}
+                reload={props.reload}
               />
             )}
             {props.thing.Verified == '0' && (
@@ -152,10 +155,12 @@ const ThingContainer = (props: {
                 <ThingChangeVerificationButton
                   thingId={props.thing.Id}
                   action={VerificationAction.reject}
+                  reload={props.reload}
                 />
                 <ThingChangeVerificationButton
                   thingId={props.thing.Id}
                   action={VerificationAction.approve}
+                  reload={props.reload}
                 />
               </FormButtonsGroup>
             )}
