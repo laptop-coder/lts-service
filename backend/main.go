@@ -39,7 +39,7 @@ func main() {
 	// For moderators
 	mux.Handle("/things/get_list/moderator", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.GetThingsListModerator)))
 	mux.Handle("/moderator/get_username", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.ModeratorGetUsername)))
-	mux.Handle("/thing/verify", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.VerifyThing)))
+	mux.Handle("/thing/change_verification", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.ThingChangeVerification)))
 	mux.Handle("/thing/delete/moderator", utils.AuthMiddleware(&Cfg.Role.Moderator, http.HandlerFunc(handlers.ModeratorDeleteThing)))
 
 	Logger.Info("Starting server via HTTP...")

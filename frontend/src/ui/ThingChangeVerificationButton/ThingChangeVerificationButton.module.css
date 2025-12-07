@@ -1,0 +1,29 @@
+.thing_change_verification_button_approve,
+.thing_change_verification_button_reject {
+  height: 60px;
+  border: none;
+
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  color: var(--white);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+.thing_change_verification_button_approve img,
+.thing_change_verification_button_reject img {
+  height: 100%;
+}
+
+.thing_change_verification_button_approve {
+  background-color: #0b0;
+}
+
+.thing_change_verification_button_reject {
+  background-color: #b00;
+}

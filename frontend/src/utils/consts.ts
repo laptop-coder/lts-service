@@ -76,3 +76,8 @@ export enum NoticesVerification {
   'approved' = 'approved',
   'rejected' = 'rejected',
 }
+
+export enum VerificationAction {
+  'approve' = 'approve',
+  'reject' = 'reject',
+}

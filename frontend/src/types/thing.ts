@@ -7,7 +7,7 @@ export interface Thing {
   Name: string;
   Photo: string;
   UserMessage: string;
-  Verified: number;
-  Found: number;
+  Verified: string;
+  Found: string;
   NoticeOwner: string;
 }

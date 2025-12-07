@@ -8,6 +8,7 @@ import {
   STORAGE_ROUTE,
   Role,
   ThingType,
+  VerificationAction,
 } from '../../utils/consts';
 import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import ThingContainerItem from '../../ui/ThingContainerItem/ThingContainerItem';
@@ -19,6 +20,7 @@ import ThingEditButton from '../../ui/ThingEditButton/ThingEditButton';
 import ThingDeleteButton from '../../ui/ThingDeleteButton/ThingDeleteButton';
 import FormButtonsGroup from '../../ui/FormButtonsGroup/FormButtonsGroup';
 import formatDate from '../../utils/formatDate';
+import ThingChangeVerificationButton from '../../ui/ThingChangeVerificationButton/ThingChangeVerificationButton';
 
 import { Motion } from 'solid-motionone';
 
@@ -36,13 +38,15 @@ const ThingContainer = (props: {
 
   // Username of own user
   const [username, setUsername] = createSignal('');
-  getUsername().then((data) => setUsername(data));
-
   // Email of notice owner
   const [noticeOwnerEmail, setNoticeOwnerEmail] = createSignal('');
-  getOtherUserEmail({ username: props.thing.NoticeOwner }).then((data) =>
-    setNoticeOwnerEmail(data),
-  );
+  // Get username and email
+  if (props.role !== Role.moderator) {
+    getUsername().then((data) => setUsername(data));
+    getOtherUserEmail({ username: props.thing.NoticeOwner }).then((data) =>
+      setNoticeOwnerEmail(data),
+    );
+  }
 
   return (
     <Motion
@@ -115,6 +119,7 @@ const ThingContainer = (props: {
           />
         )}
         {!props.status &&
+          props.role !== Role.moderator &&
           (username() === props.thing.NoticeOwner ? (
             <FormButtonsGroup>
               <ThingStatusButton thingId={props.thing.Id} />
@@ -128,6 +133,34 @@ const ThingContainer = (props: {
           ) : (
             <WriteToUserButton email={noticeOwnerEmail()} />
           ))}
+        {props.role === Role.moderator && (
+          <>
+            {props.thing.Verified == '-1' && (
+              <ThingChangeVerificationButton
+                thingId={props.thing.Id}
+                action={VerificationAction.approve}
+              />
+            )}
+            {props.thing.Verified == '1' && (
+              <ThingChangeVerificationButton
+                thingId={props.thing.Id}
+                action={VerificationAction.reject}
+              />
+            )}
+            {props.thing.Verified == '0' && (
+              <FormButtonsGroup>
+                <ThingChangeVerificationButton
+                  thingId={props.thing.Id}
+                  action={VerificationAction.reject}
+                />
+                <ThingChangeVerificationButton
+                  thingId={props.thing.Id}
+                  action={VerificationAction.approve}
+                />
+              </FormButtonsGroup>
+            )}
+          </>
+        )}
       </div>
     </Motion>
   );
