@@ -32,15 +32,15 @@ func GetThingsListModerator(w http.ResponseWriter, r *http.Request) {
 		switch noticesVerification {
 		case "not_verified":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE verified=0 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE verified=0 AND found=0 ORDER BY publication_datetime DESC;",
 			)
 		case "rejected":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE verified=-1 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE verified=-1 AND found=0 ORDER BY publication_datetime DESC;",
 			)
 		case "approved":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE verified=1 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE verified=1 AND found=0 ORDER BY publication_datetime DESC;",
 			)
 		default:
 			msg := "Error. GET parameter \"notices_verification\" must be \"not_verified\", \"rejected\" or \"approved\""
@@ -52,17 +52,17 @@ func GetThingsListModerator(w http.ResponseWriter, r *http.Request) {
 		switch noticesVerification {
 		case "not_verified":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND verified=0 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE type=? AND verified=0 AND found=0 ORDER BY publication_datetime DESC;",
 				thingsType,
 			)
 		case "rejected":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND verified=-1 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE type=? AND verified=-1 AND found=0 ORDER BY publication_datetime DESC;",
 				thingsType,
 			)
 		case "approved":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND verified=1 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE type=? AND verified=1 AND found=0 ORDER BY publication_datetime DESC;",
 				thingsType,
 			)
 		default:

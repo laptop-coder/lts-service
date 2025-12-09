@@ -53,18 +53,18 @@ func GetThingsListUser(w http.ResponseWriter, r *http.Request) {
 		switch noticesOwnership {
 		case "all":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE (NOT notice_owner=? and verified=1) or notice_owner=? ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE ((NOT notice_owner=? and verified=1) or notice_owner=?) AND found=0 ORDER BY publication_datetime DESC;",
 				*username,
 				*username,
 			)
 		case "my":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE notice_owner=? ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE notice_owner=? AND found=0 ORDER BY publication_datetime DESC;",
 				*username,
 			)
 		case "not_my":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE NOT notice_owner=? AND verified=1 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE NOT notice_owner=? AND verified=1 AND found=0 ORDER BY publication_datetime DESC;",
 				*username,
 			)
 		default:
@@ -77,20 +77,20 @@ func GetThingsListUser(w http.ResponseWriter, r *http.Request) {
 		switch noticesOwnership {
 		case "all":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND ((NOT notice_owner=? and verified=1) or notice_owner=?) ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE type=? AND ((NOT notice_owner=? and verified=1) or notice_owner=?) AND found=0 ORDER BY publication_datetime DESC;",
 				thingsType,
 				*username,
 				*username,
 			)
 		case "my":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND notice_owner=? ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE type=? AND notice_owner=? AND found=0 ORDER BY publication_datetime DESC;",
 				thingsType,
 				*username,
 			)
 		case "not_my":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND NOT notice_owner=? AND verified=1 ORDER BY publication_datetime DESC;",
+				"SELECT * FROM thing WHERE type=? AND NOT notice_owner=? AND verified=1 AND found=0 ORDER BY publication_datetime DESC;",
 				thingsType,
 				*username,
 			)

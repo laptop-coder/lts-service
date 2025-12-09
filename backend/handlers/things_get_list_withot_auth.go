@@ -28,11 +28,11 @@ func GetThingsListWithoutAuth(w http.ResponseWriter, r *http.Request) {
 	switch thingsType {
 	case "all":
 		rows, err = DB.Query(
-			"SELECT * FROM thing WHERE verified=1 ORDER BY publication_datetime DESC;",
+			"SELECT * FROM thing WHERE verified=1 AND found=0 ORDER BY publication_datetime DESC;",
 		)
 	case "lost", "found":
 		rows, err = DB.Query(
-			"SELECT * FROM thing WHERE type=? AND verified=1 ORDER BY publication_datetime DESC;",
+			"SELECT * FROM thing WHERE type=? AND verified=1 AND found=0 ORDER BY publication_datetime DESC;",
 			thingsType,
 		)
 	default:
