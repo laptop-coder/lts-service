@@ -1,0 +1,2 @@
+# Get updates and restart the project at 06:00 UTC+3 (03:00 UTC)
+0 3 * * * /usr/bin/sh "${HOME}/lts-service/scripts/get_updates_and_restart.sh"
