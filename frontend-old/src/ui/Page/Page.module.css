@@ -1,8 +1,0 @@
-.page {
-  background-color: #eee;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  gap: 10px;
-}
