@@ -63,7 +63,7 @@ func MarkThingAsFound(w http.ResponseWriter, r *http.Request) {
 	// TODO: put this code in a separate function (repeated many times)
 	// MAYBE DEPRECATED
 	row := DB.QueryRow(
-		"SELECT notice_owner FROM lost_thing WHERE id=?;",
+		"SELECT notice_owner FROM thing WHERE id=?;",
 		thingId,
 	)
 	var noticeOwner string

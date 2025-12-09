@@ -21,6 +21,7 @@ import ThingDeleteButton from '../../ui/ThingDeleteButton/ThingDeleteButton';
 import FormButtonsGroup from '../../ui/FormButtonsGroup/FormButtonsGroup';
 import formatDate from '../../utils/formatDate';
 import ThingChangeVerificationButton from '../../ui/ThingChangeVerificationButton/ThingChangeVerificationButton';
+import ThingMarkAsFoundButton from '../../ui/ThingMarkAsFoundButton/ThingMarkAsFoundButton';
 
 import { Motion } from 'solid-motionone';
 
@@ -128,6 +129,10 @@ const ThingContainer = (props: {
           props.role !== Role.moderator &&
           (username() === props.thing.NoticeOwner ? (
             <FormButtonsGroup>
+              <ThingMarkAsFoundButton
+                thing={{ id: props.thing.Id, name: props.thing.Name }}
+                reload={props.reload}
+              />
               <ThingStatusButton thingId={props.thing.Id} />
               <ThingEditButton thingId={props.thing.Id} />
               <ThingDeleteButton
