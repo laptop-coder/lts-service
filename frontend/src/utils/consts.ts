@@ -36,7 +36,7 @@ export const BACKEND__LOGOUT__ROUTE = 'logout';
 export const ASSETS_ROUTE = '/storage/assets';
 export const STORAGE_ROUTE = '/storage/storage';
 
-export const BACKEND_URL = 'http://localhost:37190/';
+export const BACKEND_URL = 'http://10.0.6.100:37190/';
 export const SCHOOL_URL = 'https://лицей369.рф';
 export const TECH_SUPPORT_URL = 'https://help.licey369.ru';
 
