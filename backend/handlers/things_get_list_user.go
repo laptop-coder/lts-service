@@ -57,7 +57,7 @@ func GetThingsListUser(w http.ResponseWriter, r *http.Request) {
 			)
 		case "my":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE notice_owner=? AND verified=1 ORDER BY publication_datetime;",
+				"SELECT * FROM thing WHERE notice_owner=? ORDER BY publication_datetime;",
 				*username,
 			)
 		case "not_my":
@@ -80,7 +80,7 @@ func GetThingsListUser(w http.ResponseWriter, r *http.Request) {
 			)
 		case "my":
 			rows, err = DB.Query(
-				"SELECT * FROM thing WHERE type=? AND notice_owner=? AND verified=1 ORDER BY publication_datetime;",
+				"SELECT * FROM thing WHERE type=? AND notice_owner=? ORDER BY publication_datetime;",
 				thingsType,
 				*username,
 			)

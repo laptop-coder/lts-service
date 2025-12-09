@@ -95,8 +95,18 @@ const ThingContainer = (props: {
               pathToImage={`${ASSETS_ROUTE}/arrow_circle_right.svg`}
               title={`${props.thing.Name} (статус)`}
             >
-              {props.thing.Verified ? (
-                props.thing.Found ? (
+              {props.thing.Verified == '-1' && ( // TODO: use enum instead of '-1'
+                <span class={styles.red_text}>
+                  Объявление не прошло модерацию, не опубликовано
+                </span>
+              )}
+              {props.thing.Verified == '0' && (
+                <span class={styles.red_text}>
+                  Объявление на модерации, не опубликовано
+                </span>
+              )}
+              {props.thing.Verified == '1' &&
+                (props.thing.Found ? (
                   <span class={styles.green_text}>
                     Вещь найдена, объявление снято с публикации
                   </span>
@@ -104,12 +114,7 @@ const ThingContainer = (props: {
                   <span class={styles.yellow_text}>
                     Вещь не найдена, объявление опубликовано
                   </span>
-                )
-              ) : (
-                <span class={styles.red_text}>
-                  Объявление на модерации, не опубликовано
-                </span>
-              )}
+                ))}
             </ThingContainerItem>
           </>
         )}
