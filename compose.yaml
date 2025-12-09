@@ -1,11 +1,9 @@
 services:
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: laptopcoder/lts-service-backend:latest
     container_name: lts-backend
-    restart: unless-stopped
+    restart: always
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/db:/backend/data/db
@@ -26,17 +24,11 @@ services:
       - lts_network
     ports:
       - "37190:37190"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./backend
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: laptopcoder/lts-service-frontend:latest
     container_name: lts-frontend
-    restart: unless-stopped
+    restart: always
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/env:/env
@@ -49,10 +41,6 @@ services:
       - "${FRONTEND_PORT:-31022}:${FRONTEND_PORT:-31022}"
     depends_on:
       - backend
-    develop:
-      watch:
-        - action: rebuild
-          path: ./frontend
 
   # docs:
   #   build:
