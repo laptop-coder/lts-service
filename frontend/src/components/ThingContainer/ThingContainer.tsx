@@ -129,10 +129,12 @@ const ThingContainer = (props: {
           props.role !== Role.moderator &&
           (username() === props.thing.NoticeOwner ? (
             <FormButtonsGroup>
-              <ThingMarkAsFoundButton
-                thing={{ id: props.thing.Id, name: props.thing.Name }}
-                reload={props.reload}
-              />
+              {props.thing.Verified == '1' && (
+                <ThingMarkAsFoundButton
+                  thing={{ id: props.thing.Id, name: props.thing.Name }}
+                  reload={props.reload}
+                />
+              )}
               <ThingStatusButton thingId={props.thing.Id} />
               <ThingEditButton thingId={props.thing.Id} />
               <ThingDeleteButton
