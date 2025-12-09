@@ -54,23 +54,6 @@ services:
         - action: rebuild
           path: ./frontend
 
-  # docs:
-  #   build:
-  #     context: ./docs
-  #     dockerfile: Dockerfile
-  #   container_name: lts-docs
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime
-  #     - ./data/env:/env
-  #   networks:
-  #     - lts_network
-  #   ports:
-  #     - "${DOCS_PORT:-32782}:${DOCS_PORT:-32782}"
-  #   develop:
-  #     watch:
-  #       - action: rebuild
-  #         path: ./docs
-
 networks:
   lts_network:
     driver: bridge
