@@ -12,7 +12,7 @@ import {
   HeaderButton,
 } from '../../utils/consts';
 import HeaderProfileButton from '../HeaderProfileButton/HeaderProfileButton';
-import ThingAddButton from '../ThingAddButton/ThingAddButton';
+import HeaderThingAddButton from '../HeaderThingAddButton/HeaderThingAddButton';
 import HeaderLogoutButton from '../HeaderLogoutButton/HeaderLogoutButton';
 import HeaderLoginButton from '../HeaderLoginButton/HeaderLoginButton';
 
@@ -41,7 +41,7 @@ const Header = (props: {
         {(item: HeaderButton) => (
           <Switch>
             <Match when={item === HeaderButton.add_thing}>
-              <ThingAddButton
+              <HeaderThingAddButton
                 defaultThingType={
                   props.addThingDefaultThingType !== undefined
                     ? props.addThingDefaultThingType

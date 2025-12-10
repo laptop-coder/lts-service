@@ -1,17 +1,17 @@
 import { JSX } from 'solid-js';
 
-import styles from './ThingAddButton.module.css';
+import styles from './HeaderThingAddButton.module.css';
 import {
   USER__THING_ADD__ROUTE,
   ASSETS_ROUTE,
   ThingType,
 } from '../../utils/consts';
 
-const ThingAddButton = (props: {
+const HeaderThingAddButton = (props: {
   defaultThingType: ThingType;
 }): JSX.Element => (
   <button
-    class={styles.thing_add_button}
+    class={styles.header_thing_add_button}
     title='Создать объявление'
     onclick={() =>
       (window.location.href =
@@ -23,4 +23,4 @@ const ThingAddButton = (props: {
   </button>
 );
 
-export default ThingAddButton;
+export default HeaderThingAddButton;
