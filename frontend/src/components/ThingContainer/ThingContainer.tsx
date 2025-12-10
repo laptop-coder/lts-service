@@ -128,21 +128,48 @@ const ThingContainer = (props: {
         {!props.status &&
           props.role !== Role.moderator &&
           (username() === props.thing.NoticeOwner ? (
-            <FormButtonsGroup>
-              {props.thing.Verified == '1' && (
-                <ThingMarkAsFoundButton
-                  thing={{ id: props.thing.Id, name: props.thing.Name }}
-                  reload={props.reload}
+            <>
+              <ThingContainerItem
+                pathToImage={`${ASSETS_ROUTE}/arrow_circle_right.svg`}
+                title={`${props.thing.Name} (статус)`}
+              >
+                {props.thing.Verified == '-1' && ( // TODO: use enum instead of '-1'
+                  <span class={styles.red_text}>
+                    Объявление не прошло модерацию, не опубликовано
+                  </span>
+                )}
+                {props.thing.Verified == '0' && (
+                  <span class={styles.red_text}>
+                    Объявление на модерации, не опубликовано
+                  </span>
+                )}
+                {props.thing.Verified == '1' &&
+                  (props.thing.Found ? (
+                    <span class={styles.green_text}>
+                      Вещь найдена, объявление снято с публикации
+                    </span>
+                  ) : (
+                    <span class={styles.yellow_text}>
+                      Вещь не найдена, объявление опубликовано
+                    </span>
+                  ))}
+              </ThingContainerItem>
+              <FormButtonsGroup>
+                {props.thing.Verified == '1' && (
+                  <ThingMarkAsFoundButton
+                    thing={{ id: props.thing.Id, name: props.thing.Name }}
+                    reload={props.reload}
+                  />
+                )}
+                <ThingStatusButton thingId={props.thing.Id} />
+                <ThingEditButton thingId={props.thing.Id} />
+                <ThingDeleteButton
+                  thingId={props.thing.Id}
+                  thingName={props.thing.Name}
+                  role={props.role}
                 />
-              )}
-              <ThingStatusButton thingId={props.thing.Id} />
-              <ThingEditButton thingId={props.thing.Id} />
-              <ThingDeleteButton
-                thingId={props.thing.Id}
-                thingName={props.thing.Name}
-                role={props.role}
-              />
-            </FormButtonsGroup>
+              </FormButtonsGroup>
+            </>
           ) : (
             <WriteToUserButton email={noticeOwnerEmail()} />
           ))}
