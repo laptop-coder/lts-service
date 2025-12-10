@@ -25,7 +25,7 @@ const UserThingEditPage = (): JSX.Element => {
         buttons={[authorized() ? HeaderButton.profile : HeaderButton.login]}
       />
       <Content>
-        <UserThingEditForm thingId={thingId} />
+        <UserThingEditForm thing={{ id: thingId }} />
       </Content>
       <Footer />
     </Page>

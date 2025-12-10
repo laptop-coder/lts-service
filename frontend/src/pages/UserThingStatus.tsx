@@ -31,7 +31,7 @@ const UserThingStatusPage = (): JSX.Element => {
   createEffect(() => {
     const [thingDataResource]: ResourceReturn<Thing> = createResource(
       {
-        thingId: thingId,
+        thing: { id: thingId },
       },
       getThingData,
     );

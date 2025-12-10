@@ -1,8 +1,8 @@
 import axiosInstance from '../utils/axiosInstance';
 
-const getThingData = async (props: { thingId: string }) =>
+const getThingData = async (props: { thing: { id: string } }) =>
   axiosInstance
-    .get(`/thing/get_data?thing_id=${props.thingId}`)
+    .get(`/thing/get_data?thing_id=${props.thing.id}`)
     .then((response) => response.data)
     .catch((error) =>
       // console.log(error)

@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { HOME__ROUTE, Role } from './consts';
 
-const deleteThing = async (props: { thingId: string; role: Role }) => {
+const deleteThing = async (props: { thing: { id: string }; role: Role }) => {
   if (props.role === Role.none) {
     return; // TODO: return error here
   }
@@ -9,7 +9,7 @@ const deleteThing = async (props: { thingId: string; role: Role }) => {
   return axiosInstance
     .post(
       `/thing/delete/${props.role}`,
-      { thingId: props.thingId },
+      { thingId: props.thing.id },
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

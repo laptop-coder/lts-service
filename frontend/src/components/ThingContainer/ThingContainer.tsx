@@ -161,11 +161,10 @@ const ThingContainer = (props: {
                     reload={props.reload}
                   />
                 )}
-                <ThingStatusButton thingId={props.thing.Id} />
-                <ThingEditButton thingId={props.thing.Id} />
+                <ThingStatusButton thing={{ id: props.thing.Id }} />
+                <ThingEditButton thing={{ id: props.thing.Id }} />
                 <ThingDeleteButton
-                  thingId={props.thing.Id}
-                  thingName={props.thing.Name}
+                  thing={{ id: props.thing.Id, name: props.thing.Name }}
                   role={props.role}
                 />
               </FormButtonsGroup>
@@ -177,14 +176,14 @@ const ThingContainer = (props: {
           <>
             {props.thing.Verified == '-1' && (
               <ThingChangeVerificationButton
-                thingId={props.thing.Id}
+                thing={{ id: props.thing.Id }}
                 action={VerificationAction.approve}
                 reload={props.reload}
               />
             )}
             {props.thing.Verified == '1' && (
               <ThingChangeVerificationButton
-                thingId={props.thing.Id}
+                thing={{ id: props.thing.Id }}
                 action={VerificationAction.reject}
                 reload={props.reload}
               />
@@ -192,12 +191,12 @@ const ThingContainer = (props: {
             {props.thing.Verified == '0' && (
               <FormButtonsGroup>
                 <ThingChangeVerificationButton
-                  thingId={props.thing.Id}
+                  thing={{ id: props.thing.Id }}
                   action={VerificationAction.reject}
                   reload={props.reload}
                 />
                 <ThingChangeVerificationButton
-                  thingId={props.thing.Id}
+                  thing={{ id: props.thing.Id }}
                   action={VerificationAction.approve}
                   reload={props.reload}
                 />

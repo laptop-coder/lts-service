@@ -18,15 +18,15 @@ import type { Thing } from '../types/thing';
 import getThingData from '../utils/getThingData';
 import deleteThingPhoto from '../utils/deleteThingPhoto';
 
-const UserThingEditForm = (props: { thingId: string }): JSX.Element => {
+const UserThingEditForm = (props: { thing: { id: string } }): JSX.Element => {
   const [thingPhotoIsAvailable, setThingPhotoIsAvailable] = createSignal(false);
-  const pathToPhoto = `${STORAGE_ROUTE}/${props.thingId}.jpeg`;
+  const pathToPhoto = `${STORAGE_ROUTE}/${props.thing.id}.jpeg`;
   checkPhotoAvailability({
     pathToPhoto: pathToPhoto,
     success: () => setThingPhotoIsAvailable(true),
   });
   const [oldThingData]: ResourceReturn<Thing> = createResource(
-    { thingId: props.thingId },
+    { thing: { id: props.thing.id } },
     getThingData,
   );
 
@@ -50,7 +50,7 @@ const UserThingEditForm = (props: { thingId: string }): JSX.Element => {
     event.preventDefault();
     editThing({
       thing: {
-        id: props.thingId,
+        id: props.thing.id,
         newType: thingType(),
         newName: thingName(),
         newUserMessage: userMessage(),
@@ -132,7 +132,7 @@ const UserThingEditForm = (props: { thingId: string }): JSX.Element => {
             src={pathToPhoto}
             title={`${thingName()} (изображение)`}
             deletePhoto={() => {
-              deleteThingPhoto({ thingId: props.thingId }).then(() => {
+              deleteThingPhoto({ thing: { id: props.thing.id } }).then(() => {
                 setThingPhotoIsAvailable(false);
               });
             }}

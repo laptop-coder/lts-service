@@ -6,7 +6,7 @@ import thingChangeVerification from '../../utils/thingChangeVerification';
 import { VerificationAction } from '../../utils/consts';
 
 const ThingChangeVerificationButton = (props: {
-  thingId: string;
+  thing: { id: string };
   action: VerificationAction;
   reload?: Function;
 }): JSX.Element => {
@@ -15,7 +15,7 @@ const ThingChangeVerificationButton = (props: {
       class={`${props.action === VerificationAction.approve ? styles.thing_change_verification_button_approve : ''} ${props.action === VerificationAction.reject ? styles.thing_change_verification_button_reject : ''}`}
       onclick={() => {
         thingChangeVerification({
-          thingId: props.thingId,
+          thing: { id: props.thing.id },
           action: props.action,
         });
         if (props.reload) {

@@ -3,11 +3,11 @@ import { JSX } from 'solid-js';
 import styles from './ThingStatusButton.module.css';
 import { ASSETS_ROUTE, USER__THING_STATUS__ROUTE } from '../../utils/consts';
 
-const ThingStatusButton = (props: { thingId: string }): JSX.Element => (
+const ThingStatusButton = (props: { thing: { id: string } }): JSX.Element => (
   <button
     class={styles.thing_status_button}
     onclick={() => {
-      window.location.href = `${USER__THING_STATUS__ROUTE}?thing_id=${props.thingId}`;
+      window.location.href = `${USER__THING_STATUS__ROUTE}?thing_id=${props.thing.id}`;
     }}
     title='Статус объявления'
   >

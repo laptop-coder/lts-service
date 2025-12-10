@@ -2,14 +2,14 @@ import axiosInstance from '../utils/axiosInstance';
 import { VerificationAction } from '../utils/consts';
 
 const thingChangeVerification = (props: {
-  thingId: string;
+  thing: { id: string };
   action: VerificationAction;
 }) =>
   axiosInstance
     .post(
       `/thing/change_verification`,
       {
-        thingId: props.thingId,
+        thingId: props.thing.id,
         action: props.action,
       },
       {

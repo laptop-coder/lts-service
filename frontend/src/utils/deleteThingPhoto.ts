@@ -1,10 +1,10 @@
 import axiosInstance from './axiosInstance';
 
-const deleteThingPhoto = async (props: { thingId: string }) =>
+const deleteThingPhoto = async (props: { thing: { id: string } }) =>
   axiosInstance
     .post(
       `/thing/delete_photo`,
-      { thingId: props.thingId },
+      { thingId: props.thing.id },
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

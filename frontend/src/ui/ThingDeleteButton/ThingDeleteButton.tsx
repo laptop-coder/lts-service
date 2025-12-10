@@ -5,8 +5,7 @@ import { ASSETS_ROUTE, Role } from '../../utils/consts';
 import deleteThing from '../../utils/deleteThing';
 
 const ThingDeleteButton = (props: {
-  thingName: string;
-  thingId: string;
+  thing: { id: string; name: string };
   role: Role;
 }): JSX.Element => (
   <button
@@ -14,13 +13,10 @@ const ThingDeleteButton = (props: {
     onclick={() => {
       if (
         confirm(
-          `Подтвердите удаление объявления "${props.thingName}". Это действие необратимо`,
+          `Подтвердите удаление объявления "${props.thing.name}". Это действие необратимо`,
         )
       ) {
-        deleteThing({
-          thingId: props.thingId,
-          role: props.role,
-        });
+        deleteThing({ thing: { id: props.thing.id }, role: props.role });
       }
     }}
     title='Удалить объявление'
