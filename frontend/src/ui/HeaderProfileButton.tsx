@@ -1,23 +1,22 @@
 import { JSX } from 'solid-js';
 
-import styles from './HeaderProfileButton.module.css';
 import {
   USER__PROFILE__ROUTE,
   MODERATOR__PROFILE__ROUTE,
   ASSETS_ROUTE,
   Role,
-} from '../../utils/consts';
+} from '../utils/consts';
+import HeaderButton from './HeaderButton/HeaderButton';
 
 const HeaderProfileButton = (props: { role: Role }): JSX.Element => (
-  <button
-    class={styles.profile_button}
+  <HeaderButton
+    name='header_profile_button'
     title='Перейти в профиль'
     onclick={() =>
       (window.location.href = `${props.role === Role.user ? USER__PROFILE__ROUTE : ''}${props.role === Role.moderator ? MODERATOR__PROFILE__ROUTE : ''}`)
     }
-  >
-    <img src={`${ASSETS_ROUTE}/profile.svg`} />
-  </button>
+    pathToImage={`${ASSETS_ROUTE}/profile.svg`}
+  />
 );
 
 export default HeaderProfileButton;

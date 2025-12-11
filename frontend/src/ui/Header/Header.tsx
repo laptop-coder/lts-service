@@ -11,10 +11,10 @@ import {
   ThingType,
   HeaderButton,
 } from '../../utils/consts';
-import HeaderProfileButton from '../HeaderProfileButton/HeaderProfileButton';
-import HeaderThingAddButton from '../HeaderThingAddButton/HeaderThingAddButton';
-import HeaderLogoutButton from '../HeaderLogoutButton/HeaderLogoutButton';
-import HeaderLoginButton from '../HeaderLoginButton/HeaderLoginButton';
+import HeaderProfileButton from '../HeaderProfileButton';
+import HeaderThingAddButton from '../HeaderThingAddButton';
+import HeaderLogoutButton from '../HeaderLogoutButton';
+import HeaderLoginButton from '../HeaderLoginButton';
 
 const Header = (props: {
   role: Role;
