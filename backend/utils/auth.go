@@ -95,7 +95,7 @@ func checkAccountExistence(username *string, role *string) (*bool, error) {
 
 func GetJWTAccess(r *http.Request) (*string, error) {
 	var accessToken *string
-	accessTokenCookie, err := r.Cookie("jwt_access")
+	accessTokenCookie, err := r.Cookie("LTS_jwt_access")
 	if err != nil {
 		return nil, errors.New(
 			"can't get JWT access from the cookie: " +

@@ -102,7 +102,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(
 			w,
 			&http.Cookie{
-				Name:     "jwt_access",
+				Name:     "LTS_jwt_access",
 				Value:    *accessToken,
 				HttpOnly: true,
 				Path:     "/",                                 // TODO: is it OK?
@@ -115,7 +115,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(
 			w,
 			&http.Cookie{
-				Name:     "authorized",
+				Name:     "LTS_authorized",
 				Value:    "true",
 				HttpOnly: false,
 				Path:     "/",                                 // TODO: is it OK?
