@@ -12,16 +12,16 @@ import {
 } from '../../utils/consts';
 import ThingPhoto from '../../ui/ThingPhoto/ThingPhoto';
 import ThingContainerItem from '../../ui/ThingContainerItem/ThingContainerItem';
-import WriteToUserButton from '../../ui/WriteToUserButton/WriteToUserButton';
+import WriteToUserButton from '../../ui/WriteToUserButton';
 import getOtherUserEmail from '../../utils/getOtherUserEmail';
 import getUsername from '../../utils/getUsername';
-import ThingStatusButton from '../../ui/ThingStatusButton/ThingStatusButton';
-import ThingEditButton from '../../ui/ThingEditButton/ThingEditButton';
-import ThingDeleteButton from '../../ui/ThingDeleteButton/ThingDeleteButton';
+import ThingStatusButton from '../../ui/ThingStatusButton';
+import ThingEditButton from '../../ui/ThingEditButton';
+import ThingDeleteButton from '../../ui/ThingDeleteButton';
 import FormButtonsGroup from '../../ui/FormButtonsGroup/FormButtonsGroup';
 import formatDate from '../../utils/formatDate';
-import ThingChangeVerificationButton from '../../ui/ThingChangeVerificationButton/ThingChangeVerificationButton';
-import ThingMarkAsFoundButton from '../../ui/ThingMarkAsFoundButton/ThingMarkAsFoundButton';
+import ThingChangeVerificationButton from '../../ui/ThingChangeVerificationButton';
+import ThingMarkAsFoundButton from '../../ui/ThingMarkAsFoundButton';
 
 import { Motion } from 'solid-motionone';
 

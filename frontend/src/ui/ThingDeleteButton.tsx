@@ -1,15 +1,14 @@
 import { JSX } from 'solid-js';
 
-import styles from './ThingDeleteButton.module.css';
-import { ASSETS_ROUTE, Role } from '../../utils/consts';
-import deleteThing from '../../utils/deleteThing';
+import { ASSETS_ROUTE, Role } from '../utils/consts';
+import deleteThing from '../utils/deleteThing';
+import ThingContainerButton from './ThingContainerButton/ThingContainerButton';
 
 const ThingDeleteButton = (props: {
   thing: { id: string; name: string };
   role: Role;
 }): JSX.Element => (
-  <button
-    class={styles.thing_delete_button}
+  <ThingContainerButton
     onclick={() => {
       if (
         confirm(
@@ -20,9 +19,10 @@ const ThingDeleteButton = (props: {
       }
     }}
     title='Удалить объявление'
-  >
-    <img src={`${ASSETS_ROUTE}/delete.svg`} />
-  </button>
+    pathToImage={`${ASSETS_ROUTE}/delete.svg`}
+    name='thing_container_button'
+    border
+  />
 );
 
 export default ThingDeleteButton;

@@ -14,6 +14,18 @@
   height: 70px;
 }
 
+.green {
+  background-color: #7dac7f;
+}
+
+.red {
+  background-color: #ac7d7d;
+}
+
+.border {
+  border: 1px solid var(--gray);
+}
+
 .thing_container_button img {
   height: 100%;
 }

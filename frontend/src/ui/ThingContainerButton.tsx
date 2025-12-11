@@ -9,12 +9,10 @@ const ThingContainerButton = (props: {
   onclick?: () => void;
   name: string;
   border?: boolean;
-  green?: boolean;
-  red?: boolean;
 }): JSX.Element => (
   <button
     name={props.name}
-    class={`${styles.thing_container_button} ${props.border ? styles.border : ''} ${props.green ? styles.green : ''} ${props.red ? styles.red : ''}`}
+    class={`${styles.thing_container_button} ${props.border ? styles.border : ''}`}
     onclick={props.onclick}
     title={props.title}
     type={props.type || 'button'}

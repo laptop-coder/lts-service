@@ -1,18 +1,18 @@
 import { JSX } from 'solid-js';
 
-import styles from './ThingStatusButton.module.css';
-import { ASSETS_ROUTE, USER__THING_STATUS__ROUTE } from '../../utils/consts';
+import { ASSETS_ROUTE, USER__THING_STATUS__ROUTE } from '../utils/consts';
+import ThingContainerButton from './ThingContainerButton/ThingContainerButton';
 
 const ThingStatusButton = (props: { thing: { id: string } }): JSX.Element => (
-  <button
-    class={styles.thing_status_button}
+  <ThingContainerButton
     onclick={() => {
       window.location.href = `${USER__THING_STATUS__ROUTE}?thing_id=${props.thing.id}`;
     }}
     title='Статус объявления'
-  >
-    <img src={`${ASSETS_ROUTE}/info.svg`} />
-  </button>
+    name='thing_status_button'
+    pathToImage={`${ASSETS_ROUTE}/info.svg`}
+    border
+  />
 );
 
 export default ThingStatusButton;
