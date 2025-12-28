@@ -18,7 +18,7 @@ const Footer = (): JSX.Element => {
         href={SCHOOL_URL}
         class={styles.link}
       >
-        © Лицей № 369, 2025
+        © Лицей № 369, 2026—настоящее время
       </A>
     </div>
   );
