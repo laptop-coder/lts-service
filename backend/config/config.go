@@ -11,31 +11,31 @@ func newConfig() *types.Config {
 	return &types.Config{
 		App: types.AppConfig{
 			PortBackend:  "37190",
-			PortFrontend: getEnv("FRONTEND_PORT"),
+			PortFrontend: GetEnv("FRONTEND_PORT"),
 		},
 		Bcrypt: types.BcryptConfig {
 			Cost: 15, // minimal is 4, maximum is 31, default is 10
 		},
 		DB: types.DBConfig{
-			PathTo: getEnv("PATH_TO_DB"),
+			PathTo: GetEnv("PATH_TO_DB"),
 		},
 		Env: types.EnvConfig{
-			PathTo: getEnv("PATH_TO_ENV"),
+			PathTo: GetEnv("PATH_TO_ENV"),
 		},
 		Logs: types.LogsConfig{
 			PathToBackend: filepath.Join(
-				getEnv("PATH_TO_LOGS"),
-				getEnv("BACKEND_LOG"),
+				GetEnv("PATH_TO_LOGS"),
+				GetEnv("BACKEND_LOG"),
 			),
 		},
 		RSA: types.RSAConfig{
 			PathToPrivateKey: filepath.Join(
-				getEnv("PATH_TO_ENV"),
-				getEnv("RSA_PRIVATE_KEY"),
+				GetEnv("PATH_TO_ENV"),
+				GetEnv("RSA_PRIVATE_KEY"),
 			),
 			PathToPublicKey: filepath.Join(
-				getEnv("PATH_TO_ENV"),
-				getEnv("RSA_PUBLIC_KEY"),
+				GetEnv("PATH_TO_ENV"),
+				GetEnv("RSA_PUBLIC_KEY"),
 			),
 		},
 		Role: types.RolesConfig{
@@ -43,13 +43,13 @@ func newConfig() *types.Config {
 			Moderator: "moderator",
 		},
 		Storage: types.StorageConfig{
-			PathTo: getEnv("PATH_TO_STORAGE"),
+			PathTo: GetEnv("PATH_TO_STORAGE"),
 		},
 	}
 }
 
 // Read environment variable by the key or panic if it doesn't exist
-func getEnv(key string) string {
+func GetEnv(key string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
