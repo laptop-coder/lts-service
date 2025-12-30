@@ -1,5 +1,20 @@
 services:
 
+  postgres:
+    image: postgres:latest
+    container_name: lts-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data/pgdata
+
   backend:
     build:
       context: ./backend
