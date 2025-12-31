@@ -3,12 +3,10 @@ services:
   postgres:
     image: postgres:latest
     container_name: lts-postgres
-    restart: unless-stopped
+    restart: always
     env_file:
       - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres_db
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -39,6 +37,8 @@ services:
       - lts_network
     ports:
       - "37190:37190"
+    depends_on:
+      - postgres
 
   frontend:
     image: laptopcoder/lts-service-frontend:latest

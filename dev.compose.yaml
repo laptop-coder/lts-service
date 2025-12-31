@@ -7,8 +7,6 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres_db
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -41,6 +39,8 @@ services:
       - lts_network
     ports:
       - "37190:37190"
+    depends_on:
+      - postgres
     develop:
       watch:
         - action: rebuild
