@@ -286,3 +286,12 @@ BEFORE UPDATE ON base_entity
 FOR EACH ROW
     EXECUTE FUNCTION refresh_updated_at_column();
 
+
+INSERT INTO role (name) VALUES
+    ('Администратор сервиса'),
+    ('Администрация школы'),
+    ('Сотрудник'),
+    ('Учитель'),
+    ('Родитель'),
+    ('Ученик');
+
