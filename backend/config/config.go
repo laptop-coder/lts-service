@@ -13,7 +13,7 @@ func newConfig() *types.Config {
 			PortBackend:  "37190",
 			PortFrontend: GetEnv("FRONTEND_PORT"),
 		},
-		Bcrypt: types.BcryptConfig {
+		Bcrypt: types.BcryptConfig{
 			Cost: 15, // minimal is 4, maximum is 31, default is 10
 		},
 		DB: types.DBConfig{
