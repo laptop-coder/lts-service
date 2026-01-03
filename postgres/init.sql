@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS
     teacher_subject, subject, students_group, teacher, 
     room, staff, institution_administrator, user_role, 
     role_permission, permission, role, "user", 
-    administrator_position, staff_position, superadmin, base_entity CASCADE;
+    administrator_position, staff_position, base_entity CASCADE;
 
 CREATE TABLE base_entity (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -17,20 +17,6 @@ CREATE TABLE base_entity (
             updated_at BETWEEN created_at AND CURRENT_TIMESTAMP
         )
 );
-
--- There can be only one superadmin account
-CREATE TABLE superadmin (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    login VARCHAR(16) NOT NULL UNIQUE
-        CHECK (
-            LENGTH(login) >= 5
-        ),
-    -- bcrypt hash always has a length of 60 bytes
-    password VARCHAR(60) NOT NULL
-        CHECK (
-            LENGTH(password) = 60
-        )
-) INHERITS (base_entity);
 
 -- Info, related to all users (general info for all roles)
 CREATE TABLE "user" (
@@ -288,6 +274,7 @@ FOR EACH ROW
 
 
 INSERT INTO role (name) VALUES
+    ('Суперадминистратор'),
     ('Администратор сервиса'),
     ('Администрация ОУ'),
     ('Сотрудник'),
