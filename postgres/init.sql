@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS 
     invite_code, post, parent_student, parent, student, 
     teacher_subject, subject, students_group, teacher, 
-    room, staff, school_administrator, user_role, 
+    room, staff, institution_administrator, user_role, 
     role_permission, permission, role, "user", 
     administrator_position, staff_position, superadmin, base_entity CASCADE;
 
@@ -112,7 +112,7 @@ CREATE TABLE user_role (
     PRIMARY KEY (user_id, role_id) -- many-to-one (user-role)
 ) INHERITS (base_entity);
 
--- List of school administrator positions (headmaster, e.g.)
+-- List of institution administrator positions (headmaster, e.g.)
 CREATE TABLE administrator_position (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
@@ -130,12 +130,12 @@ CREATE TABLE staff_position (
         )
 ) INHERITS (base_entity);
 
--- Info, related only to school administrators
-CREATE TABLE school_administrator (
+-- Info, related only to institution administrators
+CREATE TABLE institution_administrator (
     id UUID REFERENCES "user" (id)
         ON DELETE CASCADE
         ON UPDATE RESTRICT PRIMARY KEY, -- one-to-one
-    -- many-to-one (school_administrator-position)
+    -- many-to-one (institution_administrator-position)
     -- can't remove position if there are at least one person with it
     position BIGINT NOT NULL REFERENCES administrator_position (id)
         ON DELETE RESTRICT
@@ -289,9 +289,9 @@ FOR EACH ROW
 
 INSERT INTO role (name) VALUES
     ('Администратор сервиса'),
-    ('Администрация школы'),
+    ('Администрация ОУ'),
     ('Сотрудник'),
-    ('Учитель'),
+    ('Преподаватель'),
     ('Родитель'),
-    ('Ученик');
+    ('Обучающийся');
 
