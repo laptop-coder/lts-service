@@ -44,15 +44,9 @@ CREATE TABLE "user" (
         CHECK (
             LENGTH(last_name) >= 2
         ),
-    -- Path to the avatar in the root of the site (public dir)
-    avatar_url VARCHAR(500) NOT NULL DEFAULT 'default_avatar.jpeg'
-        CHECK (
-            RIGHT(avatar_url, 5) = '.jpeg'
-            OR RIGHT(avatar_url, 4) = '.jpg'
-            OR RIGHT(avatar_url, 4) = '.png'
-            OR RIGHT(avatar_url, 4) = '.gif'
-            OR RIGHT(avatar_url, 5) = '.webp'
-        )
+    -- Name of the avatar is ID of the user. It is located in the root of the
+    -- site (public dir) and saved in the JPEG format: "/<user_id>.jpeg"
+    has_avatar BOOLEAN NOT NULL DEFAULT FALSE
 ) INHERITS (base_entity);
 
 -- List of users' roles (e.g., teacher, parent, student)
