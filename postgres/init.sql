@@ -44,23 +44,20 @@ CREATE TABLE "user" (
         CHECK (
             LENGTH(last_name) >= 2
         ),
-    -- <UUID4>.jpeg or <UUID4>.jpg, where <UUID4> is the user's id (it has the
-    -- length of 36 bytes)
-    avatar_url VARCHAR(41)
+    -- Path to the avatar in the root of the site (public dir)
+    avatar_url VARCHAR(500) NOT NULL DEFAULT 'default_avatar.jpeg'
         CHECK (
-            (
-                LENGTH(avatar_url) BETWEEN 40 AND 41
-            )
-            AND (
-                RIGHT(avatar_url, 5) = '.jpeg'
-                OR RIGHT(avatar_url, 4) = '.jpg'
-            )
+            RIGHT(avatar_url, 5) = '.jpeg'
+            OR RIGHT(avatar_url, 4) = '.jpg'
+            OR RIGHT(avatar_url, 4) = '.png'
+            OR RIGHT(avatar_url, 4) = '.gif'
+            OR RIGHT(avatar_url, 5) = '.webp'
         )
 ) INHERITS (base_entity);
 
 -- List of users' roles (e.g., teacher, parent, student)
 CREATE TABLE role (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 3
@@ -69,7 +66,7 @@ CREATE TABLE role (
 
 -- List of permissions (e.g., can_view_posts, can_generate_invite_codes)
 CREATE TABLE permission (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 6
@@ -100,7 +97,7 @@ CREATE TABLE user_role (
 
 -- List of institution administrator positions (headmaster, e.g.)
 CREATE TABLE administrator_position (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 4
@@ -109,7 +106,7 @@ CREATE TABLE administrator_position (
 
 -- List of staff positions (cleaner, security, etc.)
 CREATE TABLE staff_position (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 4
@@ -123,7 +120,7 @@ CREATE TABLE institution_administrator (
         ON UPDATE RESTRICT PRIMARY KEY, -- one-to-one
     -- many-to-one (institution_administrator-position)
     -- can't remove position if there are at least one person with it
-    position BIGINT NOT NULL REFERENCES administrator_position (id)
+    position_id BIGINT NOT NULL REFERENCES administrator_position (id)
         ON DELETE RESTRICT
         ON UPDATE RESTRICT
 ) INHERITS (base_entity);
@@ -134,14 +131,14 @@ CREATE TABLE staff (
         ON DELETE CASCADE
         ON UPDATE RESTRICT PRIMARY KEY, -- one-to-one
     -- many-to-one (staff-position)
-    position BIGINT NOT NULL REFERENCES staff_position (id)
+    position_id BIGINT NOT NULL REFERENCES staff_position (id)
         ON DELETE RESTRICT
         ON UPDATE RESTRICT
 ) INHERITS (base_entity);
 
 -- List of rooms (cabinets, dining room, etc.)
 CREATE TABLE room (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(20) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 1
@@ -155,27 +152,27 @@ CREATE TABLE teacher (
         ON UPDATE RESTRICT PRIMARY KEY, -- one-to-one
     -- Can't remove room if there are at least one teacher, assigned to it. To 
     -- remove the room you need to reassign the teacher to other classroom at
-    -- first
-    classroom BIGINT NOT NULL REFERENCES room (id)
+    -- first (actual for schools)
+    classroom_id BIGINT REFERENCES room (id)
         ON DELETE RESTRICT
         ON UPDATE RESTRICT -- one-to-one (teacher-room)
 ) INHERITS (base_entity);
     
 CREATE TABLE students_group (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(20) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 1
-        ),
-    -- Set classroom_teacher null in case of removing the teacher
-    classroom_teacher UUID REFERENCES teacher (id)
+        )
+    -- Set group_advisor_id null in case of removing the user (i.e. the advisor)
+    group_advisor_id UUID REFERENCES "user" (id)
         ON DELETE SET NULL
-        ON UPDATE RESTRICT -- one-to-one (group-teacher)
+        ON UPDATE RESTRICT -- one-to-one (students_group-"user")
 ) INHERITS (base_entity);
 
 -- List of subjects (e.g., "Русский язык", "Литература")
 CREATE TABLE subject (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
         CHECK (
             LENGTH(name) >= 3
@@ -202,7 +199,7 @@ CREATE TABLE student (
     -- Can't remove students_group if there are at least one student in it. To 
     -- remove the group you need to reassign all students to other group at
     -- first
-    "group" BIGINT NOT NULL REFERENCES students_group (id)
+    "group_id" BIGINT NOT NULL REFERENCES students_group (id)
         ON DELETE RESTRICT
         ON UPDATE RESTRICT
 ) INHERITS (base_entity);
@@ -230,7 +227,7 @@ CREATE TABLE post (
     -- it will be used in URLs to see the status of the post
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     -- Removing of the user will cause removing all of his posts
-    author UUID NOT NULL REFERENCES "user" (id)
+    author_id UUID NOT NULL REFERENCES "user" (id)
         ON DELETE CASCADE
         ON UPDATE RESTRICT, -- many-to-one (post-author)
     name VARCHAR(50) NOT NULL
@@ -242,23 +239,14 @@ CREATE TABLE post (
     verified BOOLEAN NOT NULL DEFAULT FALSE,
     -- was the thing found, i.e. returned to owner? (true/false)
     thing_returned_to_owner BOOLEAN NOT NULL DEFAULT FALSE
+        CHECK (
+            (thing_returned_to_owner = TRUE AND verified = TRUE) OR
+            thing_returned_to_owner = FALSE
+        )
 ) INHERITS (base_entity);
 
--- List of the one-time invite codes (they are removed after use). To generate
--- the code you just need to insert role_id into this table and get generated
--- primary key.
-CREATE TABLE invite_code (
-    -- this codes (UUIDs) will be used in invite-links
-    code UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    -- Removing of the role will cause removing all of the invite codes with
-    -- this role
-    role_id BIGINT NOT NULL REFERENCES role (id)
-        ON DELETE CASCADE
-        ON UPDATE RESTRICT
-) INHERITS (base_entity);
-
--- Function and trigger to update "updated_at" column (set current time instead
--- of the previous value) in all tables, inherited from base_entity
+-- Trigger to update "updated_at" column (set current time instead of the
+-- previous value) in all tables, inherited from base_entity
 CREATE OR REPLACE FUNCTION refresh_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -266,11 +254,25 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE TRIGGER refresh_updated_at
 BEFORE UPDATE ON base_entity
-FOR EACH ROW
-    EXECUTE FUNCTION refresh_updated_at_column();
+FOR EACH ROW EXECUTE FUNCTION refresh_updated_at_column();
+
+-- Trigger to limit the number of superadmin accounts
+CREATE OR REPLACE FUNCTION check_superadmin_limit()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.role_id = (SELECT id FROM role WHERE name = 'Суперадминистратор') THEN
+        IF (SELECT COUNT(*) FROM user_role WHERE role_id = NEW.role_id) >= 1 THEN
+            RAISE EXCEPTION 'There can be only one superadministrator';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER superadmin_limit
+BEFORE INSERT ON user_role
+FOR EACH ROW EXECUTE FUNCTION check_superadmin_limit();
 
 
 INSERT INTO role (name) VALUES
