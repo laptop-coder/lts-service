@@ -236,7 +236,9 @@ CREATE TABLE post (
         CHECK (
             (thing_returned_to_owner = TRUE AND verified = TRUE) OR
             thing_returned_to_owner = FALSE
-        )
+        ),
+    -- the logic is the same as for user's avatar
+    has_photo BOOLEAN NOT NULL DEFAULT FALSE
 ) INHERITS (base_entity);
 
 -- Trigger to update "updated_at" column (set current time instead of the
