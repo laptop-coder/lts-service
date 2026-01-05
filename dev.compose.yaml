@@ -9,10 +9,17 @@ services:
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-54321}:5432"
     volumes:
       - ./data/pg:/var/lib/postgresql/data/pgdata
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - lts_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -34,6 +41,7 @@ services:
       - RSA_PUBLIC_KEY=RSA_public_key.pem
       - PATH_TO_LOGS=/backend/data/logs
       - BACKEND_LOG=backend.log
+      - POSTGRES_HOST=postgres
     env_file:
       - .env
     networks:
@@ -41,7 +49,8 @@ services:
     ports:
       - "37190:37190"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     develop:
       watch:
         - action: rebuild
