@@ -1,11 +1,3 @@
--- TODO: remove
-DROP TABLE IF EXISTS 
-    invite_code, post, parent_student, parent, student, 
-    teacher_subject, subject, students_group, teacher, 
-    room, staff, institution_administrator, user_role, 
-    role_permission, permission, role, "user", 
-    administrator_position, staff_position, base_entity CASCADE;
-
 CREATE TABLE base_entity (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         CHECK (
