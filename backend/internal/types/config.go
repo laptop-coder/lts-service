@@ -24,17 +24,13 @@ type PostgresConfig struct {
 	Password string
 	Port     string
 	SSLMode  string // "disable" or "enable"
+	TimeZone string
 	User     string
 }
 
 type RSAConfig struct {
 	PathToPrivateKey string
 	PathToPublicKey  string
-}
-
-type RolesConfig struct {
-	User      string
-	Moderator string
 }
 
 type StorageConfig struct {
@@ -48,6 +44,5 @@ type Config struct {
 	Logs     LogsConfig
 	Postgres PostgresConfig
 	RSA      RSAConfig
-	Role     RolesConfig
 	Storage  StorageConfig
 }

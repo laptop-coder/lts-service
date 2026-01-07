@@ -23,6 +23,7 @@ func newConfig() *types.Config {
 			Password: GetEnv("POSTGRES_PASSWORD"),
 			Port:     GetEnv("POSTGRES_PORT"),
 			SSLMode:  GetEnv("POSTGRES_SSL_MODE"),
+			TimeZone: GetEnv("POSTGRES_TIME_ZONE"),
 			User:     GetEnv("POSTGRES_USER"),
 		},
 		Env: types.EnvConfig{
@@ -43,10 +44,6 @@ func newConfig() *types.Config {
 				GetEnv("PATH_TO_ENV"),
 				GetEnv("RSA_PUBLIC_KEY"),
 			),
-		},
-		Role: types.RolesConfig{
-			User:      "user",
-			Moderator: "moderator",
 		},
 		Storage: types.StorageConfig{
 			PathTo: GetEnv("PATH_TO_STORAGE"),
