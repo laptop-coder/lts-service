@@ -29,12 +29,6 @@ var (
 	Env = types.EnvConfig{
 		PathTo: GetEnv("PATH_TO_ENV"),
 	}
-	Logs = types.LogsConfig{
-		PathToBackend: filepath.Join(
-			GetEnv("PATH_TO_LOGS"),
-			GetEnv("BACKEND_LOG"),
-		),
-	}
 	RSA = types.RSAConfig{
 		PathToPrivateKey: filepath.Join(
 			GetEnv("PATH_TO_ENV"),

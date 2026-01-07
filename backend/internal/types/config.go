@@ -15,10 +15,6 @@ type EnvConfig struct {
 	PathTo string
 }
 
-type LogsConfig struct {
-	PathToBackend string
-}
-
 type PostgresConfig struct {
 	DBName   string
 	Host     string

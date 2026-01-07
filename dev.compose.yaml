@@ -31,7 +31,6 @@ services:
       - /etc/localtime:/etc/localtime
       - ./data/db:/backend/data/db
       - ./data/env:/env
-      - ./data/logs:/backend/data/logs
       - ./data/storage:/backend/data/storage
     environment:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
@@ -39,8 +38,6 @@ services:
       - PATH_TO_STORAGE=/backend/data/storage
       - RSA_PRIVATE_KEY=RSA_private_key.pem
       - RSA_PUBLIC_KEY=RSA_public_key.pem
-      - PATH_TO_LOGS=/backend/data/logs
-      - BACKEND_LOG=backend.log
       - POSTGRES_HOST=postgres
     env_file:
       - .env
