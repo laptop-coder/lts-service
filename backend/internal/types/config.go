@@ -37,13 +37,3 @@ type RSAConfig struct {
 type StorageConfig struct {
 	PathTo string
 }
-
-type Config struct {
-	App      AppConfig
-	Bcrypt   BcryptConfig
-	Env      EnvConfig
-	Logs     LogsConfig
-	Postgres PostgresConfig
-	RSA      RSAConfig
-	Storage  StorageConfig
-}
