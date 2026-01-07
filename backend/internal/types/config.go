@@ -21,6 +21,7 @@ type LogsConfig struct {
 
 type PostgresConfig struct {
 	DBName   string
+	Host     string
 	Password string
 	Port     string
 	SSLMode  string // "disable" or "enable"

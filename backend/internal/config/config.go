@@ -20,6 +20,7 @@ func newConfig() *types.Config {
 		},
 		Postgres: types.PostgresConfig{
 			DBName:   GetEnv("POSTGRES_DB"),
+			Host:     GetEnv("POSTGRES_HOST"),
 			Password: GetEnv("POSTGRES_PASSWORD"),
 			Port:     GetEnv("POSTGRES_PORT"),
 			SSLMode:  GetEnv("POSTGRES_SSL_MODE"),
