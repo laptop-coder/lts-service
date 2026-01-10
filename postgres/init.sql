@@ -144,7 +144,7 @@ CREATE TABLE teacher (
         ON UPDATE RESTRICT -- one-to-one (teacher-room)
 ) INHERITS (base_entity);
     
-CREATE TABLE students_group (
+CREATE TABLE student_group (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(20) NOT NULL UNIQUE
         CHECK (
@@ -153,7 +153,7 @@ CREATE TABLE students_group (
     -- Set group_advisor_id null in case of removing the user (i.e. the advisor)
     group_advisor_id UUID REFERENCES "user" (id)
         ON DELETE SET NULL
-        ON UPDATE RESTRICT -- one-to-one (students_group-"user")
+        ON UPDATE RESTRICT -- many-to-one (student_group-"user")
 ) INHERITS (base_entity);
 
 -- List of subjects (e.g., "Русский язык", "Литература")
@@ -181,11 +181,11 @@ CREATE TABLE student (
     id UUID REFERENCES "user" (id)
         ON DELETE CASCADE
         ON UPDATE RESTRICT PRIMARY KEY, -- one-to-one (student-user)
-    -- many-to-one (student-students_group)
-    -- Can't remove students_group if there are at least one student in it. To 
-    -- remove the group you need to reassign all students to other group at
+    -- many-to-one (student-student_group)
+    -- Can't remove student group if there are at least one student in it. To 
+    -- remove the group you need to reassign all students to another group at
     -- first
-    "group_id" BIGINT NOT NULL REFERENCES students_group (id)
+    student_group_id SMALLINT NOT NULL REFERENCES student_group (id)
         ON DELETE RESTRICT
         ON UPDATE RESTRICT
 ) INHERITS (base_entity);
