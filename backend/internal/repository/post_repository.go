@@ -11,11 +11,11 @@ import (
 )
 
 type PostRepository interface {
-	Create(ctx context.Context, post *model.Post) (*model.Post, error)
+	Create(ctx context.Context, post *model.Post) error
 	GetAll(ctx context.Context, filter *PostFilter) ([]model.Post, error)
 	GetByID(ctx context.Context, id *uuid.UUID) (*model.Post, error)
 	// ID must be set to update
-	Update(ctx context.Context, post *model.Post) (*model.Post, error)
+	Update(ctx context.Context, post *model.Post) error
 	Delete(ctx context.Context, id *uuid.UUID) error
 }
 
@@ -100,22 +100,22 @@ func (r *postRepository) GetByID(ctx context.Context, id *uuid.UUID) (*model.Pos
 	return &post, nil
 }
 
-func (r *postRepository) Create(ctx context.Context, post *model.Post) (*model.Post, error) {
+func (r *postRepository) Create(ctx context.Context, post *model.Post) error {
 	if post == nil {
-		return nil, fmt.Errorf("post cannot be nil")
+		return fmt.Errorf("post cannot be nil")
 	}
 
 	result := r.db.WithContext(ctx).Create(post)
 	if result.Error != nil {
-		return nil, fmt.Errorf("failed to create new post: %w", result.Error)
+		return fmt.Errorf("failed to create new post: %w", result.Error)
 	}
 
-	return post, nil
+	return nil
 }
 
-func (r *postRepository) Update(ctx context.Context, post *model.Post) (*model.Post, error) {
+func (r *postRepository) Update(ctx context.Context, post *model.Post) error {
 	if post == nil {
-		return nil, fmt.Errorf("post cannot be nil")
+		return fmt.Errorf("post cannot be nil")
 	}
 
 	var count int64
@@ -125,19 +125,19 @@ func (r *postRepository) Update(ctx context.Context, post *model.Post) (*model.P
 		Count(&count).Error
 	
 	if err != nil {
-		return nil, fmt.Errorf("failed to check post existence: %w", err)
+		return fmt.Errorf("failed to check post existence: %w", err)
 	}
 
 	if count == 0 {
-		return nil, fmt.Errorf("post with id %d was not found", post.ID)
+		return fmt.Errorf("post with id %d was not found", post.ID)
 	}
 
 	result := r.db.WithContext(ctx).Save(post)
 	if result.Error != nil {
-		return nil, fmt.Errorf("failed to update post: %w", result.Error)
+		return fmt.Errorf("failed to update post: %w", result.Error)
 	}
 
-	return post, nil
+	return nil
 }
 
 func (r *postRepository) Delete(ctx context.Context, id *uuid.UUID) error {

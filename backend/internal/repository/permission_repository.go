@@ -11,11 +11,11 @@ import (
 )
 
 type PermissionRepository interface {
-	Create(ctx context.Context, permission *model.Permission) (*model.Permission, error)
+	Create(ctx context.Context, permission *model.Permission) error
 	GetAll(ctx context.Context) ([]model.Permission, error)
-	GetByID(ctx context.Context, id *uint8) (*model.Post, error)
+	GetByID(ctx context.Context, id *uint8) (*model.Permission, error)
 	// ID must be set to update
-	Update(ctx context.Context, permission *model.Permission) (*model.Permission, error)
+	Update(ctx context.Context, permission *model.Permission) error
 	Delete(ctx context.Context, id *uint8) error
 }
 
@@ -31,17 +31,17 @@ func NewPermissionRepository(db *gorm.DB) PermissionRepository {
 	return &permissionRepository{db: db}
 }
 
-func (r *permissionRepository) Create(ctx context.Context, permission *model.Permission) (*model.Permission, error) {
+func (r *permissionRepository) Create(ctx context.Context, permission *model.Permission) error {
 	if permission == nil {
-		return nil, fmt.Errorf("permission cannot be nil")
+		return fmt.Errorf("permission cannot be nil")
 	}
 
 	result := r.db.WithContext(ctx).Create(permission)
 	if result.Error != nil {
-		return nil, fmt.Errorf("failed to create new permission: %w", result.Error)
+		return fmt.Errorf("failed to create new permission: %w", result.Error)
 	}
 
-	return permission, nil
+	return nil
 }
 
 func (r *permissionRepository) GetAll(ctx context.Context) ([]model.Permission, error) {
@@ -58,7 +58,7 @@ func (r *permissionRepository) GetAll(ctx context.Context) ([]model.Permission, 
 	return permissions, nil
 }
 
-func (r *postRepository) GetByID(ctx context.Context, id *uint8) (*model.Permission, error) {
+func (r *permissionRepository) GetByID(ctx context.Context, id *uint8) (*model.Permission, error) {
 	if id == nil {
 		return nil, fmt.Errorf("permission id cannot be nil")
 	}
@@ -68,17 +68,17 @@ func (r *postRepository) GetByID(ctx context.Context, id *uint8) (*model.Permiss
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("permission with id %s was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("permission with id %d was not found: %w", *id, result.Error)
 		}
-		return nil, fmt.Errorf("failed to fetch permission by id (%s): %w", *id, result.Error)
+		return nil, fmt.Errorf("failed to fetch permission by id (%d): %w", *id, result.Error)
 	}
 
 	return &permission, nil
 }
 
-func (r *permissionRepository) Update(ctx context.Context, permission *model.Permission) (*model.Permission, error) {
+func (r *permissionRepository) Update(ctx context.Context, permission *model.Permission) error {
 	if permission == nil {
-		return nil, fmt.Errorf("permission cannot be nil")
+		return fmt.Errorf("permission cannot be nil")
 	}
 
 	var count int64
@@ -88,19 +88,19 @@ func (r *permissionRepository) Update(ctx context.Context, permission *model.Per
 		Count(&count).Error
 	
 	if err != nil {
-		return nil, fmt.Errorf("failed to check permission existence: %w", err)
+		return fmt.Errorf("failed to check permission existence: %w", err)
 	}
 
 	if count == 0 {
-		return nil, fmt.Errorf("permission with id %d was not found", permission.ID)
+		return fmt.Errorf("permission with id %d was not found", permission.ID)
 	}
 
 	result := r.db.WithContext(ctx).Save(permission)
 	if result.Error != nil {
-		return nil, fmt.Errorf("failed to update permission: %w", result.Error)
+		return fmt.Errorf("failed to update permission: %w", result.Error)
 	}
 
-	return permission, nil
+	return nil
 }
 
 func (r *permissionRepository) Delete(ctx context.Context, id *uint8) error {
