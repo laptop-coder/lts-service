@@ -11,7 +11,7 @@ import (
 )
 
 type UserRepository interface {
-	GetAll(ctx context.Context, filter *UserFilter) ([]model.User, error)
+	FindAll(ctx context.Context, filter *UserFilter) ([]model.User, error)
 	GetByID(ctx context.Context, id *uuid.UUID) (*model.User, error)
 	Delete(ctx context.Context, id *uuid.UUID) error
 }
@@ -34,7 +34,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) GetAll(ctx context.Context, filter *UserFilter) ([]model.User, error) {
+func (r *userRepository) FindAll(ctx context.Context, filter *UserFilter) ([]model.User, error) {
 	if filter == nil {
 		return nil, fmt.Errorf("users list filter cannot be nil")
 	}

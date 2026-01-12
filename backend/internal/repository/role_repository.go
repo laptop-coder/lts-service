@@ -9,7 +9,7 @@ import (
 )
 
 type RoleRepository interface {
-	GetAll(ctx context.Context) ([]model.Role, error)
+	FindAll(ctx context.Context) ([]model.Role, error)
 }
 
 type roleRepository struct {
@@ -24,7 +24,7 @@ func NewRoleRepository(db *gorm.DB) RoleRepository {
 	return &roleRepository{db: db}
 }
 
-func (r *roleRepository) GetAll(ctx context.Context) ([]model.Role, error) {
+func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	var roles []model.Role
 
 	err := r.db.WithContext(ctx).

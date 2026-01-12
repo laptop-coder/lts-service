@@ -12,7 +12,7 @@ import (
 
 type PermissionRepository interface {
 	Create(ctx context.Context, permission *model.Permission) error
-	GetAll(ctx context.Context) ([]model.Permission, error)
+	FindAll(ctx context.Context) ([]model.Permission, error)
 	GetByID(ctx context.Context, id *uint8) (*model.Permission, error)
 	// ID must be set to update
 	Update(ctx context.Context, permission *model.Permission) error
@@ -44,7 +44,7 @@ func (r *permissionRepository) Create(ctx context.Context, permission *model.Per
 	return nil
 }
 
-func (r *permissionRepository) GetAll(ctx context.Context) ([]model.Permission, error) {
+func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission, error) {
 	var permissions []model.Permission
 
 	err := r.db.WithContext(ctx).

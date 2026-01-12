@@ -12,7 +12,7 @@ import (
 
 type PostRepository interface {
 	Create(ctx context.Context, post *model.Post) error
-	GetAll(ctx context.Context, filter *PostFilter) ([]model.Post, error)
+	FindAll(ctx context.Context, filter *PostFilter) ([]model.Post, error)
 	GetByID(ctx context.Context, id *uuid.UUID) (*model.Post, error)
 	// ID must be set to update
 	Update(ctx context.Context, post *model.Post) error
@@ -39,7 +39,7 @@ func NewPostRepository(db *gorm.DB) PostRepository {
 	return &postRepository{db: db}
 }
 
-func (r *postRepository) GetAll(ctx context.Context, filter *PostFilter) ([]model.Post, error) {
+func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]model.Post, error) {
 	if filter == nil {
 		return nil, fmt.Errorf("posts list filter cannot be nil")
 	}
