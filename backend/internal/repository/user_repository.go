@@ -1,4 +1,4 @@
-// Package repository provides realization of the repository pattern.
+// Package repository provides data access abstraction.
 package repository
 
 import (
