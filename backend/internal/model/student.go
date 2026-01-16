@@ -15,12 +15,12 @@ type Student struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	StudentGroupID uint8
+	StudentGroupID uint16
     // 1. Can't remove student group if there are at least one student in it. To 
     // remove the group you need to reassign all students to another group at
     // first
 	// 2. many-to-one (student-to-group)
-	StudentGroup StudentGroup `gorm:"foreignKey:StudentGroupID;constraint:OnDelete:restrict,OnUpdate:restrict"`
+	StudentGroup StudentGroup `gorm:"foreignKey:StudentGroupID;references:ID;constraint:OnDelete:restrict,OnUpdate:restrict"`
 	// many-to-many (student-to-parent)
 	Parents *[]Parent `gorm:"many2many:parent_students"`
 }

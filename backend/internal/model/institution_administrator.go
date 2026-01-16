@@ -18,5 +18,5 @@ type InstitutionAdministrator struct {
 	PositionID uint8
 	// 1. Can't remove position if there are at least one person with it
 	// 2. many-to-one (administrator-to-position)
-	Position AdministratorPosition `gorm:"foreignKey:PositionID;constraint:OnDelete:restrict,OnUpdate:restrict"`
+	Position AdministratorPosition `gorm:"foreignKey:PositionID;references:ID;constraint:OnDelete:restrict,OnUpdate:restrict"`
 }

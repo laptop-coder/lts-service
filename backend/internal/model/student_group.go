@@ -8,7 +8,7 @@ import (
 // StudentGroup is a model of the table contains info about groups of students
 // ("1А" grade, e.g.)
 type StudentGroup struct {
-	ID        uint8 `gorm:"primaryKey"`
+	ID        uint16 `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string `gorm:"type:varchar(20);unique;check:length(trim(name)) >= 1"`
