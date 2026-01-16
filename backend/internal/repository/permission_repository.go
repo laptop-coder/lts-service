@@ -1,4 +1,3 @@
-// Package repository provides realization of the repository pattern.
 package repository
 
 import (
@@ -13,8 +12,7 @@ import (
 type PermissionRepository interface {
 	Create(ctx context.Context, permission *model.Permission) error
 	FindAll(ctx context.Context) ([]model.Permission, error)
-	GetByID(ctx context.Context, id *uint8) (*model.Permission, error)
-	// ID must be set to update
+	FindByID(ctx context.Context, id *uint8) (*model.Permission, error)
 	Update(ctx context.Context, permission *model.Permission) error
 	Delete(ctx context.Context, id *uint8) error
 }
@@ -58,7 +56,7 @@ func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission,
 	return permissions, nil
 }
 
-func (r *permissionRepository) GetByID(ctx context.Context, id *uint8) (*model.Permission, error) {
+func (r *permissionRepository) FindByID(ctx context.Context, id *uint8) (*model.Permission, error) {
 	if id == nil {
 		return nil, fmt.Errorf("permission id cannot be nil")
 	}
@@ -106,7 +104,7 @@ func (r *permissionRepository) Update(ctx context.Context, permission *model.Per
 func (r *permissionRepository) Delete(ctx context.Context, id *uint8) error {
 	result := r.db.WithContext(ctx).Unscoped().Delete(&model.Permission{}, *id)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete permission: %w", result.Error)
+		return fmt.Errorf("failed to delete permission with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound

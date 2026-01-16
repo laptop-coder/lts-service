@@ -13,8 +13,7 @@ import (
 type PostRepository interface {
 	Create(ctx context.Context, post *model.Post) error
 	FindAll(ctx context.Context, filter *PostFilter) ([]model.Post, error)
-	GetByID(ctx context.Context, id *uuid.UUID) (*model.Post, error)
-	// ID must be set to update
+	FindByID(ctx context.Context, id *uuid.UUID) (*model.Post, error)
 	Update(ctx context.Context, post *model.Post) error
 	Delete(ctx context.Context, id *uuid.UUID) error
 }
@@ -24,7 +23,7 @@ type postRepository struct {
 }
 
 type PostFilter struct {
-	AuthorID             *uint8
+	AuthorID             *uuid.UUID
 	Verified             *bool
 	ThingReturnedToOwner *bool
 	Limit                int
@@ -82,7 +81,7 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 	return posts, nil
 }
 
-func (r *postRepository) GetByID(ctx context.Context, id *uuid.UUID) (*model.Post, error) {
+func (r *postRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Post, error) {
 	if id == nil {
 		return nil, fmt.Errorf("post id cannot be nil")
 	}
@@ -104,12 +103,10 @@ func (r *postRepository) Create(ctx context.Context, post *model.Post) error {
 	if post == nil {
 		return fmt.Errorf("post cannot be nil")
 	}
-
 	result := r.db.WithContext(ctx).Create(post)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create new post: %w", result.Error)
 	}
-
 	return nil
 }
 
@@ -143,7 +140,7 @@ func (r *postRepository) Update(ctx context.Context, post *model.Post) error {
 func (r *postRepository) Delete(ctx context.Context, id *uuid.UUID) error {
 	result := r.db.WithContext(ctx).Unscoped().Delete(&model.Post{}, *id)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete post with id %s: %w", id, result.Error)
+		return fmt.Errorf("failed to delete post with id %s: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
