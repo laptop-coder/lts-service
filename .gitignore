@@ -9,6 +9,5 @@ cache
 data
 db
 dist
-env
 node_modules
 storage
