@@ -66,6 +66,7 @@ func main() {
 		userRepo,
 		db,
 		serviceConfigs.User,
+		log,
 	)
 
 	// Handlers

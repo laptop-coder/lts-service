@@ -4,6 +4,7 @@ package service
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/logger"
 	"context"
 	"errors"
 	"fmt"
@@ -52,6 +53,7 @@ type userService struct {
 	userRepo repository.UserRepository
 	db       *gorm.DB
 	config   UserServiceConfig
+	log      logger.Logger
 }
 
 type UserService interface {
@@ -62,11 +64,13 @@ func NewUserService(
 	userRepo repository.UserRepository,
 	db *gorm.DB,
 	config UserServiceConfig,
+	log logger.Logger,
 ) UserService {
 	return &userService{
 		userRepo: userRepo,
 		db:       db,
-		config: config,
+		config:   config,
+		log:      log,
 	}
 }
 
@@ -115,7 +119,7 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 	}
 	// Transaction for creating user
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		txRepo := repository.NewUserRepository(tx)
+		txRepo := repository.NewUserRepository(tx, s.log)
 		if err := txRepo.Create(ctx, user); err != nil {
 			// Delete the saved avatar, if the transaction is rolled back
 			if hasAvatar {
