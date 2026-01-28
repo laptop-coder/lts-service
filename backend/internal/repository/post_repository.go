@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -19,7 +19,8 @@ type PostRepository interface {
 }
 
 type postRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
 type PostFilter struct {
@@ -30,12 +31,12 @@ type PostFilter struct {
 	Offset               int
 }
 
-func NewPostRepository(db *gorm.DB) PostRepository {
+func NewPostRepository(db *gorm.DB, log logger.Logger) PostRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &postRepository{db: db}
+	return &postRepository{db: db, log: log}
 }
 
 func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]model.Post, error) {
@@ -120,7 +121,7 @@ func (r *postRepository) Update(ctx context.Context, post *model.Post) error {
 		Model(&model.Post{}).
 		Where("id = ?", post.ID).
 		Count(&count).Error
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check post existence: %w", err)
 	}

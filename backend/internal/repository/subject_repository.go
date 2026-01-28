@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -18,15 +18,16 @@ type SubjectRepository interface {
 }
 
 type subjectRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
-func NewSubjectRepository(db *gorm.DB) SubjectRepository {
+func NewSubjectRepository(db *gorm.DB, log logger.Logger) SubjectRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &subjectRepository{db: db}
+	return &subjectRepository{db: db, log: log}
 }
 
 func (r *subjectRepository) Create(ctx context.Context, subject *model.Subject) error {
@@ -46,7 +47,7 @@ func (r *subjectRepository) FindAll(ctx context.Context) ([]model.Subject, error
 	var subjects []model.Subject
 
 	err := r.db.WithContext(ctx).
-	    Model(&model.Subject{}).
+		Model(&model.Subject{}).
 		Order("name").
 		Find(&subjects).Error
 	if err != nil {
@@ -84,7 +85,7 @@ func (r *subjectRepository) Update(ctx context.Context, subject *model.Subject) 
 		Model(&model.Subject{}).
 		Where("id = ?", subject.ID).
 		Count(&count).Error
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check subject existence: %w", err)
 	}

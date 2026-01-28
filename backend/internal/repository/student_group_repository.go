@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -19,21 +19,22 @@ type StudentGroupRepository interface {
 }
 
 type studentGroupRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
 type StudentGroupFilter struct {
 	GroupAdvisorID *uuid.UUID
-	Limit  int
-	Offset int
+	Limit          int
+	Offset         int
 }
 
-func NewStudentGroupRepository(db *gorm.DB) StudentGroupRepository {
+func NewStudentGroupRepository(db *gorm.DB, log logger.Logger) StudentGroupRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &studentGroupRepository{db: db}
+	return &studentGroupRepository{db: db, log: log}
 }
 
 func (r *studentGroupRepository) Create(ctx context.Context, studentGroup *model.StudentGroup) error {
@@ -107,7 +108,7 @@ func (r *studentGroupRepository) Update(ctx context.Context, studentGroup *model
 		Model(&model.StudentGroup{}).
 		Where("id = ?", studentGroup.ID).
 		Count(&count).Error
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check student group existence (id %d): %w", studentGroup.ID, err)
 	}

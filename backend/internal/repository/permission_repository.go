@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -18,15 +18,16 @@ type PermissionRepository interface {
 }
 
 type permissionRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
-func NewPermissionRepository(db *gorm.DB) PermissionRepository {
+func NewPermissionRepository(db *gorm.DB, log logger.Logger) PermissionRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &permissionRepository{db: db}
+	return &permissionRepository{db: db, log: log}
 }
 
 func (r *permissionRepository) Create(ctx context.Context, permission *model.Permission) error {
@@ -46,7 +47,7 @@ func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission,
 	var permissions []model.Permission
 
 	err := r.db.WithContext(ctx).
-	    Model(&model.Permission{}).
+		Model(&model.Permission{}).
 		Order("name").
 		Find(&permissions).Error
 	if err != nil {
@@ -84,7 +85,7 @@ func (r *permissionRepository) Update(ctx context.Context, permission *model.Per
 		Model(&model.Permission{}).
 		Where("id = ?", permission.ID).
 		Count(&count).Error
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check permission existence: %w", err)
 	}

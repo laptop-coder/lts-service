@@ -2,10 +2,10 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -23,7 +23,8 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
 type UserFilter struct {
@@ -32,12 +33,12 @@ type UserFilter struct {
 	Offset int
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
+func NewUserRepository(db *gorm.DB, log logger.Logger) UserRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &userRepository{db: db}
+	return &userRepository{db: db, log: log}
 }
 
 func (r *userRepository) Create(ctx context.Context, user *model.User) error {
@@ -152,7 +153,7 @@ func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 		Model(&model.User{}).
 		Where("id = ?", user.ID).
 		Count(&count).Error
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check user existence: %w", err)
 	}

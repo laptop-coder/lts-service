@@ -2,7 +2,6 @@
 package main
 
 import (
-	"strconv"
 	"backend/internal/config"
 	"backend/internal/database"
 	"backend/internal/handler"
@@ -16,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
@@ -55,7 +55,7 @@ func main() {
 
 	// Repositories
 	log.Info("Initializing repositories...")
-	userRepo := repository.NewUserRepository(db)
+	userRepo := repository.NewUserRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")

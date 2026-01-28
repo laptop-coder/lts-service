@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -18,15 +18,16 @@ type RoomRepository interface {
 }
 
 type roomRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
-func NewRoomRepository(db *gorm.DB) RoomRepository {
+func NewRoomRepository(db *gorm.DB, log logger.Logger) RoomRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &roomRepository{db: db}
+	return &roomRepository{db: db, log: log}
 }
 
 func (r *roomRepository) Create(ctx context.Context, room *model.Room) error {
@@ -46,7 +47,7 @@ func (r *roomRepository) FindAll(ctx context.Context) ([]model.Room, error) {
 	var rooms []model.Room
 
 	err := r.db.WithContext(ctx).
-	    Model(&model.Room{}).
+		Model(&model.Room{}).
 		Order("name").
 		Find(&rooms).Error
 	if err != nil {
@@ -84,7 +85,7 @@ func (r *roomRepository) Update(ctx context.Context, room *model.Room) error {
 		Model(&model.Room{}).
 		Where("id = ?", room.ID).
 		Count(&count).Error
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to check room existence: %w", err)
 	}

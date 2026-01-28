@@ -2,7 +2,7 @@ package repository
 
 import (
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
 	"fmt"
 	"gorm.io/gorm"
@@ -13,15 +13,16 @@ type StudentRepository interface {
 }
 
 type studentRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
-func NewStudentRepository(db *gorm.DB) StudentRepository {
+func NewStudentRepository(db *gorm.DB, log logger.Logger) StudentRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &studentRepository{db: db}
+	return &studentRepository{db: db, log: log}
 }
 
 func (r *studentRepository) FindByGroupID(ctx context.Context, id *uint16) ([]model.Student, error) {

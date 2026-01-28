@@ -2,7 +2,7 @@ package repository
 
 import (
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"context"
 	"fmt"
 	"gorm.io/gorm"
@@ -13,22 +13,23 @@ type RoleRepository interface {
 }
 
 type roleRepository struct {
-	db *gorm.DB
+	db  *gorm.DB
+	log logger.Logger
 }
 
-func NewRoleRepository(db *gorm.DB) RoleRepository {
+func NewRoleRepository(db *gorm.DB, log logger.Logger) RoleRepository {
 	if db == nil {
 		log.Error("DB is nil")
 		panic("DB is nil")
 	}
-	return &roleRepository{db: db}
+	return &roleRepository{db: db, log: log}
 }
 
 func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	var roles []model.Role
 
 	err := r.db.WithContext(ctx).
-	    Model(&model.Role{}).
+		Model(&model.Role{}).
 		Order("name").
 		Find(&roles).Error
 	if err != nil {
