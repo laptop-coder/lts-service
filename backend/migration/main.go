@@ -5,7 +5,6 @@ import (
 	"backend/internal/database"
 	"backend/internal/model"
 	"backend/pkg/logger"
-	"fmt"
 	"backend/pkg/env"
 )
 
@@ -39,27 +38,27 @@ func main(){
 	defer database.Close(db)
 	log.Info("Database connected successfully")
 
-	if err := db.AutoMigrate(
-		&model.Role{},
-		&model.Permission{},
-		&model.AdministratorPosition{},
-		&model.StaffPosition{},
-		&model.Room{},
-		&model.Subject{},
-		&model.User{},
-		&model.InstitutionAdministrator{},
-		&model.Staff{},
-		&model.Teacher{},
-		&model.StudentGroup{},
-		&model.Student{},
-		&model.Parent{},
-		&model.Post{},
+	if err := database.Migrate(
+		db,
+		[]any{
+			&model.Role{},
+			&model.Permission{},
+			&model.AdministratorPosition{},
+			&model.StaffPosition{},
+			&model.Room{},
+			&model.Subject{},
+			&model.User{},
+			&model.InstitutionAdministrator{},
+			&model.Staff{},
+			&model.Teacher{},
+			&model.StudentGroup{},
+			&model.Student{},
+			&model.Parent{},
+			&model.Post{},
+		},
 	); err != nil {
-		msg := fmt.Sprintf(
-				"cannot make migration: %s", err.Error(),
-			)
-		log.Error(msg)
-		panic(msg)
+		log.Error("Cannot make migration", err)
+		panic(err)
 	}
 
 	// Add constraints (e.g., foreign key ON DELETE)
