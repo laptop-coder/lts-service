@@ -1,16 +1,44 @@
-// Package migration provides function to make migrations.
 package migration
 
 import (
 	"gorm.io/gorm"
 	"backend/internal/database"
 	"backend/internal/model"
-	log "backend/pkg/logger"
+	"backend/pkg/logger"
 	"fmt"
+	"backend/pkg/env"
 )
 
 func main(){
-	db := database.SetUpDatabase()
+	// Logger
+	log := logger.New()
+	log.Info("Starting application...")
+
+	// Database
+	log.Info("Initializing database...")
+	db, err := database.Connect(
+		database.Config{
+			DBName:   env.GetStringRequired("POSTGRES_DB"),
+			Host:     env.GetStringRequired("POSTGRES_HOST"),
+			Password: env.GetStringRequired("POSTGRES_PASSWORD"),
+			Port:     env.GetIntRequired("POSTGRES_PORT"),
+			SSLMode: func() string {
+				if env.GetBoolRequired("POSTGRES_SSL_MODE") {
+					return "enable"
+				}
+				return "disable"
+			}(),
+			TimeZone: env.GetStringRequired("POSTGRES_TIME_ZONE"),
+			User:     env.GetStringRequired("POSTGRES_USER"),
+		},
+	)
+	if err != nil {
+		log.Error("Cannot initialize database")
+		panic("Cannot initialize database")
+	}
+	defer database.Close(db)
+	log.Info("Database connected successfully")
+
 	if err := db.AutoMigrate(
 		&model.Role{},
 		&model.Permission{},
