@@ -8,11 +8,20 @@ import (
 
 func jsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(statusCode)
 
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, `{"error": "Failed to encode response"}`, http.StatusInternalServerError)
+	encodedData, err := json.Marshal(data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to encode response to JSON",
+		}); err != nil {
+			panic(err)
+		}
+		return
 	}
+
+	w.WriteHeader(statusCode)
+	w.Write(encodedData)
 }
 
 func errorResponse(w http.ResponseWriter, message string, statusCode int) {
