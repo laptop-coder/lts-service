@@ -1,0 +1,118 @@
+// Package main is the entrypoint of the backend app.
+package main
+
+import (
+	"strconv"
+	"backend/internal/config"
+	"backend/internal/database"
+	"backend/internal/handler"
+	"backend/internal/repository"
+	"backend/internal/service"
+	"backend/pkg/env"
+	"backend/pkg/logger"
+	"backend/pkg/middleware"
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+func main() {
+	// Logger
+	log := logger.New()
+	log.Info("Starting application...")
+
+	// App config
+	appConfig := config.LoadAppConfig()
+
+	// Database
+	log.Info("Initializing database...")
+	db, err := database.Connect(
+		database.Config{
+			DBName:   env.GetStringRequired("POSTGRES_DB"),
+			Host:     env.GetStringRequired("POSTGRES_HOST"),
+			Password: env.GetStringRequired("POSTGRES_PASSWORD"),
+			Port:     env.GetIntRequired("POSTGRES_PORT"),
+			SSLMode: func() string {
+				if env.GetBoolRequired("POSTGRES_SSL_MODE") {
+					return "enable"
+				}
+				return "disable"
+			}(),
+			TimeZone: env.GetStringRequired("POSTGRES_TIME_ZONE"),
+			User:     env.GetStringRequired("POSTGRES_USER"),
+		},
+	)
+	if err != nil {
+		log.Error("Cannot initialize database")
+		panic("Cannot initialize database")
+	}
+	defer database.Close(db)
+	log.Info("Database connected successfully")
+
+	// Repositories
+	log.Info("Initializing repositories...")
+	userRepo := repository.NewUserRepository(db)
+
+	// Services
+	log.Info("Creating service configurations...")
+	serviceConfigs := config.NewServiceConfigs()
+
+	log.Info("Initializing services...")
+	userService := service.NewUserService(
+		userRepo,
+		db,
+		serviceConfigs.User,
+	)
+
+	// Handlers
+	log.Info("Initializing handlers...")
+	authHandler := handler.NewUserHandler(userService)
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("POST /api/v1/auth/register", authHandler.Register)
+
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{"status": "ok", "timestamp": "%s"}`, time.Now().Format(time.RFC3339))
+	})
+
+	// Middleware
+	var handler http.Handler = mux
+	handler = middleware.Logging(log, handler)
+
+	// Server
+	server := &http.Server{
+		Addr:    ":" + strconv.Itoa(appConfig.Port),
+		Handler: handler,
+	}
+
+	go func() {
+		log.Info("Starting server on port", strconv.Itoa(appConfig.Port))
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("Failed to start server", "error", err)
+			panic(err)
+		}
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Error("Server forced to shutdown", "error", err)
+	}
+
+	log.Info("Server exited properly")
+}
