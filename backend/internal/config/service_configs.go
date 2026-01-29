@@ -8,17 +8,17 @@ type ServiceConfigs struct {
 	User service.UserServiceConfig
 }
 
-func NewServiceConfigs() ServiceConfigs {
+func NewServiceConfigs(sharedConfig SharedConfig) ServiceConfigs {
 	return ServiceConfigs{
-		User: newUserServiceConfig(),
+		User: newUserServiceConfig(sharedConfig),
 	}
 }
 
-func newUserServiceConfig() service.UserServiceConfig {
+func newUserServiceConfig(sharedConfig SharedConfig) service.UserServiceConfig {
 	return service.UserServiceConfig{
-		BcryptCost:             Bcrypt.Cost,
-		AvatarMaxSize:          Storage.Avatar.MaxSize,
-		AvatarUploadPath:       Storage.Avatar.UploadPath,
-		AvatarAllowedMIMETypes: Storage.Avatar.AllowedMIMETypes,
+		BcryptCost:             sharedConfig.Security.BcryptCost,
+		AvatarMaxSize:          sharedConfig.Storage.Avatar.MaxSize,
+		AvatarUploadPath:       sharedConfig.Storage.Avatar.UploadPath,
+		AvatarAllowedMIMETypes: sharedConfig.Storage.Avatar.AllowedMIMETypes,
 	}
 }

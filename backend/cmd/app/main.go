@@ -25,8 +25,10 @@ func main() {
 	log := logger.New()
 	log.Info("Starting application...")
 
-	// App config
+	// Configs
+	log.Info("Loading configurations...")
 	appConfig := config.LoadAppConfig()
+	sharedConfig := config.LoadSharedConfig()
 
 	// Database
 	log.Info("Initializing database...")
@@ -59,7 +61,7 @@ func main() {
 
 	// Services
 	log.Info("Creating service configurations...")
-	serviceConfigs := config.NewServiceConfigs()
+	serviceConfigs := config.NewServiceConfigs(sharedConfig)
 
 	log.Info("Initializing services...")
 	userService := service.NewUserService(
