@@ -9,10 +9,17 @@ services:
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-54321}:5432"
     volumes:
       - ./data/pg:/var/lib/postgresql/data/pgdata
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - lts_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     image: laptopcoder/lts-service-backend:latest
@@ -22,7 +29,6 @@ services:
       - /etc/localtime:/etc/localtime
       - ./data/db:/backend/data/db
       - ./data/env:/env
-      - ./data/logs:/backend/data/logs
       - ./data/storage:/backend/data/storage
     environment:
       - PATH_TO_DB=/backend/data/db/db.sqlite3
@@ -30,8 +36,7 @@ services:
       - PATH_TO_STORAGE=/backend/data/storage
       - RSA_PRIVATE_KEY=RSA_private_key.pem
       - RSA_PUBLIC_KEY=RSA_public_key.pem
-      - PATH_TO_LOGS=/backend/data/logs
-      - BACKEND_LOG=backend.log
+      - POSTGRES_HOST=postgres
     env_file:
       - .env
     networks:
@@ -39,7 +44,8 @@ services:
     ports:
       - "37190:37190"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
     image: laptopcoder/lts-service-frontend:latest
