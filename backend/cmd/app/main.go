@@ -35,7 +35,7 @@ func main() {
 			DBName:   env.GetStringRequired("POSTGRES_DB"),
 			Host:     env.GetStringRequired("POSTGRES_HOST"),
 			Password: env.GetStringRequired("POSTGRES_PASSWORD"),
-			Port:     env.GetIntRequired("POSTGRES_PORT"),
+			Port:     5432,
 			SSLMode: func() string {
 				if env.GetBoolRequired("POSTGRES_SSL_MODE") {
 					return "enable"
