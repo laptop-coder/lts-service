@@ -1,26 +1,26 @@
-package migration
+package main
 
 import (
-	"gorm.io/gorm"
 	"backend/internal/database"
 	"backend/internal/model"
-	"backend/pkg/logger"
 	"backend/pkg/env"
+	"backend/pkg/logger"
+	"gorm.io/gorm"
 )
 
-func main(){
+func main() {
 	// Logger
 	log := logger.New()
-	log.Info("Starting application...")
+	log.Info("MIGRATION | Starting...")
 
 	// Database
-	log.Info("Initializing database...")
+	log.Info("MIGRATION | Initializing database...")
 	db, err := database.Connect(
 		database.Config{
 			DBName:   env.GetStringRequired("POSTGRES_DB"),
 			Host:     env.GetStringRequired("POSTGRES_HOST"),
 			Password: env.GetStringRequired("POSTGRES_PASSWORD"),
-			Port:     env.GetIntRequired("POSTGRES_PORT"),
+			Port:     5432,
 			SSLMode: func() string {
 				if env.GetBoolRequired("POSTGRES_SSL_MODE") {
 					return "enable"
@@ -32,11 +32,11 @@ func main(){
 		},
 	)
 	if err != nil {
-		log.Error("Cannot initialize database")
+		log.Error("MIGRATION | Cannot initialize database")
 		panic("Cannot initialize database")
 	}
 	defer database.Close(db)
-	log.Info("Database connected successfully")
+	log.Info("MIGRATION | Database connected successfully")
 
 	if err := database.Migrate(
 		db,
@@ -57,7 +57,7 @@ func main(){
 			&model.Post{},
 		},
 	); err != nil {
-		log.Error("Cannot make migration", err)
+		log.Error("MIGRATION | Cannot make migration", err)
 		panic(err)
 	}
 
@@ -66,10 +66,10 @@ func main(){
 		if err := model.AddConstraintsRolePermissions(tx); err != nil {
 			return err
 		}
-		if err:=model.AddConstraintsUserRoles(tx); err != nil {
+		if err := model.AddConstraintsUserRoles(tx); err != nil {
 			return err
 		}
-		if err:=model.AddConstraintsTeacherSubjects(tx); err != nil {
+		if err := model.AddConstraintsTeacherSubjects(tx); err != nil {
 			return err
 		}
 		if err := model.AddConstraintsParentStudents(tx); err != nil {
@@ -77,8 +77,7 @@ func main(){
 		}
 		return nil
 	}); err != nil {
-		msg := "cannot add constraints"
-		log.Error(msg)
-		panic(msg)
+		log.Error("MIGRATION | Cannot add constraints")
+		panic("Cannot add constraints")
 	}
 }
