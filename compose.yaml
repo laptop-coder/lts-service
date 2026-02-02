@@ -12,7 +12,6 @@ services:
       - "${POSTGRES_PORT:-54321}:5432"
     volumes:
       - ./data/pg:/var/lib/postgresql/data/pgdata
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - lts_network
     healthcheck:
