@@ -96,7 +96,7 @@ func main() {
 	}
 
 	go func() {
-		log.Info("Starting server on port", strconv.Itoa(appConfig.Port))
+		log.Info("Starting server...", "port", strconv.Itoa(appConfig.Port))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error("Failed to start server", "error", err)
 			panic(err)
