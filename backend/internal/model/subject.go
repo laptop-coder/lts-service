@@ -12,5 +12,5 @@ type Subject struct {
 	UpdatedAt time.Time
 	Name      string `gorm:"type:varchar(100);unique;check:length(trim(name)) >= 3"`
 	// many-to-many (teacher-to-subject)
-	Teachers []Teacher `gorm:"many2many:teacher_subjects"`
+	Teachers []Teacher `gorm:"many2many:teacher_subjects;foreignKey:ID;joinForeignKey:SubjectID;references:UserID;joinReferences:TeacherId"`
 }

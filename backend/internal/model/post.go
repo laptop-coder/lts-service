@@ -21,9 +21,5 @@ type Post struct {
 	ThingReturnedToOwner bool `gorm:"type:boolean;default:false;check:(thing_returned_to_owner=true and verified=true) or thing_returned_to_owner=false"`
 	// the logic is the same as for user's avatar
 	HasPhoto bool `gorm:"type:boolean;default:false"`
-
 	AuthorID uuid.UUID `gorm:"type:uuid"`
-	// 1. Removing of the user will cause removing all of his posts
-	// 2. many-to-one (post-to-author, i.e. post-to-user)
-	Author User `gorm:"foreignKey:AuthorID;constraint:OnDelete:cascade,OnUpdate:restrict"`
 }

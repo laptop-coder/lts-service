@@ -9,20 +9,21 @@ import (
 // Parent is a table (model), that contains info, related only to parents.
 // This table extends the "users" table
 type Parent struct {
-	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
 	// one-to-one (parent-to-user)
-	User User `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:cascade,OnUpdate:restrict"`
+	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
 	// many-to-many (parent-to-student)
-	Students *[]Student `gorm:"many2many:parent_students"`
+	Students *[]Student `gorm:"many2many:parent_students;foreignKey:UserID;joinForeignKey:ParentId;references:UserID;joinReferences:StudentID"`
 }
 
 func AddConstraintsParentStudents(db *gorm.DB) error {
 	return db.Exec(`
         ALTER TABLE parent_students 
+		    DROP CONSTRAINT IF EXISTS fk_parent_students_parent,
+		    DROP CONSTRAINT IF EXISTS fk_parent_students_student,
 			ADD CONSTRAINT fk_parent_students_parent
 				FOREIGN KEY (parent_id) REFERENCES parents(user_id)
 				ON DELETE CASCADE

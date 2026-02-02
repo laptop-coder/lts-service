@@ -10,5 +10,5 @@ type Permission struct {
 	UpdatedAt time.Time
 	Name      string `gorm:"type:varchar(150);unique;check:length(trim(name)) >= 6"`
 	// many-to-many (permission-to-role)
-	Roles []Role `gorm:"many2many:role_permissions"`
+	Roles []Role `gorm:"many2many:role_permissions;foreignKey:ID;joinForeignKey:PermissionID;references:ID;joinReferences:RoleID"`
 }

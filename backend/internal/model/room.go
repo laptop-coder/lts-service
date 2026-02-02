@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"github.com/google/uuid"
 )
 
 // Room provides model of table with list of rooms (cabinets, dining room, etc.)
@@ -11,5 +12,5 @@ type Room struct {
 	UpdatedAt time.Time
 	Name      string `gorm:"type:varchar(20);unique;check:length(trim(name)) >= 1"`
 	// one-to-one (room-to-teacher)
-	Teacher *Teacher
+	TeacherID uuid.UUID `gorm:"type:uuid"`
 }
