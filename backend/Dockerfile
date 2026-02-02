@@ -13,15 +13,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s -extldflags "-static"' 
 FROM debian:12.11-slim
 COPY --from=builder /app/bin/main /usr/local/bin/app
 COPY --from=builder /app/bin/migrate /usr/local/bin/migrate
-
-RUN adduser appuser
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN adduser appuser && \
+    chown appuser /app/entrypoint.sh /usr/local/bin/app /usr/local/bin/migrate && \
+    chmod u+x /app/entrypoint.sh /usr/local/bin/app /usr/local/bin/migrate
 USER appuser
-
 WORKDIR /app
-
-EXPOSE 37190
-
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:37190/health || exit 1
-
-ENTRYPOINT ["/usr/local/bin/app"]
+EXPOSE 37190
+ENTRYPOINT ["./entrypoint.sh"]
