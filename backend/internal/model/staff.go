@@ -12,6 +12,6 @@ type Staff struct {
 	UpdatedAt time.Time
 
 	// one-to-one (staff-to-user)
-	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserID     uuid.UUID `gorm:"type:uuid;primaryKey"`
 	PositionID uint8
 }

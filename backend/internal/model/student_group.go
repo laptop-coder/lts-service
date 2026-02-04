@@ -14,9 +14,9 @@ type StudentGroup struct {
 	Name      string `gorm:"type:varchar(20);unique;check:length(trim(name)) >= 1"`
 
 	GroupAdvisorID *uuid.UUID `gorm:"type:uuid;default:null"`
-    // 1. Can't remove student group if there are at least one student in it. To 
-    // remove the group you need to reassign all students to another group at
-    // first
+	// 1. Can't remove student group if there are at least one student in it. To
+	// remove the group you need to reassign all students to another group at
+	// first
 	// 2. one-to-many (group-to-student)
 	Students []Student `gorm:"foreignKey:StudentGroupID;references:ID;constraint:OnDelete:restrict,OnUpdate:restrict"`
 }

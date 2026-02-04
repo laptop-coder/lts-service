@@ -2,27 +2,27 @@
 package env
 
 import (
-	"strings"
-	"strconv"
-	"os"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
-func GetString (key string, defaultValue string) string {
+func GetString(key string, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
 	return defaultValue
 }
 
-func GetStringRequired (key string) string {
+func GetStringRequired(key string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
 	panic(fmt.Sprintf("environment variable %s is required", key))
 }
 
-func GetInt (key string, defaultValue int) int {
+func GetInt(key string, defaultValue int) int {
 	if value, exists := os.LookupEnv(key); exists {
 		intValue, err := strconv.Atoi(value)
 		if err != nil {
@@ -33,7 +33,7 @@ func GetInt (key string, defaultValue int) int {
 	return defaultValue
 }
 
-func GetIntRequired (key string) int {
+func GetIntRequired(key string) int {
 	value := GetStringRequired(key)
 	intValue, err := strconv.Atoi(value)
 	if err != nil {
@@ -42,7 +42,7 @@ func GetIntRequired (key string) int {
 	return intValue
 }
 
-func GetBool (key string, defaultValue bool) bool {
+func GetBool(key string, defaultValue bool) bool {
 	if value, exists := os.LookupEnv(key); exists {
 		value = strings.ToLower(strings.TrimSpace(value))
 		switch value {
@@ -57,16 +57,15 @@ func GetBool (key string, defaultValue bool) bool {
 	return defaultValue
 }
 
-func GetBoolRequired (key string) bool {
+func GetBoolRequired(key string) bool {
 	value := GetStringRequired(key)
 	value = strings.ToLower(strings.TrimSpace(value))
 	switch value {
 	case "true", "1", "yes", "y", "on", "enable":
 		return true
 	case "false", "0", "no", "n", "off", "disable":
-	    return false
+		return false
 	default:
 		panic(fmt.Sprintf("boolean env variable %s must be true/false, 1/0, yes/no or on/off", key))
 	}
 }
-

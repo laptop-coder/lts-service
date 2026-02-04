@@ -1,8 +1,8 @@
 package model
 
 import (
-	"time"
 	"github.com/google/uuid"
+	"time"
 )
 
 // Room provides model of table with list of rooms (cabinets, dining room, etc.)

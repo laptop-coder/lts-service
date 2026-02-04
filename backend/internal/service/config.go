@@ -5,9 +5,8 @@ type Config struct {
 }
 
 type UserServiceConfig struct {
-	BcryptCost int
-	AvatarMaxSize int64
-	AvatarUploadPath string
+	BcryptCost             int
+	AvatarMaxSize          int64
+	AvatarUploadPath       string
 	AvatarAllowedMIMETypes []string
 }
-

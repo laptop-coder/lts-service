@@ -12,6 +12,6 @@ type InstitutionAdministrator struct {
 	UpdatedAt time.Time
 
 	// one-to-one (administrator-to-user)
-	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserID     uuid.UUID `gorm:"type:uuid;primaryKey"`
 	PositionID uint8
 }

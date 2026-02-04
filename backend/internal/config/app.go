@@ -1,14 +1,14 @@
 package config
 
 import (
-	// "backend/pkg/env"
+// "backend/pkg/env"
 )
 
 type AppConfig struct {
 	Port int
 }
 
-func  LoadAppConfig() AppConfig {
+func LoadAppConfig() AppConfig {
 	return AppConfig{
 		Port: 37190,
 	}

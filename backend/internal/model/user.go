@@ -64,4 +64,3 @@ func AddConstraintsUserRoles(db *gorm.DB) error {
 				ON UPDATE RESTRICT;
     `).Error
 }
-
