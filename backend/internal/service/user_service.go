@@ -29,7 +29,7 @@ type CreateUserDTO struct {
 	FirstName  string                `form:"firstName" validate:"required,min=2"`
 	MiddleName *string               `form:"middleName,omitempty"`
 	LastName   string                `form:"lastName" validate:"required,min=2"`
-	RoleID     uint8                 `form:"roleId,omitempty"`
+	RoleID     *uint8                 `form:"roleId,omitempty"`
 	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
 }
 
@@ -42,6 +42,21 @@ type UserResponseDTO struct {
 	HasAvatar  bool      `json:"hasAvatar"`
 	Roles      []RoleDTO `json:"roles"`
 	CreatedAt  string    `json:"createdAt"`
+}
+
+type ChangePasswordDTO struct {
+	OldPassword string `form:"oldPassword" validate:"required"`
+	// TODO: move password min length to config
+	NewPassword string `form:"newPassword" validate:"required,min=8"`
+}
+
+type UpdateUserDTO struct {
+	Email      *string               `form:"email,omitempty" validate:"email,min=5"`
+	FirstName  *string               `form:"firstName,omitempty" validate:"min=2"`
+	MiddleName *string               `form:"middleName,omitempty"`
+	LastName   *string               `form:"lastName,omitempty" validate:"min=2"`
+	RoleID     *uint8                `form:"roleId,omitempty"`
+	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
 }
 
 type RoleDTO struct {
@@ -57,7 +72,19 @@ type userService struct {
 }
 
 type UserService interface {
+	// CRUD
 	CreateUser(ctx context.Context, dto CreateUserDTO) (*UserResponseDTO, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error)
+	GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error)
+	GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error)
+	DeleteUser(ctx context.Context, id uuid.UUID) error
+
+	ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
+	UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
+	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
+
+	GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
 
 func NewUserService(
