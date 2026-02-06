@@ -167,6 +167,17 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 	return s.userToDTO(createdUser), nil
 }
 
+func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error) {
+	user, err := s.userRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return nil, fmt.Errorf("user with id %s was not found: %w", id, err)
+		}
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	return s.userToDTO(user), nil
+}
+
 func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error {
 	// Check file size
 	if fileHeader.Size > s.config.AvatarMaxSize {
