@@ -178,6 +178,17 @@ func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserRespo
 	return s.userToDTO(user), nil
 }
 
+func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error) {
+	user, err := s.userRepo.FindByEmail(ctx, &email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return nil, fmt.Errorf("user was not found by email: %w", err)
+		}
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	return s.userToDTO(user), nil
+}
+
 func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error {
 	// Check file size
 	if fileHeader.Size > s.config.AvatarMaxSize {
