@@ -189,6 +189,36 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserRe
 	return s.userToDTO(user), nil
 }
 
+func (s *userService) GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error) {
+	users, err := s.userRepo.FindAll(ctx, &filter)
+	if err != nil {
+		s.log.Error(
+			"failed to get users from repository",
+			"role id",
+			filter.RoleID,
+			"limit",
+			filter.Limit,
+			"offset",
+			filter.Offset,
+			"error",
+			err,
+		)
+		return nil, fmt.Errorf(
+			"failed to get users from repository (role id: %d, limit: %d, offset: %d): %w",
+			filter.RoleID,
+			filter.Limit,
+			filter.Offset,
+			err,
+		)
+	}
+	userDTOs := make([]UserResponseDTO, len(users))
+	for i, user := range users {
+		userDTOs[i] = *s.userToDTO(&user)
+	}
+	s.log.Info("successfully received the list of users")
+	return userDTOs, nil
+}
+
 func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error {
 	// Check file size
 	if fileHeader.Size > s.config.AvatarMaxSize {
