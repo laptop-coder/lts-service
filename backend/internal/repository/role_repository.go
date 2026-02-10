@@ -10,6 +10,7 @@ import (
 
 type RoleRepository interface {
 	FindAll(ctx context.Context) ([]model.Role, error)
+	FindByIDs(ctx context.Context, ids []uint8) ([]model.Role, error)
 }
 
 type roleRepository struct {
@@ -36,5 +37,18 @@ func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 		return nil, fmt.Errorf("failed to fetch roles list: %w", err)
 	}
 
+	return roles, nil
+}
+
+func (r *roleRepository) FindByIDs(ctx context.Context, ids uint8) ([]model.Role, error) {
+	var roles []model.Role
+	err := r.db.WithContext(ctx).
+		Where("id IN ?", ids).
+		Find(&roles).
+		Order("name").
+		Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch roles list (by ids): %w", err)
+	}
 	return roles, nil
 }
