@@ -306,6 +306,7 @@ func (s *userService) saveAvatarFile(userID uuid.UUID, fileHeader *multipart.Fil
 	// Creating file path (where to save avatar)
 	filePath := filepath.Join(
 		s.config.AvatarUploadPath,
+		// TODO: convert to jpeg. Now it is not converting, but only renaming
 		fmt.Sprintf("%s.jpeg", userID.String()),
 	)
 	// Creating file in storage

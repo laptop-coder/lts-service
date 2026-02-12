@@ -8,6 +8,7 @@ import (
 
 type AuthHandler struct {
 	userService service.UserService
+	userServiceConfig service.UserServiceConfig
 }
 
 func NewAuthHandler(userService service.UserService) *AuthHandler {
@@ -24,31 +25,46 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10 MB
 
+	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		errorResponse(w, "failed to parse form", http.StatusBadRequest)
+		errorResponse(w, "failed to parse multipart/formdata form", http.StatusBadRequest)
 		return
 	}
 
+	fieldsData := make(map[string]string)
+	for _, s := range []string{"email", "password", "firstName", "lastName"} {
+		formFields := r.PostForm[s]
+		if len(formFields) > 1 {
+			errorResponse(w, fmt.Sprintf("failed to parse form: too much %s fields", s), http.StatusBadRequest)
+			return
+		} else if len(formFields) == 0 {
+			errorResponse(w, fmt.Sprintf("failed to parse form: %s field cannot be empty", s), http.StatusBadRequest)
+			return
+		}
+		fieldsData[s] = formFields[0]
+	}
 	dto := service.CreateUserDTO{
-		Email:     r.FormValue("email"),
-		Password:  r.FormValue("password"),
-		FirstName: r.FormValue("firstName"),
-		LastName:  r.FormValue("lastName"),
+		Email:     fieldsData["email"],
+		Password:  fieldsData["password"],
+		FirstName: fieldsData["firstName"],
+		LastName:  fieldsData["lastName"],
 	}
 
 	// Middle name (optional)
-	if middleName := r.FormValue("middleName"); middleName != "" {
-		dto.MiddleName = &middleName
+	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
+		dto.MiddleName = &middleNameFields[0]
+	} else if len(middleNameFields) != 0 {
+		errorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
+		return
 	}
 
 	// Avatar (optional)
-	file, fileHeader, err := r.FormFile("avatar")
-	if err == nil {
-		defer file.Close()
-		dto.Avatar = fileHeader
-	} else if err != http.ErrMissingFile {
-		errorResponse(w, fmt.Sprintf("failed to get avatar: %s", err.Error()), http.StatusBadRequest)
+	formFiles := r.MultipartForm.File["avatar"]
+	if len(formFiles) > 1 {
+		errorResponse(w, "failed to parse form: to much avatar files", http.StatusBadRequest)
 		return
+	} else if len(formFiles) == 1 {
+		dto.Avatar = formFiles[0]
 	}
 
 	userResponse, err := h.userService.CreateUser(r.Context(), dto)
