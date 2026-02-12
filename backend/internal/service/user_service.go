@@ -101,7 +101,7 @@ func NewUserService(
 
 func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserResponseDTO, error) {
 	// Input data validation
-	if err := validateCreateUserDTO(&dto); err != nil {
+	if err := s.validateCreateUserDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during user creation: %w", err)
 	}
 	// Check email uniqueness
@@ -171,7 +171,7 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 
 func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error) {
 	// Input data validation
-	if err := validateUpdateUserDTO(&dto); err != nil {
+	if err := s.validateUpdateUserDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during user updating: %w", err)
 	}
 	// Getting existing user
@@ -359,7 +359,7 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID uuid.UUID, avatar
 	return nil
 }
 
-func validateCreateUserDTO(dto *CreateUserDTO) error {
+func (s *userService) validateCreateUserDTO(dto *CreateUserDTO) error {
 	if dto.Email == "" {
 		return fmt.Errorf("email is required")
 	}
@@ -381,7 +381,7 @@ func validateCreateUserDTO(dto *CreateUserDTO) error {
 	return nil
 }
 
-func validateUpdateUserDTO(dto *UpdateUserDTO) error {
+func (s *userService) validateUpdateUserDTO(dto *UpdateUserDTO) error {
 	if dto.FirstName != nil && len(*dto.FirstName) < 2 {
 		return fmt.Errorf("first name must be at least 2 characters or null")
 	}
