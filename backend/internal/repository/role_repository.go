@@ -40,7 +40,7 @@ func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	return roles, nil
 }
 
-func (r *roleRepository) FindByIDs(ctx context.Context, ids uint8) ([]model.Role, error) {
+func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint8) ([]model.Role, error) {
 	var roles []model.Role
 	err := r.db.WithContext(ctx).
 		Where("id IN ?", ids).

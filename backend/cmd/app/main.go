@@ -74,10 +74,12 @@ func main() {
 	// Handlers
 	log.Info("Initializing handlers...")
 	authHandler := handler.NewAuthHandler(userService)
+	userHandler := handler.NewUserHandler(userService, log)
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /api/v1/auth/register", authHandler.Register)
+	mux.HandleFunc("POST /api/v1/user/update_profile", userHandler.UpdateProfile)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

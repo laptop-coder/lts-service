@@ -29,7 +29,7 @@ type CreateUserDTO struct {
 	FirstName  string                `form:"firstName" validate:"required,min=2"`
 	MiddleName *string               `form:"middleName,omitempty"`
 	LastName   string                `form:"lastName" validate:"required,min=2"`
-	RoleID     *uint8                 `form:"roleId,omitempty"`
+	RoleIDs    []uint8               `form:"roleIds,omitempty"`
 	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
 }
 
@@ -51,12 +51,9 @@ type ChangePasswordDTO struct {
 }
 
 type UpdateUserDTO struct {
-	Email      *string               `form:"email,omitempty" validate:"email,min=5"`
-	FirstName  *string               `form:"firstName,omitempty" validate:"min=2"`
-	MiddleName *string               `form:"middleName,omitempty"`
-	LastName   *string               `form:"lastName,omitempty" validate:"min=2"`
-	RoleID     *uint8                `form:"roleId,omitempty"`
-	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
+	FirstName  *string `form:"firstName,omitempty" validate:"min=2"`
+	MiddleName *string `form:"middleName,omitempty"`
+	LastName   *string `form:"lastName,omitempty" validate:"min=2"`
 }
 
 type RoleDTO struct {
@@ -66,6 +63,7 @@ type RoleDTO struct {
 
 type userService struct {
 	userRepo repository.UserRepository
+	roleRepo repository.RoleRepository
 	db       *gorm.DB
 	config   UserServiceConfig
 	log      logger.Logger
@@ -78,13 +76,13 @@ type UserService interface {
 	GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error)
 	GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error)
-	DeleteUser(ctx context.Context, id uuid.UUID) error
-
-	ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
-	UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
-	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
-
-	GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
+	// DeleteUser(ctx context.Context, id uuid.UUID) error
+	//
+	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
+	// UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
+	// RemoveAvatar(ctx context.Context, userID uuid.UUID) error
+	//
+	// GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
 
 func NewUserService(
@@ -167,10 +165,53 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 	return s.userToDTO(createdUser), nil
 }
 
+func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error) {
+	// Input data validation
+	if err := validateUpdateUserDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during user updating: %w", err)
+	}
+	// Getting existing user
+	user, err := s.userRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("User for update was not found by id", "user id", id, "error", err)
+			return nil, fmt.Errorf("user with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get user for update", "user id", id, "error", err)
+		return nil, fmt.Errorf("failed to get user for update: %w", err)
+	}
+	s.log.Info(*dto.FirstName)
+	// Updating fields
+	updatedFieldsCount := 0
+	if dto.FirstName != nil && *dto.FirstName != user.FirstName {
+		user.FirstName = *dto.FirstName
+		updatedFieldsCount++
+	}
+	if dto.MiddleName != nil && *dto.MiddleName != *user.MiddleName { // TODO
+		user.MiddleName = dto.MiddleName
+		updatedFieldsCount++
+	}
+	if dto.LastName != nil && *dto.LastName != user.LastName {
+		user.LastName = *dto.LastName
+		updatedFieldsCount++
+	}
+	// Updating user in DB
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		s.log.Error("Failed to update the user")
+		return nil, fmt.Errorf("failed to update the user: %w", err)
+	}
+	// Get updated user for response
+	updatedUser, err := s.userRepo.FindByID(ctx, &user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch updated user: %w", err)
+	}
+	return s.userToDTO(updatedUser), nil
+}
+
 func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error) {
 	user, err := s.userRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user with id %s was not found: %w", id, err)
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -181,7 +222,7 @@ func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserRespo
 func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error) {
 	user, err := s.userRepo.FindByEmail(ctx, &email)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user was not found by email: %w", err)
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -323,8 +364,27 @@ func validateCreateUserDTO(dto *CreateUserDTO) error {
 	if len(dto.FirstName) < 2 {
 		return fmt.Errorf("first name must be at least 2 characters")
 	}
+	if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
+		return fmt.Errorf("middle name must be at least 2 characters or null")
+	}
 	if len(dto.LastName) < 2 {
 		return fmt.Errorf("last name must be at least 2 characters")
+	}
+	if len(dto.RoleIDs) > 0 {
+		// TODO: check if all reoles exist in DB
+	}
+	return nil
+}
+
+func validateUpdateUserDTO(dto *UpdateUserDTO) error {
+	if dto.FirstName != nil && len(*dto.FirstName) < 2 {
+		return fmt.Errorf("first name must be at least 2 characters or null")
+	}
+	if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
+		return fmt.Errorf("middle name must be at least 2 characters or null")
+	}
+	if dto.LastName != nil && len(*dto.LastName) < 2 {
+		return fmt.Errorf("last name must be at least 2 characters or null")
 	}
 	return nil
 }
