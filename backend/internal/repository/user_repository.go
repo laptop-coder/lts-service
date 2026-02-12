@@ -92,7 +92,7 @@ func (r *userRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Us
 	}
 
 	var user model.User
-	result := r.db.WithContext(ctx).First(&user, *id)
+	result := r.db.WithContext(ctx).Preload("Roles").First(&user, *id)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

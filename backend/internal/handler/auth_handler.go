@@ -2,18 +2,22 @@ package handler
 
 import (
 	"backend/internal/service"
+	"backend/pkg/logger"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type AuthHandler struct {
-	userService service.UserService
+	userService       service.UserService
 	userServiceConfig service.UserServiceConfig
+	log               logger.Logger
 }
 
-func NewAuthHandler(userService service.UserService) *AuthHandler {
+func NewAuthHandler(userService service.UserService, log logger.Logger) *AuthHandler {
 	return &AuthHandler{
 		userService: userService,
+		log:         log,
 	}
 }
 
@@ -48,6 +52,24 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Password:  fieldsData["password"],
 		FirstName: fieldsData["firstName"],
 		LastName:  fieldsData["lastName"],
+	}
+
+	if roleIDs := r.PostForm["roleID"]; len(roleIDs) == 0 { // TODO: maybe this check won't work
+		h.log.Error("the list of roles cannot be empty")
+		errorResponse(w, "the list of roles cannot be empty", http.StatusBadRequest)
+		return
+	} else {
+		uints := make([]uint8, len(roleIDs))
+		for i, s := range roleIDs {
+			val, err := strconv.ParseUint(s, 10, 8)
+			if err != nil {
+				h.log.Error("cannot convert IDs of roles string to uint64")
+				errorResponse(w, "cannot convert IDs of roles string to uint64", http.StatusInternalServerError)
+				return
+			}
+			uints[i] = uint8(val)
+		}
+		dto.RoleIDs = uints
 	}
 
 	// Middle name (optional)

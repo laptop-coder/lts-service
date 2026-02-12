@@ -73,7 +73,7 @@ func main() {
 
 	// Handlers
 	log.Info("Initializing handlers...")
-	authHandler := handler.NewAuthHandler(userService)
+	authHandler := handler.NewAuthHandler(userService, log)
 	userHandler := handler.NewUserHandler(userService, log)
 
 	mux := http.NewServeMux()
