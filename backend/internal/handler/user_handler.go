@@ -16,7 +16,7 @@ type UserHandler struct {
 func NewUserHandler(userService service.UserService, log logger.Logger) *UserHandler {
 	return &UserHandler{
 		userService: userService,
-		log: log,
+		log:         log,
 	}
 }
 
@@ -50,17 +50,17 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	// All fields are optional
 	if firstNameFields := r.PostForm["firstName"]; len(firstNameFields) == 1 {
 		dto.FirstName = &firstNameFields[0]
-	} else if len(firstNameFields) != 0{
+	} else if len(firstNameFields) != 0 {
 		errorResponse(w, "failed to parse form: to much firstName values", http.StatusBadRequest)
 	}
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
 		dto.MiddleName = &middleNameFields[0]
-	} else if len(middleNameFields) != 0{
+	} else if len(middleNameFields) != 0 {
 		errorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
 	}
 	if lastNameFields := r.PostForm["lastName"]; len(lastNameFields) == 1 {
 		dto.LastName = &lastNameFields[0]
-	} else if len(lastNameFields) != 0{
+	} else if len(lastNameFields) != 0 {
 		errorResponse(w, "failed to parse form: to much lastName values", http.StatusBadRequest)
 	}
 	userResponse, err := h.userService.UpdateUser(r.Context(), userID, dto)
@@ -72,4 +72,3 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		"user": userResponse,
 	})
 }
-

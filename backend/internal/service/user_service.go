@@ -420,26 +420,26 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, r
 		// Get user
 		var user model.User
 		if err := tx.WithContext(ctx).
-		Preload("Roles").
-		First(&user, "id = ?", userID).Error; err != nil {
+			Preload("Roles").
+			First(&user, "id = ?", userID).Error; err != nil {
 			return fmt.Errorf("user with ID %s was not found: %w", userID, err)
 		}
 		// Get roles to assign
 		var roles []model.Role
 		if err := tx.WithContext(ctx).
-		Where("id IN (?)", roleIDs).
-		Find(&roles).Error; err != nil {
+			Where("id IN (?)", roleIDs).
+			Find(&roles).Error; err != nil {
 			return fmt.Errorf("failed to fetch roles for assigning: %w", err)
 		}
-        // Check if all roles were found
+		// Check if all roles were found
 		if len(roles) != len(roleIDs) {
-			return fmt.Errorf("%d role(-s) was(were) not found", len(roleIDs) - len(roles))
+			return fmt.Errorf("%d role(-s) was(were) not found", len(roleIDs)-len(roles))
 		}
 		// Replace old roles with new ones
 		if err := tx.WithContext(ctx).
-		Model(&user).
-		Association("Roles").
-		Replace(&roles); err != nil {
+			Model(&user).
+			Association("Roles").
+			Replace(&roles); err != nil {
 			return fmt.Errorf("failed to assign roles: %w", err)
 		}
 		return nil
