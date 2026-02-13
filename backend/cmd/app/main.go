@@ -82,6 +82,7 @@ func main() {
 	mux.HandleFunc("POST /api/v1/auth/delete_account", authHandler.DeleteAccount)
 	mux.HandleFunc("POST /api/v1/user/update_profile", userHandler.UpdateProfile)
 	mux.HandleFunc("POST /api/v1/user/remove_avatar", userHandler.RemoveAvatar)
+	mux.HandleFunc("POST /api/v1/user/update_avatar", userHandler.UpdateAvatar)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
