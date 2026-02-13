@@ -20,6 +20,22 @@ import (
 	"time"
 )
 
+type UserService interface {
+	// CRUD
+	CreateUser(ctx context.Context, dto CreateUserDTO) (*UserResponseDTO, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error)
+	GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error)
+	GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error)
+	DeleteUser(ctx context.Context, id uuid.UUID) error
+	//
+	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
+	// UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
+	// RemoveAvatar(ctx context.Context, userID uuid.UUID) error
+	//
+	// GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
+}
+
 type CreateUserDTO struct {
 	Email string `form:"email" validate:"required,email,min=5"`
 	// TODO: add upper bound for password. Take into account:
@@ -67,22 +83,6 @@ type userService struct {
 	db       *gorm.DB
 	config   UserServiceConfig
 	log      logger.Logger
-}
-
-type UserService interface {
-	// CRUD
-	CreateUser(ctx context.Context, dto CreateUserDTO) (*UserResponseDTO, error)
-	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error)
-	GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error)
-	GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error)
-	UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error)
-	DeleteUser(ctx context.Context, id uuid.UUID) error
-	//
-	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
-	// UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
-	// RemoveAvatar(ctx context.Context, userID uuid.UUID) error
-	//
-	// GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
 
 func NewUserService(
@@ -226,7 +226,7 @@ func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// Transaction for user deletion
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		txRepo := repository.NewUserRepository(tx, s.log)
-        if user.HasAvatar {
+		if user.HasAvatar {
 			s.log.Info("Removing user avatar file...")
 			s.removeAvatarFile(id)
 		}
