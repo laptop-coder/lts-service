@@ -84,6 +84,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/v1/user/remove_avatar", userHandler.RemoveAvatar)
 	mux.HandleFunc("PUT /api/v1/user/update_avatar", userHandler.UpdateAvatar)
 	mux.HandleFunc("GET /api/v1/user/get_by_id", userHandler.GetUserByID)
+	mux.HandleFunc("GET /api/v1/user/student_group_advisor", userHandler.GetStudentGroupAdvisorByGroupID)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

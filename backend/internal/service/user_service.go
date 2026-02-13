@@ -33,7 +33,7 @@ type UserService interface {
 	UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
 	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
 	//
-	// GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
+	GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
 
 type CreateUserDTO struct {
@@ -293,6 +293,20 @@ func (s *userService) GetUsers(ctx context.Context, filter repository.UserFilter
 	}
 	s.log.Info("successfully received the list of users")
 	return userDTOs, nil
+}
+
+func (s *userService) GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error) {
+	user, err := s.userRepo.FindStudentGroupAdvisorByGroupID(ctx, &id)
+	if err != nil{
+		s.log.Error(
+			"failed to get student group advisor by group id",
+			"group id", id,
+			"error", err,
+		)
+		return nil, fmt.Errorf("failed to get student group advisor by group id (%d): %w", id, err)
+	}
+	s.log.Info("successfully received student group advisor")
+	return s.userToDTO(user), nil
 }
 
 func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error {

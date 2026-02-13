@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strconv"
 	"backend/internal/service"
 	"backend/pkg/logger"
 	"fmt"
@@ -31,8 +32,6 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// UserID
-	// TODO: replace FormValue in the whole code. FormValue takes data not only
-	// from POST-params, but also from GET-params
 	userIDFields := r.Form["userID"]
 	if len(userIDFields) > 1 {
 		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
@@ -152,8 +151,6 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 	query := r.URL.Query()
 	// UserID
-	// TODO: replace FormValue in the whole code. FormValue takes data not only
-	// from POST-params, but also from GET-params
 	userIDFields := query["userID"]
 	if len(userIDFields) > 1 {
 		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
@@ -169,6 +166,41 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	response, err := h.userService.GetUserByID(r.Context(), userID)
 	if err != nil {
 		handleServiceError(w, fmt.Errorf("failed to get user by id: %w", err))
+		return
+	}
+	successResponse(w, map[string]interface{}{
+		"user": response,
+	})
+}
+
+func (h *UserHandler) GetStudentGroupAdvisorByGroupID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	query := r.URL.Query()
+	// UserID
+	groupIDFields := query["groupID"]
+	if len(groupIDFields) > 1 {
+		errorResponse(w, "failed to parse form: too much groupID fields", http.StatusBadRequest)
+		return
+	} else if len(groupIDFields) == 0 {
+		errorResponse(w, "failed to parse form: groupID field cannot be empty", http.StatusBadRequest)
+		return
+	}
+	// Convert to uint64
+	groupID64, err := strconv.ParseUint(groupIDFields[0], 10, 16)
+	if err != nil {
+		h.log.Error("cannot convert groupID from string to uint64")
+		errorResponse(w, "cannot convert groupID from string to uint64", http.StatusInternalServerError)
+		return
+	}
+	// Convert to uint16
+	groupID := uint16(groupID64)
+	// Get ID of the group advisor
+	response, err := h.userService.GetStudentGroupAdvisorByGroupID(r.Context(), groupID)
+	if err != nil {
+		handleServiceError(w, fmt.Errorf("failed to get student group advisor by group id: %w", err))
 		return
 	}
 	successResponse(w, map[string]interface{}{
