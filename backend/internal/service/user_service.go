@@ -30,8 +30,8 @@ type UserService interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	//
 	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
-	// UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
-	// RemoveAvatar(ctx context.Context, userID uuid.UUID) error
+	UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
+	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
 	//
 	// GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
@@ -387,6 +387,31 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID uuid.UUID, avatar
 		s.removeAvatarFile(userID)
 		return fmt.Errorf("failed to update user avatar: %w", err)
 	}
+	return nil
+}
+
+func (s *userService) RemoveAvatar(ctx context.Context, userID uuid.UUID) error {
+	// Getting user
+	user, err := s.userRepo.FindByID(ctx, &userID)
+	if err != nil {
+		return fmt.Errorf("user not found: %w", err)
+	}
+	// Transaction
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if user.HasAvatar {
+			// Change avatar existence status in the database
+			user.HasAvatar = false
+			if err := s.userRepo.Update(ctx, user); err != nil {
+				return fmt.Errorf("failed to delete user avatar: %w", err)
+			}
+			s.log.Info("Removing user avatar file...")
+			s.removeAvatarFile(userID)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+	s.log.Info("User avatar file was successfully removed")
 	return nil
 }
 

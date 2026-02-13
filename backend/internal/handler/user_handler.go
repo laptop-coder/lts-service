@@ -72,3 +72,34 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		"user": userResponse,
 	})
 }
+
+func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	if err := r.ParseForm(); err != nil {
+		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// UserID
+	userIDFields := r.PostForm["userID"]
+	if len(userIDFields) > 1 {
+		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
+		return
+	} else if len(userIDFields) == 0 {
+		errorResponse(w, "failed to parse form: userID field cannot be empty", http.StatusBadRequest)
+		return
+	}
+	userID, err := uuid.Parse(userIDFields[0])
+	if err != nil {
+		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+	}
+	// Remove user avatar file
+	if err := h.userService.RemoveAvatar(r.Context(), userID); err != nil {
+		handleServiceError(w, fmt.Errorf("failed to remove user avatar file: %w", err))
+		return
+	}
+	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
