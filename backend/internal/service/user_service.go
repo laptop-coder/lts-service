@@ -76,7 +76,7 @@ type UserService interface {
 	GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error)
 	GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error)
-	// DeleteUser(ctx context.Context, id uuid.UUID) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 	//
 	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
 	// UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
@@ -184,7 +184,6 @@ func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUs
 		s.log.Error("Failed to get user for update", "user id", id, "error", err)
 		return nil, fmt.Errorf("failed to get user for update: %w", err)
 	}
-	s.log.Info(*dto.FirstName)
 	// Updating fields
 	updatedFieldsCount := 0
 	if dto.FirstName != nil && *dto.FirstName != user.FirstName {
@@ -210,6 +209,38 @@ func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUs
 		return nil, fmt.Errorf("failed to fetch updated user: %w", err)
 	}
 	return s.userToDTO(updatedUser), nil
+}
+
+func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	s.log.Info("Starting user deletion...")
+	// Getting existing user
+	user, err := s.userRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("User for delete was not found by id", "user id", id, "error", err)
+			return fmt.Errorf("user with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get user for delete", "user id", id, "error", err)
+		return fmt.Errorf("failed to get user for delete: %w", err)
+	}
+	// Transaction for user deletion
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		txRepo := repository.NewUserRepository(tx, s.log)
+        if user.HasAvatar {
+			s.log.Info("Removing user avatar file...")
+			s.removeAvatarFile(id)
+		}
+		if err := txRepo.Delete(ctx, &id); err != nil {
+			s.log.Error("Failed to delete the user")
+			return fmt.Errorf("failed to delete the user: %w", err)
+		}
+		s.log.Info("User deleted successfully")
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+	return nil
 }
 
 func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error) {

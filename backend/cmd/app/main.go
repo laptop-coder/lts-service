@@ -79,6 +79,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /api/v1/auth/register", authHandler.Register)
+	mux.HandleFunc("POST /api/v1/auth/delete_account", authHandler.DeleteAccount)
 	mux.HandleFunc("POST /api/v1/user/update_profile", userHandler.UpdateProfile)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
