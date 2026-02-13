@@ -33,7 +33,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	// UserID
 	// TODO: replace FormValue in the whole code. FormValue takes data not only
 	// from POST-params, but also from GET-params
-	userIDFields := r.PostForm["userID"]
+	userIDFields := r.Form["userID"]
 	if len(userIDFields) > 1 {
 		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
 		return
@@ -116,7 +116,7 @@ func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// UserID
-	userIDFields := r.PostForm["userID"]
+	userIDFields := r.Form["userID"]
 	if len(userIDFields) > 1 {
 		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
 		return
