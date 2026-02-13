@@ -97,7 +97,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodDelete {
 		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}

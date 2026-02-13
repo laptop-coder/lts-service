@@ -21,7 +21,7 @@ func NewUserHandler(userService service.UserService, log logger.Logger) *UserHan
 }
 
 func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPatch {
 		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -74,7 +74,7 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodDelete {
 		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -84,7 +84,7 @@ func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// UserID
-	userIDFields := r.PostForm["userID"]
+	userIDFields := r.Form["userID"]
 	if len(userIDFields) > 1 {
 		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
 		return
@@ -105,7 +105,7 @@ func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPut {
 		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
