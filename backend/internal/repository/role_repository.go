@@ -28,7 +28,6 @@ func NewRoleRepository(db *gorm.DB, log logger.Logger) RoleRepository {
 
 func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	var roles []model.Role
-
 	err := r.db.WithContext(ctx).
 		Model(&model.Role{}).
 		Order("name").
@@ -36,7 +35,6 @@ func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch roles list: %w", err)
 	}
-
 	return roles, nil
 }
 

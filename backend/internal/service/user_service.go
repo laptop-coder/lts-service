@@ -21,14 +21,12 @@ import (
 )
 
 type UserService interface {
-	// CRUD
 	CreateUser(ctx context.Context, dto CreateUserDTO) (*UserResponseDTO, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error)
 	GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error)
 	GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
-	//
 	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
 	UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
 	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
@@ -298,30 +296,25 @@ func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error
 	if fileHeader.Size > s.config.AvatarMaxSize {
 		return fmt.Errorf("file size exceeds limit of %d bytes", s.config.AvatarMaxSize)
 	}
-
-	// read meta information
+	// read info
 	file, err := fileHeader.Open()
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer file.Close()
-
 	// to return to the start of the file after determiming the MIME type
 	if seeker, ok := file.(io.Seeker); ok {
 		defer seeker.Seek(0, io.SeekStart)
 	}
-
 	buffer := make([]byte, 512) // read first 512 bytes to determine MIME type
 	_, err = file.Read(buffer)
 	if err != nil && err != io.EOF {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
-
 	mimeType := http.DetectContentType(buffer)
 	if !slices.Contains(s.config.AvatarAllowedMIMETypes, mimeType) {
 		return fmt.Errorf("unsupported file type: %s. Allowed: %v", mimeType, s.config.AvatarAllowedMIMETypes)
 	}
-
 	return nil
 }
 
@@ -456,7 +449,6 @@ func UserToDTO(user *model.User) *UserResponseDTO {
 			Name: role.Name,
 		})
 	}
-
 	return &UserResponseDTO{
 		ID:         user.ID,
 		Email:      user.Email,

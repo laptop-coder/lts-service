@@ -34,18 +34,15 @@ func (r *permissionRepository) Create(ctx context.Context, permission *model.Per
 	if permission == nil {
 		return fmt.Errorf("permission cannot be nil")
 	}
-
 	result := r.db.WithContext(ctx).Create(permission)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create new permission: %w", result.Error)
 	}
-
 	return nil
 }
 
 func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission, error) {
 	var permissions []model.Permission
-
 	err := r.db.WithContext(ctx).
 		Model(&model.Permission{}).
 		Order("name").
@@ -53,7 +50,6 @@ func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission,
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch permissions list: %w", err)
 	}
-
 	return permissions, nil
 }
 
@@ -61,17 +57,14 @@ func (r *permissionRepository) FindByID(ctx context.Context, id *uint8) (*model.
 	if id == nil {
 		return nil, fmt.Errorf("permission id cannot be nil")
 	}
-
 	var permission model.Permission
 	result := r.db.WithContext(ctx).First(&permission, *id)
-
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("permission with id %d was not found: %w", *id, result.Error)
 		}
 		return nil, fmt.Errorf("failed to fetch permission by id (%d): %w", *id, result.Error)
 	}
-
 	return &permission, nil
 }
 
@@ -79,26 +72,21 @@ func (r *permissionRepository) Update(ctx context.Context, permission *model.Per
 	if permission == nil {
 		return fmt.Errorf("permission cannot be nil")
 	}
-
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.Permission{}).
 		Where("id = ?", permission.ID).
 		Count(&count).Error
-
 	if err != nil {
 		return fmt.Errorf("failed to check permission existence: %w", err)
 	}
-
 	if count == 0 {
 		return fmt.Errorf("permission with id %d was not found", permission.ID)
 	}
-
 	result := r.db.WithContext(ctx).Save(permission)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update permission: %w", result.Error)
 	}
-
 	return nil
 }
 

@@ -34,18 +34,15 @@ func (r *subjectRepository) Create(ctx context.Context, subject *model.Subject) 
 	if subject == nil {
 		return fmt.Errorf("subject cannot be nil")
 	}
-
 	result := r.db.WithContext(ctx).Create(subject)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create new subject: %w", result.Error)
 	}
-
 	return nil
 }
 
 func (r *subjectRepository) FindAll(ctx context.Context) ([]model.Subject, error) {
 	var subjects []model.Subject
-
 	err := r.db.WithContext(ctx).
 		Model(&model.Subject{}).
 		Order("name").
@@ -53,7 +50,6 @@ func (r *subjectRepository) FindAll(ctx context.Context) ([]model.Subject, error
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch subjects list: %w", err)
 	}
-
 	return subjects, nil
 }
 
@@ -61,17 +57,14 @@ func (r *subjectRepository) FindByID(ctx context.Context, id *uint8) (*model.Sub
 	if id == nil {
 		return nil, fmt.Errorf("subject id cannot be nil")
 	}
-
 	var subject model.Subject
 	result := r.db.WithContext(ctx).First(&subject, *id)
-
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("subject with id %d was not found: %w", *id, result.Error)
 		}
 		return nil, fmt.Errorf("failed to fetch subject by id (%d): %w", *id, result.Error)
 	}
-
 	return &subject, nil
 }
 
@@ -79,26 +72,21 @@ func (r *subjectRepository) Update(ctx context.Context, subject *model.Subject) 
 	if subject == nil {
 		return fmt.Errorf("subject cannot be nil")
 	}
-
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.Subject{}).
 		Where("id = ?", subject.ID).
 		Count(&count).Error
-
 	if err != nil {
 		return fmt.Errorf("failed to check subject existence: %w", err)
 	}
-
 	if count == 0 {
 		return fmt.Errorf("subject with id %d was not found", subject.ID)
 	}
-
 	result := r.db.WithContext(ctx).Save(subject)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update subject: %w", result.Error)
 	}
-
 	return nil
 }
 

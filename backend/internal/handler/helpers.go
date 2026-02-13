@@ -42,7 +42,6 @@ func successResponse(w http.ResponseWriter, data interface{}) {
 func handleServiceError(w http.ResponseWriter, err error) {
 	errMsg := err.Error()
 	statusCode := http.StatusInternalServerError
-
 	switch {
 	case strings.Contains(errMsg, "not found"):
 		statusCode = http.StatusNotFound
@@ -56,6 +55,5 @@ func handleServiceError(w http.ResponseWriter, err error) {
 		strings.Contains(errMsg, "permission"):
 		statusCode = http.StatusUnauthorized
 	}
-
 	errorResponse(w, errMsg, statusCode)
 }

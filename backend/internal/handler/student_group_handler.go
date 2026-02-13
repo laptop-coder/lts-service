@@ -1,22 +1,22 @@
 package handler
 
 import (
-	"strconv"
-	"fmt"
-	"net/http"
 	"backend/internal/service"
 	"backend/pkg/logger"
+	"fmt"
+	"net/http"
+	"strconv"
 )
 
 type StudentGroupHandler struct {
 	studentGroupService service.StudentGroupService
-	log         logger.Logger
+	log                 logger.Logger
 }
 
 func NewStudentGroupHandler(studentGroupService service.StudentGroupService, log logger.Logger) *StudentGroupHandler {
 	return &StudentGroupHandler{
 		studentGroupService: studentGroupService,
-		log:         log,
+		log:                 log,
 	}
 }
 
@@ -47,4 +47,3 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 		"user": response,
 	})
 }
-

@@ -43,42 +43,40 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 	if filter == nil {
 		return nil, fmt.Errorf("posts list filter cannot be nil")
 	}
-
 	var posts []model.Post
 	query := r.db.WithContext(ctx).Model(&model.Post{})
-
 	// Filters
-	// By post's author:
+	// by post's author:
 	if filter.AuthorID != nil {
 		query = query.
 			Where("posts.author_id = ?", *filter.AuthorID)
 	}
-	// By verification status:
+	// by verification status:
 	if filter.Verified != nil {
 		query = query.
 			Where("posts.verified = ?", *filter.Verified)
 	}
-	// By thing return status:
+	// by thing return status:
 	if filter.ThingReturnedToOwner != nil {
 		query = query.
 			Where("posts.thing_returned_to_owner = ?", *filter.ThingReturnedToOwner)
 	}
-	// Offset (for pagination):
+	// offset (for pagination):
 	if filter.Offset > 0 {
 		query = query.Offset(filter.Offset)
 	}
-	// Limit (for pagination):
+	// limit (for pagination):
 	if filter.Limit > 0 {
 		query = query.Limit(filter.Limit)
 	}
-
 	// Sort posts by name in the alphabetical order
 	query = query.Order("name")
-
+	// Find posts
 	result := query.Find(&posts)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch posts list: %w", result.Error)
 	}
+	// Return response
 	return posts, nil
 }
 
@@ -86,17 +84,14 @@ func (r *postRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Po
 	if id == nil {
 		return nil, fmt.Errorf("post id cannot be nil")
 	}
-
 	var post model.Post
 	result := r.db.WithContext(ctx).First(&post, *id)
-
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("post with id %s was not found: %w", *id, result.Error)
 		}
 		return nil, fmt.Errorf("failed to fetch post by id (%s): %w", *id, result.Error)
 	}
-
 	return &post, nil
 }
 
@@ -115,26 +110,21 @@ func (r *postRepository) Update(ctx context.Context, post *model.Post) error {
 	if post == nil {
 		return fmt.Errorf("post cannot be nil")
 	}
-
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.Post{}).
 		Where("id = ?", post.ID).
 		Count(&count).Error
-
 	if err != nil {
 		return fmt.Errorf("failed to check post existence: %w", err)
 	}
-
 	if count == 0 {
 		return fmt.Errorf("post with id %d was not found", post.ID)
 	}
-
 	result := r.db.WithContext(ctx).Save(post)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update post: %w", result.Error)
 	}
-
 	return nil
 }
 

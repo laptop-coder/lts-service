@@ -59,12 +59,10 @@ func HeathCheck(db *gorm.DB) error {
 	if db == nil {
 		return fmt.Errorf("database is nil")
 	}
-
 	sqlDB, err := db.DB()
 	if err != nil {
 		return fmt.Errorf("failed to get database instance: %w", err)
 	}
-
 	return sqlDB.Ping()
 }
 

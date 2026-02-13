@@ -14,8 +14,8 @@ type StudentGroupService interface {
 
 type studentGroupService struct {
 	studentGroupRepo repository.StudentGroupRepository
-	db       *gorm.DB
-	log      logger.Logger
+	db               *gorm.DB
+	log              logger.Logger
 }
 
 func NewStudentGroupService(
@@ -25,15 +25,14 @@ func NewStudentGroupService(
 ) StudentGroupService {
 	return &studentGroupService{
 		studentGroupRepo: studentGroupRepo,
-		db:       db,
-		log:      log,
+		db:               db,
+		log:              log,
 	}
 }
 
-
 func (s *studentGroupService) GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error) {
 	user, err := s.studentGroupRepo.FindAdvisorByGroupID(ctx, &id)
-	if err != nil{
+	if err != nil {
 		s.log.Error(
 			"failed to get student group advisor by group id",
 			"group id", id,
@@ -44,4 +43,3 @@ func (s *studentGroupService) GetAdvisorByGroupID(ctx context.Context, id uint16
 	s.log.Info("successfully received student group advisor")
 	return UserToDTO(user), nil
 }
-

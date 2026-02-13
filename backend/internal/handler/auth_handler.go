@@ -114,5 +114,4 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
-
 }

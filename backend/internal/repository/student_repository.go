@@ -29,15 +29,12 @@ func (r *studentRepository) FindByGroupID(ctx context.Context, id *uint16) ([]mo
 	if id == nil {
 		return nil, fmt.Errorf("student group id cannot be nil")
 	}
-
 	var students []model.Student
 	result := r.db.WithContext(ctx).
 		Where("student_group_id = ?", *id).
 		Find(&students)
-
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch students list by group id (%d): %w", *id, result.Error)
 	}
-
 	return students, nil
 }

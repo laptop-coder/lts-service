@@ -1,9 +1,5 @@
 package config
 
-import (
-// "backend/pkg/env"
-)
-
 type AppConfig struct {
 	Port int
 }
