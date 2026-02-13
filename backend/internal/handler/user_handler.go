@@ -145,3 +145,34 @@ func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
+func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	query := r.URL.Query()
+	// UserID
+	// TODO: replace FormValue in the whole code. FormValue takes data not only
+	// from POST-params, but also from GET-params
+	userIDFields := query["userID"]
+	if len(userIDFields) > 1 {
+		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
+		return
+	} else if len(userIDFields) == 0 {
+		errorResponse(w, "failed to parse form: userID field cannot be empty", http.StatusBadRequest)
+		return
+	}
+	userID, err := uuid.Parse(userIDFields[0])
+	if err != nil {
+		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+	}
+	response, err := h.userService.GetUserByID(r.Context(), userID)
+	if err != nil {
+		handleServiceError(w, fmt.Errorf("failed to get user by id: %w", err))
+		return
+	}
+	successResponse(w, map[string]interface{}{
+		"user": response,
+	})
+}
+
