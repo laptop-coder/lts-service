@@ -7,8 +7,9 @@ import (
 )
 
 func jsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
+	// Set JSON content type
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
+	// Convert data to JSON format
 	encodedData, err := json.Marshal(data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -19,8 +20,9 @@ func jsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 		}
 		return
 	}
-
+	// Status code
 	w.WriteHeader(statusCode)
+	// Response
 	w.Write(encodedData)
 }
 
