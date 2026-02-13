@@ -14,6 +14,7 @@ type StudentGroupRepository interface {
 	Create(ctx context.Context, studentGroup *model.StudentGroup) error
 	FindAll(ctx context.Context, filter *StudentGroupFilter) ([]model.StudentGroup, error)
 	FindByID(ctx context.Context, id *uint16) (*model.StudentGroup, error)
+	FindAdvisorByGroupID(ctx context.Context, id *uint16) (*model.User, error)
 	Update(ctx context.Context, studentGroup *model.StudentGroup) error
 	Delete(ctx context.Context, id *uint16) error
 }
@@ -98,6 +99,25 @@ func (r *studentGroupRepository) FindByID(ctx context.Context, id *uint16) (*mod
 	return &studentGroup, nil
 }
 
+func (r *studentGroupRepository) FindAdvisorByGroupID(ctx context.Context, id *uint16) (*model.User, error) {
+	if id == nil {
+		return nil, fmt.Errorf("student group id cannot be nil")
+	}
+	var user model.User
+	result := r.db.WithContext(ctx).
+		Joins("JOIN student_groups ON student_groups.group_advisor_id = users.id").
+		Where("student_groups.id = ?", *id).
+		First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("user (student group advisor) was not found by group id (%d): %w", *id, result.Error)
+		}
+		return nil, fmt.Errorf("failed to fetch user (student group advisor) by group id (%d): %w", *id, result.Error)
+	}
+	return &user, nil
+}
+
+
 func (r *studentGroupRepository) Update(ctx context.Context, studentGroup *model.StudentGroup) error {
 	if studentGroup == nil {
 		return fmt.Errorf("student group cannot be nil")
@@ -135,3 +155,4 @@ func (r *studentGroupRepository) Delete(ctx context.Context, id *uint16) error {
 	}
 	return nil
 }
+

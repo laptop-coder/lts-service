@@ -16,7 +16,6 @@ type UserRepository interface {
 	FindAll(ctx context.Context, filter *UserFilter) ([]model.User, error)
 	FindByID(ctx context.Context, id *uuid.UUID) (*model.User, error)
 	FindByEmail(ctx context.Context, email *string) (*model.User, error)
-	FindStudentGroupAdvisorByGroupID(ctx context.Context, id *uint16) (*model.User, error)
 	// ID must be set to update
 	Update(ctx context.Context, user *model.User) error
 	Delete(ctx context.Context, id *uuid.UUID) error
@@ -117,27 +116,6 @@ func (r *userRepository) FindByEmail(ctx context.Context, email *string) (*model
 			return nil, fmt.Errorf("user was not found by email: %w", result.Error)
 		}
 		return nil, fmt.Errorf("failed to fetch user by email: %w", result.Error)
-	}
-
-	return &user, nil
-}
-
-func (r *userRepository) FindStudentGroupAdvisorByGroupID(ctx context.Context, id *uint16) (*model.User, error) {
-	if id == nil {
-		return nil, fmt.Errorf("student group id cannot be nil")
-	}
-
-	var user model.User
-	result := r.db.WithContext(ctx).
-		Joins("JOIN student_groups ON student_groups.group_advisor_id = users.id").
-		Where("student_groups.id = ?", *id).
-		First(&user)
-
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user (student group advisor) was not found by group id (%d): %w", *id, result.Error)
-		}
-		return nil, fmt.Errorf("failed to fetch user (student group advisor) by group id (%d): %w", *id, result.Error)
 	}
 
 	return &user, nil

@@ -32,8 +32,6 @@ type UserService interface {
 	// ChangePassword(ctx context.Context, id uuid.UUID, dto ChangePasswordDTO) error
 	UpdateAvatar(ctx context.Context, userID uuid.UUID, dto *multipart.FileHeader) error
 	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
-	//
-	GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
 
 type CreateUserDTO struct {
@@ -166,7 +164,7 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch created user: %w", err)
 	}
-	return s.userToDTO(createdUser), nil
+	return UserToDTO(createdUser), nil
 }
 
 func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUserDTO) (*UserResponseDTO, error) {
@@ -208,7 +206,7 @@ func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUs
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch updated user: %w", err)
 	}
-	return s.userToDTO(updatedUser), nil
+	return UserToDTO(updatedUser), nil
 }
 
 func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
@@ -251,7 +249,7 @@ func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserRespo
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
-	return s.userToDTO(user), nil
+	return UserToDTO(user), nil
 }
 
 func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error) {
@@ -262,7 +260,7 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserRe
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
-	return s.userToDTO(user), nil
+	return UserToDTO(user), nil
 }
 
 func (s *userService) GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error) {
@@ -289,24 +287,10 @@ func (s *userService) GetUsers(ctx context.Context, filter repository.UserFilter
 	}
 	userDTOs := make([]UserResponseDTO, len(users))
 	for i, user := range users {
-		userDTOs[i] = *s.userToDTO(&user)
+		userDTOs[i] = *UserToDTO(&user)
 	}
 	s.log.Info("successfully received the list of users")
 	return userDTOs, nil
-}
-
-func (s *userService) GetStudentGroupAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error) {
-	user, err := s.userRepo.FindStudentGroupAdvisorByGroupID(ctx, &id)
-	if err != nil{
-		s.log.Error(
-			"failed to get student group advisor by group id",
-			"group id", id,
-			"error", err,
-		)
-		return nil, fmt.Errorf("failed to get student group advisor by group id (%d): %w", id, err)
-	}
-	s.log.Info("successfully received student group advisor")
-	return s.userToDTO(user), nil
 }
 
 func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error {
@@ -464,7 +448,7 @@ func (s *userService) validateUpdateUserDTO(dto *UpdateUserDTO) error {
 	return nil
 }
 
-func (s *userService) userToDTO(user *model.User) *UserResponseDTO {
+func UserToDTO(user *model.User) *UserResponseDTO {
 	var roles []RoleDTO
 	for _, role := range user.Roles {
 		roles = append(roles, RoleDTO{

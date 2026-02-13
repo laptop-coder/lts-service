@@ -58,6 +58,7 @@ func main() {
 	// Repositories
 	log.Info("Initializing repositories...")
 	userRepo := repository.NewUserRepository(db, log)
+	studentGroupRepo := repository.NewStudentGroupRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
@@ -70,21 +71,27 @@ func main() {
 		serviceConfigs.User,
 		log,
 	)
+	studentGroupService := service.NewStudentGroupService(
+		studentGroupRepo,
+		db,
+		log,
+	)
 
 	// Handlers
 	log.Info("Initializing handlers...")
 	authHandler := handler.NewAuthHandler(userService, log)
 	userHandler := handler.NewUserHandler(userService, log)
+	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /api/v1/auth/register", authHandler.Register)
-	mux.HandleFunc("DELETE /api/v1/auth/delete_account", authHandler.DeleteAccount)
-	mux.HandleFunc("PATCH /api/v1/user/update_profile", userHandler.UpdateProfile)
-	mux.HandleFunc("DELETE /api/v1/user/remove_avatar", userHandler.RemoveAvatar)
-	mux.HandleFunc("PUT /api/v1/user/update_avatar", userHandler.UpdateAvatar)
-	mux.HandleFunc("GET /api/v1/user/get_by_id", userHandler.GetUserByID)
-	mux.HandleFunc("GET /api/v1/user/student_group_advisor", userHandler.GetStudentGroupAdvisorByGroupID)
+	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
+	mux.HandleFunc("DELETE /api/v1/users/{id}", authHandler.DeleteAccount)
+	mux.HandleFunc("PATCH /api/v1/users/{id}", userHandler.UpdateProfile)
+	mux.HandleFunc("DELETE /api/v1/users/{id}/avatar", userHandler.RemoveAvatar)
+	mux.HandleFunc("PUT /api/v1/users/{id}/avatar", userHandler.UpdateAvatar)
+	mux.HandleFunc("GET /api/v1/users/{id}", userHandler.GetUserByID)
+	mux.HandleFunc("GET /api/v1/student_groups/{id}/advisor", studentGroupHandler.GetAdvisorByGroupID)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

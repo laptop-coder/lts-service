@@ -97,31 +97,22 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+	// Check method
 	if r.Method != http.MethodDelete {
 		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
-	if err := r.ParseForm(); err != nil {
-		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
-		return
-	}
-	userIDFields := r.PostForm["userID"]
-	if len(userIDFields) > 1 {
-		errorResponse(w, "failed to parse form: too much userID fields", http.StatusBadRequest)
-		return
-	} else if len(userIDFields) == 0 {
-		errorResponse(w, "failed to parse form: userID field cannot be empty", http.StatusBadRequest)
-		return
-	}
-	userID, err := uuid.Parse(userIDFields[0])
+	// Get and convert user ID
+	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
 	}
+	// Delete user
 	if err := h.userService.DeleteUser(r.Context(), userID); err != nil {
 		handleServiceError(w, fmt.Errorf("failed to delete the user: %w", err))
 		return
 	}
+	// Return response
 	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 
 }
