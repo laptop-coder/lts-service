@@ -55,7 +55,7 @@ func Migrate(db *gorm.DB, models []any) error {
 	return nil
 }
 
-func HeathCheck(db *gorm.DB) error {
+func HealthCheck(db *gorm.DB) error {
 	if db == nil {
 		return fmt.Errorf("database is nil")
 	}
