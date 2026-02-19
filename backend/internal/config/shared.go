@@ -3,6 +3,7 @@ package config
 import (
 	"backend/pkg/env"
 	"path/filepath"
+	"time"
 )
 
 type SharedConfig struct {
@@ -11,7 +12,12 @@ type SharedConfig struct {
 }
 
 type SecurityConfig struct {
-	BcryptCost int
+	BcryptCost         int
+	JWTSecret          string
+	AccessTokenExpiry  time.Duration
+	RefreshTokenExpiry time.Duration
+	TokenIssuer        string
+	CookieSecure       bool
 }
 
 type ImageStorageConfig struct {
@@ -28,7 +34,12 @@ type StorageConfig struct {
 func LoadSharedConfig() SharedConfig {
 	return SharedConfig{
 		Security: SecurityConfig{
-			BcryptCost: 15, // minimal is 4, maximum is 31, default is 10
+			BcryptCost:         15, // minimal is 4, maximum is 31, default is 10
+			JWTSecret:          env.GetStringRequired("JWT_SECRET"),
+			AccessTokenExpiry:  time.Duration(time.Minute * 15),
+			RefreshTokenExpiry: time.Duration(time.Hour * 24 * 30),
+			TokenIssuer:        env.GetStringRequired("JWT_ISSUER"),
+			CookieSecure:       env.GetBoolRequired("COOKIE_SECURE"),
 		},
 		Storage: StorageConfig{
 			Avatar: ImageStorageConfig{

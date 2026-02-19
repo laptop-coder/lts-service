@@ -10,15 +10,18 @@ import (
 )
 
 type AuthHandler struct {
+	authService       service.AuthService
 	userService       service.UserService
-	userServiceConfig service.UserServiceConfig
+	authServiceConfig service.AuthServiceConfig
 	log               logger.Logger
 }
 
-func NewAuthHandler(userService service.UserService, log logger.Logger) *AuthHandler {
+func NewAuthHandler(authService service.AuthService, userService service.UserService, authServiceConfig service.AuthServiceConfig, log logger.Logger) *AuthHandler {
 	return &AuthHandler{
-		userService: userService,
-		log:         log,
+		authService:       authService,
+		userService:       userService,
+		authServiceConfig: authServiceConfig,
+		log:               log,
 	}
 }
 
@@ -88,7 +91,52 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		handleServiceError(w, fmt.Errorf("failed to create the user: %w", err))
 		return
 	}
-	// TODO: automatically login user here. Get token, set cookie
+	// Log in automatically
+	tokens, _, err := h.authService.Login(r.Context(), dto.Email, dto.Password) // don't rewrite userResponse
+	if err != nil {
+		handleServiceError(w, fmt.Errorf("failed to log in automatically: %w", err))
+		return
+	}
+	// Parse created tokens
+	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
+	if err != nil {
+		errorResponse(w, fmt.Sprintf("failed to parse access token: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
+	if err != nil {
+		errorResponse(w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	// Set cookies
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_access",
+		Value:    tokens.AccessToken,
+		Path:     "/",
+		Expires:  parsedAccessToken.RegisteredClaims.ExpiresAt.Time,
+		HttpOnly: true,
+		Secure:   h.authServiceConfig.CookieSecure,
+	})
+	h.log.Debug("Added JWT access to the cookies")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_refresh",
+		Value:    tokens.RefreshToken,
+		Path:     "/",
+		Expires:  parsedRefreshToken.RegisteredClaims.ExpiresAt.Time,
+		HttpOnly: true,
+		Secure:   h.authServiceConfig.CookieSecure,
+	})
+	h.log.Debug("Added JWT refresh to the cookies")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "authorized",
+		Value:    "true",
+		Path:     "/",
+		Expires:  parsedRefreshToken.RegisteredClaims.ExpiresAt.Time,
+		HttpOnly: false,
+		Secure:   h.authServiceConfig.CookieSecure,
+	})
+	h.log.Debug("Authorized value is set to true in cookies")
+	h.log.Info("User logged in successfully")
 	jsonResponse(w, map[string]interface{}{
 		"user": userResponse,
 	},
