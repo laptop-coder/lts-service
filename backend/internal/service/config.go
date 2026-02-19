@@ -16,7 +16,7 @@ type UserServiceConfig struct {
 }
 
 type AuthServiceConfig struct {
-	JWTSecret          string
+	JWTSecret          []byte
 	AccessTokenExpiry  time.Duration
 	RefreshTokenExpiry time.Duration
 	TokenIssuer        string

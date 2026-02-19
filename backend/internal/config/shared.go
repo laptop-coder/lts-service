@@ -13,7 +13,7 @@ type SharedConfig struct {
 
 type SecurityConfig struct {
 	BcryptCost         int
-	JWTSecret          string
+	JWTSecret          []byte
 	AccessTokenExpiry  time.Duration
 	RefreshTokenExpiry time.Duration
 	TokenIssuer        string
@@ -35,7 +35,7 @@ func LoadSharedConfig() SharedConfig {
 	return SharedConfig{
 		Security: SecurityConfig{
 			BcryptCost:         15, // minimal is 4, maximum is 31, default is 10
-			JWTSecret:          env.GetStringRequired("JWT_SECRET"),
+			JWTSecret:          []byte(env.GetStringRequired("JWT_SECRET")),
 			AccessTokenExpiry:  time.Duration(time.Minute * 15),
 			RefreshTokenExpiry: time.Duration(time.Hour * 24 * 30),
 			TokenIssuer:        env.GetStringRequired("JWT_ISSUER"),
