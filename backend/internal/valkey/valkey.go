@@ -1,16 +1,42 @@
 package valkey
 
 import (
+	"backend/pkg/logger"
+	"backend/pkg/env"
 	"context"
 	"fmt"
 	"github.com/valkey-io/valkey-go"
 )
+
+type clientDBs struct {
+	JWT int
+}
+
+var ClientDBs = &clientDBs{
+	JWT: 0,
+}
 
 type Config struct {
 	Host     string
 	Port     int
 	Password string
 	DB       int
+}
+
+func NewClient(db int, log logger.Logger) (valkey.Client) {
+	client, err := Connect(
+		Config{
+			Host:     env.GetStringRequired("VALKEY_HOST"),
+			Port:     env.GetIntRequired("VALKEY_PORT"),
+			Password: env.GetStringRequired("VALKEY_PASSWORD"),
+			DB:       db,
+		},
+	)
+	if err != nil {
+		log.Error(fmt.Sprintf("cannot create Valkey client (with DB %d): %s", db, err.Error()))
+		panic("cannot create Valkey client")
+	}
+	return client
 }
 
 func Connect(config Config) (valkey.Client, error) {

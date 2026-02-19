@@ -4,6 +4,7 @@ package main
 import (
 	"backend/internal/config"
 	"backend/internal/database"
+	"backend/internal/valkey"
 	"backend/internal/handler"
 	"backend/internal/repository"
 	"backend/internal/service"
@@ -55,15 +56,29 @@ func main() {
 	defer database.Close(db)
 	log.Info("Database connected successfully")
 
+	// Valkey
+	log.Info("Initializing Valkey...")
+	jwtClient := valkey.NewClient(valkey.ClientDBs.JWT, log)
+	defer valkey.Close(jwtClient)
+	log.Info("Valkey client(-s) connected successfully")
+
 	// Repositories
 	log.Info("Initializing repositories...")
 	userRepo := repository.NewUserRepository(db, log)
+	jwtRepo := repository.NewJWTRepository(jwtClient, log)
 	studentGroupRepo := repository.NewStudentGroupRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
 	serviceConfigs := config.NewServiceConfigs(sharedConfig)
 	log.Info("Initializing services...")
+	authService := service.NewAuthService(
+		userRepo,
+		jwtRepo,
+		db,
+		serviceConfigs.Auth,
+		log,
+	)
 	userService := service.NewUserService(
 		userRepo,
 		db,
@@ -78,7 +93,7 @@ func main() {
 
 	// Handlers
 	log.Info("Initializing handlers...")
-	authHandler := handler.NewAuthHandler(userService, log)
+	authHandler := handler.NewAuthHandler(authService, userService, serviceConfigs.Auth, log)
 	userHandler := handler.NewUserHandler(userService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
 

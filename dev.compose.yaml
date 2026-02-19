@@ -8,12 +8,27 @@ services:
       - "${VALKEY_PORT:-6379}:6379"
     volumes:
       - ./data/valkey:/data
-      - ./config/valkey.conf:/usr/local/etc/valkey/valkey.conf:ro
-    command: valkey-server /usr/local/etc/valkey/valkey.conf
+    command:
+      - "valkey-server"
+      - "--bind"
+      - "${VALKEY_HOST}"
+      - "--port"
+      - "${VALKEY_PORT}"
+      - "--protected-mode"
+      - "yes"
+      - "--requirepass"
+      - "${VALKEY_PASSWORD}"
+      - "--dir"
+      - "/data"
     env_file:
       - .env
     networks:
       - lts_network
+    # healthcheck:
+    #   test: ["CMD-SHELL", "PING"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
 
   postgres:
     image: postgres:latest
@@ -53,6 +68,7 @@ services:
       - RSA_PRIVATE_KEY=RSA_private_key.pem
       - RSA_PUBLIC_KEY=RSA_public_key.pem
       - POSTGRES_HOST=postgres
+      - JWT_ISSUER=lts-backend
     env_file:
       - .env
     networks:
@@ -60,8 +76,10 @@ services:
     ports:
       - "37190:37190"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+        # condition: service_healthy
+      - valkey
+        # condition: service_healthy
     develop:
       watch:
         - action: rebuild

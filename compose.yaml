@@ -1,20 +1,5 @@
 services:
 
-  valkey:
-    image: valkey/valkey:latest
-    container_name: lts-valkey
-    restart: always
-    ports:
-      - "${VALKEY_PORT:-6379}:6379"
-    volumes:
-      - ./data/valkey:/data
-      - ./config/valkey.conf:/usr/local/etc/valkey/valkey.conf:ro
-    command: valkey-server /usr/local/etc/valkey/valkey.conf
-    env_file:
-      - .env
-    networks:
-      - lts_network
-
   postgres:
     image: postgres:latest
     container_name: lts-postgres
@@ -51,6 +36,7 @@ services:
       - RSA_PRIVATE_KEY=RSA_private_key.pem
       - RSA_PUBLIC_KEY=RSA_public_key.pem
       - POSTGRES_HOST=postgres
+      - JWT_ISSUER=lts-backend
     env_file:
       - .env
     networks:
