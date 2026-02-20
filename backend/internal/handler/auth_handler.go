@@ -144,6 +144,85 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get credentials
+	email := r.PostForm["email"]
+	if len(email) == 0 {
+		errorResponse(w, "failed to parse form: email field is required", http.StatusBadRequest)
+	} else if len(email) > 1 {
+		errorResponse(w, "failed to parse form: to much email values", http.StatusBadRequest)
+	}
+	password := r.PostForm["password"]
+	if len(password) == 0 {
+		errorResponse(w, "failed to parse form: password field is required", http.StatusBadRequest)
+	} else if len(password) > 1 {
+		errorResponse(w, "failed to parse form: to much password values", http.StatusBadRequest)
+	}
+	// Log in
+	tokens, userResponse, err := h.authService.Login(r.Context(), email[0], password[0])
+	if err != nil {
+		handleServiceError(w, fmt.Errorf("failed to log in with this credentials: %w", err))
+		return
+	}
+	// Parse created tokens
+	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
+	if err != nil {
+		errorResponse(w, fmt.Sprintf("failed to parse access token: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
+	if err != nil {
+		errorResponse(w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	// Set cookies
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_access",
+		Value:    tokens.AccessToken,
+		Path:     "/",
+		Expires:  parsedAccessToken.RegisteredClaims.ExpiresAt.Time,
+		HttpOnly: true,
+		Secure:   h.authServiceConfig.CookieSecure,
+	})
+	h.log.Debug("Added JWT access to the cookies")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_refresh",
+		Value:    tokens.RefreshToken,
+		Path:     "/",
+		Expires:  parsedRefreshToken.RegisteredClaims.ExpiresAt.Time,
+		HttpOnly: true,
+		Secure:   h.authServiceConfig.CookieSecure,
+	})
+	h.log.Debug("Added JWT refresh to the cookies")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "authorized",
+		Value:    "true",
+		Path:     "/",
+		Expires:  parsedRefreshToken.RegisteredClaims.ExpiresAt.Time,
+		HttpOnly: false,
+		Secure:   h.authServiceConfig.CookieSecure,
+	})
+	h.log.Debug("Authorized value is set to true in cookies")
+	h.log.Info("User logged in successfully")
+	jsonResponse(w, map[string]interface{}{
+		"user": userResponse,
+	},
+		http.StatusOK,
+	)
+}
+
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
