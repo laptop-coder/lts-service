@@ -57,3 +57,11 @@ func handleServiceError(w http.ResponseWriter, err error) {
 	}
 	errorResponse(w, errMsg, statusCode)
 }
+
+func getCookie(cookieKey string, r *http.Request) (string, error) {
+	cookie, err := r.Cookie(cookieKey)
+	if err != nil {
+		return "", err
+	}
+	return cookie.Value, nil
+}
