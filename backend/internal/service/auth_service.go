@@ -31,9 +31,9 @@ type TokenClaims struct {
 
 type AuthService interface {
 	Login(ctx context.Context, email string, password string) (*TokenResponse, *UserResponseDTO, error)
-	Logout(ctx context.Context, userID uuid.UUID) error
 	RefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error)
 	ParseToken(tokenString string) (*TokenClaims, error)
+	RevokeToken(ctx context.Context, tokenString string) error
 }
 
 type TokenResponse struct {
@@ -120,28 +120,30 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse old refresh token: %w", err)
 	}
-	s.jwtRepo.Revoke(ctx, refreshToken, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time))
+	if err := s.jwtRepo.Revoke(ctx, refreshToken, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time)); err != nil {
+		return nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
+	}
 	// Return response
 	s.log.Info("Token refreshed successfully")
 	return tokens, nil
 }
 
-func (s *authService) Logout(ctx context.Context, userID uuid.UUID) error {
-	s.log.Debug("User logout", "userID", userID)
-	// Get refresh token from context
-	token, ok := ctx.Value("refresh_token").(string)
-	if !ok {
-		return fmt.Errorf("failed to get refresh token from context (maybe there is no token in it)")
-	}
-	// Revoke token and return response
+func (s *authService) RevokeToken(ctx context.Context, token string) error {
+	s.log.Info("Revoking token")
+	// Parse
 	parsedToken, err := s.ParseToken(token)
 	if err != nil {
-		return fmt.Errorf("failed to parse refresh token: %w", err)
+		return fmt.Errorf("failed to parse token: %w", err)
 	}
-	return s.jwtRepo.Revoke(ctx, token, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time))
+	// Revoke
+	if err := s.jwtRepo.Revoke(ctx, token, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time)); err != nil {
+		return fmt.Errorf("failed to revoke token: %w", err)
+	}
+	// Return response
+	s.log.Info("Token revoked successfully")
+	return nil
 }
 
-// TODO: LogoutAll
 // TODO: add versions to JWT (for revoking all tokens after changing password or logging out from all devices, e.g.)
 
 func (s *authService) generateTokenPair(ctx context.Context, user *model.User) (*TokenResponse, error) {
