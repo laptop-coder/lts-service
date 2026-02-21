@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"backend/internal/service"
 	"backend/pkg/logger"
 	"fmt"
@@ -221,6 +222,57 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	},
 		http.StatusOK,
 	)
+}
+
+// TODO: LogoutAll (i.e. increase version of new tokens, so any other token with
+// old version will be considered revoked)
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Get refresh token from cookies
+	refreshToken, err := getCookie("jwt_refresh", r)
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			errorResponse(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+		errorResponse(w, fmt.Sprintf("error reading refresh token cookie: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	// Revoke JWT refresh
+	if err := h.authService.RevokeToken(r.Context(), refreshToken); err != nil {
+		handleServiceError(w, err)
+	}
+	// Clear cookies
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_access",
+		Value:    "",
+		Path:     "/",
+		MaxAge: -1,
+	})
+	h.log.Debug("Cleared JWT access cookie")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_refresh",
+		Value:    "",
+		Path:     "/",
+		MaxAge: -1,
+	})
+	h.log.Debug("Cleared JWT refresh cookie")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "authorized",
+		Value:    "",
+		Path:     "/",
+		MaxAge: -1,
+	})
+	h.log.Debug("Cleared authorized cookie")
+	h.log.Info("User logged out successfully")
+	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
