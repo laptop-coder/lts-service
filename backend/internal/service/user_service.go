@@ -47,13 +47,14 @@ type CreateUserDTO struct {
 
 type UserResponseDTO struct {
 	ID         uuid.UUID `json:"id"`
+	CreatedAt  string    `json:"createdAt"`
+	UpdatedAt  string    `json:"updatedAt"`
 	Email      string    `json:"email"`
 	FirstName  string    `json:"firstName"`
 	MiddleName *string   `json:"middleName,omitempty"`
 	LastName   string    `json:"lastName"`
 	HasAvatar  bool      `json:"hasAvatar"`
 	Roles      []RoleDTO `json:"roles"`
-	CreatedAt  string    `json:"createdAt"`
 }
 
 type ChangePasswordDTO struct {
@@ -451,13 +452,14 @@ func UserToDTO(user *model.User) *UserResponseDTO {
 	}
 	return &UserResponseDTO{
 		ID:         user.ID,
+		CreatedAt:  user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:  user.UpdatedAt.Format(time.RFC3339),
 		Email:      user.Email,
 		FirstName:  user.FirstName,
 		MiddleName: user.MiddleName,
 		LastName:   user.LastName,
 		HasAvatar:  user.HasAvatar,
 		Roles:      roles,
-		CreatedAt:  user.CreatedAt.Format(time.RFC3339),
 	}
 }
 
