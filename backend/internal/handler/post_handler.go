@@ -104,3 +104,23 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Return response
 	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
+
+func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		errorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+	}
+	// Remove post photo file
+	if err := h.postService.RemovePhoto(r.Context(), postID); err != nil {
+		handleServiceError(w, fmt.Errorf("failed to remove post photo file: %w", err))
+		return
+	}
+	// Return response
+	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}

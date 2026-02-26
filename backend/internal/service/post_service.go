@@ -22,6 +22,7 @@ import (
 type PostService interface {
 	CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error)
 	DeletePost(ctx context.Context, id uuid.UUID) error
+	RemovePhoto(ctx context.Context, postID uuid.UUID) error
 }
 
 type CreatePostDTO struct {
@@ -146,6 +147,31 @@ func (s *postService) DeletePost(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return fmt.Errorf("transaction failed: %w", err)
 	}
+	return nil
+}
+
+func (s *postService) RemovePhoto(ctx context.Context, postID uuid.UUID) error {
+	// Getting post
+	post, err := s.postRepo.FindByID(ctx, &postID)
+	if err != nil {
+		return fmt.Errorf("post not found: %w", err)
+	}
+	// Transaction
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if post.HasPhoto {
+			// Change photo existence status in the database
+			post.HasPhoto = false
+			if err := s.postRepo.Update(ctx, post); err != nil {
+				return fmt.Errorf("failed to delete post photo: %w", err)
+			}
+			s.log.Info("Removing post photo file...")
+			s.removePostPhoto(postID)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+	s.log.Info("Post photo file was successfully removed")
 	return nil
 }
 

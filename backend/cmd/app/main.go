@@ -118,6 +118,7 @@ func main() {
 	mux.HandleFunc("POST /api/v1/auth/logout", authHandler.Logout)
 	mux.HandleFunc("POST /api/v1/posts", postHandler.Create)
 	mux.HandleFunc("DELETE /api/v1/posts/{id}", postHandler.Delete)
+	mux.HandleFunc("DELETE /api/v1/posts/{id}/photo", postHandler.RemovePhoto)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
