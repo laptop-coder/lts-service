@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"errors"
 	"backend/internal/service"
 	"backend/pkg/logger"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
@@ -251,23 +251,23 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	// Clear cookies
 	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt_access",
-		Value:    "",
-		Path:     "/",
+		Name:   "jwt_access",
+		Value:  "",
+		Path:   "/",
 		MaxAge: -1,
 	})
 	h.log.Debug("Cleared JWT access cookie")
 	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt_refresh",
-		Value:    "",
-		Path:     "/",
+		Name:   "jwt_refresh",
+		Value:  "",
+		Path:   "/",
 		MaxAge: -1,
 	})
 	h.log.Debug("Cleared JWT refresh cookie")
 	http.SetCookie(w, &http.Cookie{
-		Name:     "authorized",
-		Value:    "",
-		Path:     "/",
+		Name:   "authorized",
+		Value:  "",
+		Path:   "/",
 		MaxAge: -1,
 	})
 	h.log.Debug("Cleared authorized cookie")

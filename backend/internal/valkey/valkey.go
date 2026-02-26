@@ -1,8 +1,8 @@
 package valkey
 
 import (
-	"backend/pkg/logger"
 	"backend/pkg/env"
+	"backend/pkg/logger"
 	"context"
 	"fmt"
 	"github.com/valkey-io/valkey-go"
@@ -23,7 +23,7 @@ type Config struct {
 	DB       int
 }
 
-func NewClient(db int, log logger.Logger) (valkey.Client) {
+func NewClient(db int, log logger.Logger) valkey.Client {
 	client, err := Connect(
 		Config{
 			Host:     env.GetStringRequired("VALKEY_HOST"),
