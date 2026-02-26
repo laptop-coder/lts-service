@@ -22,4 +22,5 @@ type Post struct {
 	// the logic is the same as for user's avatar
 	HasPhoto bool      `gorm:"type:boolean;default:false"`
 	AuthorID uuid.UUID `gorm:"type:uuid"`
+	Author   User      `gorm:"foreignKey:AuthorID;references:ID"`
 }

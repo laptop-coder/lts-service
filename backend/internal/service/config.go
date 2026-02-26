@@ -15,6 +15,12 @@ type UserServiceConfig struct {
 	AvatarAllowedMIMETypes []string
 }
 
+type PostServiceConfig struct {
+	PhotoMaxSize          int64
+	PhotoUploadPath       string
+	PhotoAllowedMIMETypes []string
+}
+
 type AuthServiceConfig struct {
 	JWTSecret          []byte
 	AccessTokenExpiry  time.Duration

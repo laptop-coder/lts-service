@@ -85,7 +85,7 @@ func (r *postRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Po
 		return nil, fmt.Errorf("post id cannot be nil")
 	}
 	var post model.Post
-	result := r.db.WithContext(ctx).First(&post, *id)
+	result := r.db.WithContext(ctx).Preload("Author").Preload("Author.Roles").First(&post, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("post with id %s was not found: %w", *id, result.Error)

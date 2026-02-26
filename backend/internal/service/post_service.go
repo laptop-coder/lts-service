@@ -1,0 +1,281 @@
+package service
+
+import (
+	"backend/internal/model"
+	"backend/internal/repository"
+	"backend/pkg/logger"
+	"context"
+	// "errors"
+	"fmt"
+	"github.com/google/uuid"
+	// "golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
+	"slices"
+	"time"
+)
+
+type PostService interface {
+	CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error)
+}
+
+type CreatePostDTO struct {
+	Name        string                `form:"name" validate:"required,min=2,max=50"`
+	Description string                `form:"name,omitempty" validate:"max=1000"`
+	Photo       *multipart.FileHeader `form:"photo,omitempty"` // post photo file
+	AuthorID    uuid.UUID             `form:"authorID" validate:"required"`
+}
+
+type PostResponseDTO struct {
+	ID                   uuid.UUID       `json:"id"`
+	CreatedAt            string          `json:"createdAt"`
+	UpdatedAt            string          `json:"updatedAt"`
+	Name                 string          `form:"name"`
+	Description          string          `form:"name,omitempty"`
+	Verified             bool            `form:"verified"`
+	ThingReturnedToOwner bool            `form:"thingReturnedToOwner"`
+	HasPhoto             bool            `form:"hasPhoto"`
+	Author               UserResponseDTO `form:"author"`
+}
+
+type postService struct {
+	postRepo repository.PostRepository
+	db       *gorm.DB
+	config   PostServiceConfig
+	log      logger.Logger
+}
+
+func NewPostService(
+	postRepo repository.PostRepository,
+	db *gorm.DB,
+	config PostServiceConfig,
+	log logger.Logger,
+) PostService {
+	return &postService{
+		postRepo: postRepo,
+		db:       db,
+		config:   config,
+		log:      log,
+	}
+}
+
+func (s *postService) CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error) {
+	// Input data validation
+	if err := s.validateCreatePostDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during post creation: %w", err)
+	}
+	// Generating ID for post
+	postID := uuid.New()
+	// Photo processing (if passed)
+	hasPhoto := false
+	if dto.Photo != nil {
+		// Validating
+		if err := s.validatePostPhoto(dto.Photo); err != nil {
+			return nil, fmt.Errorf("post photo validation failed: %w", err)
+		}
+		// Saving to storage
+		if err := s.savePostPhoto(postID, dto.Photo); err != nil {
+			return nil, fmt.Errorf("failed to save post photo to storage: %w", err)
+		}
+		hasPhoto = true
+	}
+	// Creating model object
+	post := &model.Post{
+		ID:                   postID,
+		Name:                 dto.Name,
+		Description:          dto.Description,
+		Verified:             false,
+		ThingReturnedToOwner: false,
+		HasPhoto:             hasPhoto,
+		AuthorID:             dto.AuthorID,
+	}
+	// Transaction for creating post
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		txRepo := repository.NewPostRepository(tx, s.log)
+		if err := txRepo.Create(ctx, post); err != nil {
+			// Delete the saved post photo, if the transaction is rolled back
+			if hasPhoto {
+				s.removePostPhoto(postID)
+			}
+			return fmt.Errorf("failed to create post: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("transaction failed: %w", err)
+	}
+	// Get created post for response
+	createdPost, err := s.postRepo.FindByID(ctx, &post.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch created post: %w", err)
+	}
+	return PostToDTO(createdPost), nil
+}
+
+func (s *postService) validatePostPhoto(fileHeader *multipart.FileHeader) error {
+	// Check file size
+	if fileHeader.Size > s.config.PhotoMaxSize {
+		return fmt.Errorf("file size exceeds limit of %d bytes", s.config.PhotoMaxSize)
+	}
+	// read info
+	file, err := fileHeader.Open()
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+	// to return to the start of the file after determiming the MIME type
+	if seeker, ok := file.(io.Seeker); ok {
+		defer seeker.Seek(0, io.SeekStart)
+	}
+	buffer := make([]byte, 512) // read first 512 bytes to determine MIME type
+	_, err = file.Read(buffer)
+	if err != nil && err != io.EOF {
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+	mimeType := http.DetectContentType(buffer)
+	if !slices.Contains(s.config.PhotoAllowedMIMETypes, mimeType) {
+		return fmt.Errorf("unsupported file type: %s. Allowed: %v", mimeType, s.config.PhotoAllowedMIMETypes)
+	}
+	return nil
+}
+
+func (s *postService) savePostPhoto(postID uuid.UUID, fileHeader *multipart.FileHeader) error {
+	// Creating directory (if not exists)
+	if err := os.MkdirAll(s.config.PhotoUploadPath, 0755); err != nil {
+		return fmt.Errorf("failed to create upload directory for post photos: %w", err)
+	}
+	// Opening source file
+	srcFile, err := fileHeader.Open()
+	if err != nil {
+		return fmt.Errorf("failed to open uploaded file (post photo): %w", err)
+	}
+	defer srcFile.Close()
+	// Creating file path (where to save post photo)
+	filePath := filepath.Join(
+		s.config.PhotoUploadPath,
+		// TODO: convert to jpeg. Now it is not converting, but only renaming
+		fmt.Sprintf("%s.jpeg", postID.String()),
+	)
+	// Creating file in storage
+	dstFile, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer dstFile.Close()
+	// Copying the content from the source file to the destination file
+	if _, err = io.Copy(dstFile, srcFile); err != nil {
+		// Deleting a partially filled file in the case of error
+		os.Remove(filePath)
+		return fmt.Errorf("failed to copy file: %w", err)
+	}
+	return nil
+}
+
+func (s *postService) removePostPhoto(postID uuid.UUID) {
+	filePath := filepath.Join(
+		s.config.PhotoUploadPath,
+		fmt.Sprintf("%s.jpeg", postID.String()),
+	)
+	os.Remove(filePath)
+}
+
+func (s *postService) UpdatePostPhoto(ctx context.Context, postID uuid.UUID, postPhoto *multipart.FileHeader) error {
+	post, err := s.postRepo.FindByID(ctx, &postID)
+	if err != nil {
+		return fmt.Errorf("post not found: %w", err)
+	}
+	// Validating the file
+	if err := s.validatePostPhoto(postPhoto); err != nil {
+		return err
+	}
+	// Saving the new photo
+	if err := s.savePostPhoto(postID, postPhoto); err != nil {
+		return err
+	}
+	// Mark existence of the photo in the database
+	post.HasPhoto = true
+	if err := s.postRepo.Update(ctx, post); err != nil {
+		// Rollback file saving in the case of error
+		s.removePostPhoto(postID)
+		return fmt.Errorf("failed to update post photo: %w", err)
+	}
+	return nil
+}
+
+func (s *postService) RemovePostPhoto(ctx context.Context, postID uuid.UUID) error {
+	// Getting post
+	post, err := s.postRepo.FindByID(ctx, &postID)
+	if err != nil {
+		return fmt.Errorf("post not found: %w", err)
+	}
+	// Transaction
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if post.HasPhoto {
+			// Change photo existence status in the database
+			post.HasPhoto = false
+			if err := s.postRepo.Update(ctx, post); err != nil {
+				return fmt.Errorf("failed to delete post photo: %w", err)
+			}
+			s.log.Info("Removing post photos...")
+			s.removePostPhoto(postID)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+	s.log.Info("Post photo was successfully removed")
+	return nil
+}
+
+func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
+	// if dto.Email == "" {
+	// 	return fmt.Errorf("email is required")
+	// }
+	// if len(dto.Password) < 8 {
+	// 	return fmt.Errorf("password must be at least 8 characters")
+	// }
+	// if len(dto.FirstName) < 2 {
+	// 	return fmt.Errorf("first name must be at least 2 characters")
+	// }
+	// if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
+	// 	return fmt.Errorf("middle name must be at least 2 characters or null")
+	// }
+	// if len(dto.LastName) < 2 {
+	// 	return fmt.Errorf("last name must be at least 2 characters")
+	// }
+	// if len(dto.RoleIDs) > 0 {
+	// 	// TODO: check if all reoles exist in DB
+	// }
+	return nil
+}
+
+// func (s *postService) validateUpdatePostDTO(dto *UpdatePostDTO) error {
+// if dto.FirstName != nil && len(*dto.FirstName) < 2 {
+// 	return fmt.Errorf("first name must be at least 2 characters or null")
+// }
+// if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
+// 	return fmt.Errorf("middle name must be at least 2 characters or null")
+// }
+// if dto.LastName != nil && len(*dto.LastName) < 2 {
+// 	return fmt.Errorf("last name must be at least 2 characters or null")
+// }
+// return nil
+// }
+
+func PostToDTO(post *model.Post) *PostResponseDTO {
+	return &PostResponseDTO{
+		ID:                   post.ID,
+		CreatedAt:            post.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:            post.UpdatedAt.Format(time.RFC3339),
+		Name:                 post.Name,
+		Description:          post.Description,
+		Verified:             post.Verified,
+		ThingReturnedToOwner: post.ThingReturnedToOwner,
+		HasPhoto:             post.HasPhoto,
+		Author:               *UserToDTO(&post.Author),
+	}
+}

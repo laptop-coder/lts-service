@@ -6,12 +6,14 @@ import (
 
 type ServiceConfigs struct {
 	User service.UserServiceConfig
+	Post service.PostServiceConfig
 	Auth service.AuthServiceConfig
 }
 
 func NewServiceConfigs(sharedConfig SharedConfig) ServiceConfigs {
 	return ServiceConfigs{
 		User: newUserServiceConfig(sharedConfig),
+		Post: newPostServiceConfig(sharedConfig),
 		Auth: newAuthServiceConfig(sharedConfig),
 	}
 }
@@ -22,6 +24,14 @@ func newUserServiceConfig(sharedConfig SharedConfig) service.UserServiceConfig {
 		AvatarMaxSize:          sharedConfig.Storage.Avatar.MaxSize,
 		AvatarUploadPath:       sharedConfig.Storage.Avatar.UploadPath,
 		AvatarAllowedMIMETypes: sharedConfig.Storage.Avatar.AllowedMIMETypes,
+	}
+}
+
+func newPostServiceConfig(sharedConfig SharedConfig) service.PostServiceConfig {
+	return service.PostServiceConfig{
+		PhotoMaxSize:          sharedConfig.Storage.PostPhoto.MaxSize,
+		PhotoUploadPath:       sharedConfig.Storage.PostPhoto.UploadPath,
+		PhotoAllowedMIMETypes: sharedConfig.Storage.PostPhoto.AllowedMIMETypes,
 	}
 }
 

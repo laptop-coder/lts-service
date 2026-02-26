@@ -4,10 +4,10 @@ package main
 import (
 	"backend/internal/config"
 	"backend/internal/database"
-	"backend/internal/valkey"
 	"backend/internal/handler"
 	"backend/internal/repository"
 	"backend/internal/service"
+	"backend/internal/valkey"
 	"backend/pkg/env"
 	"backend/pkg/logger"
 	"backend/pkg/middleware"
@@ -67,6 +67,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db, log)
 	jwtRepo := repository.NewJWTRepository(jwtClient, log)
 	studentGroupRepo := repository.NewStudentGroupRepository(db, log)
+	postRepo := repository.NewPostRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
@@ -85,6 +86,12 @@ func main() {
 		serviceConfigs.User,
 		log,
 	)
+	postService := service.NewPostService(
+		postRepo,
+		db,
+		serviceConfigs.Post,
+		log,
+	)
 	studentGroupService := service.NewStudentGroupService(
 		studentGroupRepo,
 		db,
@@ -95,6 +102,7 @@ func main() {
 	log.Info("Initializing handlers...")
 	authHandler := handler.NewAuthHandler(authService, userService, serviceConfigs.Auth, log)
 	userHandler := handler.NewUserHandler(userService, log)
+	postHandler := handler.NewPostHandler(postService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
 
 	mux := http.NewServeMux()
@@ -108,6 +116,7 @@ func main() {
 	mux.HandleFunc("GET /api/v1/student_groups/{id}/advisor", studentGroupHandler.GetAdvisorByGroupID)
 	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
 	mux.HandleFunc("POST /api/v1/auth/logout", authHandler.Logout)
+	mux.HandleFunc("POST /api/v1/posts", postHandler.Create)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
