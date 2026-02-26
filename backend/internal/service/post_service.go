@@ -5,7 +5,7 @@ import (
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
-	// "errors"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	// "golang.org/x/crypto/bcrypt"
@@ -21,6 +21,7 @@ import (
 
 type PostService interface {
 	CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error)
+	DeletePost(ctx context.Context, id uuid.UUID) error
 }
 
 type CreatePostDTO struct {
@@ -114,6 +115,38 @@ func (s *postService) CreatePost(ctx context.Context, dto CreatePostDTO) (*PostR
 		return nil, fmt.Errorf("failed to fetch created post: %w", err)
 	}
 	return PostToDTO(createdPost), nil
+}
+
+func (s *postService) DeletePost(ctx context.Context, id uuid.UUID) error {
+	s.log.Info("Starting post deletion...")
+	// Getting existing post
+	post, err := s.postRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Post for delete was not found by id", "post id", id, "error", err)
+			return fmt.Errorf("post with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get post for delete", "post id", id, "error", err)
+		return fmt.Errorf("failed to get post for delete: %w", err)
+	}
+	// Transaction for post deletion
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		txRepo := repository.NewPostRepository(tx, s.log)
+		if post.HasPhoto {
+			s.log.Info("Removing post photo file...")
+			s.removePostPhoto(id)
+		}
+		if err := txRepo.Delete(ctx, &id); err != nil {
+			s.log.Error("Failed to delete the post")
+			return fmt.Errorf("failed to delete the post: %w", err)
+		}
+		s.log.Info("Post deleted successfully")
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+	return nil
 }
 
 func (s *postService) validatePostPhoto(fileHeader *multipart.FileHeader) error {

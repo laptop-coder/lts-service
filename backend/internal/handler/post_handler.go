@@ -84,3 +84,23 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 		http.StatusCreated,
 	)
 }
+
+func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		errorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+	}
+	// Delete post
+	if err := h.postService.DeletePost(r.Context(), postID); err != nil {
+		handleServiceError(w, fmt.Errorf("failed to delete the post: %w", err))
+		return
+	}
+	// Return response
+	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
