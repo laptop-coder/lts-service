@@ -1,4 +1,14 @@
 # LostThingsSearch service
+## Current roles:
+```
+1 - superadmin
+2 - admin
+3 - institution_administration
+4 - staff
+5 - teacher
+6 - parent
+7 - student
+```
 
 ## Installing `cron` schedule:
 
