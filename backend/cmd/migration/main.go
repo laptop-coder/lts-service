@@ -80,4 +80,16 @@ func main() {
 		log.Error("MIGRATION | Cannot add constraints")
 		panic("Cannot add constraints")
 	}
+
+	// Create roles
+	roles := []model.Role{
+		{ID: 1, Name: "superadmin"},
+		{ID: 2, Name: "admin"},
+		{ID: 3, Name: "institution_administrator"},
+		{ID: 4, Name: "staff"},
+		{ID: 5, Name: "teacher"},
+		{ID: 6, Name: "parent"},
+		{ID: 7, Name: "student"},
+	}
+	db.Create(&roles)
 }
