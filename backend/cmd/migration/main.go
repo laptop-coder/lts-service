@@ -91,5 +91,11 @@ func main() {
 		{ID: 6, Name: "parent"},
 		{ID: 7, Name: "student"},
 	}
-	db.Create(&roles)
+	for _, role := range roles {
+		if err := db.FirstOrCreate(&role, model.Role{ID: role.ID}).Error; err != nil {
+			log.Error("MIGRATION | Failed to create roles", err)
+			panic(err)
+		}
+	}
+	log.Info("MIGRATION | Roles created successfully")
 }
