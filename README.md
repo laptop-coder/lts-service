@@ -3,7 +3,7 @@
 ```
 1 - superadmin
 2 - admin
-3 - institution_administration
+3 - institution_administrator
 4 - staff
 5 - teacher
 6 - parent
