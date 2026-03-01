@@ -68,35 +68,17 @@ func main() {
 	jwtRepo := repository.NewJWTRepository(jwtClient, log)
 	studentGroupRepo := repository.NewStudentGroupRepository(db, log)
 	postRepo := repository.NewPostRepository(db, log)
+	roomRepo := repository.NewRoomRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
 	serviceConfigs := config.NewServiceConfigs(sharedConfig)
 	log.Info("Initializing services...")
-	authService := service.NewAuthService(
-		userRepo,
-		jwtRepo,
-		db,
-		serviceConfigs.Auth,
-		log,
-	)
-	userService := service.NewUserService(
-		userRepo,
-		db,
-		serviceConfigs.User,
-		log,
-	)
-	postService := service.NewPostService(
-		postRepo,
-		db,
-		serviceConfigs.Post,
-		log,
-	)
-	studentGroupService := service.NewStudentGroupService(
-		studentGroupRepo,
-		db,
-		log,
-	)
+	authService := service.NewAuthService(userRepo, jwtRepo, db, serviceConfigs.Auth, log)
+	userService := service.NewUserService(userRepo, db, serviceConfigs.User, log)
+	postService := service.NewPostService(postRepo, db, serviceConfigs.Post, log)
+	studentGroupService := service.NewStudentGroupService(studentGroupRepo, db, log)
+	roomService := service.NewRoomService(roomRepo, db, log)
 
 	// Handlers
 	log.Info("Initializing handlers...")
@@ -104,6 +86,7 @@ func main() {
 	userHandler := handler.NewUserHandler(userService, log)
 	postHandler := handler.NewPostHandler(postService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
+	roomHandler := handler.NewRoomHandler(roomService, log)
 
 	mux := http.NewServeMux()
 
@@ -119,6 +102,10 @@ func main() {
 	mux.HandleFunc("POST /api/v1/posts", postHandler.Create)
 	mux.HandleFunc("DELETE /api/v1/posts/{id}", postHandler.Delete)
 	mux.HandleFunc("DELETE /api/v1/posts/{id}/photo", postHandler.RemovePhoto)
+	mux.HandleFunc("PATCH /api/v1/posts/{id}", postHandler.Update)
+	mux.HandleFunc("POST /api/v1/rooms", roomHandler.Create)
+	mux.HandleFunc("DELETE /api/v1/rooms/{id}", roomHandler.Delete)
+	mux.HandleFunc("PATCH /api/v1/rooms/{id}", roomHandler.Update)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

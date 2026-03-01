@@ -12,5 +12,6 @@ type Room struct {
 	UpdatedAt time.Time
 	Name      string `gorm:"type:varchar(20);unique;check:length(trim(name)) >= 1"`
 	// one-to-one (room-to-teacher)
-	TeacherID uuid.UUID `gorm:"type:uuid"`
+	TeacherID *uuid.UUID `gorm:"type:uuid"`
+	Teacher   *Teacher   `gorm:"foreignKey:TeacherID;references:UserID"`
 }

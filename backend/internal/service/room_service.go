@@ -1,0 +1,186 @@
+package service
+
+import (
+	"backend/internal/model"
+	"backend/internal/repository"
+	"backend/pkg/logger"
+	"context"
+	"errors"
+	"fmt"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"time"
+)
+
+type RoomService interface {
+	CreateRoom(ctx context.Context, dto CreateRoomDTO) (*RoomResponseDTO, error)
+	UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDTO) (*RoomResponseDTO, error)
+	DeleteRoom(ctx context.Context, id uint8) error
+}
+
+type CreateRoomDTO struct {
+	Name      string     `form:"name" validate:"required,min=1,max=20"`
+	TeacherID *uuid.UUID `form:"teacherID,omitempty"`
+}
+
+type UpdateRoomDTO struct {
+	Name      *string    `form:"name,omitempty" validate:"max=20"`
+	TeacherID *uuid.UUID `form:"teacherID,omitempty"`
+}
+
+type RoomResponseDTO struct {
+	ID        uint8      `json:"id"`
+	CreatedAt string     `json:"createdAt"`
+	UpdatedAt string     `json:"updatedAt"`
+	Name      string     `json:"name"`
+	TeacherID *uuid.UUID `json:"teacherID"`
+}
+
+type roomService struct {
+	roomRepo repository.RoomRepository
+	db       *gorm.DB
+	log      logger.Logger
+}
+
+func NewRoomService(
+	roomRepo repository.RoomRepository,
+	db *gorm.DB,
+	log logger.Logger,
+) RoomService {
+	return &roomService{
+		roomRepo: roomRepo,
+		db:       db,
+		log:      log,
+	}
+}
+
+func (s *roomService) CreateRoom(ctx context.Context, dto CreateRoomDTO) (*RoomResponseDTO, error) {
+	// Input data validation
+	if err := s.validateCreateRoomDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during room creation: %w", err)
+	}
+	// Creating model object
+	room := &model.Room{
+		Name:      dto.Name,
+		TeacherID: dto.TeacherID,
+	}
+	// Create room
+	if err := s.roomRepo.Create(ctx, room); err != nil {
+		return nil, fmt.Errorf("failed to create room: %w", err)
+	}
+	// Get created room for response
+	createdRoom, err := s.roomRepo.FindByID(ctx, &room.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch created room: %w", err)
+	}
+	return RoomToDTO(createdRoom), nil
+}
+
+func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDTO) (*RoomResponseDTO, error) {
+	// Input data validation
+	if err := s.validateUpdateRoomDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during room updating: %w", err)
+	}
+	// Getting existing room
+	room, err := s.roomRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Room for update was not found by id", "room id", id, "error", err)
+			return nil, fmt.Errorf("room with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get room for update", "room id", id, "error", err)
+		return nil, fmt.Errorf("failed to get room for update: %w", err)
+	}
+	// Updating fields
+	updatedFieldsCount := 0 // TODO: perhaps this is unnecessary
+	if dto.Name != nil && *dto.Name != room.Name {
+		room.Name = *dto.Name
+		updatedFieldsCount++
+	}
+	if dto.TeacherID != nil && *dto.TeacherID != *room.TeacherID {
+		room.TeacherID = dto.TeacherID
+		updatedFieldsCount++
+	}
+	// Updating room in DB
+	if err := s.roomRepo.Update(ctx, room); err != nil {
+		s.log.Error("Failed to update the room")
+		return nil, fmt.Errorf("failed to update the room: %w", err)
+	}
+	// Get updated room for response
+	updatedRoom, err := s.roomRepo.FindByID(ctx, &room.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch updated room: %w", err)
+	}
+	return RoomToDTO(updatedRoom), nil
+}
+
+func (s *roomService) DeleteRoom(ctx context.Context, id uint8) error {
+	s.log.Info("Starting room deletion...")
+	// Getting existing room
+	_, err := s.roomRepo.FindByID(ctx, &id) // does it necessary?
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Room for delete was not found by id", "room id", id, "error", err)
+			return fmt.Errorf("room with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get room for delete", "room id", id, "error", err)
+		return fmt.Errorf("failed to get room for delete: %w", err)
+	}
+	// Delete room
+	if err := s.roomRepo.Delete(ctx, &id); err != nil {
+		s.log.Error("Failed to delete the room")
+		return fmt.Errorf("failed to delete the room: %w", err)
+	}
+	s.log.Info("Room deleted successfully")
+	return nil
+}
+
+func (s *roomService) validateCreateRoomDTO(dto *CreateRoomDTO) error {
+	// TODO: check if teacher with this ID exists in DB
+	return nil
+}
+
+func (s *roomService) validateUpdateRoomDTO(dto *UpdateRoomDTO) error {
+	// TODO: check if teacher with this ID exists in DB
+	return nil
+}
+
+type SubjectResponseDTO struct {
+	ID   uint8  `json:"id"`
+	Name string `json:"name"`
+}
+
+func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
+	// Get subjects list
+	var subjects []SubjectResponseDTO
+	for _, subject := range teacher.Subjects {
+		subjects = append(subjects, SubjectResponseDTO{
+			ID:   subject.ID,
+			Name: subject.Name,
+		})
+	}
+	// Return response
+	return &TeacherResponseDTO{
+		CreatedAt: teacher.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: teacher.UpdatedAt.Format(time.RFC3339),
+		User:      *UserToDTO(&teacher.User),
+		Subjects:  subjects,
+	}
+}
+
+type TeacherResponseDTO struct {
+	CreatedAt string               `json:"createdAt"`
+	UpdatedAt string               `json:"updatedAt"`
+	User      UserResponseDTO      `json:"user"`
+	Subjects  []SubjectResponseDTO `json:"subjects"`
+}
+
+func RoomToDTO(room *model.Room) *RoomResponseDTO {
+	return &RoomResponseDTO{
+		ID:        room.ID,
+		CreatedAt: room.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: room.UpdatedAt.Format(time.RFC3339),
+		Name:      room.Name,
+		TeacherID: room.TeacherID,
+	}
+}

@@ -11,6 +11,7 @@ import (
 type Teacher struct {
 	// one-to-one (teacher-to-user)
 	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	User   User      `gorm:"foreignKey:UserID;references:ID"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
