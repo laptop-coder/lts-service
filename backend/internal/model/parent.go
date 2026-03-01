@@ -11,6 +11,7 @@ import (
 type Parent struct {
 	// one-to-one (parent-to-user)
 	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	User   User      `gorm:"foreignKey:UserID;references:ID"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
