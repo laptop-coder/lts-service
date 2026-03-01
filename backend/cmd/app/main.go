@@ -69,6 +69,7 @@ func main() {
 	studentGroupRepo := repository.NewStudentGroupRepository(db, log)
 	postRepo := repository.NewPostRepository(db, log)
 	roomRepo := repository.NewRoomRepository(db, log)
+	subjectRepo := repository.NewSubjectRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
@@ -79,6 +80,7 @@ func main() {
 	postService := service.NewPostService(postRepo, db, serviceConfigs.Post, log)
 	studentGroupService := service.NewStudentGroupService(studentGroupRepo, db, log)
 	roomService := service.NewRoomService(roomRepo, db, log)
+	subjectService := service.NewSubjectService(subjectRepo, db, log)
 
 	// Handlers
 	log.Info("Initializing handlers...")
@@ -87,6 +89,7 @@ func main() {
 	postHandler := handler.NewPostHandler(postService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
 	roomHandler := handler.NewRoomHandler(roomService, log)
+	subjectHandler := handler.NewSubjectHandler(subjectService, log)
 
 	mux := http.NewServeMux()
 
@@ -106,6 +109,9 @@ func main() {
 	mux.HandleFunc("POST /api/v1/rooms", roomHandler.Create)
 	mux.HandleFunc("DELETE /api/v1/rooms/{id}", roomHandler.Delete)
 	mux.HandleFunc("PATCH /api/v1/rooms/{id}", roomHandler.Update)
+	mux.HandleFunc("POST /api/v1/subjects", subjectHandler.Create)
+	mux.HandleFunc("DELETE /api/v1/subjects/{id}", subjectHandler.Delete)
+	mux.HandleFunc("PATCH /api/v1/subjects/{id}", subjectHandler.Update)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

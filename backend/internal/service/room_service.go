@@ -145,18 +145,15 @@ func (s *roomService) validateUpdateRoomDTO(dto *UpdateRoomDTO) error {
 	return nil
 }
 
-type SubjectResponseDTO struct {
-	ID   uint8  `json:"id"`
-	Name string `json:"name"`
-}
-
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 	// Get subjects list
 	var subjects []SubjectResponseDTO
 	for _, subject := range teacher.Subjects {
 		subjects = append(subjects, SubjectResponseDTO{
-			ID:   subject.ID,
-			Name: subject.Name,
+			ID:        subject.ID,
+			CreatedAt: subject.CreatedAt.Format(time.RFC3339),
+			UpdatedAt: subject.UpdatedAt.Format(time.RFC3339),
+			Name:      subject.Name,
 		})
 	}
 	// Return response
