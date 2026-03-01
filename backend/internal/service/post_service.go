@@ -21,15 +21,21 @@ import (
 
 type PostService interface {
 	CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error)
+	UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePostDTO) (*PostResponseDTO, error)
 	DeletePost(ctx context.Context, id uuid.UUID) error
 	RemovePhoto(ctx context.Context, postID uuid.UUID) error
 }
 
 type CreatePostDTO struct {
 	Name        string                `form:"name" validate:"required,min=2,max=50"`
-	Description string                `form:"name,omitempty" validate:"max=1000"`
+	Description string                `form:"description,omitempty" validate:"max=1000"`
 	Photo       *multipart.FileHeader `form:"photo,omitempty"` // post photo file
 	AuthorID    uuid.UUID             `form:"authorID" validate:"required"`
+}
+
+type UpdatePostDTO struct {
+	Name        *string `form:"name,omitempty" validate:"max=50"`
+	Description *string `form:"description,omitempty" validate:"max=1000"`
 }
 
 type PostResponseDTO struct {
@@ -116,6 +122,44 @@ func (s *postService) CreatePost(ctx context.Context, dto CreatePostDTO) (*PostR
 		return nil, fmt.Errorf("failed to fetch created post: %w", err)
 	}
 	return PostToDTO(createdPost), nil
+}
+
+func (s *postService) UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePostDTO) (*PostResponseDTO, error) {
+	// Input data validation
+	if err := s.validateUpdatePostDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during post updating: %w", err)
+	}
+	// Getting existing post
+	post, err := s.postRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Post for update was not found by id", "post id", id, "error", err)
+			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get post for update", "post id", id, "error", err)
+		return nil, fmt.Errorf("failed to get post for update: %w", err)
+	}
+	// Updating fields
+	updatedFieldsCount := 0
+	if dto.Name != nil && *dto.Name != post.Name {
+		post.Name = *dto.Name
+		updatedFieldsCount++
+	}
+	if dto.Description != nil && *dto.Description != post.Description {
+		post.Description = *dto.Description
+		updatedFieldsCount++
+	}
+	// Updating post in DB
+	if err := s.postRepo.Update(ctx, post); err != nil {
+		s.log.Error("Failed to update the post")
+		return nil, fmt.Errorf("failed to update the post: %w", err)
+	}
+	// Get updated post for response
+	updatedPost, err := s.postRepo.FindByID(ctx, &post.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch updated post: %w", err)
+	}
+	return PostToDTO(updatedPost), nil
 }
 
 func (s *postService) DeletePost(ctx context.Context, id uuid.UUID) error {
@@ -312,18 +356,20 @@ func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
 	return nil
 }
 
-// func (s *postService) validateUpdatePostDTO(dto *UpdatePostDTO) error {
-// if dto.FirstName != nil && len(*dto.FirstName) < 2 {
-// 	return fmt.Errorf("first name must be at least 2 characters or null")
-// }
-// if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
-// 	return fmt.Errorf("middle name must be at least 2 characters or null")
-// }
-// if dto.LastName != nil && len(*dto.LastName) < 2 {
-// 	return fmt.Errorf("last name must be at least 2 characters or null")
-// }
-// return nil
-// }
+func (s *postService) validateUpdatePostDTO(dto *UpdatePostDTO) error {
+	//	if dto.FirstName != nil && len(*dto.FirstName) < 2 {
+	//		return fmt.Errorf("first name must be at least 2 characters or null")
+	//	}
+	//
+	//	if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
+	//		return fmt.Errorf("middle name must be at least 2 characters or null")
+	//	}
+	//
+	//	if dto.LastName != nil && len(*dto.LastName) < 2 {
+	//		return fmt.Errorf("last name must be at least 2 characters or null")
+	//	}
+	return nil
+}
 
 func PostToDTO(post *model.Post) *PostResponseDTO {
 	return &PostResponseDTO{

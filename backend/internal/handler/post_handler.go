@@ -85,6 +85,48 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPatch {
+		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		errorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+	}
+	// DTO (all fields are optional)
+	dto := service.UpdatePostDTO{}
+	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
+		dto.Name = &nameFields[0]
+	} else if len(nameFields) != 0 {
+		errorResponse(w, "failed to parse form: to much name values", http.StatusBadRequest)
+	}
+	if descriptionFields := r.PostForm["description"]; len(descriptionFields) == 1 {
+		dto.Description = &descriptionFields[0]
+	} else if len(descriptionFields) != 0 {
+		errorResponse(w, "failed to parse form: to much description values", http.StatusBadRequest)
+	}
+	// Update post
+	postResponse, err := h.postService.UpdatePost(r.Context(), postID, dto)
+	if err != nil {
+		handleServiceError(w, fmt.Errorf("failed to update the post: %w", err))
+		return
+	}
+	// Return response
+	successResponse(w, map[string]interface{}{
+		"post": postResponse,
+	})
+}
+
 func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
