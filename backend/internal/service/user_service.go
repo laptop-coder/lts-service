@@ -154,6 +154,9 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 	if err != nil {
 		return nil, fmt.Errorf("transaction failed: %w", err)
 	}
+	// TODO: add transaction for roles assigning. If user was created, but roles
+	// was not assigned (e.g. not all of them exists, so it causes error), user
+	// must be deleted
 	// Assign roles to user
 	if err := s.assignRolesToUser(ctx, userID, dto.RoleIDs); err != nil {
 		return nil, fmt.Errorf("failed to assign roles to user: %w", err)
@@ -464,6 +467,8 @@ func UserToDTO(user *model.User) *UserResponseDTO {
 }
 
 func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error {
+	// TODO: now it is not supposed that length of roleIDs can be 0. So maybe in
+	// this case all roles should be deleted: think about it.
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Get user
 		var user model.User
@@ -483,6 +488,20 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, r
 		if len(roles) != len(roleIDs) {
 			return fmt.Errorf("%d role(-s) was(were) not found", len(roleIDs)-len(roles))
 		}
+		// Remove user from old tables-extensions ("teachers" for users with the
+		// teacher role, e.g.; this tables contains specific information for
+		// users)
+		for _, role := range user.Roles {
+			if err := s.removeUserFromExtensionTable(tx, userID, role.ID); err != nil {
+				return fmt.Errorf("cannot remove user from extension table: %w", err)
+			}
+		}
+		// Add user to new extention tables
+		for _, role := range roles {
+			if err := s.addUserToExtensionTable(tx, userID, role.ID); err != nil {
+				return fmt.Errorf("cannot add user to extension table: %w", err)
+			}
+		}
 		// Replace old roles with new ones
 		if err := tx.WithContext(ctx).
 			Model(&user).
@@ -492,4 +511,40 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, r
 		}
 		return nil
 	})
+}
+
+func (s *userService) addUserToExtensionTable(tx *gorm.DB, userID uuid.UUID, roleID uint8) error {
+	switch roleID {
+	case 1, 2: // superadmin, admin (there are no extension tables)
+		return nil
+	case 3: // institution_administrator
+		return tx.Create(&model.InstitutionAdministrator{UserID: userID}).Error
+	case 4: // staff
+		return tx.Create(&model.Staff{UserID: userID}).Error
+	case 5: // teacher
+		return tx.Create(&model.Teacher{UserID: userID}).Error
+	case 6: // parent
+		return tx.Create(&model.Parent{UserID: userID}).Error
+	case 7: // student
+		return tx.Create(&model.Student{UserID: userID}).Error
+	}
+	return fmt.Errorf("role with id %d does not exist", roleID)
+}
+
+func (s *userService) removeUserFromExtensionTable(tx *gorm.DB, userID uuid.UUID, roleID uint8) error {
+	switch roleID {
+	case 1, 2: // superadmin, admin (there are no extension tables)
+		return nil
+	case 3: // institution_administrator
+		return tx.Where("user_id = ?", userID).Delete(&model.InstitutionAdministrator{}).Error
+	case 4: // staff
+		return tx.Where("user_id = ?", userID).Delete(&model.Staff{}).Error
+	case 5: // teacher
+		return tx.Where("user_id = ?", userID).Delete(&model.Teacher{}).Error
+	case 6: // parent
+		return tx.Where("user_id = ?", userID).Delete(&model.Parent{}).Error
+	case 7: // student
+		return tx.Where("user_id = ?", userID).Delete(&model.Student{}).Error
+	}
+	return fmt.Errorf("role with id %d does not exist", roleID)
 }
