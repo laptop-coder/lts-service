@@ -1,4 +1,4 @@
-package handler
+package helpers
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func jsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
+func JsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	// Set JSON content type
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	// Convert data to JSON format
@@ -26,20 +26,20 @@ func jsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	w.Write(encodedData)
 }
 
-func errorResponse(w http.ResponseWriter, message string, statusCode int) {
-	jsonResponse(w, map[string]string{
+func ErrorResponse(w http.ResponseWriter, message string, statusCode int) {
+	JsonResponse(w, map[string]string{
 		"error": message,
 	}, statusCode)
 }
 
-func successResponse(w http.ResponseWriter, data interface{}) {
-	jsonResponse(w, map[string]interface{}{
+func SuccessResponse(w http.ResponseWriter, data interface{}) {
+	JsonResponse(w, map[string]interface{}{
 		"success": true,
 		"data":    data,
 	}, http.StatusOK)
 }
 
-func handleServiceError(w http.ResponseWriter, err error) {
+func HandleServiceError(w http.ResponseWriter, err error) {
 	errMsg := err.Error()
 	statusCode := http.StatusInternalServerError
 	switch {
@@ -55,10 +55,10 @@ func handleServiceError(w http.ResponseWriter, err error) {
 		strings.Contains(errMsg, "permission"):
 		statusCode = http.StatusUnauthorized
 	}
-	errorResponse(w, errMsg, statusCode)
+	ErrorResponse(w, errMsg, statusCode)
 }
 
-func getCookie(cookieKey string, r *http.Request) (string, error) {
+func GetCookie(cookieKey string, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieKey)
 	if err != nil {
 		return "", err

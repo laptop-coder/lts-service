@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/service"
 	"backend/pkg/logger"
+	"backend/pkg/helpers"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -23,7 +24,7 @@ func NewStudentGroupHandler(studentGroupService service.StudentGroupService, log
 func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert student group ID.
@@ -31,7 +32,7 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	groupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert groupID from string to uint64")
-		errorResponse(w, "cannot convert groupID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusInternalServerError)
 		return
 	}
 	// to uint16:
@@ -39,11 +40,11 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	// Get ID of the group advisor
 	response, err := h.studentGroupService.GetAdvisorByGroupID(r.Context(), groupID)
 	if err != nil {
-		handleServiceError(w, fmt.Errorf("failed to get student group advisor by group id: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get student group advisor by group id: %w", err))
 		return
 	}
 	// Return response
-	successResponse(w, map[string]interface{}{
+	helpers.SuccessResponse(w, map[string]interface{}{
 		"user": response,
 	})
 }

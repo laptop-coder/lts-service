@@ -2,6 +2,7 @@ package handler
 
 import (
 	"backend/internal/service"
+	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"fmt"
 	"github.com/google/uuid"
@@ -23,46 +24,46 @@ func NewUserHandler(userService service.UserService, log logger.Logger) *UserHan
 func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
 	}
 	// DTO (all fields are optional)
 	dto := service.UpdateUserDTO{}
 	if firstNameFields := r.PostForm["firstName"]; len(firstNameFields) == 1 {
 		dto.FirstName = &firstNameFields[0]
 	} else if len(firstNameFields) != 0 {
-		errorResponse(w, "failed to parse form: to much firstName values", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse form: to much firstName values", http.StatusBadRequest)
 	}
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
 		dto.MiddleName = &middleNameFields[0]
 	} else if len(middleNameFields) != 0 {
-		errorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
 	}
 	if lastNameFields := r.PostForm["lastName"]; len(lastNameFields) == 1 {
 		dto.LastName = &lastNameFields[0]
 	} else if len(lastNameFields) != 0 {
-		errorResponse(w, "failed to parse form: to much lastName values", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse form: to much lastName values", http.StatusBadRequest)
 	}
 	// Update user
 	userResponse, err := h.userService.UpdateUser(r.Context(), userID, dto)
 	if err != nil {
-		handleServiceError(w, fmt.Errorf("failed to update the user profile: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to update the user profile: %w", err))
 		return
 	}
 	// Return response
-	successResponse(w, map[string]interface{}{
+	helpers.SuccessResponse(w, map[string]interface{}{
 		"user": userResponse,
 	})
 }
@@ -70,27 +71,27 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
 	}
 	// Remove user avatar file
 	if err := h.userService.RemoveAvatar(r.Context(), userID); err != nil {
-		handleServiceError(w, fmt.Errorf("failed to remove user avatar file: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to remove user avatar file: %w", err))
 		return
 	}
 	// Return response
-	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
 func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
@@ -98,51 +99,51 @@ func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	// Parse form
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		errorResponse(w, "failed to parse multipart/formdata form", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse multipart/formdata form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
 	}
 	// Get avatar file from the request
 	formFiles := r.MultipartForm.File["avatar"]
 	if len(formFiles) > 1 {
-		errorResponse(w, "failed to parse form: to much avatar files", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse form: to much avatar files", http.StatusBadRequest)
 		return
 	} else if len(formFiles) == 0 {
-		errorResponse(w, "failed to parse form: avatar cannot be empty", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse form: avatar cannot be empty", http.StatusBadRequest)
 		return
 	}
 	// Update avatar file
 	if err := h.userService.UpdateAvatar(r.Context(), userID, formFiles[0]); err != nil {
-		handleServiceError(w, fmt.Errorf("failed to update the avatar: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to update the avatar: %w", err))
 		return
 	}
 	// Return response
-	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		errorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
 	}
 	// Get user
 	response, err := h.userService.GetUserByID(r.Context(), userID)
 	if err != nil {
-		handleServiceError(w, fmt.Errorf("failed to get user by id: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get user by id: %w", err))
 		return
 	}
 	// Return response
-	successResponse(w, map[string]interface{}{
+	helpers.SuccessResponse(w, map[string]interface{}{
 		"user": response,
 	})
 }

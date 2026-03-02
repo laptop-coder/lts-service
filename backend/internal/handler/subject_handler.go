@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/service"
 	"backend/pkg/logger"
+	"backend/pkg/helpers"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -22,22 +23,22 @@ func NewSubjectHandler(subjectService service.SubjectService, log logger.Logger)
 
 func (h *SubjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get name
 	nameFields := r.PostForm["name"]
 	if len(nameFields) == 0 {
-		errorResponse(w, "failed to parse form: name field is required", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse form: name field is required", http.StatusBadRequest)
 	} else if len(nameFields) > 1 {
-		errorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
 	}
 	name := nameFields[0]
 	// Assemble DTO
@@ -47,10 +48,10 @@ func (h *SubjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Create subject
 	subjectResponse, err := h.subjectService.CreateSubject(r.Context(), dto)
 	if err != nil {
-		handleServiceError(w, fmt.Errorf("failed to create the subject: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to create the subject: %w", err))
 		return
 	}
-	jsonResponse(w, map[string]interface{}{
+	helpers.JsonResponse(w, map[string]interface{}{
 		"subject": subjectResponse,
 	},
 		http.StatusCreated,
@@ -60,20 +61,20 @@ func (h *SubjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *SubjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		errorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert subject ID
 	subjectID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
 	if err != nil {
-		errorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
 		return
 	}
 	subjectID := uint8(subjectID64)
@@ -82,16 +83,16 @@ func (h *SubjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) != 0 {
-		errorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
 	}
 	// Update subject
 	subjectResponse, err := h.subjectService.UpdateSubject(r.Context(), subjectID, dto)
 	if err != nil {
-		handleServiceError(w, fmt.Errorf("failed to update the subject: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to update the subject: %w", err))
 		return
 	}
 	// Return response
-	successResponse(w, map[string]interface{}{
+	helpers.SuccessResponse(w, map[string]interface{}{
 		"subject": subjectResponse,
 	})
 }
@@ -99,21 +100,21 @@ func (h *SubjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *SubjectHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert subject ID
 	subjectID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
 	if err != nil {
-		errorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
 		return
 	}
 	subjectID := uint8(subjectID64)
 	// Delete subject
 	if err := h.subjectService.DeleteSubject(r.Context(), subjectID); err != nil {
-		handleServiceError(w, fmt.Errorf("failed to delete the subject: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to delete the subject: %w", err))
 		return
 	}
 	// Return response
-	jsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }

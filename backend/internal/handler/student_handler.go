@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/service"
 	"backend/pkg/logger"
+	"backend/pkg/helpers"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
@@ -23,22 +24,22 @@ func NewStudentHandler(studentService service.StudentService, log logger.Logger)
 func (h *StudentHandler) GetStudentByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		errorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert student ID
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		errorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
 	}
 	// Get student
 	response, err := h.studentService.GetStudentByID(r.Context(), studentID)
 	if err != nil {
-		handleServiceError(w, fmt.Errorf("failed to get student by id: %w", err))
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get student by id: %w", err))
 		return
 	}
 	// Return response
-	successResponse(w, map[string]interface{}{
+	helpers.SuccessResponse(w, map[string]interface{}{
 		"student": response,
 	})
 }
