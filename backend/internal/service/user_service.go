@@ -43,6 +43,13 @@ type CreateUserDTO struct {
 	LastName   string                `form:"lastName" validate:"required,min=2"`
 	RoleIDs    []uint8               `form:"roleIds,omitempty"`
 	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
+
+	TeacherClassroomID                 *uint8      `form:"teacherClassroomId,omitempty"`
+	TeacherSubjectIDs                  []uint8     `form:"teacherSubjectIds,omitempty"`
+	StudentGroupID                     *uint16     `form:"studentGroupId,omitempty"`
+	StaffPositionID                    *uint8      `form:"staffPositionId,omitempty"`
+	InstitutionAdministratorPositionID *uint8      `form:"instituionAdministratorPositionId,omitempty"`
+	ParentStudentIDs                   []uuid.UUID `form:"parentStudentIds,omitempty"`
 }
 
 type UserResponseDTO struct {
@@ -75,24 +82,29 @@ type RoleDTO struct {
 }
 
 type userService struct {
-	userRepo repository.UserRepository
-	roleRepo repository.RoleRepository
-	db       *gorm.DB
-	config   UserServiceConfig
-	log      logger.Logger
+	userRepo    repository.UserRepository
+	studentRepo repository.StudentRepository
+	roomRepo    repository.RoomRepository
+	db          *gorm.DB
+	config      UserServiceConfig
+	log         logger.Logger
 }
 
 func NewUserService(
 	userRepo repository.UserRepository,
+	studentRepo repository.StudentRepository,
+	roomRepo repository.RoomRepository,
 	db *gorm.DB,
 	config UserServiceConfig,
 	log logger.Logger,
 ) UserService {
 	return &userService{
-		userRepo: userRepo,
-		db:       db,
-		config:   config,
-		log:      log,
+		userRepo:    userRepo,
+		studentRepo: studentRepo,
+		roomRepo:    roomRepo,
+		db:          db,
+		config:      config,
+		log:         log,
 	}
 }
 
@@ -158,7 +170,7 @@ func (s *userService) CreateUser(ctx context.Context, dto CreateUserDTO) (*UserR
 	// was not assigned (e.g. not all of them exists, so it causes error), user
 	// must be deleted
 	// Assign roles to user
-	if err := s.assignRolesToUser(ctx, userID, dto.RoleIDs); err != nil {
+	if err := s.assignRolesToUser(ctx, userID, dto, dto.RoleIDs); err != nil {
 		return nil, fmt.Errorf("failed to assign roles to user: %w", err)
 	}
 	// Get created user for response
@@ -466,7 +478,7 @@ func UserToDTO(user *model.User) *UserResponseDTO {
 	}
 }
 
-func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error {
+func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, dto CreateUserDTO, roleIDs []uint8) error {
 	// TODO: now it is not supposed that length of roleIDs can be 0. So maybe in
 	// this case all roles should be deleted: think about it.
 	return s.db.Transaction(func(tx *gorm.DB) error {
@@ -498,7 +510,7 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, r
 		}
 		// Add user to new extention tables
 		for _, role := range roles {
-			if err := s.addUserToExtensionTable(tx, userID, role.ID); err != nil {
+			if err := s.addUserToExtensionTable(ctx, tx, userID, dto, role.ID); err != nil {
 				return fmt.Errorf("cannot add user to extension table: %w", err)
 			}
 		}
@@ -513,20 +525,38 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, r
 	})
 }
 
-func (s *userService) addUserToExtensionTable(tx *gorm.DB, userID uuid.UUID, roleID uint8) error {
+func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, userID uuid.UUID, dto CreateUserDTO, roleID uint8) error {
 	switch roleID {
 	case 1, 2: // superadmin, admin (there are no extension tables)
 		return nil
 	case 3: // institution_administrator
-		return tx.Create(&model.InstitutionAdministrator{UserID: userID}).Error
+		return tx.Create(&model.InstitutionAdministrator{UserID: userID, PositionID: *dto.InstitutionAdministratorPositionID}).Error
 	case 4: // staff
-		return tx.Create(&model.Staff{UserID: userID}).Error
+		return tx.Create(&model.Staff{UserID: userID, PositionID: *dto.StaffPositionID}).Error
 	case 5: // teacher
+		if dto.TeacherClassroomID != nil {
+			room, err := s.roomRepo.FindByID(ctx, dto.TeacherClassroomID)
+			if err != nil {
+				return err
+			}
+			return tx.Create(&model.Teacher{UserID: userID, Classroom: room}).Error
+		}
 		return tx.Create(&model.Teacher{UserID: userID}).Error
 	case 6: // parent
+		if dto.ParentStudentIDs != nil {
+			var students []model.Student
+			for _, studentID := range dto.ParentStudentIDs {
+				student, err := s.studentRepo.FindByID(ctx, &studentID)
+				if err != nil {
+					return err
+				}
+				students = append(students, *student)
+			}
+			return tx.Create(&model.Parent{UserID: userID, Students: &students}).Error
+		}
 		return tx.Create(&model.Parent{UserID: userID}).Error
 	case 7: // student
-		return tx.Create(&model.Student{UserID: userID}).Error
+		return tx.Create(&model.Student{UserID: userID, StudentGroupID: *dto.StudentGroupID}).Error
 	}
 	return fmt.Errorf("role with id %d does not exist", roleID)
 }

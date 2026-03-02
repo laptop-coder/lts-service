@@ -79,6 +79,87 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		errorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
 		return
 	}
+	// TeacherClassroomID (special)
+	if teacherClassroomIDFields := r.PostForm["teacherClassroomID"]; len(teacherClassroomIDFields) == 1 {
+		// Convert to uint8
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		if err != nil {
+			errorResponse(w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		teacherClassroomID := uint8(teacherClassroomID64)
+		dto.TeacherClassroomID = &teacherClassroomID
+	} else if len(teacherClassroomIDFields) != 0 {
+		errorResponse(w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		return
+	}
+	// TeacherSubjectIDs (special)
+	teacherSubjectIDsFields := r.PostForm["teacherSubjectIDs"]
+	var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
+	for i, subjectIDString := range teacherSubjectIDsFields {
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		if err != nil {
+			errorResponse(w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		subjectID8 := uint8(subjectID64)
+		teacherSubjectIDs[i] = subjectID8
+	}
+	dto.TeacherSubjectIDs = teacherSubjectIDs
+	// StudentGroupID (special)
+	if studentGroupIDFields := r.PostForm["studentGroupID"]; len(studentGroupIDFields) == 1 {
+		// Convert to uint16
+		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
+		if err != nil {
+			errorResponse(w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		studentGroupID := uint16(studentGroupID64)
+		dto.StudentGroupID = &studentGroupID
+	} else if len(studentGroupIDFields) != 0 {
+		errorResponse(w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		return
+	}
+	// StaffPositionID (special)
+	if staffPositionIDFields := r.PostForm["staffPositionID"]; len(staffPositionIDFields) == 1 {
+		// Convert to uint8
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		if err != nil {
+			errorResponse(w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		staffPositionID := uint8(staffPositionID64)
+		dto.StaffPositionID = &staffPositionID
+	} else if len(staffPositionIDFields) != 0 {
+		errorResponse(w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		return
+	}
+	// InstitutionAdministratorPositionID (special)
+	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionID"]; len(institutionAdministratorPositionIDFields) == 1 {
+		// Convert to uint8
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		if err != nil {
+			errorResponse(w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
+		dto.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+	} else if len(institutionAdministratorPositionIDFields) != 0 {
+		errorResponse(w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		return
+	}
+	// ParentStudentIDs (special)
+	parentStudentIDsFields := r.PostForm["parentStudentIDs"]
+	var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
+	for i, parentStudentIDString := range parentStudentIDsFields {
+		parentStudentID, err := uuid.Parse(parentStudentIDString)
+		if err != nil {
+			errorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+			return
+		}
+		parentStudentIDs[i] = parentStudentID
+	}
+	dto.ParentStudentIDs = parentStudentIDs
 	// Avatar (optional)
 	formFiles := r.MultipartForm.File["avatar"]
 	if len(formFiles) > 1 {
@@ -162,14 +243,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	email := r.PostForm["email"]
 	if len(email) == 0 {
 		errorResponse(w, "failed to parse form: email field is required", http.StatusBadRequest)
+		return
 	} else if len(email) > 1 {
 		errorResponse(w, "failed to parse form: to much email values", http.StatusBadRequest)
+		return
 	}
 	password := r.PostForm["password"]
 	if len(password) == 0 {
 		errorResponse(w, "failed to parse form: password field is required", http.StatusBadRequest)
+		return
 	} else if len(password) > 1 {
 		errorResponse(w, "failed to parse form: to much password values", http.StatusBadRequest)
+		return
 	}
 	// Log in
 	tokens, userResponse, err := h.authService.Login(r.Context(), email[0], password[0])
@@ -248,6 +333,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	// Revoke JWT refresh
 	if err := h.authService.RevokeToken(r.Context(), refreshToken); err != nil {
 		handleServiceError(w, err)
+		return
 	}
 	// Clear cookies
 	http.SetCookie(w, &http.Cookie{
