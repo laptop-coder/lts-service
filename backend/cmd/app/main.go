@@ -98,42 +98,21 @@ func main() {
 	parentHandler := handler.NewParentHandler(parentService, log)
 
 	mux := http.NewServeMux()
+	authMiddleware := middleware.Auth(authService, db)
 
-	// User
-	mux.HandleFunc("PATCH /api/v1/users/{id}", userHandler.UpdateProfile)
-	mux.HandleFunc("DELETE /api/v1/users/{id}/avatar", userHandler.RemoveAvatar)
-	mux.HandleFunc("PUT /api/v1/users/{id}/avatar", userHandler.UpdateAvatar)
-	mux.HandleFunc("GET /api/v1/users/{id}", userHandler.GetUserByID)
-	// Student groups
-	mux.HandleFunc("GET /api/v1/student_groups/{id}/advisor", studentGroupHandler.GetAdvisorByGroupID)
-	// Auth
-	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
-	mux.HandleFunc("DELETE /api/v1/users/{id}", authHandler.DeleteAccount)
-	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
-	mux.HandleFunc("POST /api/v1/auth/logout", authHandler.Logout)
-	// Posts
-	mux.HandleFunc("POST /api/v1/posts", postHandler.Create)
-	mux.HandleFunc("DELETE /api/v1/posts/{id}", postHandler.Delete)
-	mux.HandleFunc("DELETE /api/v1/posts/{id}/photo", postHandler.RemovePhoto)
-	mux.HandleFunc("PATCH /api/v1/posts/{id}", postHandler.Update)
-	// Rooms
-	mux.HandleFunc("POST /api/v1/rooms", roomHandler.Create)
-	mux.HandleFunc("DELETE /api/v1/rooms/{id}", roomHandler.Delete)
-	mux.HandleFunc("PATCH /api/v1/rooms/{id}", roomHandler.Update)
-	// Subjects
-	mux.HandleFunc("POST /api/v1/subjects", subjectHandler.Create)
-	mux.HandleFunc("DELETE /api/v1/subjects/{id}", subjectHandler.Delete)
-	mux.HandleFunc("PATCH /api/v1/subjects/{id}", subjectHandler.Update)
-	// Students
-	mux.HandleFunc("GET /api/v1/students/{id}", studentHandler.GetStudentByID)
-	// Parents
-	mux.HandleFunc("GET /api/v1/parents/{id}", parentHandler.GetParentByID)
-
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status": "ok", "timestamp": "%s"}`, time.Now().Format(time.RFC3339))
-	})
+	SetupRoutes(
+		mux,
+		log,
+		authMiddleware,
+		authHandler,
+		userHandler,
+		postHandler,
+		studentGroupHandler,
+		roomHandler,
+		subjectHandler,
+		studentHandler,
+		parentHandler,
+	)
 
 	// Middleware
 	var handler http.Handler = mux
