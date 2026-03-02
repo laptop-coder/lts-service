@@ -7,8 +7,8 @@ FROM golang:1.25.6-bookworm AS builder
 WORKDIR /app
 COPY --from=deps /go /go
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s -extldflags "-static"' -o ./bin/main ./cmd/app/main.go
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s -extldflags "-static"' -o ./bin/migrate ./cmd/migration/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s -extldflags "-static"' -o ./bin/main ./cmd/app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s -extldflags "-static"' -o ./bin/migrate ./cmd/migration
 
 FROM debian:12.11-slim
 COPY --from=builder /app/bin/main /usr/local/bin/app
