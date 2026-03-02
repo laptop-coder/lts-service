@@ -10,13 +10,13 @@ import (
 
 type StudentHandler struct {
 	studentService service.StudentService
-	log         logger.Logger
+	log            logger.Logger
 }
 
 func NewStudentHandler(studentService service.StudentService, log logger.Logger) *StudentHandler {
 	return &StudentHandler{
 		studentService: studentService,
-		log:         log,
+		log:            log,
 	}
 }
 

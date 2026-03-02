@@ -70,17 +70,21 @@ func main() {
 	postRepo := repository.NewPostRepository(db, log)
 	roomRepo := repository.NewRoomRepository(db, log)
 	subjectRepo := repository.NewSubjectRepository(db, log)
+	studentRepo := repository.NewStudentRepository(db, log)
+	parentRepo := repository.NewParentRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
 	serviceConfigs := config.NewServiceConfigs(sharedConfig)
 	log.Info("Initializing services...")
 	authService := service.NewAuthService(userRepo, jwtRepo, db, serviceConfigs.Auth, log)
-	userService := service.NewUserService(userRepo, db, serviceConfigs.User, log)
+	userService := service.NewUserService(userRepo, studentRepo, roomRepo, db, serviceConfigs.User, log)
 	postService := service.NewPostService(postRepo, db, serviceConfigs.Post, log)
 	studentGroupService := service.NewStudentGroupService(studentGroupRepo, db, log)
 	roomService := service.NewRoomService(roomRepo, db, log)
 	subjectService := service.NewSubjectService(subjectRepo, db, log)
+	studentService := service.NewStudentService(studentRepo, userRepo, db, log)
+	parentService := service.NewParentService(parentRepo, userRepo, db, log)
 
 	// Handlers
 	log.Info("Initializing handlers...")
@@ -90,28 +94,40 @@ func main() {
 	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
 	roomHandler := handler.NewRoomHandler(roomService, log)
 	subjectHandler := handler.NewSubjectHandler(subjectService, log)
+	studentHandler := handler.NewStudentHandler(studentService, log)
+	parentHandler := handler.NewParentHandler(parentService, log)
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
-	mux.HandleFunc("DELETE /api/v1/users/{id}", authHandler.DeleteAccount)
+	// User
 	mux.HandleFunc("PATCH /api/v1/users/{id}", userHandler.UpdateProfile)
 	mux.HandleFunc("DELETE /api/v1/users/{id}/avatar", userHandler.RemoveAvatar)
 	mux.HandleFunc("PUT /api/v1/users/{id}/avatar", userHandler.UpdateAvatar)
 	mux.HandleFunc("GET /api/v1/users/{id}", userHandler.GetUserByID)
+	// Student groups
 	mux.HandleFunc("GET /api/v1/student_groups/{id}/advisor", studentGroupHandler.GetAdvisorByGroupID)
+	// Auth
+	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
+	mux.HandleFunc("DELETE /api/v1/users/{id}", authHandler.DeleteAccount)
 	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
 	mux.HandleFunc("POST /api/v1/auth/logout", authHandler.Logout)
+	// Posts
 	mux.HandleFunc("POST /api/v1/posts", postHandler.Create)
 	mux.HandleFunc("DELETE /api/v1/posts/{id}", postHandler.Delete)
 	mux.HandleFunc("DELETE /api/v1/posts/{id}/photo", postHandler.RemovePhoto)
 	mux.HandleFunc("PATCH /api/v1/posts/{id}", postHandler.Update)
+	// Rooms
 	mux.HandleFunc("POST /api/v1/rooms", roomHandler.Create)
 	mux.HandleFunc("DELETE /api/v1/rooms/{id}", roomHandler.Delete)
 	mux.HandleFunc("PATCH /api/v1/rooms/{id}", roomHandler.Update)
+	// Subjects
 	mux.HandleFunc("POST /api/v1/subjects", subjectHandler.Create)
 	mux.HandleFunc("DELETE /api/v1/subjects/{id}", subjectHandler.Delete)
 	mux.HandleFunc("PATCH /api/v1/subjects/{id}", subjectHandler.Update)
+	// Students
+	mux.HandleFunc("GET /api/v1/students/{id}", studentHandler.GetStudentByID)
+	// Parents
+	mux.HandleFunc("GET /api/v1/parents/{id}", parentHandler.GetParentByID)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

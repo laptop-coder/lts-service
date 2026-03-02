@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"errors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type ParentRepository interface {
@@ -39,8 +39,8 @@ func (r *parentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mo
 	}
 	var parent model.Parent
 	result := r.db.WithContext(ctx).
-	Preload("User").
-	First(&parent, *userID)
+		Preload("User").
+		First(&parent, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("parent with user id %s was not found: %w", *userID, result.Error)
@@ -69,12 +69,11 @@ func (r *parentRepository) FindAll(ctx context.Context, filter *ParentFilter) ([
 	query = query.Order("name")
 	// Find parents
 	result := query.
-	Preload("User").
-	Find(&parents)
+		Preload("User").
+		Find(&parents)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch parents list: %w", result.Error)
 	}
 	// Return response
 	return parents, nil
 }
-

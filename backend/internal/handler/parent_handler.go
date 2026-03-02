@@ -10,13 +10,13 @@ import (
 
 type ParentHandler struct {
 	parentService service.ParentService
-	log         logger.Logger
+	log           logger.Logger
 }
 
 func NewParentHandler(parentService service.ParentService, log logger.Logger) *ParentHandler {
 	return &ParentHandler{
 		parentService: parentService,
-		log:         log,
+		log:           log,
 	}
 }
 

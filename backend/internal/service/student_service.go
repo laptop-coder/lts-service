@@ -18,15 +18,15 @@ type StudentService interface {
 }
 
 type StudentResponseDTO struct {
-	User UserResponseDTO
+	User           UserResponseDTO
 	StudentGroupID uint16
 }
 
 type studentService struct {
 	studentRepo repository.StudentRepository
-	userRepo repository.UserRepository
-	db       *gorm.DB
-	log      logger.Logger
+	userRepo    repository.UserRepository
+	db          *gorm.DB
+	log         logger.Logger
 }
 
 func NewStudentService(
@@ -37,9 +37,9 @@ func NewStudentService(
 ) StudentService {
 	return &studentService{
 		studentRepo: studentRepo,
-		userRepo: userRepo,
-		db:       db,
-		log:      log,
+		userRepo:    userRepo,
+		db:          db,
+		log:         log,
 	}
 }
 
@@ -83,8 +83,7 @@ func (s *studentService) GetStudents(ctx context.Context, filter repository.Stud
 
 func StudentToDTO(student *model.Student) *StudentResponseDTO {
 	return &StudentResponseDTO{
-		User: *UserToDTO(&student.User),
+		User:           *UserToDTO(&student.User),
 		StudentGroupID: student.StudentGroupID,
 	}
 }
-

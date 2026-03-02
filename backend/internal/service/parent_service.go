@@ -18,15 +18,15 @@ type ParentService interface {
 }
 
 type ParentResponseDTO struct {
-	User UserResponseDTO
+	User          UserResponseDTO
 	ParentGroupID uint16
 }
 
 type parentService struct {
 	parentRepo repository.ParentRepository
-	userRepo repository.UserRepository
-	db       *gorm.DB
-	log      logger.Logger
+	userRepo   repository.UserRepository
+	db         *gorm.DB
+	log        logger.Logger
 }
 
 func NewParentService(
@@ -37,9 +37,9 @@ func NewParentService(
 ) ParentService {
 	return &parentService{
 		parentRepo: parentRepo,
-		userRepo: userRepo,
-		db:       db,
-		log:      log,
+		userRepo:   userRepo,
+		db:         db,
+		log:        log,
 	}
 }
 
@@ -86,4 +86,3 @@ func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
 		User: *UserToDTO(&parent.User),
 	}
 }
-
