@@ -80,3 +80,69 @@ func Auth(authService service.AuthService, db *gorm.DB) func(http.Handler) http.
 		})
 	}
 }
+
+func RequireRoles(all bool, requiredRoles ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Get roles from context
+			userRoles, ok := r.Context().Value(UserRolesKey).([]string)
+			if !ok {
+				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+				return
+			}
+			if all {
+				// Check if user has all required roles
+				for _, role := range requiredRoles {
+					if !slices.Contains(userRoles, role) {
+						helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+						return
+					}
+				}
+				next.ServeHTTP(w, r)
+				return
+			} else {
+				// Check if user has at least one required role
+				for _, userRole := range userRoles {
+					if slices.Contains(requiredRoles, userRole) {
+						next.ServeHTTP(w, r)
+						return
+					}
+				}
+				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+			}
+		})
+	}
+}
+
+func RequirePermissions(all bool, requiredPermissions ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Get user permissions from context
+			userPermissions, ok := r.Context().Value(UserPermissionsKey).([]string)
+			if !ok {
+				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+				return
+			}
+			if all {
+				// Check if user has all required permissions
+				for _, permission := range requiredPermissions {
+					if !slices.Contains(userPermissions, permission) {
+						helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+						return
+					}
+				}
+				next.ServeHTTP(w, r)
+				return
+			} else {
+				// Check if user has at least one required permission
+				for _, userPermission := range userPermissions {
+					if slices.Contains(requiredPermissions, userPermission) {
+						next.ServeHTTP(w, r)
+						return
+					}
+				}
+				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+			}
+		})
+	}
+}
