@@ -41,7 +41,7 @@ func (r *jwtRepository) Revoke(ctx context.Context, tokenString string, ttl time
 }
 
 func (r *jwtRepository) IsRevoked(ctx context.Context, token string) (bool, error) {
-	key := ""
+	key := token // TODO: maybe think about the key
 	n, err := r.client.Do(ctx, r.client.B().
 		Exists().
 		Key(key).
