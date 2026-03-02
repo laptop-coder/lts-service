@@ -12,7 +12,6 @@ import (
 	"backend/pkg/logger"
 	"backend/pkg/middleware"
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
