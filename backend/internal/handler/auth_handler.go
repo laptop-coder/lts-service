@@ -65,8 +65,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		for i, s := range roleIDs {
 			val, err := strconv.ParseUint(s, 10, 8)
 			if err != nil {
-				h.log.Error("cannot convert IDs of roles string to uint64")
-				helpers.ErrorResponse(w, "cannot convert IDs of roles string to uint64", http.StatusInternalServerError)
+				h.log.Error("cannot convert IDs of roles from string to uint64")
+				helpers.ErrorResponse(w, "cannot convert IDs of roles from string to uint64", http.StatusInternalServerError)
 				return
 			}
 			uints[i] = uint8(val)
