@@ -3,6 +3,7 @@ package main
 import (
 	"backend/internal/database"
 	"backend/internal/model"
+	"backend/internal/permissions"
 	"backend/pkg/env"
 	"backend/pkg/logger"
 	"gorm.io/gorm"
@@ -98,4 +99,49 @@ func main() {
 		}
 	}
 	log.Info("MIGRATION | Roles created successfully")
+
+	// Create permissions
+	permissions := []model.Permission{
+		{ID: 1, Name: permissions.PostCreate},
+		{ID: 2, Name: permissions.PostRead},
+		{ID: 3, Name: permissions.PostUpdate},
+		{ID: 4, Name: permissions.PostUpdateOwn},
+		{ID: 5, Name: permissions.PostDelete},
+		{ID: 6, Name: permissions.PostDeleteOwn},
+		{ID: 7, Name: permissions.PostVerify},
+		{ID: 8, Name: permissions.UserCreate},
+		{ID: 9, Name: permissions.UserRead},
+		{ID: 10, Name: permissions.UserUpdate},
+		{ID: 11, Name: permissions.UserUpdateOwn},
+		{ID: 12, Name: permissions.UserDelete},
+		{ID: 13, Name: permissions.UserDeleteOwn},
+		{ID: 14, Name: permissions.RoomCreate},
+		{ID: 15, Name: permissions.RoomRead},
+		{ID: 16, Name: permissions.RoomUpdate},
+		{ID: 17, Name: permissions.RoomDelete},
+		{ID: 18, Name: permissions.SubjectCreate},
+		{ID: 19, Name: permissions.SubjectRead},
+		{ID: 20, Name: permissions.SubjectUpdate},
+		{ID: 21, Name: permissions.SubjectDelete},
+		{ID: 22, Name: permissions.GroupCreate},
+		{ID: 23, Name: permissions.GroupRead},
+		{ID: 24, Name: permissions.GroupUpdate},
+		{ID: 25, Name: permissions.GroupDelete},
+		{ID: 26, Name: permissions.GroupAssignAdvisor},
+		{ID: 27, Name: permissions.TeacherAssignSubject},
+		{ID: 28, Name: permissions.TeacherAssignClassroom},
+		{ID: 29, Name: permissions.StudentAssignParent},
+		{ID: 30, Name: permissions.ParentViewStudents},
+		{ID: 31, Name: permissions.RoleAssign},
+		{ID: 32, Name: permissions.RoleCreate},
+		{ID: 33, Name: permissions.RoleUpdate},
+		{ID: 34, Name: permissions.RoleDelete},
+	}
+	for _, permission := range permissions {
+		if err := db.FirstOrCreate(&permission, model.Permission{ID: permission.ID}).Error; err != nil {
+			log.Error("MIGRATION | Failed to create permissions", err)
+			panic(err)
+		}
+	}
+	log.Info("MIGRATION | Permissions created successfully")
 }
