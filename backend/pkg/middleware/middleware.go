@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"gorm.io/gorm"
 	"backend/internal/model"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"context"
+	"gorm.io/gorm"
 	"net/http"
 	"slices"
 	"time"

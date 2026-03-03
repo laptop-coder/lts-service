@@ -2,8 +2,8 @@ package handler
 
 import (
 	"backend/internal/service"
-	"backend/pkg/logger"
 	"backend/pkg/helpers"
+	"backend/pkg/logger"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
