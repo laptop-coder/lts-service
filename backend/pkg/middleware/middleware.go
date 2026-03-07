@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"fmt"
 	"backend/internal/model"
 	"backend/internal/service"
+	"backend/internal/repository"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"context"
@@ -30,19 +32,86 @@ const UserIDKey contextKey = "user_id"
 const UserRolesKey contextKey = "user_roles"
 const UserPermissionsKey contextKey = "user_permissions"
 
-func Auth(authService service.AuthService, db *gorm.DB) func(http.Handler) http.Handler {
+func Auth(authService service.AuthService, authServiceConfig service.AuthServiceConfig, jwtRepo repository.JWTRepository, db *gorm.DB, log logger.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get JWT access from cookies
-			cookie, err := helpers.GetCookie("jwt_access", r)
+			jwtAccess, err := helpers.GetCookie("jwt_access", r)
 			if err != nil {
-				helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized) // TODO: maybe improve error handling
-				return
+				ctx := r.Context()
+				// Try to refresh access-token
+				// Get refresh token
+				jwtRefresh, err := helpers.GetCookie("jwt_refresh", r)
+				if err != nil {
+					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					log.Error(fmt.Sprintf("Failed to get refresh token from cookies: %s", err.Error()))
+					return
+				}
+				// Check if refresh token was revoked
+				revoked, err := jwtRepo.IsRevoked(ctx, jwtRefresh)
+				if err != nil || revoked {
+					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					log.Error(fmt.Sprintf("Failed to check refresh token revoke status: %s", err.Error()))
+					return
+				}
+				// Validate refresh token
+				_, err = authService.ParseToken(jwtRefresh)
+				if err != nil {
+					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					log.Error(fmt.Sprintf("Failed to validate refresh token: %s", err.Error()))
+					return
+				}
+				// Generate new token pair
+				tokens, err := authService.RefreshToken(ctx, jwtRefresh)
+				// Parse new tokens
+				parsedAccessToken, err := authService.ParseToken(tokens.AccessToken)
+				if err != nil {
+					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					log.Error(fmt.Sprintf("Failed to parse access token: %s", err.Error()))
+					return
+				}
+				parsedRefreshToken, err := authService.ParseToken(tokens.RefreshToken)
+				if err != nil {
+					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					log.Error(fmt.Sprintf("Failed to parse refresh token: %s", err.Error()))
+					return
+				}
+				// Update loaded JWT access
+				jwtAccess = tokens.AccessToken
+				// Save tokens to cookies
+				http.SetCookie(w, &http.Cookie{
+					Name:     "jwt_access",
+					Value:    tokens.AccessToken,
+					Path:     "/",
+					Expires:  parsedAccessToken.RegisteredClaims.ExpiresAt.Time,
+					HttpOnly: true,
+					Secure:   authServiceConfig.CookieSecure,
+				})
+				log.Debug("Added JWT access to the cookies")
+				http.SetCookie(w, &http.Cookie{
+					Name:     "jwt_refresh",
+					Value:    tokens.RefreshToken,
+					Path:     "/",
+					Expires:  parsedRefreshToken.RegisteredClaims.ExpiresAt.Time,
+					HttpOnly: true,
+					Secure:   authServiceConfig.CookieSecure,
+				})
+				log.Debug("Added JWT refresh to the cookies")
+				http.SetCookie(w, &http.Cookie{
+					Name:     "authorized",
+					Value:    "true",
+					Path:     "/",
+					Expires:  parsedRefreshToken.RegisteredClaims.ExpiresAt.Time,
+					HttpOnly: false,
+					Secure:   authServiceConfig.CookieSecure,
+				})
+				log.Debug("Authorized value is set to true in cookies")
 			}
 			// Validate token
-			claims, err := authService.ParseToken(cookie)
+			claims, err := authService.ParseToken(jwtAccess)
 			if err != nil {
-				helpers.ErrorResponse(w, "invalid token", http.StatusUnauthorized) // TODO: maybe improve error handling
+				helpers.ErrorResponse(w, "invalid token", http.StatusUnauthorized)
+				log.Error(fmt.Sprintf("Failed to validate access token: %s", err.Error()))
 				return
 			}
 			// Get user permissions
