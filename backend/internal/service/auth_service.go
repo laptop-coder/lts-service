@@ -117,7 +117,7 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 	}
 	// Revoke old refresh token
 	parsedToken, err := s.ParseToken(refreshToken)
-	if err != nil {
+	if err != nil || parsedToken == nil {
 		return nil, fmt.Errorf("failed to parse old refresh token: %w", err)
 	}
 	if err := s.jwtRepo.Revoke(ctx, refreshToken, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time)); err != nil {
@@ -132,7 +132,7 @@ func (s *authService) RevokeToken(ctx context.Context, token string) error {
 	s.log.Info("Revoking token")
 	// Parse
 	parsedToken, err := s.ParseToken(token)
-	if err != nil {
+	if err != nil || parsedToken == nil {
 		return fmt.Errorf("failed to parse token: %w", err)
 	}
 	// Revoke

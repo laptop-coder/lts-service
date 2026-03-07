@@ -182,12 +182,12 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	// Parse created tokens
 	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
-	if err != nil {
+	if err != nil || parsedAccessToken == nil {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse access token: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
 	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
-	if err != nil {
+	if err != nil || parsedRefreshToken == nil {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
@@ -265,12 +265,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	// Parse created tokens
 	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
-	if err != nil {
+	if err != nil || parsedAccessToken == nil {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse access token: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
 	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
-	if err != nil {
+	if err != nil || parsedRefreshToken == nil {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}

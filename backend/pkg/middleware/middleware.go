@@ -47,31 +47,24 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 					log.Error(fmt.Sprintf("Failed to get refresh token from cookies: %s", err.Error()))
 					return
 				}
-				// Check if refresh token was revoked
-				revoked, err := jwtRepo.IsRevoked(ctx, jwtRefresh)
-				if err != nil || revoked {
-					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
-					log.Error(fmt.Sprintf("Failed to check refresh token revoke status: %s", err.Error()))
-					return
-				}
-				// Validate refresh token
-				_, err = authService.ParseToken(jwtRefresh)
-				if err != nil {
-					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
-					log.Error(fmt.Sprintf("Failed to validate refresh token: %s", err.Error()))
-					return
-				}
 				// Generate new token pair
 				tokens, err := authService.RefreshToken(ctx, jwtRefresh)
+				// TODO: in the whole backend code fix situations like this.
+				// When pointer is returned check if it nil.
+				if err != nil || tokens == nil {
+					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					log.Error(fmt.Sprintf("Failed to refresh access token: %s", err.Error()))
+					return
+				}
 				// Parse new tokens
 				parsedAccessToken, err := authService.ParseToken(tokens.AccessToken)
-				if err != nil {
+				if err != nil || parsedAccessToken == nil {
 					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to parse access token: %s", err.Error()))
 					return
 				}
 				parsedRefreshToken, err := authService.ParseToken(tokens.RefreshToken)
-				if err != nil {
+				if err != nil || parsedRefreshToken == nil {
 					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to parse refresh token: %s", err.Error()))
 					return
@@ -109,7 +102,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 			}
 			// Validate token
 			claims, err := authService.ParseToken(jwtAccess)
-			if err != nil {
+			if err != nil || claims == nil {
 				helpers.ErrorResponse(w, "invalid token", http.StatusUnauthorized)
 				log.Error(fmt.Sprintf("Failed to validate access token: %s", err.Error()))
 				return
