@@ -5,7 +5,6 @@ package permissions
 const (
 	PostCreate          = "post.create"
 	PostReadAny         = "post.read.any"
-	PostReadVerified    = "post.read.verified"
 	PostReadOwn         = "post.read.own"
 	PostUpdateAny       = "post.update.any"
 	PostUpdateOwn       = "post.update.own"
@@ -18,7 +17,6 @@ const (
 
 // User permissions
 const (
-	UserCreate           = "user.create"
 	UserReadOwn          = "user.read.own"
 	UserReadOther        = "user.read.other"
 	UserReadAll          = "user.read.all"
@@ -103,5 +101,4 @@ const (
 	TokenInviteUserCreate  = "token.invite.user.create"
 	TokenInviteAdminDelete = "token.invite.admin.delete"
 	TokenInviteUserDelete  = "token.invite.user.delete"
-	TokenInviteRead        = "token.invite.read"
 )
