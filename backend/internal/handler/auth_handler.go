@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/pkg/middleware"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -372,6 +373,27 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+	}
+	// Delete user
+	if err := h.userService.DeleteUser(r.Context(), userID); err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to delete the user: %w", err))
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
+func (h *AuthHandler) DeleteOwnAccount(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok  {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
 	}
 	// Delete user
 	if err := h.userService.DeleteUser(r.Context(), userID); err != nil {
