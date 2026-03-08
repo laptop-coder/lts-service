@@ -24,6 +24,7 @@ type PostService interface {
 	UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePostDTO) (*PostResponseDTO, error)
 	DeletePost(ctx context.Context, id uuid.UUID) error
 	RemovePhoto(ctx context.Context, postID uuid.UUID) error
+	GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
 }
 
 type CreatePostDTO struct {
@@ -332,6 +333,17 @@ func (s *postService) RemovePostPhoto(ctx context.Context, postID uuid.UUID) err
 	}
 	s.log.Info("Post photo was successfully removed")
 	return nil
+}
+
+func (s *postService) GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error) {
+	post, err := s.postRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
+		}
+		return nil, fmt.Errorf("failed to get post: %w", err)
+	}
+	return PostToDTO(post), nil
 }
 
 func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
