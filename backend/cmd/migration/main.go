@@ -168,6 +168,8 @@ func main() {
 		{ID: 64, Name: permissions.TokenInviteUserCreate},
 		{ID: 65, Name: permissions.TokenInviteAdminDelete},
 		{ID: 66, Name: permissions.TokenInviteUserDelete},
+		{ID: 67, Name: permissions.PostPhotoDeleteAny},
+		{ID: 68, Name: permissions.PostPhotoDeleteOwn},
 	}
 	for _, permission := range permissions {
 		if err := db.FirstOrCreate(&permission, model.Permission{ID: permission.ID}).Error; err != nil {
