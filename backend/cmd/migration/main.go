@@ -187,4 +187,111 @@ func main() {
 		}
 	}
 	log.Info("MIGRATION | Permissions created successfully")
+
+	// Lists of permissions by roles
+	superadminPermissions := []string{
+		"token.invite.admin.create", "token.invite.admin.delete",
+	}
+
+	adminPermissions := []string{
+		"post.create", "post.read.any", "post.read.own", "post.update.any", "post.update.own", "post.delete.any", "post.delete.own", "post.photo.delete.any", "post.photo.delete.own", "post.verify", "post.mark.returned.any", "post.mark.returned.own", "user.read.own", "user.read.other", "user.read.all", "user.update.own", "user.delete.any", "user.delete.own", "room.create", "room.read", "room.update", "room.delete", "subject.create", "subject.read", "subject.update", "subject.delete", "student.group.create", "student.group.read.any", "student.group.update", "student.group.delete", "student.group.advisor.assign", "student.group.advisor.unassign", "student.group.advisor.read", "teacher.subject.read.any", "teacher.subject.assign.any", "teacher.subject.unassign.any", "teacher.classroom.read.any", "teacher.classroom.assign.any", "teacher.classroom.unassign.any", "teacher.read.other", "parent.student.read.any", "parent.student.assign.any", "parent.student.unassign.any", "parent.read.other", "role.assign", "role.add", "role.delete", "role.read.any", "role.read.own", "token.invite.user.create", "token.invite.user.delete", "student.read.other", "institution_administrator.read.other", "institution_administrator.position.assign", "institution_administrator.position.read", "staff.read.other", "staff.position.assign", "staff.position.read",
+	}
+
+	institutionAdministratorPermissions := []string{
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "room.read", "subject.read", "student.group.read.any", "student.group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
+	}
+
+	staffPermissions := []string{
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "room.read", "subject.read", "student.group.read.any", "student.group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
+	}
+
+	teacherPermissions := []string{
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "user.read.own.subjects", "teacher.read.classroom", "teacher.students.read", "room.read", "subject.read", "student.group.read.any", "student.group.read.own", "student.group.advisor.assign", "student.group.advisor.unassign", "student.group.advisor.read", "teacher.subject.read.any", "teacher.subject.read.own", "teacher.subject.assign.own", "teacher.subject.unassign.own", "teacher.classroom.read.any", "teacher.classroom.read.own", "teacher.classroom.assign.own", "teacher.classroom.unassign.own", "teacher.read.other", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
+	}
+
+	parentPermissions := []string{
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "parent.students.read", "room.read", "subject.read", "student.group.read.any", "student.group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.student.read.own", "parent.student.assign.own", "parent.student.unassign.own", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
+	}
+
+	studentPermissions := []string{
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "student.read.classroom", "student.teacher.read", "student.parents.read", "room.read", "subject.read", "student.group.read.any", "student.group.read.own", "student.group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
+	}
+
+	// Assign permissions to roles
+	for _, name := range superadminPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 1, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to superadmin role", err)
+			panic(err)
+		}
+	}
+
+	for _, name := range adminPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 2, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to admin role", err)
+			panic(err)
+		}
+	}
+
+	for _, name := range institutionAdministratorPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 3, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to institution administrator role", err)
+			panic(err)
+		}
+	}
+
+	for _, name := range staffPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 4, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to staff role", err)
+			panic(err)
+		}
+	}
+
+	for _, name := range teacherPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 5, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to teacher role", err)
+			panic(err)
+		}
+	}
+
+	for _, name := range parentPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 6, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to parent role", err)
+			panic(err)
+		}
+	}
+
+	for _, name := range studentPermissions {
+		if err := db.Exec(`
+		INSERT INTO role_permissions (role_id, permission_id)
+		SELECT 7, id FROM permissions WHERE name = ?
+		ON CONFLICT DO NOTHING;
+		`, name).Error; err != nil {
+			log.Error("MIGRATION | Failed to assign permissions to student role", err)
+			panic(err)
+		}
+	}
 }
