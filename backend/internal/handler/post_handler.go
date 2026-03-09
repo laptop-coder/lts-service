@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"slices"
 	"backend/internal/service"
+	"backend/internal/permissions"
 	"backend/pkg/helpers"
+	"backend/pkg/middleware"
 	"backend/pkg/logger"
 	"fmt"
 	"github.com/google/uuid"
@@ -42,23 +45,16 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	name := nameFields[0]
-	// Get authorID field and convert the value to UUID
-	authorIDFields := r.PostForm["authorID"]
-	if len(authorIDFields) > 1 {
-		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: too much author ID fields (%d)", len(authorIDFields)), http.StatusBadRequest)
+	// Get and convert user ID
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 		return
-	} else if len(nameFields) == 0 {
-		helpers.ErrorResponse(w, "failed to parse form: author ID field cannot be empty", http.StatusBadRequest)
-		return
-	}
-	authorID, err := uuid.Parse(authorIDFields[0])
-	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert author id to uuid", http.StatusBadRequest)
 	}
 	// Pre-assemble DTO
 	dto := service.CreatePostDTO{
 		Name:     name,
-		AuthorID: authorID,
+		AuthorID: userID,
 	}
 	// Get description (optional field)
 	if descriptionFields := r.PostForm["description"]; len(descriptionFields) == 1 {
@@ -104,6 +100,32 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
 	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if user updating his own post
+	if slices.Contains(userPermissions, permissions.PostUpdateOwn) && !slices.Contains(userPermissions, permissions.PostUpdateAny) {
+			// Get and convert user ID
+			userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+			if !ok {
+				helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			// Get post
+			post, err := h.postService.GetPostByID(r.Context(), postID)
+			if err != nil || post == nil {
+				helpers.HandleServiceError(w, fmt.Errorf("failed to find the post by ID: %w", err))
+				return
+			}
+			// Check if the post belongs to the user
+			if userID != post.Author.ID {
+				helpers.ErrorResponse(w, "forbidden: you do not have permission to update this post", http.StatusForbidden)
+				return
+			}
+	}
 	// DTO (all fields are optional)
 	dto := service.UpdatePostDTO{}
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
@@ -139,6 +161,34 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
 	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		// TODO: check the whole code, maybe HTTP-401 should be changed to
+		// HTTP-403 in helpers.ErrorResponse
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if user deleting his own post
+	if slices.Contains(userPermissions, permissions.PostDeleteOwn) && !slices.Contains(userPermissions, permissions.PostDeleteAny) {
+			// Get and convert user ID
+			userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+			if !ok {
+				helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			// Get post
+			post, err := h.postService.GetPostByID(r.Context(), postID)
+			if err != nil || post == nil {
+				helpers.HandleServiceError(w, fmt.Errorf("failed to find the post by ID: %w", err))
+				return
+			}
+			// Check if the post belongs to the user
+			if userID != post.Author.ID {
+				helpers.ErrorResponse(w, "forbidden: you do not have permission to delete this post", http.StatusForbidden)
+				return
+			}
+	}
 	// Delete post
 	if err := h.postService.DeletePost(r.Context(), postID); err != nil {
 		helpers.HandleServiceError(w, fmt.Errorf("failed to delete the post: %w", err))
@@ -158,6 +208,32 @@ func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if user deleting photo of his own post
+	if slices.Contains(userPermissions, permissions.PostPhotoDeleteOwn) && !slices.Contains(userPermissions, permissions.PostPhotoDeleteAny) {
+			// Get and convert user ID
+			userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+			if !ok {
+				helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			// Get post
+			post, err := h.postService.GetPostByID(r.Context(), postID)
+			if err != nil || post == nil {
+				helpers.HandleServiceError(w, fmt.Errorf("failed to find the post by ID: %w", err))
+				return
+			}
+			// Check if the post belongs to the user
+			if userID != post.Author.ID {
+				helpers.ErrorResponse(w, "forbidden: you do not have permission to delete photo of this post", http.StatusForbidden)
+				return
+			}
 	}
 	// Remove post photo file
 	if err := h.postService.RemovePhoto(r.Context(), postID); err != nil {

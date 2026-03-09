@@ -84,6 +84,7 @@ func main() {
 	subjectService := service.NewSubjectService(subjectRepo, db, log)
 	studentService := service.NewStudentService(studentRepo, userRepo, db, log)
 	parentService := service.NewParentService(parentRepo, userRepo, db, log)
+	roleService := service.NewRoleService(db, log)
 
 	// Handlers
 	log.Info("Initializing handlers...")
@@ -95,14 +96,19 @@ func main() {
 	subjectHandler := handler.NewSubjectHandler(subjectService, log)
 	studentHandler := handler.NewStudentHandler(studentService, log)
 	parentHandler := handler.NewParentHandler(parentService, log)
+	roleHandler := handler.NewRoleHandler(roleService, log)
 
 	mux := http.NewServeMux()
-	authMiddleware := middleware.Auth(authService, db)
+	authMiddleware := middleware.Auth(authService, serviceConfigs.Auth, jwtRepo, db, log)
+	requireRoles := middleware.RequireRoles
+	requirePermissions := middleware.RequirePermissions
 
 	SetupRoutes(
 		mux,
 		log,
 		authMiddleware,
+		requireRoles,
+		requirePermissions,
 		authHandler,
 		userHandler,
 		postHandler,
@@ -111,6 +117,7 @@ func main() {
 		subjectHandler,
 		studentHandler,
 		parentHandler,
+		roleHandler,
 	)
 
 	// Middleware

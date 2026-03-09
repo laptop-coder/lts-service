@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/service"
 	"backend/pkg/helpers"
+	"backend/pkg/middleware"
 	"backend/pkg/logger"
 	"fmt"
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ func NewUserHandler(userService service.UserService, log logger.Logger) *UserHan
 	}
 }
 
-func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) UpdateOwnProfile(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -35,9 +36,10 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert user ID
-	userID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok  {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
 	}
 	// DTO (all fields are optional)
 	dto := service.UpdateUserDTO{}
@@ -68,16 +70,17 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) RemoveOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert user ID
-	userID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok  {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
 	}
 	// Remove user avatar file
 	if err := h.userService.RemoveAvatar(r.Context(), userID); err != nil {
@@ -88,7 +91,7 @@ func (h *UserHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
-func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) UpdateOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -103,9 +106,10 @@ func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert user ID
-	userID, err := uuid.Parse(r.PathValue("id"))
-	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok  {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
 	}
 	// Get avatar file from the request
 	formFiles := r.MultipartForm.File["avatar"]
