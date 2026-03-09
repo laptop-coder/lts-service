@@ -10,8 +10,8 @@ const (
 	PostUpdateOwn       = "post.update.own"
 	PostDeleteAny       = "post.delete.any"
 	PostDeleteOwn       = "post.delete.own"
-	PostPhotoDeleteAny       = "post.photo.delete.any"
-	PostPhotoDeleteOwn       = "post.photo.delete.own"
+	PostPhotoDeleteAny  = "post.photo.delete.any"
+	PostPhotoDeleteOwn  = "post.photo.delete.own"
 	PostVerify          = "post.verify"
 	PostMarkReturnedAny = "post.mark.returned.any"
 	PostMarkReturnedOwn = "post.mark.returned.own"
@@ -36,15 +36,15 @@ const (
 
 // Room permissions
 const (
-	RoomCreate  = "room.create"
-	RoomRead = "room.read"
-	RoomUpdate  = "room.update"
-	RoomDelete  = "room.delete"
+	RoomCreate = "room.create"
+	RoomRead   = "room.read"
+	RoomUpdate = "room.update"
+	RoomDelete = "room.delete"
 )
 
 // Subject permissions
 const (
-	SubjectCreate    = "subject.create"
+	SubjectCreate = "subject.create"
 	SubjectRead   = "subject.read"
 	SubjectUpdate = "subject.update"
 	SubjectDelete = "subject.delete"
@@ -86,6 +86,7 @@ const (
 	ParentStudentAssignOwn   = "parent.student.assign.own"
 	ParentStudentUnassignAny = "parent.student.unassign.any"
 	ParentStudentUnassignOwn = "parent.student.unassign.own"
+	ParentReadOther          = "parent.read.other"
 )
 
 // User roles permissions
@@ -103,4 +104,9 @@ const (
 	TokenInviteUserCreate  = "token.invite.user.create"
 	TokenInviteAdminDelete = "token.invite.admin.delete"
 	TokenInviteUserDelete  = "token.invite.user.delete"
+)
+
+// Student permissions
+const (
+	StudentReadOther = "student.read.other"
 )
