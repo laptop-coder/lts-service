@@ -73,9 +73,9 @@ func (r *userRepository) FindAll(ctx context.Context, filter *UserFilter) ([]mod
 		query = query.Limit(filter.Limit)
 	}
 	// Sort users in the alphabetical order
-	query = query.Order("name")
+	query = query.Order("last_name")
 	// Find users
-	result := query.Find(&users)
+	result := query.Preload("Roles").Find(&users)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch users list: %w", result.Error)
 	}

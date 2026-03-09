@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"strconv"
 	"backend/internal/service"
+	"backend/internal/repository"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"backend/pkg/middleware"
@@ -149,5 +151,69 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
 		"user": response,
+	})
+}
+
+func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Parse query parameters (for filter)
+	roleIDString := r.URL.Query().Get("roleId")
+	limitString := r.URL.Query().Get("limit")
+	offsetString := r.URL.Query().Get("offset")
+    // Pre-assemble filter (fill with default values)
+	filter := repository.UserFilter {
+		Limit: 20,
+		Offset: 0,
+	}
+	// Parse role ID if passed
+	if roleIDString != "" {
+		// convert to uint64
+		roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
+		if err != nil {
+			h.log.Error("cannot convert role ID from string to uint64")
+			helpers.ErrorResponse(w, "cannot convert role ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		// and to uint8
+		roleID := uint8(roleID64)
+		// Add to filter
+		filter.RoleID = &roleID
+	}
+	// Parse limit if passed
+	if limitString != "" {
+		if limit, err := strconv.Atoi(limitString); err == nil && limit > 0 {
+			if limit > 100 {
+				limit = 100 // max value
+			}
+			filter.Limit = limit
+		} else {
+			h.log.Error("invalid limit")
+			helpers.ErrorResponse(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+	}
+	// Parse offset if passed
+	if offsetString != "" {
+		if offset, err := strconv.Atoi(offsetString); err == nil && offset >= 0 {
+			filter.Offset = offset
+		} else {
+			h.log.Error("invalid offset")
+			helpers.ErrorResponse(w, "invalid offset", http.StatusBadRequest)
+			return
+		}
+	}
+	// Get users
+	users, err := h.userService.GetUsers(r.Context(), filter)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get users: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"user": users,
 	})
 }

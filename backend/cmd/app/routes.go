@@ -41,6 +41,8 @@ func SetupRoutes(
 		requirePermissions(false, permissions.UserUpdateOwn)(http.HandlerFunc(userHandler.RemoveOwnAvatar))))
 	mux.Handle("GET /api/v1/users/{id}", authMiddleware(
 		requirePermissions(false, permissions.UserReadOther)(http.HandlerFunc(userHandler.GetUserByID))))
+	mux.Handle("GET /api/v1/users", authMiddleware(
+		requirePermissions(false, permissions.UserReadAll)(http.HandlerFunc(userHandler.GetUsers))))
 	// Student groups
 	mux.Handle("GET /api/v1/student_groups/{id}/advisor", authMiddleware(
 		requirePermissions(false, permissions.StudentGroupAdvisorRead)(http.HandlerFunc(studentGroupHandler.GetAdvisorByGroupID))))
