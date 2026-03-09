@@ -76,6 +76,7 @@ const (
 	TeacherClassroomAssignOwn   = "teacher.classroom.assign.own"
 	TeacherClassroomUnassignAny = "teacher.classroom.unassign.any"
 	TeacherClassroomUnassignOwn = "teacher.classroom.unassign.own"
+	TeacherReadOther            = "teacher.read.other"
 )
 
 // Parent permissions
@@ -109,4 +110,18 @@ const (
 // Student permissions
 const (
 	StudentReadOther = "student.read.other"
+)
+
+// Institution administrator
+const (
+	InstitutionAdministratorReadOther      = "institution_administrator.read.other"
+	InstitutionAdministratorPositionAssign = "institution_administrator.position.assign"
+	InstitutionAdministratorPositionRead   = "institution_administrator.position.read"
+)
+
+// Staff
+const (
+	StaffReadOther      = "staff.read.other"
+	StaffPositionAssign = "staff.position.assign"
+	StaffPositionRead   = "staff.position.read"
 )
