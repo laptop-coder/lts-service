@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"fmt"
 	"backend/internal/model"
-	"backend/internal/service"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"net/http"
 	"slices"

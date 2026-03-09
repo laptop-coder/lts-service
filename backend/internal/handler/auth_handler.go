@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"backend/pkg/middleware"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
+	"backend/pkg/middleware"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -391,7 +391,7 @@ func (h *AuthHandler) DeleteOwnAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
-	if !ok  {
+	if !ok {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
 		return
 	}

@@ -3,8 +3,8 @@ package handler
 import (
 	"backend/internal/service"
 	"backend/pkg/helpers"
-	"backend/pkg/middleware"
 	"backend/pkg/logger"
+	"backend/pkg/middleware"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
@@ -37,7 +37,7 @@ func (h *UserHandler) UpdateOwnProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
-	if !ok  {
+	if !ok {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
 		return
 	}
@@ -78,7 +78,7 @@ func (h *UserHandler) RemoveOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
-	if !ok  {
+	if !ok {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
 		return
 	}
@@ -107,7 +107,7 @@ func (h *UserHandler) UpdateOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
-	if !ok  {
+	if !ok {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
 		return
 	}
