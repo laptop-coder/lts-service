@@ -37,7 +37,7 @@ const (
 // Room permissions
 const (
 	RoomCreate  = "room.create"
-	RoomReadAny = "room.read.any"
+	RoomRead = "room.read"
 	RoomUpdate  = "room.update"
 	RoomDelete  = "room.delete"
 )
@@ -45,9 +45,9 @@ const (
 // Subject permissions
 const (
 	SubjectCreate    = "subject.create"
-	SubjectReadAny   = "subject.read.any"
-	SubjectUpdateAny = "subject.update.any"
-	SubjectDeleteAny = "subject.delete.any"
+	SubjectRead   = "subject.read"
+	SubjectUpdate = "subject.update"
+	SubjectDelete = "subject.delete"
 )
 
 // Student group permissions
