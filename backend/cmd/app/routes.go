@@ -58,6 +58,7 @@ func SetupRoutes(
 	mux.Handle("POST /api/v1/subjects", authMiddleware(requirePermissions(false, permissions.SubjectCreate)(http.HandlerFunc(subjectHandler.Create))))
 	mux.Handle("DELETE /api/v1/subjects/{id}", authMiddleware(requirePermissions(false, permissions.SubjectDelete)(http.HandlerFunc(subjectHandler.Delete))))
 	mux.Handle("PATCH /api/v1/subjects/{id}", authMiddleware(requirePermissions(false, permissions.SubjectUpdate)(http.HandlerFunc(subjectHandler.Update))))
+	mux.Handle("GET /api/v1/subjects", authMiddleware(requirePermissions(false, permissions.SubjectRead)(http.HandlerFunc(subjectHandler.GetSubjects))))
 	// Students
 	mux.Handle("GET /api/v1/students/{id}", authMiddleware(requirePermissions(false, permissions.StudentReadOther)(http.HandlerFunc(studentHandler.GetStudentByID))))
 	// Parents

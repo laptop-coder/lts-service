@@ -11,7 +11,7 @@ import (
 
 type SubjectRepository interface {
 	Create(ctx context.Context, subject *model.Subject) error
-	FindAll(ctx context.Context) ([]model.Subject, error)
+	FindAll(ctx context.Context, filter *SubjectFilter) ([]model.Subject, error)
 	FindByID(ctx context.Context, id *uint8) (*model.Subject, error)
 	Update(ctx context.Context, subject *model.Subject) error
 	Delete(ctx context.Context, id *uint8) error
@@ -21,6 +21,12 @@ type subjectRepository struct {
 	db  *gorm.DB
 	log logger.Logger
 }
+
+type SubjectFilter struct {
+	Limit  int
+	Offset int
+}
+
 
 func NewSubjectRepository(db *gorm.DB, log logger.Logger) SubjectRepository {
 	if db == nil {
@@ -41,15 +47,29 @@ func (r *subjectRepository) Create(ctx context.Context, subject *model.Subject) 
 	return nil
 }
 
-func (r *subjectRepository) FindAll(ctx context.Context) ([]model.Subject, error) {
-	var subjects []model.Subject
-	err := r.db.WithContext(ctx).
-		Model(&model.Subject{}).
-		Order("name").
-		Find(&subjects).Error
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch subjects list: %w", err)
+func (r *subjectRepository) FindAll(ctx context.Context, filter *SubjectFilter) ([]model.Subject, error) {
+	if filter == nil {
+		return nil, fmt.Errorf("subjects list filter cannot be nil")
 	}
+	var subjects []model.Subject
+	query := r.db.WithContext(ctx).Model(&model.Subject{})
+	// Filters
+	// offset (for pagination):
+	if filter.Offset > 0 {
+		query = query.Offset(filter.Offset)
+	}
+	// limit (for pagination):
+	if filter.Limit > 0 {
+		query = query.Limit(filter.Limit)
+	}
+	// Sort subjects in the alphabetical order
+	query = query.Order("name")
+	// Find subjects
+	result := query.Find(&subjects)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to fetch subjects list: %w", result.Error)
+	}
+	// Return response
 	return subjects, nil
 }
 

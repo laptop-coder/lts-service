@@ -13,6 +13,7 @@ import (
 
 type SubjectService interface {
 	CreateSubject(ctx context.Context, dto CreateSubjectDTO) (*SubjectResponseDTO, error)
+	GetSubjects(ctx context.Context, filter repository.SubjectFilter) ([]SubjectResponseDTO, error)
 	UpdateSubject(ctx context.Context, id uint8, dto UpdateSubjectDTO) (*SubjectResponseDTO, error)
 	DeleteSubject(ctx context.Context, id uint8) error
 }
@@ -69,6 +70,33 @@ func (s *subjectService) CreateSubject(ctx context.Context, dto CreateSubjectDTO
 		return nil, fmt.Errorf("failed to fetch created subject: %w", err)
 	}
 	return SubjectToDTO(createdSubject), nil
+}
+
+func (s *subjectService) GetSubjects(ctx context.Context, filter repository.SubjectFilter) ([]SubjectResponseDTO, error) {
+	subjects, err := s.subjectRepo.FindAll(ctx, &filter)
+	if err != nil {
+		s.log.Error(
+			"failed to get subjects from repository",
+			"limit",
+			filter.Limit,
+			"offset",
+			filter.Offset,
+			"error",
+			err,
+		)
+		return nil, fmt.Errorf(
+			"failed to get subjects from repository (limit: %d, offset: %d): %w",
+			filter.Limit,
+			filter.Offset,
+			err,
+		)
+	}
+	subjectDTOs := make([]SubjectResponseDTO, len(subjects))
+	for i, subject := range subjects {
+		subjectDTOs[i] = *SubjectToDTO(&subject)
+	}
+	s.log.Info("successfully received the list of subjects")
+	return subjectDTOs, nil
 }
 
 func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto UpdateSubjectDTO) (*SubjectResponseDTO, error) {
