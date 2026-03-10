@@ -26,6 +26,7 @@ type PostService interface {
 	RemovePhoto(ctx context.Context, postID uuid.UUID) error
 	GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
 	GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error)
+	VerifyPost(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
 }
 
 type CreatePostDTO struct {
@@ -381,6 +382,33 @@ func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter
 	}
 	s.log.Info("successfully received the list of posts")
 	return postDTOs, nil
+}
+
+
+func (s *postService) VerifyPost(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error) {
+	// Getting existing post
+	post, err := s.postRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Post for verification was not found by id", "post id", id, "error", err)
+			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get post for verification", "post id", id, "error", err)
+		return nil, fmt.Errorf("failed to get post for verification: %w", err)
+	}
+	// Updating field
+	post.Verified = true
+	// Updating post in DB
+	if err := s.postRepo.Update(ctx, post); err != nil {
+		s.log.Error("Failed to change post verification status")
+		return nil, fmt.Errorf("failed to change post verification status: %w", err)
+	}
+	// Get verified post for response
+	verifiedPost, err := s.postRepo.FindByID(ctx, &post.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch verified post: %w", err)
+	}
+	return PostToDTO(verifiedPost), nil
 }
 
 

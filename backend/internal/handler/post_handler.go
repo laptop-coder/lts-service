@@ -473,3 +473,35 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+
+func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPatch {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	// TODO: think about the restrictions in the whole code
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+	}
+	// Verify post
+	postResponse, err := h.postService.VerifyPost(r.Context(), postID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to change post verification status: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"post": postResponse,
+	})
+}
+
