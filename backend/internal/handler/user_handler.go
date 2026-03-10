@@ -214,6 +214,6 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"user": users,
+		"users": users,
 	})
 }
