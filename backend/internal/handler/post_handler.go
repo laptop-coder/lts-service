@@ -396,3 +396,80 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 		"posts": posts,
 	})
 }
+
+
+func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Parse query parameters (for filter)
+	verifiedString := r.URL.Query().Get("verified")
+	thingReturnedToOwnerString := r.URL.Query().Get("thingReturnedToOwner")
+	limitString := r.URL.Query().Get("limit")
+	offsetString := r.URL.Query().Get("offset")
+    // Pre-assemble filter (fill with default values)
+	filter := repository.PostFilter {
+		Limit: 20,
+		Offset: 0,
+	}
+	// Get and convert user ID
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Set author ID to user ID
+	filter.AuthorID = &userID
+	// Parse verification status if passed
+	if verifiedString != "" {
+		verified, err := strconv.ParseBool(verifiedString)
+		if err != nil {
+			helpers.ErrorResponse(w, "cannot convert verification status from string to boolean", http.StatusBadRequest)
+		}
+		filter.Verified = &verified
+	}
+	// Parse thing returning to owner status if passed
+	if thingReturnedToOwnerString != "" {
+		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
+		if err != nil {
+			helpers.ErrorResponse(w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+		}
+		filter.ThingReturnedToOwner = &thingReturnedToOwner
+	}
+	// Parse limit if passed
+	if limitString != "" {
+		if limit, err := strconv.Atoi(limitString); err == nil && limit > 0 {
+			if limit > 100 {
+				limit = 100 // max value
+			}
+			filter.Limit = limit
+		} else {
+			h.log.Error("invalid limit")
+			helpers.ErrorResponse(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+	}
+	// Parse offset if passed
+	if offsetString != "" {
+		if offset, err := strconv.Atoi(offsetString); err == nil && offset >= 0 {
+			filter.Offset = offset
+		} else {
+			h.log.Error("invalid offset")
+			helpers.ErrorResponse(w, "invalid offset", http.StatusBadRequest)
+			return
+		}
+	}
+	// Get posts
+	posts, err := h.postService.GetPosts(r.Context(), filter)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get posts: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"posts": posts,
+	})
+}
+
