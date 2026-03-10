@@ -51,9 +51,12 @@ func HandleServiceError(w http.ResponseWriter, err error) {
 		strings.Contains(errMsg, "invalid"),
 		strings.Contains(errMsg, "required"):
 		statusCode = http.StatusBadRequest
-	case strings.Contains(errMsg, "unauthorized"),
-		strings.Contains(errMsg, "permission"):
+	case strings.Contains(errMsg, "unauthorized"):
 		statusCode = http.StatusUnauthorized
+	case strings.Contains(errMsg, "forbidden"),
+		strings.Contains(errMsg, "permission"),
+		strings.Contains(errMsg, "verify"):
+		statusCode = http.StatusForbidden
 	}
 	ErrorResponse(w, errMsg, statusCode)
 }

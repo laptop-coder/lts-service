@@ -290,6 +290,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
 	}
 	// Parse limit if passed
+	// TODO: move limit and offset parsing to a separate helper
 	if limitString != "" {
 		if limit, err := strconv.Atoi(limitString); err == nil && limit > 0 {
 			if limit > 100 {
@@ -497,6 +498,63 @@ func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	postResponse, err := h.postService.VerifyPost(r.Context(), postID)
 	if err != nil {
 		helpers.HandleServiceError(w, fmt.Errorf("failed to change post verification status: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"post": postResponse,
+	})
+}
+
+
+func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPatch {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if user updating his own post
+	if slices.Contains(userPermissions, permissions.PostMarkReturnedOwn) && !slices.Contains(userPermissions, permissions.PostMarkReturnedAny) {
+		// Get and convert user ID
+		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+		if !ok {
+			helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		// Get post
+		post, err := h.postService.GetPostByID(r.Context(), postID)
+		if err != nil || post == nil {
+			helpers.HandleServiceError(w, fmt.Errorf("failed to find the post by ID: %w", err))
+			return
+		}
+		// Check if the post belongs to the user
+		if userID != post.Author.ID {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to change status of this post", http.StatusForbidden)
+			return
+		}
+	}
+	// Update post
+	postResponse, err := h.postService.ReturnToOwner(r.Context(), postID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to change post status: %w", err))
 		return
 	}
 	// Return response

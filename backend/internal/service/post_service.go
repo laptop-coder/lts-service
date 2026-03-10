@@ -27,6 +27,7 @@ type PostService interface {
 	GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
 	GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error)
 	VerifyPost(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
+	ReturnToOwner(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
 }
 
 type CreatePostDTO struct {
@@ -45,12 +46,12 @@ type PostResponseDTO struct {
 	ID                   uuid.UUID       `json:"id"`
 	CreatedAt            string          `json:"createdAt"`
 	UpdatedAt            string          `json:"updatedAt"`
-	Name                 string          `form:"name"`
-	Description          string          `form:"name,omitempty"`
-	Verified             bool            `form:"verified"`
-	ThingReturnedToOwner bool            `form:"thingReturnedToOwner"`
-	HasPhoto             bool            `form:"hasPhoto"`
-	Author               UserResponseDTO `form:"author"`
+	Name                 string          `json:"name"`
+	Description          string          `json:"description,omitempty"`
+	Verified             bool            `json:"verified"`
+	ThingReturnedToOwner bool            `json:"thingReturnedToOwner"`
+	HasPhoto             bool            `json:"hasPhoto"`
+	Author               UserResponseDTO `json:"author"`
 }
 
 type postService struct {
@@ -367,7 +368,7 @@ func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get posts from repository (author id: %d, verified: %t, thing returned to owner: %t, limit: %d, offset: %d): %w",
+			"failed to get posts from repository (author id: %s, verified: %t, thing returned to owner: %t, limit: %d, offset: %d): %w",
 			filter.AuthorID,
 			filter.Verified,
 			filter.ThingReturnedToOwner,
@@ -404,11 +405,44 @@ func (s *postService) VerifyPost(ctx context.Context, id uuid.UUID) (*PostRespon
 		return nil, fmt.Errorf("failed to change post verification status: %w", err)
 	}
 	// Get verified post for response
+	// TODO: refactor in the whole code, maybe re-use "post" variable instead
+	//of using FindByID twice
 	verifiedPost, err := s.postRepo.FindByID(ctx, &post.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch verified post: %w", err)
 	}
 	return PostToDTO(verifiedPost), nil
+}
+
+func (s *postService) ReturnToOwner(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error) {
+	// Getting existing post
+	post, err := s.postRepo.FindByID(ctx, &id)
+	if err != nil || post == nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Post for changing thing returning status was not found by id", "post id", id, "error", err)
+			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
+		}
+		s.log.Error("Failed to get post for changing thing returning status", "post id", id, "error", err)
+		return nil, fmt.Errorf("failed to get post for changing thing returning status: %w", err)
+	}
+	// Check if the post verified
+	if post.Verified != true {
+		s.log.Error("Failed to mark thing as returned to owner for not verified post", "post id", id)
+		return nil, fmt.Errorf("forbidden: failed to mark thing as returned to owner for not verified post")
+	}
+	// Updating field
+	post.ThingReturnedToOwner = true
+	// Updating post in DB
+	if err := s.postRepo.Update(ctx, post); err != nil {
+		s.log.Error("Failed to change thing returning status")
+		return nil, fmt.Errorf("failed to change thing returning status: %w", err)
+	}
+	// Get updated post for response
+	updatedPost, err := s.postRepo.FindByID(ctx, &post.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch post with changed thing returning status: %w", err)
+	}
+	return PostToDTO(updatedPost), nil
 }
 
 
@@ -462,3 +496,4 @@ func PostToDTO(post *model.Post) *PostResponseDTO {
 		Author:               *UserToDTO(&post.Author),
 	}
 }
+
