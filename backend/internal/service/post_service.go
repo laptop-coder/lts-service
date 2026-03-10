@@ -25,6 +25,7 @@ type PostService interface {
 	DeletePost(ctx context.Context, id uuid.UUID) error
 	RemovePhoto(ctx context.Context, postID uuid.UUID) error
 	GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
+	GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error)
 }
 
 type CreatePostDTO struct {
@@ -345,6 +346,43 @@ func (s *postService) GetPostByID(ctx context.Context, id uuid.UUID) (*PostRespo
 	}
 	return PostToDTO(post), nil
 }
+
+func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error) {
+	posts, err := s.postRepo.FindAll(ctx, &filter)
+	if err != nil {
+		s.log.Error(
+			"failed to get posts from repository",
+			"author id",
+			filter.AuthorID,
+			"verified",
+			filter.Verified,
+			"thing returned to owner",
+			filter.ThingReturnedToOwner,
+			"limit",
+			filter.Limit,
+			"offset",
+			filter.Offset,
+			"error",
+			err,
+		)
+		return nil, fmt.Errorf(
+			"failed to get posts from repository (author id: %d, verified: %t, thing returned to owner: %t, limit: %d, offset: %d): %w",
+			filter.AuthorID,
+			filter.Verified,
+			filter.ThingReturnedToOwner,
+			filter.Limit,
+			filter.Offset,
+			err,
+		)
+	}
+	postDTOs := make([]PostResponseDTO, len(posts))
+	for i, post := range posts {
+		postDTOs[i] = *PostToDTO(&post)
+	}
+	s.log.Info("successfully received the list of posts")
+	return postDTOs, nil
+}
+
 
 func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
 	// if dto.Email == "" {

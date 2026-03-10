@@ -49,6 +49,7 @@ func SetupRoutes(
 	mux.Handle("DELETE /api/v1/posts/{id}", authMiddleware(requirePermissions(false, permissions.PostDeleteAny, permissions.PostDeleteOwn)(http.HandlerFunc(postHandler.Delete))))
 	mux.Handle("DELETE /api/v1/posts/{id}/photo", authMiddleware(requirePermissions(false, permissions.PostPhotoDeleteAny, permissions.PostPhotoDeleteOwn)(http.HandlerFunc(postHandler.RemovePhoto))))
 	mux.Handle("PATCH /api/v1/posts/{id}", authMiddleware(requirePermissions(false, permissions.PostUpdateAny, permissions.PostUpdateOwn)(http.HandlerFunc(postHandler.Update))))
+	mux.Handle("GET /api/v1/posts", authMiddleware(requirePermissions(false, permissions.PostReadAny)(http.HandlerFunc(postHandler.GetPosts))))
 	// Rooms
 	mux.Handle("POST /api/v1/rooms", authMiddleware(requirePermissions(false, permissions.RoomCreate)(http.HandlerFunc(roomHandler.Create))))
 	mux.Handle("DELETE /api/v1/rooms/{id}", authMiddleware(requirePermissions(false, permissions.RoomDelete)(http.HandlerFunc(roomHandler.Delete))))
