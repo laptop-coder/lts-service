@@ -72,7 +72,7 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 	// Sort posts by name in the alphabetical order
 	query = query.Order("name")
 	// Find posts
-	result := query.Find(&posts)
+	result := query.Preload("Author").Preload("Author.Roles").Find(&posts)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch posts list: %w", result.Error)
 	}
