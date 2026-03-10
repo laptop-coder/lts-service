@@ -28,6 +28,7 @@ func SetupRoutes(
 	// Public routes (no auth required)
 	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
 	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
+	mux.HandleFunc("GET /api/v1/posts/public", postHandler.GetPostsPublic)
 	mux.HandleFunc("/health", healthHandler)
 
 	// Secure routes (auth required)
