@@ -11,7 +11,7 @@ import (
 
 type RoomRepository interface {
 	Create(ctx context.Context, room *model.Room) error
-	FindAll(ctx context.Context) ([]model.Room, error)
+	FindAll(ctx context.Context, filter *RoomFilter) ([]model.Room, error)
 	FindByID(ctx context.Context, id *uint8) (*model.Room, error)
 	Update(ctx context.Context, room *model.Room) error
 	Delete(ctx context.Context, id *uint8) error
@@ -21,6 +21,12 @@ type roomRepository struct {
 	db  *gorm.DB
 	log logger.Logger
 }
+
+type RoomFilter struct {
+	Limit  int
+	Offset int
+}
+
 
 func NewRoomRepository(db *gorm.DB, log logger.Logger) RoomRepository {
 	if db == nil {
@@ -41,15 +47,29 @@ func (r *roomRepository) Create(ctx context.Context, room *model.Room) error {
 	return nil
 }
 
-func (r *roomRepository) FindAll(ctx context.Context) ([]model.Room, error) {
-	var rooms []model.Room
-	err := r.db.WithContext(ctx).
-		Model(&model.Room{}).
-		Order("name").
-		Find(&rooms).Error
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch rooms list: %w", err)
+func (r *roomRepository) FindAll(ctx context.Context, filter *RoomFilter) ([]model.Room, error) {
+	if filter == nil {
+		return nil, fmt.Errorf("rooms list filter cannot be nil")
 	}
+	var rooms []model.Room
+	query := r.db.WithContext(ctx).Model(&model.Room{})
+	// Filters
+	// offset (for pagination):
+	if filter.Offset > 0 {
+		query = query.Offset(filter.Offset)
+	}
+	// limit (for pagination):
+	if filter.Limit > 0 {
+		query = query.Limit(filter.Limit)
+	}
+	// Sort rooms in the alphabetical order
+	query = query.Order("name")
+	// Find rooms
+	result := query.Find(&rooms)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to fetch rooms list: %w", result.Error)
+	}
+	// Return response
 	return rooms, nil
 }
 

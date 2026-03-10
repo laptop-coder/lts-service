@@ -14,6 +14,7 @@ import (
 
 type RoomService interface {
 	CreateRoom(ctx context.Context, dto CreateRoomDTO) (*RoomResponseDTO, error)
+	GetRooms(ctx context.Context, filter repository.RoomFilter) ([]RoomResponseDTO, error)
 	UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDTO) (*RoomResponseDTO, error)
 	DeleteRoom(ctx context.Context, id uint8) error
 }
@@ -74,6 +75,33 @@ func (s *roomService) CreateRoom(ctx context.Context, dto CreateRoomDTO) (*RoomR
 		return nil, fmt.Errorf("failed to fetch created room: %w", err)
 	}
 	return RoomToDTO(createdRoom), nil
+}
+
+func (s *roomService) GetRooms(ctx context.Context, filter repository.RoomFilter) ([]RoomResponseDTO, error) {
+	rooms, err := s.roomRepo.FindAll(ctx, &filter)
+	if err != nil {
+		s.log.Error(
+			"failed to get rooms from repository",
+			"limit",
+			filter.Limit,
+			"offset",
+			filter.Offset,
+			"error",
+			err,
+		)
+		return nil, fmt.Errorf(
+			"failed to get rooms from repository (limit: %d, offset: %d): %w",
+			filter.Limit,
+			filter.Offset,
+			err,
+		)
+	}
+	roomDTOs := make([]RoomResponseDTO, len(rooms))
+	for i, room := range rooms {
+		roomDTOs[i] = *RoomToDTO(&room)
+	}
+	s.log.Info("successfully received the list of rooms")
+	return roomDTOs, nil
 }
 
 func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDTO) (*RoomResponseDTO, error) {

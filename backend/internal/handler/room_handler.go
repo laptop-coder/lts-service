@@ -2,6 +2,7 @@ package handler
 
 import (
 	"backend/internal/service"
+	"backend/internal/repository"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"fmt"
@@ -70,6 +71,55 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	},
 		http.StatusCreated,
 	)
+}
+
+func (h *RoomHandler) GetRooms(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Parse query parameters (for filter)
+	limitString := r.URL.Query().Get("limit")
+	offsetString := r.URL.Query().Get("offset")
+    // Pre-assemble filter (fill with default values)
+	filter := repository.RoomFilter {
+		Limit: 20,
+		Offset: 0,
+	}
+	// Parse limit if passed
+	if limitString != "" {
+		if limit, err := strconv.Atoi(limitString); err == nil && limit > 0 {
+			if limit > 100 {
+				limit = 100 // max value
+			}
+			filter.Limit = limit
+		} else {
+			h.log.Error("invalid limit")
+			helpers.ErrorResponse(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+	}
+	// Parse offset if passed
+	if offsetString != "" {
+		if offset, err := strconv.Atoi(offsetString); err == nil && offset >= 0 {
+			filter.Offset = offset
+		} else {
+			h.log.Error("invalid offset")
+			helpers.ErrorResponse(w, "invalid offset", http.StatusBadRequest)
+			return
+		}
+	}
+	// Get rooms
+	rooms, err := h.roomService.GetRooms(r.Context(), filter)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get rooms: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"rooms": rooms,
+	})
 }
 
 func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
