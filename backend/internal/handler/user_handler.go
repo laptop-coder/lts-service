@@ -217,3 +217,28 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 		"users": users,
 	})
 }
+
+func (h *UserHandler) GetOwnUser(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert own user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get user
+	response, err := h.userService.GetUserByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get own user by id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"user": response,
+	})
+}
+
