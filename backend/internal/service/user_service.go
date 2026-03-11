@@ -280,10 +280,14 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserRe
 func (s *userService) GetUsers(ctx context.Context, filter repository.UserFilter) ([]UserResponseDTO, error) {
 	users, err := s.userRepo.FindAll(ctx, &filter)
 	if err != nil {
+		roleID := ""
+		if filter.RoleID != nil {
+			roleID = fmt.Sprintf("%d", *filter.RoleID)
+		}
 		s.log.Error(
 			"failed to get users from repository",
 			"role id",
-			filter.RoleID,
+			roleID,
 			"limit",
 			filter.Limit,
 			"offset",
@@ -292,8 +296,8 @@ func (s *userService) GetUsers(ctx context.Context, filter repository.UserFilter
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get users from repository (role id: %d, limit: %d, offset: %d): %w",
-			filter.RoleID,
+			"failed to get users from repository (role id: %s, limit: %d, offset: %d): %w",
+			roleID,
 			filter.Limit,
 			filter.Offset,
 			err,

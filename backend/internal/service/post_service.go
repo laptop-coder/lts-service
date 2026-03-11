@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -352,14 +353,26 @@ func (s *postService) GetPostByID(ctx context.Context, id uuid.UUID) (*PostRespo
 func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error) {
 	posts, err := s.postRepo.FindAll(ctx, &filter)
 	if err != nil {
+		authorID := ""
+		if filter.AuthorID != nil {
+			authorID = (*filter.AuthorID).String()
+		}
+		verified := ""
+		if filter.Verified != nil {
+			verified = strconv.FormatBool(*filter.Verified)
+		}
+		thingReturnedToOwner := ""
+		if filter.ThingReturnedToOwner != nil {
+			thingReturnedToOwner = strconv.FormatBool(*filter.ThingReturnedToOwner)
+		}
 		s.log.Error(
 			"failed to get posts from repository",
 			"author id",
-			filter.AuthorID,
+			authorID,
 			"verified",
-			filter.Verified,
+			verified,
 			"thing returned to owner",
-			filter.ThingReturnedToOwner,
+			thingReturnedToOwner,
 			"limit",
 			filter.Limit,
 			"offset",
@@ -368,10 +381,10 @@ func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get posts from repository (author id: %s, verified: %t, thing returned to owner: %t, limit: %d, offset: %d): %w",
-			filter.AuthorID,
-			filter.Verified,
-			filter.ThingReturnedToOwner,
+			"failed to get posts from repository (author id: %s, verified: %s, thing returned to owner: %s, limit: %d, offset: %d): %w",
+			authorID,
+			verified,
+			thingReturnedToOwner,
 			filter.Limit,
 			filter.Offset,
 			err,
