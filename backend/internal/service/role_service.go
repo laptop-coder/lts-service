@@ -11,8 +11,7 @@ import (
 
 type RoleService interface {
 	GetRolePermissions(ctx context.Context, roleID uint8) ([]PermissionResponseDTO, error)
-	// replace old permissions with new ones
-	AssignPermissionsToRole(ctx context.Context, roleID uint8, permissionIDs []uint8) error
+	AssignPermissionsToRole(ctx context.Context, roleID uint8, permissionIDs []uint8) error // replace old permissions with new ones
 	AddPermissionsToRole(ctx context.Context, roleID uint8, permissionIDs []uint8) error
 	RemovePermissionsFromRole(ctx context.Context, roleID uint8, permissionIDs []uint8) error
 }
@@ -70,7 +69,7 @@ func (s *roleService) AssignPermissionsToRole(ctx context.Context, roleID uint8,
 				return fmt.Errorf("some permissions not found")
 			}
 		}
-		// Return response
+		// Replace old role permissions with new ones, return response
 		return tx.Model(&role).Association("Permissions").Replace(&permissions)
 	})
 }
@@ -81,7 +80,7 @@ func (s *roleService) AddPermissionsToRole(ctx context.Context, roleID uint8, pe
 	if err := s.db.Where("id IN (?)", permissionIDs).Find(&permissions).Error; err != nil {
 		return fmt.Errorf("failed to fetch permissions: %w", err)
 	}
-	// Add permission to role, return response
+	// Add permissions to role, return response
 	var role model.Role
 	role.ID = roleID
 	return s.db.Model(&role).Association("Permissions").Append(&permissions)

@@ -51,12 +51,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 		fieldsData[s] = formFields[0]
 	}
-	dto := service.CreateUserDTO{
+	createUserDTO := service.CreateUserDTO{
 		Email:     fieldsData["email"],
 		Password:  fieldsData["password"],
 		FirstName: fieldsData["firstName"],
 		LastName:  fieldsData["lastName"],
 	}
+	userRolesDTO := service.UserRolesDTO{}
 	if roleIDs := r.PostForm["roleID"]; len(roleIDs) == 0 { // TODO: maybe this check won't work
 		h.log.Error("the list of roles cannot be empty")
 		helpers.ErrorResponse(w, "the list of roles cannot be empty", http.StatusBadRequest)
@@ -72,11 +73,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			}
 			uints[i] = uint8(val)
 		}
-		dto.RoleIDs = uints
+		createUserDTO.RoleIDs = uints
 	}
 	// Middle name (optional)
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
-		dto.MiddleName = &middleNameFields[0]
+		createUserDTO.MiddleName = &middleNameFields[0]
 	} else if len(middleNameFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
 		return
@@ -90,7 +91,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
-		dto.TeacherClassroomID = &teacherClassroomID
+		userRolesDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
 		return
@@ -107,7 +108,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		subjectID8 := uint8(subjectID64)
 		teacherSubjectIDs[i] = subjectID8
 	}
-	dto.TeacherSubjectIDs = teacherSubjectIDs
+	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupID"]; len(studentGroupIDFields) == 1 {
 		// Convert to uint16
@@ -117,7 +118,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
-		dto.StudentGroupID = &studentGroupID
+		userRolesDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much student group id values", http.StatusBadRequest)
 		return
@@ -131,7 +132,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
-		dto.StaffPositionID = &staffPositionID
+		userRolesDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
 		return
@@ -145,7 +146,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
-		dto.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+		userRolesDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
 		return
@@ -161,22 +162,22 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 		parentStudentIDs[i] = parentStudentID
 	}
-	dto.ParentStudentIDs = parentStudentIDs
+	userRolesDTO.ParentStudentIDs = parentStudentIDs
 	// Avatar (optional)
 	formFiles := r.MultipartForm.File["avatar"]
 	if len(formFiles) > 1 {
 		helpers.ErrorResponse(w, "failed to parse form: to much avatar files", http.StatusBadRequest)
 		return
 	} else if len(formFiles) == 1 {
-		dto.Avatar = formFiles[0]
+		createUserDTO.Avatar = formFiles[0]
 	}
-	userResponse, err := h.userService.CreateUser(r.Context(), dto)
+	userResponse, err := h.userService.CreateUser(r.Context(), createUserDTO, userRolesDTO)
 	if err != nil {
 		helpers.HandleServiceError(w, fmt.Errorf("failed to create the user: %w", err))
 		return
 	}
 	// Log in automatically
-	tokens, _, err := h.authService.Login(r.Context(), dto.Email, dto.Password) // don't rewrite userResponse
+	tokens, _, err := h.authService.Login(r.Context(), createUserDTO.Email, createUserDTO.Password) // don't rewrite userResponse
 	if err != nil {
 		helpers.HandleServiceError(w, fmt.Errorf("failed to log in automatically: %w", err))
 		return
