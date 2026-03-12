@@ -58,7 +58,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		LastName:  fieldsData["lastName"],
 	}
 	userRolesDTO := service.UserRolesDTO{}
-	if roleIDs := r.PostForm["roleID"]; len(roleIDs) == 0 { // TODO: maybe this check won't work
+	if roleIDs := r.PostForm["roleId"]; len(roleIDs) == 0 { // TODO: maybe this check won't work
 		h.log.Error("the list of roles cannot be empty")
 		helpers.ErrorResponse(w, "the list of roles cannot be empty", http.StatusBadRequest)
 		return
@@ -83,7 +83,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TeacherClassroomID (special)
-	if teacherClassroomIDFields := r.PostForm["teacherClassroomID"]; len(teacherClassroomIDFields) == 1 {
+	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint8
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
@@ -97,7 +97,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TeacherSubjectIDs (special)
-	teacherSubjectIDsFields := r.PostForm["teacherSubjectIDs"]
+	teacherSubjectIDsFields := r.PostForm["teacherSubjectIds"]
 	var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
@@ -110,7 +110,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
 	// StudentGroupID (special)
-	if studentGroupIDFields := r.PostForm["studentGroupID"]; len(studentGroupIDFields) == 1 {
+	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
 		// Convert to uint16
 		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
 		if err != nil {
@@ -124,7 +124,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// StaffPositionID (special)
-	if staffPositionIDFields := r.PostForm["staffPositionID"]; len(staffPositionIDFields) == 1 {
+	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
 		// Convert to uint8
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
@@ -138,7 +138,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// InstitutionAdministratorPositionID (special)
-	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionID"]; len(institutionAdministratorPositionIDFields) == 1 {
+	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
 		// Convert to uint8
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
@@ -152,7 +152,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ParentStudentIDs (special)
-	parentStudentIDsFields := r.PostForm["parentStudentIDs"]
+	parentStudentIDsFields := r.PostForm["parentStudentIds"]
 	var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)

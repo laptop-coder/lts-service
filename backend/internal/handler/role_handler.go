@@ -44,7 +44,7 @@ func (h *RoleHandler) AssignPermissions(w http.ResponseWriter, r *http.Request) 
 	// to uint8:
 	roleID := uint8(roleID64)
 	// Get permission IDs
-	permissionIDsFields := r.PostForm["permissionID"]
+	permissionIDsFields := r.PostForm["permissionId"]
 	if len(permissionIDsFields) == 0 {
 		h.log.Error("the list of permissions cannot be empty")
 		helpers.ErrorResponse(w, "the list of permissions cannot be empty", http.StatusBadRequest)

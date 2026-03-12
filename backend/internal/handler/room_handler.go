@@ -44,7 +44,7 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	name := nameFields[0]
 	// Get and convert teacher ID
-	teacherIDFields := r.PostForm["teacherID"]
+	teacherIDFields := r.PostForm["teacherId"]
 	var teacherID *uuid.UUID
 	if len(teacherIDFields) > 1 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much teacherID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
@@ -149,7 +149,7 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 	} else if len(nameFields) != 0 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
 	}
-	if teacherIDFields := r.PostForm["teacherID"]; len(teacherIDFields) == 1 {
+	if teacherIDFields := r.PostForm["teacherId"]; len(teacherIDFields) == 1 {
 		// Convert teacher ID to UUID
 		teacherID, err := uuid.Parse(teacherIDFields[0])
 		if err != nil {
