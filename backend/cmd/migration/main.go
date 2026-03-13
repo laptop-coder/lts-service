@@ -44,7 +44,7 @@ func main() {
 		[]any{
 			&model.Role{},
 			&model.Permission{},
-			&model.AdministratorPosition{},
+			&model.InstitutionAdministratorPosition{},
 			&model.StaffPosition{},
 			&model.Room{},
 			&model.Subject{},

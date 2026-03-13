@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type AdministratorPosition struct {
+type InstitutionAdministratorPosition struct {
 	ID        uint8 `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
