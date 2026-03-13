@@ -27,7 +27,6 @@ type RoomFilter struct {
 	Offset int
 }
 
-
 func NewRoomRepository(db *gorm.DB, log logger.Logger) RoomRepository {
 	if db == nil {
 		log.Error("DB is nil")

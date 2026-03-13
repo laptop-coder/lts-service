@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"strconv"
 	"backend/internal/permissions"
 	"backend/internal/repository"
 	"backend/internal/service"
@@ -12,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"slices"
+	"strconv"
 )
 
 type PostHandler struct {
@@ -258,9 +258,9 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	thingReturnedToOwnerString := r.URL.Query().Get("thingReturnedToOwner")
 	limitString := r.URL.Query().Get("limit")
 	offsetString := r.URL.Query().Get("offset")
-    // Pre-assemble filter (fill with default values)
-	filter := repository.PostFilter {
-		Limit: 20,
+	// Pre-assemble filter (fill with default values)
+	filter := repository.PostFilter{
+		Limit:  20,
 		Offset: 0,
 	}
 	// Parse author ID if passed
@@ -325,7 +325,6 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -337,9 +336,9 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	thingReturnedToOwnerString := r.URL.Query().Get("thingReturnedToOwner")
 	limitString := r.URL.Query().Get("limit")
 	offsetString := r.URL.Query().Get("offset")
-    // Pre-assemble filter (fill with default values)
-	filter := repository.PostFilter {
-		Limit: 20,
+	// Pre-assemble filter (fill with default values)
+	filter := repository.PostFilter{
+		Limit:  20,
 		Offset: 0,
 	}
 	// Parse author ID if passed
@@ -398,7 +397,6 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -410,9 +408,9 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	thingReturnedToOwnerString := r.URL.Query().Get("thingReturnedToOwner")
 	limitString := r.URL.Query().Get("limit")
 	offsetString := r.URL.Query().Get("offset")
-    // Pre-assemble filter (fill with default values)
-	filter := repository.PostFilter {
-		Limit: 20,
+	// Pre-assemble filter (fill with default values)
+	filter := repository.PostFilter{
+		Limit:  20,
 		Offset: 0,
 	}
 	// Get and convert user ID
@@ -474,7 +472,6 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
@@ -505,7 +502,6 @@ func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 		"post": postResponse,
 	})
 }
-
 
 func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -562,4 +558,3 @@ func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
 		"post": postResponse,
 	})
 }
-

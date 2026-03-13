@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"backend/internal/service"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"fmt"
@@ -82,9 +82,9 @@ func (h *RoomHandler) GetRooms(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters (for filter)
 	limitString := r.URL.Query().Get("limit")
 	offsetString := r.URL.Query().Get("offset")
-    // Pre-assemble filter (fill with default values)
-	filter := repository.RoomFilter {
-		Limit: 20,
+	// Pre-assemble filter (fill with default values)
+	filter := repository.RoomFilter{
+		Limit:  20,
 		Offset: 0,
 	}
 	// Parse limit if passed

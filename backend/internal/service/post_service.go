@@ -1,7 +1,6 @@
 package service
 
 import (
-	"strconv"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -9,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"strconv"
 	// "golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"io"
@@ -398,7 +398,6 @@ func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter
 	return postDTOs, nil
 }
 
-
 func (s *postService) VerifyPost(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error) {
 	// Getting existing post
 	post, err := s.postRepo.FindByID(ctx, &id)
@@ -458,7 +457,6 @@ func (s *postService) ReturnToOwner(ctx context.Context, id uuid.UUID) (*PostRes
 	return PostToDTO(updatedPost), nil
 }
 
-
 func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
 	// if dto.Email == "" {
 	// 	return fmt.Errorf("email is required")
@@ -509,4 +507,3 @@ func PostToDTO(post *model.Post) *PostResponseDTO {
 		Author:               *UserToDTO(&post.Author),
 	}
 }
-

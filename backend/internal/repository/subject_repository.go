@@ -27,7 +27,6 @@ type SubjectFilter struct {
 	Offset int
 }
 
-
 func NewSubjectRepository(db *gorm.DB, log logger.Logger) SubjectRepository {
 	if db == nil {
 		log.Error("DB is nil")

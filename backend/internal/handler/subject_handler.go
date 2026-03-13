@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"backend/internal/service"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"fmt"
@@ -59,7 +59,6 @@ func (h *SubjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-
 func (h *SubjectHandler) GetSubjects(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -69,9 +68,9 @@ func (h *SubjectHandler) GetSubjects(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters (for filter)
 	limitString := r.URL.Query().Get("limit")
 	offsetString := r.URL.Query().Get("offset")
-    // Pre-assemble filter (fill with default values)
-	filter := repository.SubjectFilter {
-		Limit: 20,
+	// Pre-assemble filter (fill with default values)
+	filter := repository.SubjectFilter{
+		Limit:  20,
 		Offset: 0,
 	}
 	// Parse limit if passed
@@ -108,7 +107,6 @@ func (h *SubjectHandler) GetSubjects(w http.ResponseWriter, r *http.Request) {
 		"subjects": subjects,
 	})
 }
-
 
 func (h *SubjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// Check method
