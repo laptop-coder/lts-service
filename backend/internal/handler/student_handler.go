@@ -3,8 +3,8 @@ package handler
 import (
 	"backend/internal/service"
 	"backend/pkg/helpers"
-	"backend/pkg/middleware"
 	"backend/pkg/logger"
+	"backend/pkg/middleware"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"

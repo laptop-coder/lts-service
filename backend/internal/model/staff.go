@@ -8,10 +8,13 @@ import (
 // Staff is a table (model), that contains info, related only to institution
 // staff. This table extends the "users" table
 type Staff struct {
+	// one-to-one (staff-to-user)
+	UserID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	User   User      `gorm:"foreignKey:UserID;references:ID"`
+
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	// one-to-one (staff-to-user)
-	UserID     uuid.UUID `gorm:"type:uuid;primaryKey"`
 	PositionID uint8
+	Position   StaffPosition `gorm:"foreignKey:PositionID;references:ID"`
 }
