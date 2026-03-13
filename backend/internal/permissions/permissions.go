@@ -25,7 +25,6 @@ const (
 	UserUpdateOwn        = "user.update.own"
 	UserDeleteAny        = "user.delete.any"
 	UserDeleteOwn        = "user.delete.own"
-	UserReadOwnSubjects  = "user.read.own.subjects"
 	TeacherReadClassroom = "teacher.read.classroom"
 	StudentReadClassroom = "student.read.classroom"
 	TeacherStudentsRead  = "teacher.students.read"
@@ -77,6 +76,7 @@ const (
 	TeacherClassroomUnassignAny = "teacher.classroom.unassign.any"
 	TeacherClassroomUnassignOwn = "teacher.classroom.unassign.own"
 	TeacherReadOther            = "teacher.read.other"
+	TeacherReadOwn              = "teacher.read.own"
 )
 
 // Parent permissions
@@ -88,6 +88,7 @@ const (
 	ParentStudentUnassignAny = "parent.student.unassign.any"
 	ParentStudentUnassignOwn = "parent.student.unassign.own"
 	ParentReadOther          = "parent.read.other"
+	ParentReadOwn            = "parent.read.own"
 )
 
 // User roles permissions
@@ -109,12 +110,16 @@ const (
 
 // Student permissions
 const (
-	StudentReadOther = "student.read.other"
+	StudentReadOther        = "student.read.other"
+	StudentReadOwn          = "student.read.own"
+	StudentClassroomReadAny = "student.classroom.read.any"
+	StudentClassroomReadOwn = "student.classroom.read.own"
 )
 
 // Institution administrator
 const (
 	InstitutionAdministratorReadOther      = "institution_administrator.read.other"
+	InstitutionAdministratorReadOwn        = "institution_administrator.read.own"
 	InstitutionAdministratorPositionAssign = "institution_administrator.position.assign"
 	InstitutionAdministratorPositionRead   = "institution_administrator.position.read"
 )
@@ -122,6 +127,7 @@ const (
 // Staff
 const (
 	StaffReadOther      = "staff.read.other"
+	StaffReadOwn        = "staff.read.own"
 	StaffPositionAssign = "staff.position.assign"
 	StaffPositionRead   = "staff.position.read"
 )
