@@ -88,7 +88,7 @@ func (r *userRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Us
 		return nil, fmt.Errorf("user id cannot be nil")
 	}
 	var user model.User
-	result := r.db.WithContext(ctx).Preload("Roles").First(&user, *id)
+	result := r.db.WithContext(ctx).Preload("Roles").Preload("Roles.Permissions").First(&user, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user with id %s was not found: %w", *id, result.Error)
