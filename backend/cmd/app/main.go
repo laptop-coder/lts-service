@@ -73,6 +73,7 @@ func main() {
 	teacherRepo := repository.NewTeacherRepository(db, log)
 	parentRepo := repository.NewParentRepository(db, log)
 	staffRepo := repository.NewStaffRepository(db, log)
+	institutionAdministratorRepo := repository.NewInstitutionAdministratorRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
@@ -88,6 +89,7 @@ func main() {
 	teacherService := service.NewTeacherService(teacherRepo, userRepo, db, log)
 	parentService := service.NewParentService(parentRepo, userRepo, db, log)
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
+	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
 
 	// Handlers
@@ -102,6 +104,7 @@ func main() {
 	teacherHandler := handler.NewTeacherHandler(teacherService, log)
 	parentHandler := handler.NewParentHandler(parentService, log)
 	staffHandler := handler.NewStaffHandler(staffService, log)
+	institutionAdministratorHandler := handler.NewInstitutionAdministratorHandler(institutionAdministratorService, log)
 	roleHandler := handler.NewRoleHandler(roleService, log)
 
 	mux := http.NewServeMux()
@@ -125,6 +128,7 @@ func main() {
 		teacherHandler,
 		parentHandler,
 		staffHandler,
+		institutionAdministratorHandler,
 		roleHandler,
 	)
 

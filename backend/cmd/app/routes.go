@@ -25,6 +25,7 @@ func SetupRoutes(
 	teacherHandler *handler.TeacherHandler,
 	parentHandler *handler.ParentHandler,
 	staffHandler *handler.StaffHandler,
+	institutionAdministratorHandler *handler.InstitutionAdministratorHandler,
 	roleHandler *handler.RoleHandler,
 ) {
 	// Public routes (no auth required)
@@ -85,6 +86,9 @@ func SetupRoutes(
 	// Staff
 	mux.Handle("GET /api/v1/staff/{id}", authMiddleware(requirePermissions(false, permissions.StaffReadOther)(http.HandlerFunc(staffHandler.GetStaffByID))))
 	mux.Handle("GET /api/v1/staff/me", authMiddleware(requirePermissions(false, permissions.StaffReadOwn)(http.HandlerFunc(staffHandler.GetOwn))))
+	// Institution administrator
+	mux.Handle("GET /api/v1/institution_administrator/{id}", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOther)(http.HandlerFunc(institutionAdministratorHandler.GetInstitutionAdministratorByID))))
+	mux.Handle("GET /api/v1/institution_administrator/me", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOwn)(http.HandlerFunc(institutionAdministratorHandler.GetOwn))))
 	// Roles
 	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
 	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))
