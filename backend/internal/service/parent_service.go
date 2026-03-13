@@ -18,7 +18,7 @@ type ParentService interface {
 
 type ParentResponseDTO struct {
 	User          UserResponseDTO
-	ParentGroupID uint16
+	Students []StudentResponseDTO
 }
 
 type parentService struct {
@@ -81,7 +81,15 @@ func (s *parentService) GetParents(ctx context.Context, filter repository.Parent
 }
 
 func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
+	var students []StudentResponseDTO
+	if parent.Students != nil && len(*parent.Students) > 0 {
+		for _, student := range *parent.Students {
+			students = append(students, *StudentToDTO(&student))
+		}
+	}
 	return &ParentResponseDTO{
 		User: *UserToDTO(&parent.User),
+		Students: students,
 	}
 }
+
