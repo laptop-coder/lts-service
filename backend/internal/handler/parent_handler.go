@@ -2,6 +2,7 @@ package handler
 
 import (
 	"backend/internal/service"
+	"backend/pkg/middleware"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"fmt"
@@ -34,6 +35,30 @@ func (h *ParentHandler) GetParentByID(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get parent
 	response, err := h.parentService.GetParentByID(r.Context(), parentID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get parent by id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"parent": response,
+	})
+}
+
+func (h *ParentHandler) GetOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. parent ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get parent
+	response, err := h.parentService.GetParentByID(r.Context(), userID)
 	if err != nil {
 		helpers.HandleServiceError(w, fmt.Errorf("failed to get parent by id: %w", err))
 		return
