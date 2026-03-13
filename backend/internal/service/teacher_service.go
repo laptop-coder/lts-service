@@ -35,7 +35,7 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 	}
 	// Get student group where the teacher is advisor (if exists)
 	var studentGroups []StudentGroupResponseDTO
-	if teacher.StudentGroups != nil {
+	if teacher.StudentGroups != nil && len(*teacher.StudentGroups) > 0 {
 		for _, group := range *teacher.StudentGroups {
 			studentGroups = append(studentGroups, *StudentGroupToDTO(&group))
 		}
