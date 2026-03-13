@@ -1,4 +1,3 @@
-// Package service provides business logic and use cases.
 package service
 
 import (

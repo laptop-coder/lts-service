@@ -26,6 +26,8 @@ type Teacher struct {
 	Classroom *Room `gorm:"foreignKey:TeacherID;references:UserID;constraint:OnDelete:restrict,OnUpdate:restrict"`
 	// many-to-many (teacher-to-subject)
 	Subjects []Subject `gorm:"many2many:teacher_subjects;foreignKey:UserID;joinForeignKey:TeacherId;references:ID;joinReferences:SubjectID"`
+	// one-to-many (teacher-to-group)
+	StudentGroups *[]StudentGroup `gorm:"foreignKey:GroupAdvisorID;references:UserID"`
 }
 
 func AddConstraintsTeacherSubjects(db *gorm.DB) error {

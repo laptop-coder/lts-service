@@ -173,33 +173,6 @@ func (s *roomService) validateUpdateRoomDTO(dto *UpdateRoomDTO) error {
 	return nil
 }
 
-func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
-	// Get subjects list
-	var subjects []SubjectResponseDTO
-	for _, subject := range teacher.Subjects {
-		subjects = append(subjects, SubjectResponseDTO{
-			ID:        subject.ID,
-			CreatedAt: subject.CreatedAt.Format(time.RFC3339),
-			UpdatedAt: subject.UpdatedAt.Format(time.RFC3339),
-			Name:      subject.Name,
-		})
-	}
-	// Return response
-	return &TeacherResponseDTO{
-		CreatedAt: teacher.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: teacher.UpdatedAt.Format(time.RFC3339),
-		User:      *UserToDTO(&teacher.User),
-		Subjects:  subjects,
-	}
-}
-
-type TeacherResponseDTO struct {
-	CreatedAt string               `json:"createdAt"`
-	UpdatedAt string               `json:"updatedAt"`
-	User      UserResponseDTO      `json:"user"`
-	Subjects  []SubjectResponseDTO `json:"subjects"`
-}
-
 func RoomToDTO(room *model.Room) *RoomResponseDTO {
 	return &RoomResponseDTO{
 		ID:        room.ID,

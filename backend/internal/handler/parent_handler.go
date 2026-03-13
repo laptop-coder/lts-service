@@ -2,9 +2,9 @@ package handler
 
 import (
 	"backend/internal/service"
-	"backend/pkg/middleware"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
+	"backend/pkg/middleware"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"

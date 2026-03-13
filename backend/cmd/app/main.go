@@ -70,6 +70,7 @@ func main() {
 	roomRepo := repository.NewRoomRepository(db, log)
 	subjectRepo := repository.NewSubjectRepository(db, log)
 	studentRepo := repository.NewStudentRepository(db, log)
+	teacherRepo := repository.NewTeacherRepository(db, log)
 	parentRepo := repository.NewParentRepository(db, log)
 
 	// Services
@@ -83,6 +84,7 @@ func main() {
 	roomService := service.NewRoomService(roomRepo, db, log)
 	subjectService := service.NewSubjectService(subjectRepo, db, log)
 	studentService := service.NewStudentService(studentRepo, userRepo, db, log)
+	teacherService := service.NewTeacherService(teacherRepo, userRepo, db, log)
 	parentService := service.NewParentService(parentRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
 
@@ -95,6 +97,7 @@ func main() {
 	roomHandler := handler.NewRoomHandler(roomService, log)
 	subjectHandler := handler.NewSubjectHandler(subjectService, log)
 	studentHandler := handler.NewStudentHandler(studentService, log)
+	teacherHandler := handler.NewTeacherHandler(teacherService, log)
 	parentHandler := handler.NewParentHandler(parentService, log)
 	roleHandler := handler.NewRoleHandler(roleService, log)
 
@@ -116,6 +119,7 @@ func main() {
 		roomHandler,
 		subjectHandler,
 		studentHandler,
+		teacherHandler,
 		parentHandler,
 		roleHandler,
 	)

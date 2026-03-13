@@ -66,7 +66,7 @@ func (r *parentRepository) FindAll(ctx context.Context, filter *ParentFilter) ([
 		query = query.Limit(filter.Limit)
 	}
 	// Sort parents in the alphabetical order
-	query = query.Order("name")
+	query = query.Order("last_name")
 	// Find parents
 	result := query.
 		Preload("User").
