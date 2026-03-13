@@ -53,9 +53,9 @@ func (r *staffRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mod
 
 func (r *staffRepository) FindAll(ctx context.Context, filter *StaffFilter) ([]model.Staff, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("staffs list filter cannot be nil")
+		return nil, fmt.Errorf("staff list filter cannot be nil")
 	}
-	var staffs []model.Staff
+	var staffList []model.Staff
 	query := r.db.WithContext(ctx).Model(&model.Staff{})
 	// Filters
 	// offset (for pagination):
@@ -66,16 +66,16 @@ func (r *staffRepository) FindAll(ctx context.Context, filter *StaffFilter) ([]m
 	if filter.Limit > 0 {
 		query = query.Limit(filter.Limit)
 	}
-	// Sort staffs in the alphabetical order
+	// Sort staff in the alphabetical order
 	query = query.Order("last_name")
-	// Find staffs
+	// Find staff
 	result := query.
 		Preload("User").
 		Preload("Position").
-		Find(&staffs)
+		Find(&staffList)
 	if result.Error != nil {
-		return nil, fmt.Errorf("failed to fetch staffs list: %w", result.Error)
+		return nil, fmt.Errorf("failed to fetch staff list: %w", result.Error)
 	}
 	// Return response
-	return staffs, nil
+	return staffList, nil
 }
