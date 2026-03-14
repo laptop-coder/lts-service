@@ -14,6 +14,7 @@ import (
 type StudentService interface {
 	GetStudentByID(ctx context.Context, id uuid.UUID) (*StudentResponseDTO, error)
 	GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error)
+	GetStudentClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
 }
 
 type StudentResponseDTO struct {
@@ -22,23 +23,29 @@ type StudentResponseDTO struct {
 }
 
 type studentService struct {
-	studentRepo repository.StudentRepository
-	userRepo    repository.UserRepository
-	db          *gorm.DB
-	log         logger.Logger
+	studentRepo      repository.StudentRepository
+	studentGroupRepo repository.StudentGroupRepository
+	userRepo         repository.UserRepository
+	teacherRepo      repository.TeacherRepository
+	db               *gorm.DB
+	log              logger.Logger
 }
 
 func NewStudentService(
 	studentRepo repository.StudentRepository,
+	studentGroupRepo repository.StudentGroupRepository,
 	userRepo repository.UserRepository,
+	teacherRepo repository.TeacherRepository,
 	db *gorm.DB,
 	log logger.Logger,
 ) StudentService {
 	return &studentService{
-		studentRepo: studentRepo,
-		userRepo:    userRepo,
-		db:          db,
-		log:         log,
+		studentRepo:      studentRepo,
+		studentGroupRepo: studentGroupRepo,
+		userRepo:         userRepo,
+		teacherRepo:      teacherRepo,
+		db:               db,
+		log:              log,
 	}
 }
 
@@ -51,6 +58,33 @@ func (s *studentService) GetStudentByID(ctx context.Context, id uuid.UUID) (*Stu
 		return nil, fmt.Errorf("failed to get student: %w", err)
 	}
 	return StudentToDTO(student), nil
+}
+
+func (s *studentService) GetStudentClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error) {
+	// Find student by ID
+	student, err := s.studentRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("student with id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get student: %w", err)
+	}
+	// Find group by ID
+	group, err := s.studentGroupRepo.FindByID(ctx, &student.StudentGroupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get student group: %w", err)
+	}
+	// Find group advisor by ID
+	teacher, err := s.teacherRepo.FindByID(ctx, group.GroupAdvisorID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get student group advisor: %w", err)
+	}
+	// Return response
+	if teacher.Classroom != nil {
+		return RoomToDTO(teacher.Classroom), nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (s *studentService) GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error) {

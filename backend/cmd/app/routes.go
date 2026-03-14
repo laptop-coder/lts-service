@@ -77,6 +77,8 @@ func SetupRoutes(
 	// Students
 	mux.Handle("GET /api/v1/students/{id}", authMiddleware(requirePermissions(false, permissions.StudentReadOther)(http.HandlerFunc(studentHandler.GetStudentByID))))
 	mux.Handle("GET /api/v1/students/me", authMiddleware(requirePermissions(false, permissions.StudentReadOwn)(http.HandlerFunc(studentHandler.GetOwn))))
+	mux.Handle("GET /api/v1/students/{id}/classroom", authMiddleware(requirePermissions(false, permissions.StudentClassroomReadAny)(http.HandlerFunc(studentHandler.GetClassroom))))
+	mux.Handle("GET /api/v1/students/me/classroom", authMiddleware(requirePermissions(false, permissions.StudentClassroomReadOwn)(http.HandlerFunc(studentHandler.GetClassroomOwn))))
 	// Teacher
 	mux.Handle("GET /api/v1/teachers/{id}", authMiddleware(requirePermissions(false, permissions.TeacherReadOther)(http.HandlerFunc(teacherHandler.GetTeacherByID))))
 	mux.Handle("GET /api/v1/teachers/me", authMiddleware(requirePermissions(false, permissions.TeacherReadOwn)(http.HandlerFunc(teacherHandler.GetOwn))))

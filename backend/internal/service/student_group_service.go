@@ -4,11 +4,13 @@ import (
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 )
 
 type StudentGroupService interface {
+	GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error)
 	GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
 
@@ -28,6 +30,17 @@ func NewStudentGroupService(
 		db:               db,
 		log:              log,
 	}
+}
+
+func (s *studentGroupService) GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error) {
+	group, err := s.studentGroupRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("student group with id %d was not found: %w", id, err)
+		}
+		return nil, fmt.Errorf("failed to get student group: %w", err)
+	}
+	return StudentGroupToDTO(group), nil
 }
 
 func (s *studentGroupService) GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error) {
