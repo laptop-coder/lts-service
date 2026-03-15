@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"strconv"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -9,6 +8,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
+	"strconv"
 )
 
 type InstitutionAdministratorHandler struct {

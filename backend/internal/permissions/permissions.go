@@ -19,12 +19,12 @@ const (
 
 // User permissions
 const (
-	UserReadOwn          = "user.read.own"
-	UserReadOther        = "user.read.other"
-	UserReadAll          = "user.read.all"
-	UserUpdateOwn        = "user.update.own"
-	UserDeleteAny        = "user.delete.any"
-	UserDeleteOwn        = "user.delete.own"
+	UserReadOwn   = "user.read.own"
+	UserReadOther = "user.read.other"
+	UserReadAll   = "user.read.all"
+	UserUpdateOwn = "user.update.own"
+	UserDeleteAny = "user.delete.any"
+	UserDeleteOwn = "user.delete.own"
 )
 
 // Room permissions
@@ -108,10 +108,10 @@ const (
 	StudentReadOwn          = "student.read.own"
 	StudentClassroomReadAny = "student.classroom.read.any"
 	StudentClassroomReadOwn = "student.classroom.read.own"
-	StudentAdvisorReadAny = "student.advisor.read.any"
-	StudentAdvisorReadOwn = "student.advisor.read.own"
-	StudentParentReadAny = "student.parent.read.any"
-	StudentParentReadOwn = "student.parent.read.own"
+	StudentAdvisorReadAny   = "student.advisor.read.any"
+	StudentAdvisorReadOwn   = "student.advisor.read.own"
+	StudentParentReadAny    = "student.parent.read.any"
+	StudentParentReadOwn    = "student.parent.read.own"
 )
 
 // Institution administrator

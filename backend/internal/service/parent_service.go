@@ -103,7 +103,6 @@ func (s *parentService) GetParentStudents(ctx context.Context, userID uuid.UUID)
 	return nil, nil
 }
 
-
 func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
 	var students []StudentResponseDTO
 	if parent.Students != nil && len(*parent.Students) > 0 {

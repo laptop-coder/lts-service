@@ -218,7 +218,7 @@ func main() {
 	}
 
 	studentPermissions := []string{
-		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "room.read", "subject.read", "student.group.read.any", "student.group.read.own", "student.group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "student.read.own", "student.classroom.read.any", "student.advisor.read.any", "student.advisor.read.own",  "student.parent.read.any", "student.parent.read.own", "student.classroom.read.own", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "room.read", "subject.read", "student.group.read.any", "student.group.read.own", "student.group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.read.other", "role.read.any", "role.read.own", "student.read.other", "student.read.own", "student.classroom.read.any", "student.advisor.read.any", "student.advisor.read.own", "student.parent.read.any", "student.parent.read.own", "student.classroom.read.own", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read",
 	}
 
 	// Assign permissions to roles

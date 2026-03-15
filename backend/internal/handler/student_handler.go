@@ -116,7 +116,6 @@ func (h *StudentHandler) GetClassroomOwn(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-
 func (h *StudentHandler) GetAdvisor(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -139,7 +138,6 @@ func (h *StudentHandler) GetAdvisor(w http.ResponseWriter, r *http.Request) {
 		"studentAdvisor": response,
 	})
 }
-
 
 func (h *StudentHandler) GetAdvisorOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -165,8 +163,6 @@ func (h *StudentHandler) GetAdvisorOwn(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
-
 func (h *StudentHandler) GetParents(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -189,7 +185,6 @@ func (h *StudentHandler) GetParents(w http.ResponseWriter, r *http.Request) {
 		"studentParents": response,
 	})
 }
-
 
 func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -214,4 +209,3 @@ func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 		"studentParents": response,
 	})
 }
-

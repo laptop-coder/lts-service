@@ -139,7 +139,6 @@ func (s *studentService) GetStudentParents(ctx context.Context, userID uuid.UUID
 	return nil, nil
 }
 
-
 func (s *studentService) GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error) {
 	students, err := s.studentRepo.FindAll(ctx, &filter)
 	if err != nil {
