@@ -15,6 +15,7 @@ import (
 type TeacherService interface {
 	GetTeacherByID(ctx context.Context, id uuid.UUID) (*TeacherResponseDTO, error)
 	GetTeachers(ctx context.Context, filter repository.TeacherFilter) ([]TeacherResponseDTO, error)
+	GetTeacherClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
@@ -134,3 +135,20 @@ func (s *teacherService) GetTeachers(ctx context.Context, filter repository.Teac
 	s.log.Info("successfully received the list of teachers")
 	return teacherDTOs, nil
 }
+
+func (s *teacherService) GetTeacherClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error) {
+	// Find teacher by ID
+	teacher, err := s.teacherRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("teacher with id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get teacher: %w", err)
+	}
+	// Return response
+	if teacher.Classroom == nil {
+		return nil, nil
+	}
+	return RoomToDTO(teacher.Classroom), nil
+}
+
