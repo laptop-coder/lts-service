@@ -25,12 +25,6 @@ const (
 	UserUpdateOwn        = "user.update.own"
 	UserDeleteAny        = "user.delete.any"
 	UserDeleteOwn        = "user.delete.own"
-	TeacherReadClassroom = "teacher.read.classroom"
-	StudentReadClassroom = "student.read.classroom"
-	TeacherStudentsRead  = "teacher.students.read"
-	ParentStudentsRead   = "parent.students.read"
-	StudentTeacherRead   = "student.teacher.read"
-	StudentParentsRead   = "student.parents.read"
 )
 
 // Room permissions
@@ -114,6 +108,10 @@ const (
 	StudentReadOwn          = "student.read.own"
 	StudentClassroomReadAny = "student.classroom.read.any"
 	StudentClassroomReadOwn = "student.classroom.read.own"
+	StudentAdvisorReadAny = "student.advisor.read.any"
+	StudentAdvisorReadOwn = "student.advisor.read.own"
+	StudentParentReadAny = "student.parent.read.any"
+	StudentParentReadOwn = "student.parent.read.own"
 )
 
 // Institution administrator
