@@ -16,7 +16,7 @@ type Teacher struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	// ClassroomID *uint8 `gorm:"default:null"`
+	// ClassroomID *uint8 `gorm:"default:null"` // TODO: remove if not necessary
 
 	// 1. Classroom may not be specified
 	// 2. Can't remove teacher if there are room, assigned to him. To remove the

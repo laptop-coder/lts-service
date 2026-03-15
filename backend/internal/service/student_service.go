@@ -15,6 +15,7 @@ type StudentService interface {
 	GetStudentByID(ctx context.Context, id uuid.UUID) (*StudentResponseDTO, error)
 	GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error)
 	GetStudentClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
+	GetStudentAdvisor(ctx context.Context, userID uuid.UUID) (*TeacherResponseDTO, error)
 }
 
 type StudentResponseDTO struct {
@@ -75,16 +76,44 @@ func (s *studentService) GetStudentClassroom(ctx context.Context, userID uuid.UU
 		return nil, fmt.Errorf("failed to get student group: %w", err)
 	}
 	// Find group advisor by ID
+	if group.GroupAdvisorID == nil {
+		return nil, nil
+	}
 	teacher, err := s.teacherRepo.FindByID(ctx, group.GroupAdvisorID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get student group advisor: %w", err)
 	}
 	// Return response
-	if teacher.Classroom != nil {
-		return RoomToDTO(teacher.Classroom), nil
-	} else {
+	if teacher.Classroom == nil {
 		return nil, nil
 	}
+	return RoomToDTO(teacher.Classroom), nil
+}
+
+func (s *studentService) GetStudentAdvisor(ctx context.Context, userID uuid.UUID) (*TeacherResponseDTO, error) {
+	// Find student by ID
+	student, err := s.studentRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("student with id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get student: %w", err)
+	}
+	// Find group by ID
+	group, err := s.studentGroupRepo.FindByID(ctx, &student.StudentGroupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get student group: %w", err)
+	}
+	// Find group advisor by ID
+	if group.GroupAdvisorID == nil {
+		return nil, nil
+	}
+	teacher, err := s.teacherRepo.FindByID(ctx, group.GroupAdvisorID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get student group advisor: %w", err)
+	}
+	// Return response
+	return TeacherToDTO(teacher), nil
 }
 
 func (s *studentService) GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error) {
