@@ -16,6 +16,7 @@ type TeacherService interface {
 	GetTeacherByID(ctx context.Context, id uuid.UUID) (*TeacherResponseDTO, error)
 	GetTeachers(ctx context.Context, filter repository.TeacherFilter) ([]TeacherResponseDTO, error)
 	GetTeacherClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
+	GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error)
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
@@ -150,5 +151,28 @@ func (s *teacherService) GetTeacherClassroom(ctx context.Context, userID uuid.UU
 		return nil, nil
 	}
 	return RoomToDTO(teacher.Classroom), nil
+}
+
+
+func (s *teacherService) GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error) {
+	// Find teacher by ID
+	teacher, err := s.teacherRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("teacher with id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get teacher: %w", err)
+	}
+	// Check if there are subjects
+	if len(teacher.Subjects) == 0 {
+		return nil, fmt.Errorf("teacher must have at least one subject")
+	}
+	// Collect subjects, convert to DTO
+	var subjects []SubjectResponseDTO
+	for _, subject := range teacher.Subjects {
+		subjects = append(subjects, *SubjectToDTO(&subject))
+	}
+	// Return response
+	return subjects, nil
 }
 
