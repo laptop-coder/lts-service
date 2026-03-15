@@ -16,6 +16,7 @@ type StudentService interface {
 	GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error)
 	GetStudentClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
 	GetStudentAdvisor(ctx context.Context, userID uuid.UUID) (*TeacherResponseDTO, error)
+	GetStudentParents(ctx context.Context, userID uuid.UUID) ([]ParentResponseDTO, error)
 }
 
 type StudentResponseDTO struct {
@@ -115,6 +116,29 @@ func (s *studentService) GetStudentAdvisor(ctx context.Context, userID uuid.UUID
 	// Return response
 	return TeacherToDTO(teacher), nil
 }
+
+func (s *studentService) GetStudentParents(ctx context.Context, userID uuid.UUID) ([]ParentResponseDTO, error) {
+	// Find student by ID
+	student, err := s.studentRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("student with id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get student: %w", err)
+	}
+	// Check if parents were added
+	if student.Parents != nil && len(*student.Parents) > 0 {
+		// Get parents
+		var parents []ParentResponseDTO
+		for _, parent := range *student.Parents {
+			parents = append(parents, *ParentToDTO(&parent))
+		}
+		// Return response
+		return parents, nil
+	}
+	return nil, nil
+}
+
 
 func (s *studentService) GetStudents(ctx context.Context, filter repository.StudentFilter) ([]StudentResponseDTO, error) {
 	students, err := s.studentRepo.FindAll(ctx, &filter)
