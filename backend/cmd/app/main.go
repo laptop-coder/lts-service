@@ -85,7 +85,7 @@ func main() {
 	studentGroupService := service.NewStudentGroupService(studentGroupRepo, db, log)
 	roomService := service.NewRoomService(roomRepo, db, log)
 	subjectService := service.NewSubjectService(subjectRepo, db, log)
-	studentService := service.NewStudentService(studentRepo, userRepo, db, log)
+	studentService := service.NewStudentService(studentRepo, studentGroupRepo, userRepo, teacherRepo, db, log)
 	teacherService := service.NewTeacherService(teacherRepo, userRepo, db, log)
 	parentService := service.NewParentService(parentRepo, userRepo, db, log)
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
