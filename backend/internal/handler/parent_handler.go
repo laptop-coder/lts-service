@@ -68,3 +68,50 @@ func (h *ParentHandler) GetOwn(w http.ResponseWriter, r *http.Request) {
 		"parent": response,
 	})
 }
+
+func (h *ParentHandler) GetStudents(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert parent ID
+	parentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert parent id to uuid", http.StatusBadRequest)
+	}
+	// Get parent students
+	response, err := h.parentService.GetParentStudents(r.Context(), parentID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get parent students by parent id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"parentStudents": response,
+	})
+}
+
+func (h *ParentHandler) GetStudentsOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. parent ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get parent students
+	response, err := h.parentService.GetParentStudents(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get parent students by parent id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"parentStudents": response,
+	})
+}

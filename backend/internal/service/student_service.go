@@ -126,7 +126,7 @@ func (s *studentService) GetStudentParents(ctx context.Context, userID uuid.UUID
 		}
 		return nil, fmt.Errorf("failed to get student: %w", err)
 	}
-	// Check if parents were added
+	// Check if there are connected parents
 	if student.Parents != nil && len(*student.Parents) > 0 {
 		// Get parents
 		var parents []ParentResponseDTO

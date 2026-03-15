@@ -14,6 +14,7 @@ import (
 type ParentService interface {
 	GetParentByID(ctx context.Context, id uuid.UUID) (*ParentResponseDTO, error)
 	GetParents(ctx context.Context, filter repository.ParentFilter) ([]ParentResponseDTO, error)
+	GetParentStudents(ctx context.Context, userID uuid.UUID) ([]StudentResponseDTO, error)
 }
 
 type ParentResponseDTO struct {
@@ -79,6 +80,29 @@ func (s *parentService) GetParents(ctx context.Context, filter repository.Parent
 	s.log.Info("successfully received the list of parents")
 	return parentDTOs, nil
 }
+
+func (s *parentService) GetParentStudents(ctx context.Context, userID uuid.UUID) ([]StudentResponseDTO, error) {
+	// Find parent by ID
+	parent, err := s.parentRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("parent with id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get parent: %w", err)
+	}
+	// Check if there are connected students
+	if parent.Students != nil && len(*parent.Students) > 0 {
+		// Get students
+		var students []StudentResponseDTO
+		for _, student := range *parent.Students {
+			students = append(students, *StudentToDTO(&student))
+		}
+		// Return response
+		return students, nil
+	}
+	return nil, nil
+}
+
 
 func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
 	var students []StudentResponseDTO
