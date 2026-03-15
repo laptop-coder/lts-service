@@ -15,6 +15,9 @@ import (
 type InstitutionAdministratorService interface {
 	GetInstitutionAdministratorByID(ctx context.Context, id uuid.UUID) (*InstitutionAdministratorResponseDTO, error)
 	GetInstitutionAdministrator(ctx context.Context, filter repository.InstitutionAdministratorFilter) ([]InstitutionAdministratorResponseDTO, error)
+	// Position
+	AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint8) error
+	GetPosition(ctx context.Context, userID uuid.UUID) (*InstitutionAdministratorPositionResponseDTO, error)
 }
 
 type InstitutionAdministratorResponseDTO struct {
@@ -102,4 +105,46 @@ func InstitutionAdministratorPositionToDTO(position *model.InstitutionAdministra
 		UpdatedAt: position.UpdatedAt.Format(time.RFC3339),
 		Name:      position.Name,
 	}
+}
+
+func (s *institutionAdministratorService) AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint8) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Get institution administrator
+		var institutionAdministrator model.InstitutionAdministrator
+		if err := tx.WithContext(ctx).
+			First(&institutionAdministrator, "user_id = ?", userID).Error; err != nil {
+			return fmt.Errorf("institution administrator with user ID %s was not found: %w", userID, err)
+		}
+		// Check position existence
+		var count int64
+		if err := tx.WithContext(ctx).
+			Model(&model.InstitutionAdministratorPosition{}).
+			Where("id = ?", positionID).
+			Count(&count).Error; err != nil {
+			return err
+		}
+		if count == 0 {
+			return fmt.Errorf("position with ID %d was not found", positionID)
+		}
+		institutionAdministrator.PositionID = positionID
+		if err := tx.WithContext(ctx).Save(&institutionAdministrator).Error; err != nil {
+			return fmt.Errorf("failed to assign position to institution administrator: %w", err)
+		}
+		s.log.Info("Position was successfully assigned to the institution administrator")
+		return nil
+	})
+}
+
+func (s *institutionAdministratorService) GetPosition(ctx context.Context, userID uuid.UUID) (*InstitutionAdministratorPositionResponseDTO, error) {
+	institutionAdministrator, err := s.institutionAdministratorRepo.FindByID(ctx, &userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("institution administrator with user id %s was not found: %w", userID, err)
+		}
+		return nil, fmt.Errorf("failed to get institution administrator: %w", err)
+	}
+	if institutionAdministrator.Position.ID == 0 {
+		return nil, fmt.Errorf("institution administrator has no position assigned")
+	}
+	return InstitutionAdministratorPositionToDTO(&institutionAdministrator.Position), nil
 }

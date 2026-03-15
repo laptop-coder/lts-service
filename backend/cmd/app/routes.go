@@ -93,6 +93,8 @@ func SetupRoutes(
 	// Institution administrator
 	mux.Handle("GET /api/v1/institution_administrator/{id}", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOther)(http.HandlerFunc(institutionAdministratorHandler.GetInstitutionAdministratorByID))))
 	mux.Handle("GET /api/v1/institution_administrator/me", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOwn)(http.HandlerFunc(institutionAdministratorHandler.GetOwn))))
+	mux.Handle("PUT /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionAssign)(http.HandlerFunc(institutionAdministratorHandler.AssignPosition))))
+	mux.Handle("GET /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionRead)(http.HandlerFunc(institutionAdministratorHandler.GetPosition))))
 	// Roles
 	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
 	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))
