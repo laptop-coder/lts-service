@@ -35,14 +35,6 @@ type User struct {
 	Parent *Parent `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:cascade,OnUpdate:restrict"`
 	// one-to-one (user-to-student)
 	Student *Student `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:cascade,OnUpdate:restrict"`
-	// 1. This is a list of student groups for which this user is the advisor
-	// (classroom teacher, for example)
-	// 2. Set GroupAdvisorID null in case of removing the user (i.e. the
-	// advisor)
-	// 3. We consider that one group can have only one advisor (mentor, e.g.),
-	// but one advisor can manage many groups, so: one-to-many (user-to-group,
-	// i.e. advisor-to-group)
-	StudentGroups *[]StudentGroup `gorm:"foreignKey:GroupAdvisorID;references:ID;constraint:OnDelete:set null,OnUpdate:restrict"`
 	// 1. Can be null if the user hasn't created any posts yet
 	// 2. Removing of the user will cause removing all of his posts
 	// 3. one-to-many (author-to-post, i.e. user-to-post)

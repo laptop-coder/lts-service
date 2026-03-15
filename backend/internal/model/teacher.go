@@ -26,7 +26,13 @@ type Teacher struct {
 	Classroom *Room `gorm:"foreignKey:TeacherID;references:UserID;constraint:OnDelete:restrict,OnUpdate:restrict"`
 	// many-to-many (teacher-to-subject)
 	Subjects []Subject `gorm:"many2many:teacher_subjects;foreignKey:UserID;joinForeignKey:TeacherId;references:ID;joinReferences:SubjectID"`
-	// one-to-many (teacher-to-group)
+	// 1. This is a list of student groups for which this user is the advisor
+	// (classroom teacher, for example)
+	// 2. Set GroupAdvisorID null in case of removing the user (i.e. the
+	// advisor)
+	// 3. We consider that one group can have only one advisor (mentor, e.g.),
+	// but one advisor can manage many groups, so: one-to-many (teacher-to-group,
+	// i.e. advisor-to-group)
 	StudentGroups *[]StudentGroup `gorm:"foreignKey:GroupAdvisorID;references:UserID"`
 }
 
