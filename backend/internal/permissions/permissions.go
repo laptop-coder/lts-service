@@ -59,6 +59,8 @@ const (
 const (
 	TeacherSubjectReadAny       = "teacher.subject.read.any"
 	TeacherSubjectReadOwn       = "teacher.subject.read.own"
+	TeacherSubjectAddAny     = "teacher.subject.add.any"
+	TeacherSubjectAddOwn     = "teacher.subject.add.own"
 	TeacherSubjectAssignAny     = "teacher.subject.assign.any"
 	TeacherSubjectAssignOwn     = "teacher.subject.assign.own"
 	TeacherSubjectUnassignAny   = "teacher.subject.unassign.any"
