@@ -96,6 +96,12 @@ func SetupRoutes(
 	mux.Handle("PUT /api/v1/teachers/me/classroom", authMiddleware(requirePermissions(false, permissions.TeacherClassroomAssignOwn)(http.HandlerFunc(teacherHandler.AssignClassroomOwn))))
 	mux.Handle("DELETE /api/v1/teachers/{id}/classroom", authMiddleware(requirePermissions(false, permissions.TeacherClassroomUnassignAny)(http.HandlerFunc(teacherHandler.UnassignClassroom))))
 	mux.Handle("DELETE /api/v1/teachers/me/classroom", authMiddleware(requirePermissions(false, permissions.TeacherClassroomUnassignOwn)(http.HandlerFunc(teacherHandler.UnassignClassroomOwn))))
+	mux.Handle("POST /api/v1/teachers/{id}/subjects", authMiddleware(requirePermissions(false, permissions.TeacherSubjectAddAny)(http.HandlerFunc(teacherHandler.AddSubjects))))
+	mux.Handle("POST /api/v1/teachers/me/subjects", authMiddleware(requirePermissions(false, permissions.TeacherSubjectAddOwn)(http.HandlerFunc(teacherHandler.AddSubjectsOwn))))
+	mux.Handle("PUT /api/v1/teachers/{id}/subjects", authMiddleware(requirePermissions(false, permissions.TeacherSubjectAssignAny)(http.HandlerFunc(teacherHandler.AssignSubjects))))
+	mux.Handle("PUT /api/v1/teachers/me/subjects", authMiddleware(requirePermissions(false, permissions.TeacherSubjectAssignOwn)(http.HandlerFunc(teacherHandler.AssignSubjectsOwn))))
+	mux.Handle("DELETE /api/v1/teachers/{userId}/subjects/{subjectId}", authMiddleware(requirePermissions(false, permissions.TeacherSubjectUnassignAny)(http.HandlerFunc(teacherHandler.UnassignSubject))))
+	mux.Handle("DELETE /api/v1/teachers/me/subjects/{id}", authMiddleware(requirePermissions(false, permissions.TeacherSubjectUnassignOwn)(http.HandlerFunc(teacherHandler.UnassignSubjectOwn))))
 	// Parents
 	mux.Handle("GET /api/v1/parents/{id}", authMiddleware(requirePermissions(false, permissions.ParentReadOther)(http.HandlerFunc(parentHandler.GetParentByID))))
 	mux.Handle("GET /api/v1/parents/me", authMiddleware(requirePermissions(false, permissions.ParentReadOwn)(http.HandlerFunc(parentHandler.GetOwn))))

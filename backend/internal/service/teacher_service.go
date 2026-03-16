@@ -19,6 +19,9 @@ type TeacherService interface {
 	GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error)
 	AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint8) error
 	UnassignClassroom(ctx context.Context, userID uuid.UUID) error
+	AddSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error
+	AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error
+	UnassignSubject(ctx context.Context, userID uuid.UUID, subjectID uint8) error
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
@@ -166,7 +169,7 @@ func (s *teacherService) GetTeacherSubjects(ctx context.Context, userID uuid.UUI
 	}
 	// Check if there are subjects
 	if len(teacher.Subjects) == 0 {
-		return nil, fmt.Errorf("teacher must have at least one subject")
+		return nil, fmt.Errorf("teacher must have at least one subject") // TODO: should it return the error?
 	}
 	// Collect subjects, convert to DTO
 	var subjects []SubjectResponseDTO
@@ -249,3 +252,100 @@ func (s *teacherService) UnassignClassroom(ctx context.Context, userID uuid.UUID
 		return nil
 	})
 }
+
+func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check teacher existence
+		var teacher model.Teacher
+		if err := tx.WithContext(ctx).
+		Where("user_id = ?", userID).
+		First(&teacher).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("teacher with ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to found teacher: %w", err)
+		}
+		// Get subjects by IDs
+		var subjects []model.Subject
+		if err := tx.WithContext(ctx).
+		Where("id IN (?)", subjectIDs).
+		Find(&subjects).Error; err != nil {
+			return fmt.Errorf("failed to fetch subjects: %w", err)
+		}
+		// Check if all subjects were found
+		if len(subjects) != len (subjectIDs) {
+			return fmt.Errorf("some subjects not found")
+		}
+		// Add subjects
+		if err := tx.Model(&teacher).Association("Subjects").Append(&subjects); err != nil {
+			return fmt.Errorf("failed to add subjects: %w", err)
+		}
+		// Return response
+		s.log.Info("Subjects was successfully added to teacher", "teacher ID", userID, "subject IDs", subjectIDs)
+		return nil
+	})
+}
+
+func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, subjectID uint8) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check teacher existence
+		var teacher model.Teacher
+		if err := tx.WithContext(ctx).
+		Where("user_id = ?", userID).
+		First(&teacher).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("teacher with ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to found teacher: %w", err)
+		}
+		// Get subject by ID
+		var subject model.Subject
+		if err := tx.WithContext(ctx).
+		First(&subject, subjectID).Error; err != nil {
+			return fmt.Errorf("subject not found: %w", err)
+		}
+		// Remove subject from teacher
+		if err := tx.Model(&teacher).Association("Subjects").Delete(&subject); err != nil {
+			return fmt.Errorf("failed to remove subject: %w", err)
+		}
+		// Return response
+		s.log.Info("Subject was successfully removed from teacher", "teacher ID", userID, "subject ID", subjectID)
+		return nil
+	})
+}
+
+
+func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check teacher existence
+		var teacher model.Teacher
+		if err := tx.WithContext(ctx).
+		Where("user_id = ?", userID).
+		First(&teacher).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("teacher with ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to found teacher: %w", err)
+		}
+		// Get subjects by IDs
+		var subjects []model.Subject
+		if err := tx.WithContext(ctx).
+		Where("id IN (?)", subjectIDs).
+		Find(&subjects).Error; err != nil {
+			return fmt.Errorf("failed to fetch subjects: %w", err)
+		}
+		// Check if all subjects were found
+		if len(subjects) != len (subjectIDs) {
+			return fmt.Errorf("some subjects not found")
+		}
+		// Replace subjects
+		if err := tx.Model(&teacher).Association("Subjects").Replace(&subjects); err != nil {
+			return fmt.Errorf("failed to replace subjects: %w", err)
+		}
+		// Return response
+		s.log.Info("Subjects was successfully assigned to teacher (old subjects were replaced by new ones)", "teacher ID", userID, "subject IDs", subjectIDs)
+		return nil
+	})
+}
+
+

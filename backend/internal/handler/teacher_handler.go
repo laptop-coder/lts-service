@@ -183,7 +183,7 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	// Get and convert classroom ID:
-	classroomIDFields := r.PostForm["classroomID"]
+	classroomIDFields := r.PostForm["classroomId"]
 	if len(classroomIDFields) != 1 {
 		helpers.ErrorResponse(w, "failed to parse form: classroomID value must be provided exactly once", http.StatusBadRequest)
 	}
@@ -235,7 +235,7 @@ func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// Get and convert classroom ID:
-	classroomIDFields := r.PostForm["classroomID"]
+	classroomIDFields := r.PostForm["classroomId"]
 	if len(classroomIDFields) != 1 {
 		helpers.ErrorResponse(w, "failed to parse form: classroomID value must be provided exactly once", http.StatusBadRequest)
 	}
@@ -301,6 +301,294 @@ func (h *TeacherHandler) UnassignClassroomOwn(w http.ResponseWriter, r *http.Req
 	}
 	// Unassign room
 	if err := h.teacherService.UnassignClassroom(r.Context(), userID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
+
+func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPut {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert teacher ID
+	teacherID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert subject IDs:
+	subjectIDFields := r.PostForm["subjectId"]
+	if len(subjectIDFields) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+	}
+	subjectIDs := make([]uint8, len(subjectIDFields))
+	for i, subjectIDString := range subjectIDFields {
+		// convert to uint64
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		if err != nil {
+			h.log.Error("cannot convert subject ID from string to uint64")
+			helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		// and to uint8
+		subjectID := uint8(subjectID64)
+		subjectIDs[i] = subjectID
+	}
+	// Assign subjects
+	if err := h.teacherService.AssignSubjects(r.Context(), teacherID, subjectIDs); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated teacher
+	teacher, err := h.teacherService.GetTeacherByID(r.Context(), teacherID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"teacher": teacher,
+		"message": "subjects assigned successfully",
+	})
+}
+
+
+func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPut {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. teacher ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert subject IDs:
+	subjectIDFields := r.PostForm["subjectId"]
+	if len(subjectIDFields) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+	}
+	subjectIDs := make([]uint8, len(subjectIDFields))
+	for i, subjectIDString := range subjectIDFields {
+		// convert to uint64
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		if err != nil {
+			h.log.Error("cannot convert subject ID from string to uint64")
+			helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		// and to uint8
+		subjectID := uint8(subjectID64)
+		subjectIDs[i] = subjectID
+	}
+	// Assign subjects
+	if err := h.teacherService.AssignSubjects(r.Context(), userID, subjectIDs); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated teacher
+	teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"teacher": teacher,
+		"message": "subjects assigned successfully",
+	})
+}
+
+
+func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert teacher ID
+	teacherID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert subject IDs:
+	subjectIDFields := r.PostForm["subjectId"]
+	if len(subjectIDFields) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+	}
+	subjectIDs := make([]uint8, len(subjectIDFields))
+	for i, subjectIDString := range subjectIDFields {
+		// convert to uint64
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		if err != nil {
+			h.log.Error("cannot convert subject ID from string to uint64")
+			helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		// and to uint8
+		subjectID := uint8(subjectID64)
+		subjectIDs[i] = subjectID
+	}
+	// Assign subjects
+	if err := h.teacherService.AddSubjects(r.Context(), teacherID, subjectIDs); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated teacher
+	teacher, err := h.teacherService.GetTeacherByID(r.Context(), teacherID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"teacher": teacher,
+		"message": "subjects assigned successfully",
+	})
+}
+
+
+func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. teacher ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert subject IDs:
+	subjectIDFields := r.PostForm["subjectId"]
+	if len(subjectIDFields) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+	}
+	subjectIDs := make([]uint8, len(subjectIDFields))
+	for i, subjectIDString := range subjectIDFields {
+		// convert to uint64
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		if err != nil {
+			h.log.Error("cannot convert subject ID from string to uint64")
+			helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		// and to uint8
+		subjectID := uint8(subjectID64)
+		subjectIDs[i] = subjectID
+	}
+	// Assign subjects
+	if err := h.teacherService.AddSubjects(r.Context(), userID, subjectIDs); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated teacher
+	teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"teacher": teacher,
+		"message": "subjects assigned successfully",
+	})
+}
+
+
+
+func (h *TeacherHandler) UnassignSubject(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert teacher ID
+	teacherID, err := uuid.Parse(r.PathValue("userId"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+	}
+	// Get and convert subject ID:
+	subjectIDString := r.PathValue("subjectId")
+	// convert to uint64
+	subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+	if err != nil {
+		h.log.Error("cannot convert subject ID from string to uint64")
+		helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+		return
+	}
+	// and to uint8
+	subjectID := uint8(subjectID64)
+	// Unassign subject
+	if err := h.teacherService.UnassignSubject(r.Context(), teacherID, subjectID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
+
+func (h *TeacherHandler) UnassignSubjectOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. teacher ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get and convert subject ID:
+	subjectIDString := r.PathValue("id")
+	// convert to uint64
+	subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+	if err != nil {
+		h.log.Error("cannot convert subject ID from string to uint64")
+		helpers.ErrorResponse(w, "cannot convert subject ID from string to uint64", http.StatusInternalServerError)
+		return
+	}
+	// and to uint8
+	subjectID := uint8(subjectID64)
+	// Unassign subject
+	if err := h.teacherService.UnassignSubject(r.Context(), userID, subjectID); err != nil {
 		helpers.HandleServiceError(w, err)
 		return
 	}
