@@ -17,6 +17,7 @@ type TeacherService interface {
 	GetTeachers(ctx context.Context, filter repository.TeacherFilter) ([]TeacherResponseDTO, error)
 	GetTeacherClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
 	GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error)
+	AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint8) error
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
@@ -153,7 +154,6 @@ func (s *teacherService) GetTeacherClassroom(ctx context.Context, userID uuid.UU
 	return RoomToDTO(teacher.Classroom), nil
 }
 
-
 func (s *teacherService) GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error) {
 	// Find teacher by ID
 	teacher, err := s.teacherRepo.FindByID(ctx, &userID)
@@ -176,3 +176,48 @@ func (s *teacherService) GetTeacherSubjects(ctx context.Context, userID uuid.UUI
 	return subjects, nil
 }
 
+func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint8) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check teacher existence
+		var teacher model.Teacher
+		if err := tx.WithContext(ctx).
+			Where("user_id = ?", userID).
+			First(&teacher).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("teacher with user ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to find teacher by ID (%s)", userID)
+		}
+		// Check room existence
+		var classroom model.Room
+		if err := tx.WithContext(ctx).
+			Where("id = ?", classroomID).
+			First(&classroom).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("room with ID %d was not found", classroomID)
+			}
+			return fmt.Errorf("failed to find room by ID (%d)", classroomID)
+		}
+		// Error if the room already has another teacher
+		if classroom.TeacherID != nil && *classroom.TeacherID != userID {
+			return fmt.Errorf("the room with id %d already has another teacher with id %s", classroomID, userID)
+		}
+		// Unassign if the teacher already has another room
+		if teacher.Classroom != nil && teacher.Classroom.ID != classroomID {
+			oldClassroomID := teacher.Classroom.ID
+			if err := tx.Model(&model.Room{}).
+				Where("id = ?", oldClassroomID).
+				Update("teacher_id", nil).Error; err != nil {
+				return fmt.Errorf("failed to unassign teacher (ID %s) from the old classroom (ID %d): %w", userID, classroomID, err)
+			}
+		}
+		// Assign teacher to new room
+		if err := tx.Model(&model.Room{}).
+			Where("id = ?", classroomID).
+			Update("teacher_id", userID).Error; err != nil {
+			return fmt.Errorf("failed to assign teacher (ID %s) to the new classroom (ID %d): %w", userID, classroomID, err)
+		}
+		s.log.Info("Classroom assigned to teacher successfully", "teacher ID", userID, "classroom ID", classroomID)
+		return nil
+	})
+}
