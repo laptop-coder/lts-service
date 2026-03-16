@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"backend/internal/repository"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 )
@@ -46,6 +48,65 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
 		"user": response,
+	})
+}
+
+func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Parse query parameters (for filter)
+	groupAdvisorIDString := r.URL.Query().Get("groupAdvisorID")
+	limitString := r.URL.Query().Get("limit")
+	offsetString := r.URL.Query().Get("offset")
+	// Pre-assemble filter (fill with default values)
+	filter := repository.StudentGroupFilter{
+		Limit:  20,
+		Offset: 0,
+	}
+	// Parse group advisor ID if passed
+	if groupAdvisorIDString != "" {
+		groupAdvisorID, err := uuid.Parse(groupAdvisorIDString)
+		if err != nil {
+			helpers.ErrorResponse(w, "cannot convert group advisor id from string to uuid", http.StatusBadRequest)
+		}
+		// Add to filter
+		filter.GroupAdvisorID = &groupAdvisorID
+	}
+	// Parse limit if passed
+	if limitString != "" {
+		if limit, err := strconv.Atoi(limitString); err == nil && limit > 0 {
+			if limit > 100 {
+				limit = 100 // max value
+			}
+			filter.Limit = limit
+		} else {
+			h.log.Error("invalid limit")
+			helpers.ErrorResponse(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+	}
+	// Parse offset if passed
+	if offsetString != "" {
+		if offset, err := strconv.Atoi(offsetString); err == nil && offset >= 0 {
+			filter.Offset = offset
+		} else {
+			h.log.Error("invalid offset")
+			helpers.ErrorResponse(w, "invalid offset", http.StatusBadRequest)
+			return
+		}
+	}
+	// Get student groups
+	studentGroups, err := h.studentGroupService.GetStudentGroups(r.Context(), filter)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get student groups: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"studentGroups": studentGroups,
 	})
 }
 

@@ -10,6 +10,7 @@ import (
 )
 
 type StudentGroupService interface {
+	GetStudentGroups(ctx context.Context, filter repository.StudentGroupFilter) ([]StudentGroupResponseDTO, error)
 	GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error)
 	GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
 }
@@ -55,4 +56,38 @@ func (s *studentGroupService) GetAdvisorByGroupID(ctx context.Context, id uint16
 	}
 	s.log.Info("successfully received student group advisor")
 	return UserToDTO(user), nil
+}
+
+func (s *studentGroupService) GetStudentGroups(ctx context.Context, filter repository.StudentGroupFilter) ([]StudentGroupResponseDTO, error) {
+	studentGroups, err := s.studentGroupRepo.FindAll(ctx, &filter)
+	if err != nil {
+		groupAdvisorID := ""
+		if filter.GroupAdvisorID != nil {
+			groupAdvisorID = (*filter.GroupAdvisorID).String()
+		}
+		s.log.Error(
+			"failed to get student groups from repository",
+			"group advisor ID",
+			groupAdvisorID,
+			"limit",
+			filter.Limit,
+			"offset",
+			filter.Offset,
+			"error",
+			err,
+		)
+		return nil, fmt.Errorf(
+			"failed to get student groups from repository (groupAdvisorID: %s, limit: %d, offset: %d): %w",
+			groupAdvisorID,
+			filter.Limit,
+			filter.Offset,
+			err,
+		)
+	}
+	studentGroupDTOs := make([]StudentGroupResponseDTO, len(studentGroups))
+	for i, studentGroup := range studentGroups {
+		studentGroupDTOs[i] = *StudentGroupToDTO(&studentGroup)
+	}
+	s.log.Info("successfully received the list of student groups")
+	return studentGroupDTOs, nil
 }
