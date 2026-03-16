@@ -37,7 +37,7 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	}
 	// to uint16:
 	groupID := uint16(groupID64)
-	// Get ID of the group advisor
+	// Get student group advisor
 	response, err := h.studentGroupService.GetAdvisorByGroupID(r.Context(), groupID)
 	if err != nil {
 		helpers.HandleServiceError(w, fmt.Errorf("failed to get student group advisor by group id: %w", err))
@@ -46,5 +46,33 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
 		"user": response,
+	})
+}
+
+func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert student group ID.
+	// to uint64:
+	groupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
+	if err != nil {
+		h.log.Error("cannot convert groupID from string to uint64")
+		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusInternalServerError)
+		return
+	}
+	// to uint16:
+	groupID := uint16(groupID64)
+	// Get student group
+	response, err := h.studentGroupService.GetStudentGroupByID(r.Context(), groupID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get student group by id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"studentGroup": response,
 	})
 }

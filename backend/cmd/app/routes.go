@@ -50,6 +50,7 @@ func SetupRoutes(
 	mux.Handle("GET /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleReadAny)(http.HandlerFunc(userHandler.GetRoles))))
 	mux.Handle("GET /api/v1/users/me/roles", authMiddleware(requirePermissions(false, permissions.RoleReadOwn)(http.HandlerFunc(userHandler.GetOwnRoles))))
 	// Student groups
+	mux.Handle("GET /api/v1/student_groups/{id}", authMiddleware(requirePermissions(false, permissions.StudentGroupReadAny)(http.HandlerFunc(studentGroupHandler.GetStudentGroupByID))))
 	mux.Handle("GET /api/v1/student_groups/{id}/advisor", authMiddleware(requirePermissions(false, permissions.StudentGroupAdvisorRead)(http.HandlerFunc(studentGroupHandler.GetAdvisorByGroupID))))
 	// Auth
 	mux.Handle("DELETE /api/v1/users/{id}", authMiddleware(requirePermissions(false, permissions.UserDeleteAny)(http.HandlerFunc(authHandler.DeleteAccount))))
