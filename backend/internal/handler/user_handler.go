@@ -432,7 +432,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// Check method
-	if r.Method != http.MethodPatch {
+	if r.Method != http.MethodPost {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}

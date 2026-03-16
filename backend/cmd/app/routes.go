@@ -45,7 +45,7 @@ func SetupRoutes(
 	mux.Handle("GET /api/v1/users/me", authMiddleware(requirePermissions(false, permissions.UserReadOwn)(http.HandlerFunc(userHandler.GetOwnUser))))
 	// User roles
 	mux.Handle("PUT /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAssign)(http.HandlerFunc(userHandler.AssignRoles))))
-	mux.Handle("PATCH /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAdd)(http.HandlerFunc(userHandler.AddRoles))))
+	mux.Handle("POST /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAdd)(http.HandlerFunc(userHandler.AddRoles))))
 	mux.Handle("DELETE /api/v1/users/{userId}/roles/{roleId}", authMiddleware(requirePermissions(false, permissions.RoleDelete)(http.HandlerFunc(userHandler.RemoveRole))))
 	mux.Handle("GET /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleReadAny)(http.HandlerFunc(userHandler.GetRoles))))
 	mux.Handle("GET /api/v1/users/me/roles", authMiddleware(requirePermissions(false, permissions.RoleReadOwn)(http.HandlerFunc(userHandler.GetOwnRoles))))
