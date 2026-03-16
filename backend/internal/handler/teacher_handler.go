@@ -166,7 +166,7 @@ func (h *TeacherHandler) GetSubjectsOwn(w http.ResponseWriter, r *http.Request) 
 
 func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request) {
 	// Check method
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPut {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -217,7 +217,7 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 
 func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPut {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
