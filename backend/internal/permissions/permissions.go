@@ -45,14 +45,14 @@ const (
 
 // Student group permissions
 const (
-	StudentGroupCreate          = "student.group.create"
-	StudentGroupReadAny         = "student.group.read.any"
-	StudentGroupReadOwn         = "student.group.read.own"
-	StudentGroupUpdate          = "student.group.update"
-	StudentGroupDelete          = "student.group.delete"
-	StudentGroupAdvisorAssign   = "student.group.advisor.assign"
-	StudentGroupAdvisorUnassign = "student.group.advisor.unassign"
-	StudentGroupAdvisorRead     = "student.group.advisor.read"
+	StudentGroupCreate          = "student_group.create"
+	StudentGroupReadAny         = "student_group.read.any"
+	StudentGroupReadOwn         = "student_group.read.own"
+	StudentGroupUpdate          = "student_group.update"
+	StudentGroupDelete          = "student_group.delete"
+	StudentGroupAdvisorAssign   = "student_group.advisor.assign"
+	StudentGroupAdvisorUnassign = "student_group.advisor.unassign"
+	StudentGroupAdvisorRead     = "student_group.advisor.read"
 )
 
 // Teacher permissions
