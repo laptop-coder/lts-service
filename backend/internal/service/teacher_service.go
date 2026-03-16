@@ -18,6 +18,7 @@ type TeacherService interface {
 	GetTeacherClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
 	GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error)
 	AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint8) error
+	UnassignClassroom(ctx context.Context, userID uuid.UUID) error
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
@@ -208,7 +209,7 @@ func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, 
 			if err := tx.Model(&model.Room{}).
 				Where("id = ?", oldClassroomID).
 				Update("teacher_id", nil).Error; err != nil {
-				return fmt.Errorf("failed to unassign teacher (ID %s) from the old classroom (ID %d): %w", userID, classroomID, err)
+				return fmt.Errorf("failed to unassign teacher (ID %s) from the old classroom (ID %d): %w", userID, oldClassroomID, err)
 			}
 		}
 		// Assign teacher to new room
@@ -218,6 +219,33 @@ func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, 
 			return fmt.Errorf("failed to assign teacher (ID %s) to the new classroom (ID %d): %w", userID, classroomID, err)
 		}
 		s.log.Info("Classroom assigned to teacher successfully", "teacher ID", userID, "classroom ID", classroomID)
+		return nil
+	})
+}
+
+func (s *teacherService) UnassignClassroom(ctx context.Context, userID uuid.UUID) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check teacher existence
+		var teacher model.Teacher
+		if err := tx.WithContext(ctx).
+			Where("user_id = ?", userID).
+			First(&teacher).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("teacher with user ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to find teacher by ID (%s)", userID)
+		}
+		// Unassign if the teacher has room
+		if teacher.Classroom == nil {
+			return fmt.Errorf("teacher has not classroom to unassign")
+		}
+		classroomID := teacher.Classroom.ID
+		if err := tx.Model(&model.Room{}).
+			Where("id = ?", classroomID).
+			Update("teacher_id", nil).Error; err != nil {
+			return fmt.Errorf("failed to unassign teacher (ID %s) from the classroom (ID %d): %w", userID, classroomID, err)
+		}
+		s.log.Info("Classroom unassigned from teacher successfully", "teacher ID", userID)
 		return nil
 	})
 }

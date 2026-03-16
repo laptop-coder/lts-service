@@ -265,3 +265,46 @@ func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Reque
 		"message": "classroom assigned successfully",
 	})
 }
+
+func (h *TeacherHandler) UnassignClassroom(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert teacher ID
+	teacherID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+	}
+	// Unassign room
+	if err := h.teacherService.UnassignClassroom(r.Context(), teacherID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
+
+func (h *TeacherHandler) UnassignClassroomOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. teacher ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Unassign room
+	if err := h.teacherService.UnassignClassroom(r.Context(), userID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
