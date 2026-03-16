@@ -93,6 +93,7 @@ func SetupRoutes(
 	mux.Handle("GET /api/v1/teachers/{id}/subjects", authMiddleware(requirePermissions(false, permissions.TeacherSubjectReadAny)(http.HandlerFunc(teacherHandler.GetSubjects))))
 	mux.Handle("GET /api/v1/teachers/me/subjects", authMiddleware(requirePermissions(false, permissions.TeacherSubjectReadOwn)(http.HandlerFunc(teacherHandler.GetSubjectsOwn))))
 	mux.Handle("POST /api/v1/teachers/{id}/classroom", authMiddleware(requirePermissions(false, permissions.TeacherClassroomAssignAny)(http.HandlerFunc(teacherHandler.AssignClassroom))))
+	mux.Handle("POST /api/v1/teachers/me/classroom", authMiddleware(requirePermissions(false, permissions.TeacherClassroomAssignOwn)(http.HandlerFunc(teacherHandler.AssignClassroomOwn))))
 	// Parents
 	mux.Handle("GET /api/v1/parents/{id}", authMiddleware(requirePermissions(false, permissions.ParentReadOther)(http.HandlerFunc(parentHandler.GetParentByID))))
 	mux.Handle("GET /api/v1/parents/me", authMiddleware(requirePermissions(false, permissions.ParentReadOwn)(http.HandlerFunc(parentHandler.GetOwn))))

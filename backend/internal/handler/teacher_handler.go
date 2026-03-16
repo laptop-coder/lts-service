@@ -213,3 +213,55 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 		"message": "classroom assigned successfully",
 	})
 }
+
+
+func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. teacher ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert classroom ID:
+	classroomIDFields := r.PostForm["classroomID"]
+	if len(classroomIDFields) != 1 {
+		helpers.ErrorResponse(w, "failed to parse form: classroomID value must be provided exactly once", http.StatusBadRequest)
+	}
+	// convert to uint64
+	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 8)
+	if err != nil {
+		h.log.Error("cannot convert classroom ID from string to uint64")
+		helpers.ErrorResponse(w, "cannot convert classroom ID from string to uint64", http.StatusInternalServerError)
+		return
+	}
+	// and to uint8
+	classroomID := uint8(classroomID64)
+	// Assign room
+	if err := h.teacherService.AssignClassroom(r.Context(), userID, classroomID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated teacher
+	teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"teacher": teacher,
+		"message": "classroom assigned successfully",
+	})
+}
