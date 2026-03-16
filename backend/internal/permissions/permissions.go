@@ -47,7 +47,6 @@ const (
 const (
 	StudentGroupCreate          = "student_group.create"
 	StudentGroupReadAny         = "student_group.read.any"
-	StudentGroupReadOwn         = "student_group.read.own"
 	StudentGroupUpdate          = "student_group.update"
 	StudentGroupDelete          = "student_group.delete"
 	StudentGroupAdvisorAssign   = "student_group.advisor.assign"
@@ -73,6 +72,7 @@ const (
 	TeacherClassroomUnassignOwn = "teacher.classroom.unassign.own"
 	TeacherReadOther            = "teacher.read.other"
 	TeacherReadOwn              = "teacher.read.own"
+	TeacherStudentGroupReadOwn = "teacher.student_group.read.own"
 )
 
 // Parent permissions
@@ -85,6 +85,7 @@ const (
 	ParentStudentUnassignOwn = "parent.student.unassign.own"
 	ParentReadOther          = "parent.read.other"
 	ParentReadOwn            = "parent.read.own"
+	ParentStudentGroupReadOwn = "parent.student_group.read.own"
 )
 
 // User roles permissions
@@ -114,6 +115,7 @@ const (
 	StudentAdvisorReadOwn   = "student.advisor.read.own"
 	StudentParentReadAny    = "student.parent.read.any"
 	StudentParentReadOwn    = "student.parent.read.own"
+	StudentStudentGroupReadOwn = "student.student_group.read.own"
 )
 
 // Institution administrator
