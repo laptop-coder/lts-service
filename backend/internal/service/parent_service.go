@@ -15,6 +15,7 @@ type ParentService interface {
 	GetParentByID(ctx context.Context, id uuid.UUID) (*ParentResponseDTO, error)
 	GetParents(ctx context.Context, filter repository.ParentFilter) ([]ParentResponseDTO, error)
 	GetParentStudents(ctx context.Context, userID uuid.UUID) ([]StudentResponseDTO, error)
+	GetStudentGroupsOwn(ctx context.Context, userID uuid.UUID) ([]StudentGroupResponseDTO, error)
 }
 
 type ParentResponseDTO struct {
@@ -100,7 +101,26 @@ func (s *parentService) GetParentStudents(ctx context.Context, userID uuid.UUID)
 		// Return response
 		return students, nil
 	}
-	return nil, nil
+	return []StudentResponseDTO{}, nil
+}
+
+
+func (s *parentService) GetStudentGroupsOwn(ctx context.Context, userID uuid.UUID) ([]StudentGroupResponseDTO, error) {
+	// Get parent
+	parent, err := s.GetParentByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get parent by id: %w", err)
+	}
+	// Check if students assigned
+	if len(parent.Students) == 0 {
+		return []StudentGroupResponseDTO{}, nil
+	}
+	// Get student groups of students assigned to parent
+	studentGroups := make([]StudentGroupResponseDTO, len(parent.Students))
+	for i, student := range parent.Students {
+		studentGroups[i] = student.StudentGroup
+	}
+	return studentGroups, nil
 }
 
 func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
@@ -115,3 +135,5 @@ func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
 		Students: students,
 	}
 }
+
+
