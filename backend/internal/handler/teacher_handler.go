@@ -596,3 +596,28 @@ func (h *TeacherHandler) UnassignSubjectOwn(w http.ResponseWriter, r *http.Reque
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
+
+func (h *TeacherHandler) GetStudentGroupsOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. teacher ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get teacher
+	teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get teacher by id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"studentGroups": teacher.StudentGroups,
+	})
+}
+
