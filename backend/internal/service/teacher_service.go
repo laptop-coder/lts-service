@@ -258,8 +258,8 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 		// Check teacher existence
 		var teacher model.Teacher
 		if err := tx.WithContext(ctx).
-		Where("user_id = ?", userID).
-		First(&teacher).Error; err != nil {
+			Where("user_id = ?", userID).
+			First(&teacher).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return fmt.Errorf("teacher with ID %s was not found", userID)
 			}
@@ -268,12 +268,12 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 		// Get subjects by IDs
 		var subjects []model.Subject
 		if err := tx.WithContext(ctx).
-		Where("id IN (?)", subjectIDs).
-		Find(&subjects).Error; err != nil {
+			Where("id IN (?)", subjectIDs).
+			Find(&subjects).Error; err != nil {
 			return fmt.Errorf("failed to fetch subjects: %w", err)
 		}
 		// Check if all subjects were found
-		if len(subjects) != len (subjectIDs) {
+		if len(subjects) != len(subjectIDs) {
 			return fmt.Errorf("some subjects not found")
 		}
 		// Add subjects
@@ -291,8 +291,8 @@ func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, 
 		// Check teacher existence
 		var teacher model.Teacher
 		if err := tx.WithContext(ctx).
-		Where("user_id = ?", userID).
-		First(&teacher).Error; err != nil {
+			Where("user_id = ?", userID).
+			First(&teacher).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return fmt.Errorf("teacher with ID %s was not found", userID)
 			}
@@ -301,7 +301,7 @@ func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, 
 		// Get subject by ID
 		var subject model.Subject
 		if err := tx.WithContext(ctx).
-		First(&subject, subjectID).Error; err != nil {
+			First(&subject, subjectID).Error; err != nil {
 			return fmt.Errorf("subject not found: %w", err)
 		}
 		// Remove subject from teacher
@@ -314,14 +314,13 @@ func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, 
 	})
 }
 
-
 func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check teacher existence
 		var teacher model.Teacher
 		if err := tx.WithContext(ctx).
-		Where("user_id = ?", userID).
-		First(&teacher).Error; err != nil {
+			Where("user_id = ?", userID).
+			First(&teacher).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return fmt.Errorf("teacher with ID %s was not found", userID)
 			}
@@ -330,12 +329,12 @@ func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, s
 		// Get subjects by IDs
 		var subjects []model.Subject
 		if err := tx.WithContext(ctx).
-		Where("id IN (?)", subjectIDs).
-		Find(&subjects).Error; err != nil {
+			Where("id IN (?)", subjectIDs).
+			Find(&subjects).Error; err != nil {
 			return fmt.Errorf("failed to fetch subjects: %w", err)
 		}
 		// Check if all subjects were found
-		if len(subjects) != len (subjectIDs) {
+		if len(subjects) != len(subjectIDs) {
 			return fmt.Errorf("some subjects not found")
 		}
 		// Replace subjects
@@ -347,5 +346,3 @@ func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, s
 		return nil
 	})
 }
-
-

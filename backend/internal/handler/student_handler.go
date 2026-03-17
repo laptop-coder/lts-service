@@ -210,7 +210,6 @@ func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (h *StudentHandler) GetStudentGroupOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -234,4 +233,3 @@ func (h *StudentHandler) GetStudentGroupOwn(w http.ResponseWriter, r *http.Reque
 		"studentGroup": student.StudentGroup,
 	})
 }
-

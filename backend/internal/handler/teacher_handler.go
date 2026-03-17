@@ -214,7 +214,6 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-
 func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
@@ -286,7 +285,6 @@ func (h *TeacherHandler) UnassignClassroom(w http.ResponseWriter, r *http.Reques
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
-
 func (h *TeacherHandler) UnassignClassroomOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
@@ -307,7 +305,6 @@ func (h *TeacherHandler) UnassignClassroomOwn(w http.ResponseWriter, r *http.Req
 	// Return response
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
-
 
 func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -362,7 +359,6 @@ func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) 
 		"message": "subjects assigned successfully",
 	})
 }
-
 
 func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -419,7 +415,6 @@ func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Reques
 	})
 }
 
-
 func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPost {
@@ -473,7 +468,6 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 		"message": "subjects assigned successfully",
 	})
 }
-
 
 func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -530,8 +524,6 @@ func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-
-
 func (h *TeacherHandler) UnassignSubject(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
@@ -562,7 +554,6 @@ func (h *TeacherHandler) UnassignSubject(w http.ResponseWriter, r *http.Request)
 	// Return response
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
-
 
 func (h *TeacherHandler) UnassignSubjectOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -596,7 +587,6 @@ func (h *TeacherHandler) UnassignSubjectOwn(w http.ResponseWriter, r *http.Reque
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
-
 func (h *TeacherHandler) GetStudentGroupsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
@@ -620,4 +610,3 @@ func (h *TeacherHandler) GetStudentGroupsOwn(w http.ResponseWriter, r *http.Requ
 		"studentGroups": teacher.StudentGroups,
 	})
 }
-

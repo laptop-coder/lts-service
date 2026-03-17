@@ -58,8 +58,8 @@ const (
 const (
 	TeacherSubjectReadAny       = "teacher.subject.read.any"
 	TeacherSubjectReadOwn       = "teacher.subject.read.own"
-	TeacherSubjectAddAny     = "teacher.subject.add.any"
-	TeacherSubjectAddOwn     = "teacher.subject.add.own"
+	TeacherSubjectAddAny        = "teacher.subject.add.any"
+	TeacherSubjectAddOwn        = "teacher.subject.add.own"
 	TeacherSubjectAssignAny     = "teacher.subject.assign.any"
 	TeacherSubjectAssignOwn     = "teacher.subject.assign.own"
 	TeacherSubjectUnassignAny   = "teacher.subject.unassign.any"
@@ -72,19 +72,19 @@ const (
 	TeacherClassroomUnassignOwn = "teacher.classroom.unassign.own"
 	TeacherReadOther            = "teacher.read.other"
 	TeacherReadOwn              = "teacher.read.own"
-	TeacherStudentGroupReadOwn = "teacher.student_group.read.own"
+	TeacherStudentGroupReadOwn  = "teacher.student_group.read.own"
 )
 
 // Parent permissions
 const (
-	ParentStudentReadAny     = "parent.student.read.any"
-	ParentStudentReadOwn     = "parent.student.read.own"
-	ParentStudentAssignAny   = "parent.student.assign.any"
-	ParentStudentAssignOwn   = "parent.student.assign.own"
-	ParentStudentUnassignAny = "parent.student.unassign.any"
-	ParentStudentUnassignOwn = "parent.student.unassign.own"
-	ParentReadOther          = "parent.read.other"
-	ParentReadOwn            = "parent.read.own"
+	ParentStudentReadAny      = "parent.student.read.any"
+	ParentStudentReadOwn      = "parent.student.read.own"
+	ParentStudentAssignAny    = "parent.student.assign.any"
+	ParentStudentAssignOwn    = "parent.student.assign.own"
+	ParentStudentUnassignAny  = "parent.student.unassign.any"
+	ParentStudentUnassignOwn  = "parent.student.unassign.own"
+	ParentReadOther           = "parent.read.other"
+	ParentReadOwn             = "parent.read.own"
 	ParentStudentGroupReadOwn = "parent.student_group.read.own"
 )
 
@@ -107,14 +107,14 @@ const (
 
 // Student permissions
 const (
-	StudentReadOther        = "student.read.other"
-	StudentReadOwn          = "student.read.own"
-	StudentClassroomReadAny = "student.classroom.read.any"
-	StudentClassroomReadOwn = "student.classroom.read.own"
-	StudentAdvisorReadAny   = "student.advisor.read.any"
-	StudentAdvisorReadOwn   = "student.advisor.read.own"
-	StudentParentReadAny    = "student.parent.read.any"
-	StudentParentReadOwn    = "student.parent.read.own"
+	StudentReadOther           = "student.read.other"
+	StudentReadOwn             = "student.read.own"
+	StudentClassroomReadAny    = "student.classroom.read.any"
+	StudentClassroomReadOwn    = "student.classroom.read.own"
+	StudentAdvisorReadAny      = "student.advisor.read.any"
+	StudentAdvisorReadOwn      = "student.advisor.read.own"
+	StudentParentReadAny       = "student.parent.read.any"
+	StudentParentReadOwn       = "student.parent.read.own"
 	StudentStudentGroupReadOwn = "student.student_group.read.own"
 )
 
