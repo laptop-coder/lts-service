@@ -209,3 +209,29 @@ func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 		"studentParents": response,
 	})
 }
+
+
+func (h *StudentHandler) GetStudentGroupOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. student ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get student
+	student, err := h.studentService.GetStudentByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get student by id: %w", err))
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"studentGroup": student.StudentGroup,
+	})
+}
+

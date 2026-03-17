@@ -15,7 +15,9 @@ type Student struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
+	// many-to-one (student-to-group)
 	StudentGroupID uint16
+	StudentGroup   StudentGroup `gorm:"foreignKey:StudentGroupID;references:ID"`
 	// many-to-many (student-to-parent)
 	Parents *[]Parent `gorm:"many2many:parent_students;foreignKey:UserID;joinForeignKey:StudentID;references:UserID;joinReferences:ParentId"`
 }

@@ -41,6 +41,7 @@ func (r *studentRepository) FindByGroupID(ctx context.Context, id *uint16) ([]mo
 	var students []model.Student
 	result := r.db.WithContext(ctx).
 		Preload("User").
+		Preload("StudentGroup").
 		Preload("Parents").
 		Where("student_group_id = ?", *id).
 		Find(&students)
@@ -57,6 +58,7 @@ func (r *studentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 	var student model.Student
 	result := r.db.WithContext(ctx).
 		Preload("User").
+		Preload("StudentGroup").
 		Preload("Parents").
 		First(&student, *userID)
 	if result.Error != nil {
@@ -88,6 +90,7 @@ func (r *studentRepository) FindAll(ctx context.Context, filter *StudentFilter) 
 	// Find students
 	result := query.
 		Preload("User").
+		Preload("StudentGroup").
 		Preload("Parents").
 		Find(&students)
 	if result.Error != nil {

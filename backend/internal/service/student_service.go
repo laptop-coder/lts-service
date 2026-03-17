@@ -20,8 +20,9 @@ type StudentService interface {
 }
 
 type StudentResponseDTO struct {
-	User           UserResponseDTO
-	StudentGroupID uint16
+	User         UserResponseDTO
+	StudentGroup StudentGroupResponseDTO
+	Parents      []ParentResponseDTO
 }
 
 type studentService struct {
@@ -167,8 +168,15 @@ func (s *studentService) GetStudents(ctx context.Context, filter repository.Stud
 }
 
 func StudentToDTO(student *model.Student) *StudentResponseDTO {
+	var parents []ParentResponseDTO
+	if student.Parents != nil && len(*student.Parents) > 0 {
+		for _, parent := range *student.Parents {
+			parents = append(parents, *ParentToDTO(&parent))
+		}
+	}
 	return &StudentResponseDTO{
-		User:           *UserToDTO(&student.User),
-		StudentGroupID: student.StudentGroupID,
+		User:         *UserToDTO(&student.User),
+		StudentGroup: *StudentGroupToDTO(&student.StudentGroup),
+		Parents:      parents,
 	}
 }
