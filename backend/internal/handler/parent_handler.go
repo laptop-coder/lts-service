@@ -189,11 +189,10 @@ func (h *ParentHandler) AddStudents(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"parent": parent,
+		"parent":  parent,
 		"message": "students added successfully",
 	})
 }
-
 
 func (h *ParentHandler) AddStudentsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
@@ -242,8 +241,61 @@ func (h *ParentHandler) AddStudentsOwn(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"parent": parent,
+		"parent":  parent,
 		"message": "students added successfully",
 	})
 }
 
+func (h *ParentHandler) UnassignStudent(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert parent ID
+	parentID, err := uuid.Parse(r.PathValue("parentId"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert parent id to uuid", http.StatusBadRequest)
+		return
+	}
+	// Get and convert student ID:
+	studentID, err := uuid.Parse(r.PathValue("studentId"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		return
+	}
+	// Unassign student
+	if err := h.parentService.UnassignStudent(r.Context(), parentID, studentID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
+func (h *ParentHandler) UnassignStudentOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. parent ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get and convert student ID:
+	studentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		return
+	}
+	// Unassign student
+	if err := h.parentService.UnassignStudent(r.Context(), userID, studentID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}

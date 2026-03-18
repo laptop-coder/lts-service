@@ -17,6 +17,7 @@ type ParentService interface {
 	GetParentStudents(ctx context.Context, userID uuid.UUID) ([]StudentResponseDTO, error)
 	GetStudentGroupsOwn(ctx context.Context, userID uuid.UUID) ([]StudentGroupResponseDTO, error)
 	AddStudents(ctx context.Context, userID uuid.UUID, studentIDs []uuid.UUID) error
+	UnassignStudent(ctx context.Context, userID uuid.UUID, studentID uuid.UUID) error
 }
 
 type ParentResponseDTO struct {
@@ -165,6 +166,35 @@ func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, stude
 		}
 		// Return response
 		s.log.Info("Students was successfully added to parent", "parent ID", userID, "student IDs", studentIDs)
+		return nil
+	})
+}
+
+func (s *parentService) UnassignStudent(ctx context.Context, userID uuid.UUID, studentID uuid.UUID) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check parent existence
+		var parent model.Parent
+		if err := tx.WithContext(ctx).
+			Where("user_id = ?", userID).
+			First(&parent).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("parent with ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to found parent: %w", err)
+		}
+		// Get student by ID
+		var student model.Student
+		if err := tx.WithContext(ctx).
+			Where("user_id = ?", studentID).
+			First(&student).Error; err != nil {
+			return fmt.Errorf("student not found: %w", err)
+		}
+		// Remove student from parent
+		if err := tx.Model(&parent).Association("Students").Delete(&student); err != nil {
+			return fmt.Errorf("failed to remove student: %w", err)
+		}
+		// Return response
+		s.log.Info("Student was successfully unassigned from parent", "parent ID", userID, "student ID", studentID)
 		return nil
 	})
 }
