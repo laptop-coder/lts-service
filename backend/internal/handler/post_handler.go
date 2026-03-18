@@ -63,6 +63,7 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 		dto.Description = descriptionFields[0]
 	} else if len(descriptionFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much description values", http.StatusBadRequest)
+		return
 	}
 	// Get post photo (optional field)
 	formFiles := r.MultipartForm.File["photo"]
@@ -101,6 +102,7 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
@@ -134,11 +136,13 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much name values", http.StatusBadRequest)
+		return
 	}
 	if descriptionFields := r.PostForm["description"]; len(descriptionFields) == 1 {
 		dto.Description = &descriptionFields[0]
 	} else if len(descriptionFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much description values", http.StatusBadRequest)
+		return
 	}
 	// Update post
 	postResponse, err := h.postService.UpdatePost(r.Context(), postID, dto)
@@ -162,6 +166,7 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
@@ -210,6 +215,7 @@ func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
@@ -269,6 +275,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		authorID, err := uuid.Parse(authorIDString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert author id (i.e. user id) to uuid", http.StatusBadRequest)
+			return
 		}
 		// Add to filter
 		filter.AuthorID = &authorID
@@ -278,6 +285,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		verified, err := strconv.ParseBool(verifiedString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert verification status from string to boolean", http.StatusBadRequest)
+			return
 		}
 		filter.Verified = &verified
 	}
@@ -286,6 +294,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
 	}
@@ -347,6 +356,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 		authorID, err := uuid.Parse(authorIDString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert author id (i.e. user id) to uuid", http.StatusBadRequest)
+			return
 		}
 		// Add to filter
 		filter.AuthorID = &authorID
@@ -359,6 +369,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
 	}
@@ -426,6 +437,7 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 		verified, err := strconv.ParseBool(verifiedString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert verification status from string to boolean", http.StatusBadRequest)
+			return
 		}
 		filter.Verified = &verified
 	}
@@ -434,6 +446,7 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
 	}
@@ -490,6 +503,7 @@ func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Verify post
 	postResponse, err := h.postService.VerifyPost(r.Context(), postID)
@@ -520,6 +534,7 @@ func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)

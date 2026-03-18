@@ -71,6 +71,7 @@ func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Re
 		groupAdvisorID, err := uuid.Parse(groupAdvisorIDString)
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert group advisor id from string to uuid", http.StatusBadRequest)
+			return
 		}
 		// Add to filter
 		filter.GroupAdvisorID = &groupAdvisorID

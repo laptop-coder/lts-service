@@ -33,6 +33,7 @@ func (h *InstitutionAdministratorHandler) GetInstitutionAdministratorByID(w http
 	institutionAdministratorID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert institutionAdministrator id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get institutionAdministrator
 	response, err := h.institutionAdministratorService.GetInstitutionAdministratorByID(r.Context(), institutionAdministratorID)
@@ -87,11 +88,13 @@ func (h *InstitutionAdministratorHandler) AssignPosition(w http.ResponseWriter, 
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert institution administrator id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get and convert institution administrator position ID:
 	positionIDFields := r.PostForm["positionId"]
 	if len(positionIDFields) != 1 {
 		helpers.ErrorResponse(w, "failed to parse form: positionId must be provided exactly once", http.StatusBadRequest)
+		return
 	}
 	// convert to uint64
 	positionID64, err := strconv.ParseUint(positionIDFields[0], 10, 8)
@@ -129,6 +132,7 @@ func (h *InstitutionAdministratorHandler) GetPosition(w http.ResponseWriter, r *
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert institution administrator id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get institution administrator position
 	response, err := h.institutionAdministratorService.GetPosition(r.Context(), userID)

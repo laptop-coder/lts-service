@@ -33,6 +33,7 @@ func (h *StaffHandler) GetStaffByID(w http.ResponseWriter, r *http.Request) {
 	staffID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert staff id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get staff
 	response, err := h.staffService.GetStaffByID(r.Context(), staffID)
@@ -87,11 +88,13 @@ func (h *StaffHandler) AssignPosition(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert staff id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get and convert staff position ID:
 	positionIDFields := r.PostForm["positionId"]
 	if len(positionIDFields) != 1 {
 		helpers.ErrorResponse(w, "failed to parse form: positionId must be provided exactly once", http.StatusBadRequest)
+		return
 	}
 	// convert to uint64
 	positionID64, err := strconv.ParseUint(positionIDFields[0], 10, 8)
@@ -129,6 +132,7 @@ func (h *StaffHandler) GetPosition(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert staff id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get staff position
 	response, err := h.staffService.GetPosition(r.Context(), userID)

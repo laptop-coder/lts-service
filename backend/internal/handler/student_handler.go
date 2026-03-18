@@ -32,6 +32,7 @@ func (h *StudentHandler) GetStudentByID(w http.ResponseWriter, r *http.Request) 
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get student
 	response, err := h.studentService.GetStudentByID(r.Context(), studentID)
@@ -79,6 +80,7 @@ func (h *StudentHandler) GetClassroom(w http.ResponseWriter, r *http.Request) {
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get student classroom
 	response, err := h.studentService.GetStudentClassroom(r.Context(), studentID)
@@ -126,6 +128,7 @@ func (h *StudentHandler) GetAdvisor(w http.ResponseWriter, r *http.Request) {
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get student advisor
 	response, err := h.studentService.GetStudentAdvisor(r.Context(), studentID)
@@ -173,6 +176,7 @@ func (h *StudentHandler) GetParents(w http.ResponseWriter, r *http.Request) {
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get student parents
 	response, err := h.studentService.GetStudentParents(r.Context(), studentID)

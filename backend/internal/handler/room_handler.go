@@ -39,8 +39,10 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	nameFields := r.PostForm["name"]
 	if len(nameFields) == 0 {
 		helpers.ErrorResponse(w, "failed to parse form: name field is required", http.StatusBadRequest)
+		return
 	} else if len(nameFields) > 1 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		return
 	}
 	name := nameFields[0]
 	// Get and convert teacher ID
@@ -48,10 +50,12 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var teacherID *uuid.UUID
 	if len(teacherIDFields) > 1 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much teacherID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
+		return
 	} else if len(teacherIDFields) == 1 {
 		teacherIDUUID, err := uuid.Parse(teacherIDFields[0])
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+			return
 		}
 		teacherID = &teacherIDUUID
 	}
@@ -148,16 +152,19 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) != 0 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		return
 	}
 	if teacherIDFields := r.PostForm["teacherId"]; len(teacherIDFields) == 1 {
 		// Convert teacher ID to UUID
 		teacherID, err := uuid.Parse(teacherIDFields[0])
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+			return
 		}
 		dto.TeacherID = &teacherID
 	} else if len(teacherIDFields) != 0 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much teacher ID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
+		return
 	}
 	// Update room
 	roomResponse, err := h.roomService.UpdateRoom(r.Context(), roomID, dto)

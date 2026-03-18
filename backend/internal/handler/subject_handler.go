@@ -38,8 +38,10 @@ func (h *SubjectHandler) Create(w http.ResponseWriter, r *http.Request) {
 	nameFields := r.PostForm["name"]
 	if len(nameFields) == 0 {
 		helpers.ErrorResponse(w, "failed to parse form: name field is required", http.StatusBadRequest)
+		return
 	} else if len(nameFields) > 1 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		return
 	}
 	name := nameFields[0]
 	// Assemble DTO
@@ -134,6 +136,7 @@ func (h *SubjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) != 0 {
 		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		return
 	}
 	// Update subject
 	subjectResponse, err := h.subjectService.UpdateSubject(r.Context(), subjectID, dto)

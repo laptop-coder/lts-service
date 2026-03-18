@@ -374,6 +374,7 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Delete user
 	if err := h.userService.DeleteUser(r.Context(), userID); err != nil {

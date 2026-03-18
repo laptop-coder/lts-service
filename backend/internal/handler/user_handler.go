@@ -49,16 +49,19 @@ func (h *UserHandler) UpdateOwnProfile(w http.ResponseWriter, r *http.Request) {
 		dto.FirstName = &firstNameFields[0]
 	} else if len(firstNameFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much firstName values", http.StatusBadRequest)
+		return
 	}
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
 		dto.MiddleName = &middleNameFields[0]
 	} else if len(middleNameFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much middleName values", http.StatusBadRequest)
+		return
 	}
 	if lastNameFields := r.PostForm["lastName"]; len(lastNameFields) == 1 {
 		dto.LastName = &lastNameFields[0]
 	} else if len(lastNameFields) != 0 {
 		helpers.ErrorResponse(w, "failed to parse form: to much lastName values", http.StatusBadRequest)
+		return
 	}
 	// Update user
 	userResponse, err := h.userService.UpdateUser(r.Context(), userID, dto)
@@ -141,6 +144,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get user
 	response, err := h.userService.GetUserByID(r.Context(), userID)
@@ -252,6 +256,7 @@ func (h *UserHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get roles
 	roles, err := h.userService.GetUserRoles(r.Context(), userID)
@@ -309,6 +314,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get role IDs
 	roleIDsFields := r.PostForm["roleId"]
@@ -447,6 +453,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get role IDs
 	roleIDsFields := r.PostForm["roleId"]
@@ -578,6 +585,7 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(r.PathValue("userId"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get and convert role ID
 	roleIDString := r.PathValue("roleId")

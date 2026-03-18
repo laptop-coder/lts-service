@@ -33,6 +33,7 @@ func (h *TeacherHandler) GetTeacherByID(w http.ResponseWriter, r *http.Request) 
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get teacher
 	response, err := h.teacherService.GetTeacherByID(r.Context(), teacherID)
@@ -80,6 +81,7 @@ func (h *TeacherHandler) GetClassroom(w http.ResponseWriter, r *http.Request) {
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get teacher classroom
 	response, err := h.teacherService.GetTeacherClassroom(r.Context(), teacherID)
@@ -127,6 +129,7 @@ func (h *TeacherHandler) GetSubjects(w http.ResponseWriter, r *http.Request) {
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get teacher subjects
 	response, err := h.teacherService.GetTeacherSubjects(r.Context(), teacherID)
@@ -174,6 +177,7 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
@@ -186,6 +190,7 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 	classroomIDFields := r.PostForm["classroomId"]
 	if len(classroomIDFields) != 1 {
 		helpers.ErrorResponse(w, "failed to parse form: classroomID value must be provided exactly once", http.StatusBadRequest)
+		return
 	}
 	// convert to uint64
 	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 8)
@@ -237,6 +242,7 @@ func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Reque
 	classroomIDFields := r.PostForm["classroomId"]
 	if len(classroomIDFields) != 1 {
 		helpers.ErrorResponse(w, "failed to parse form: classroomID value must be provided exactly once", http.StatusBadRequest)
+		return
 	}
 	// convert to uint64
 	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 8)
@@ -275,6 +281,7 @@ func (h *TeacherHandler) UnassignClassroom(w http.ResponseWriter, r *http.Reques
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Unassign room
 	if err := h.teacherService.UnassignClassroom(r.Context(), teacherID); err != nil {
@@ -316,6 +323,7 @@ func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) 
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
@@ -328,6 +336,7 @@ func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) 
 	subjectIDFields := r.PostForm["subjectId"]
 	if len(subjectIDFields) == 0 {
 		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+		return
 	}
 	subjectIDs := make([]uint8, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
@@ -383,6 +392,7 @@ func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Reques
 	subjectIDFields := r.PostForm["subjectId"]
 	if len(subjectIDFields) == 0 {
 		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+		return
 	}
 	subjectIDs := make([]uint8, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
@@ -425,6 +435,7 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 	teacherID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
@@ -437,6 +448,7 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 	subjectIDFields := r.PostForm["subjectId"]
 	if len(subjectIDFields) == 0 {
 		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+		return
 	}
 	subjectIDs := make([]uint8, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
@@ -451,7 +463,7 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 		subjectID := uint8(subjectID64)
 		subjectIDs[i] = subjectID
 	}
-	// Assign subjects
+	// Add subjects
 	if err := h.teacherService.AddSubjects(r.Context(), teacherID, subjectIDs); err != nil {
 		helpers.HandleServiceError(w, err)
 		return
@@ -465,7 +477,7 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
 		"teacher": teacher,
-		"message": "subjects assigned successfully",
+		"message": "subjects added successfully",
 	})
 }
 
@@ -492,6 +504,7 @@ func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) 
 	subjectIDFields := r.PostForm["subjectId"]
 	if len(subjectIDFields) == 0 {
 		helpers.ErrorResponse(w, "failed to parse form: subjectID value cannot be empty", http.StatusBadRequest)
+		return
 	}
 	subjectIDs := make([]uint8, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
@@ -534,6 +547,7 @@ func (h *TeacherHandler) UnassignSubject(w http.ResponseWriter, r *http.Request)
 	teacherID, err := uuid.Parse(r.PathValue("userId"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get and convert subject ID:
 	subjectIDString := r.PathValue("subjectId")
