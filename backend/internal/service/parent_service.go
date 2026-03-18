@@ -16,6 +16,7 @@ type ParentService interface {
 	GetParents(ctx context.Context, filter repository.ParentFilter) ([]ParentResponseDTO, error)
 	GetParentStudents(ctx context.Context, userID uuid.UUID) ([]StudentResponseDTO, error)
 	GetStudentGroupsOwn(ctx context.Context, userID uuid.UUID) ([]StudentGroupResponseDTO, error)
+	AddStudents(ctx context.Context, userID uuid.UUID, studentIDs []uuid.UUID) error
 }
 
 type ParentResponseDTO struct {
@@ -104,7 +105,6 @@ func (s *parentService) GetParentStudents(ctx context.Context, userID uuid.UUID)
 	return []StudentResponseDTO{}, nil
 }
 
-
 func (s *parentService) GetStudentGroupsOwn(ctx context.Context, userID uuid.UUID) ([]StudentGroupResponseDTO, error) {
 	// Get parent
 	parent, err := s.GetParentByID(ctx, userID)
@@ -136,4 +136,35 @@ func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
 	}
 }
 
-
+func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, studentIDs []uuid.UUID) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Check parent existence
+		var parent model.Parent
+		if err := tx.WithContext(ctx).
+			Where("user_id = ?", userID).
+			First(&parent).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("parent with ID %s was not found", userID)
+			}
+			return fmt.Errorf("failed to found parent: %w", err)
+		}
+		// Get students by IDs
+		var students []model.Student
+		if err := tx.WithContext(ctx).
+			Where("user_id IN (?)", studentIDs).
+			Find(&students).Error; err != nil {
+			return fmt.Errorf("failed to fetch students: %w", err)
+		}
+		// Check if all students were found
+		if len(students) != len(studentIDs) {
+			return fmt.Errorf("some students not found")
+		}
+		// Add students
+		if err := tx.Model(&parent).Association("Students").Append(&students); err != nil {
+			return fmt.Errorf("failed to add students: %w", err)
+		}
+		// Return response
+		s.log.Info("Students was successfully added to parent", "parent ID", userID, "student IDs", studentIDs)
+		return nil
+	})
+}

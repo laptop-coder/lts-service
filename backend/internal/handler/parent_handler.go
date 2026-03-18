@@ -32,6 +32,7 @@ func (h *ParentHandler) GetParentByID(w http.ResponseWriter, r *http.Request) {
 	parentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert parent id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get parent
 	response, err := h.parentService.GetParentByID(r.Context(), parentID)
@@ -79,6 +80,7 @@ func (h *ParentHandler) GetStudents(w http.ResponseWriter, r *http.Request) {
 	parentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		helpers.ErrorResponse(w, "cannot convert parent id to uuid", http.StatusBadRequest)
+		return
 	}
 	// Get parent students
 	response, err := h.parentService.GetParentStudents(r.Context(), parentID)
@@ -139,3 +141,109 @@ func (h *ParentHandler) GetStudentGroupsOwn(w http.ResponseWriter, r *http.Reque
 		"studentGroups": studentGroups,
 	})
 }
+
+func (h *ParentHandler) AddStudents(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert parent ID
+	parentID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert parent id to uuid", http.StatusBadRequest)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert student IDs:
+	studentIDFields := r.PostForm["studentId"]
+	if len(studentIDFields) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: studentID value cannot be empty", http.StatusBadRequest)
+		return
+	}
+	studentIDs := make([]uuid.UUID, len(studentIDFields))
+	for i, studentIDString := range studentIDFields {
+		studentID, err := uuid.Parse(studentIDString)
+		if err != nil {
+			helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+			return
+		}
+		studentIDs[i] = studentID
+	}
+	// Add students
+	if err := h.parentService.AddStudents(r.Context(), parentID, studentIDs); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated parent
+	parent, err := h.parentService.GetParentByID(r.Context(), parentID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"parent": parent,
+		"message": "students added successfully",
+	})
+}
+
+
+func (h *ParentHandler) AddStudentsOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert user ID (i.e. parent ID)
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert student IDs:
+	studentIDFields := r.PostForm["studentId"]
+	if len(studentIDFields) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: studentID value cannot be empty", http.StatusBadRequest)
+		return
+	}
+	studentIDs := make([]uuid.UUID, len(studentIDFields))
+	for i, studentIDString := range studentIDFields {
+		studentID, err := uuid.Parse(studentIDString)
+		if err != nil {
+			helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+			return
+		}
+		studentIDs[i] = studentID
+	}
+	// Add students
+	if err := h.parentService.AddStudents(r.Context(), userID, studentIDs); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get updated parent
+	parent, err := h.parentService.GetParentByID(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Return response
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"parent": parent,
+		"message": "students added successfully",
+	})
+}
+
