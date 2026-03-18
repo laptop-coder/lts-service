@@ -154,8 +154,8 @@ func main() {
 		{ID: 50, Name: permissions.TeacherStudentGroupReadOwn},
 		{ID: 51, Name: permissions.ParentStudentReadAny},
 		{ID: 52, Name: permissions.ParentStudentReadOwn},
-		{ID: 53, Name: permissions.ParentStudentAssignAny},
-		{ID: 54, Name: permissions.ParentStudentAssignOwn},
+		{ID: 53, Name: permissions.ParentStudentAddAny},
+		{ID: 54, Name: permissions.ParentStudentAddOwn},
 		{ID: 55, Name: permissions.ParentStudentUnassignAny},
 		{ID: 56, Name: permissions.ParentStudentUnassignOwn},
 		{ID: 57, Name: permissions.ParentReadOther},
@@ -202,7 +202,7 @@ func main() {
 	}
 
 	adminPermissions := []string{
-		"post.create", "post.read.any", "post.read.own", "post.update.any", "post.update.own", "post.delete.any", "post.delete.own", "post.photo.delete.any", "post.photo.delete.own", "post.verify", "post.mark.returned.any", "post.mark.returned.own", "user.read.own", "user.read.other", "user.read.all", "user.update.own", "user.delete.any", "user.delete.own", "room.create", "room.read", "room.update", "room.delete", "subject.create", "subject.read", "subject.update", "subject.delete", "student_group.create", "student_group.read.any", "student_group.update", "student_group.delete", "student_group.advisor.assign", "student_group.advisor.unassign", "student_group.advisor.read", "teacher.subject.read.any", "teacher.subject.add.any", "teacher.subject.assign.any", "teacher.subject.unassign.any", "teacher.classroom.read.any", "teacher.classroom.assign.any", "teacher.classroom.unassign.any", "teacher.read.other", "parent.student.read.any", "parent.student.assign.any", "parent.student.unassign.any", "parent.read.other", "role.assign", "role.add", "role.delete", "role.read.any", "role.read.own", "token.invite.user.create", "token.invite.user.delete", "student.read.other", "student.classroom.read.any", "student.advisor.read.any", "student.parent.read.any", "institution_administrator.read.other", "institution_administrator.position.assign", "institution_administrator.position.read", "staff.read.other", "staff.position.assign", "staff.position.read",
+		"post.create", "post.read.any", "post.read.own", "post.update.any", "post.update.own", "post.delete.any", "post.delete.own", "post.photo.delete.any", "post.photo.delete.own", "post.verify", "post.mark.returned.any", "post.mark.returned.own", "user.read.own", "user.read.other", "user.read.all", "user.update.own", "user.delete.any", "user.delete.own", "room.create", "room.read", "room.update", "room.delete", "subject.create", "subject.read", "subject.update", "subject.delete", "student_group.create", "student_group.read.any", "student_group.update", "student_group.delete", "student_group.advisor.assign", "student_group.advisor.unassign", "student_group.advisor.read", "teacher.subject.read.any", "teacher.subject.add.any", "teacher.subject.assign.any", "teacher.subject.unassign.any", "teacher.classroom.read.any", "teacher.classroom.assign.any", "teacher.classroom.unassign.any", "teacher.read.other", "parent.student.read.any", "parent.student.add.any", "parent.student.unassign.any", "parent.read.other", "role.assign", "role.add", "role.delete", "role.read.any", "role.read.own", "token.invite.user.create", "token.invite.user.delete", "student.read.other", "student.classroom.read.any", "student.advisor.read.any", "student.parent.read.any", "institution_administrator.read.other", "institution_administrator.position.assign", "institution_administrator.position.read", "staff.read.other", "staff.position.assign", "staff.position.read",
 	}
 
 	institutionAdministratorPermissions := []string{
@@ -218,7 +218,7 @@ func main() {
 	}
 
 	parentPermissions := []string{
-		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "room.read", "subject.read", "student_group.read.any", "student_group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.student.read.own", "parent.student.assign.own", "parent.student.unassign.own", "parent.read.other", "parent.read.own", "role.read.any", "role.read.own", "student.read.other", "student.classroom.read.any", "student.advisor.read.any", "student.parent.read.any", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read", "parent.student_group.read.own",
+		"post.create", "post.read.own", "post.update.own", "post.delete.own", "post.photo.delete.own", "post.mark.returned.own", "user.read.own", "user.read.other", "user.update.own", "user.delete.own", "room.read", "subject.read", "student_group.read.any", "student_group.advisor.read", "teacher.subject.read.any", "teacher.classroom.read.any", "teacher.read.other", "parent.student.read.own", "parent.student.add.own", "parent.student.unassign.own", "parent.read.other", "parent.read.own", "role.read.any", "role.read.own", "student.read.other", "student.classroom.read.any", "student.advisor.read.any", "student.parent.read.any", "institution_administrator.read.other", "institution_administrator.position.read", "staff.read.other", "staff.position.read", "parent.student_group.read.own",
 	}
 
 	studentPermissions := []string{

@@ -79,8 +79,8 @@ const (
 const (
 	ParentStudentReadAny      = "parent.student.read.any"
 	ParentStudentReadOwn      = "parent.student.read.own"
-	ParentStudentAssignAny    = "parent.student.assign.any"
-	ParentStudentAssignOwn    = "parent.student.assign.own"
+	ParentStudentAddAny       = "parent.student.add.any"
+	ParentStudentAddOwn       = "parent.student.add.own"
 	ParentStudentUnassignAny  = "parent.student.unassign.any"
 	ParentStudentUnassignOwn  = "parent.student.unassign.own"
 	ParentReadOther           = "parent.read.other"
