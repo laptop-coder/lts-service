@@ -133,18 +133,11 @@ func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto Update
 
 func (s *subjectService) DeleteSubject(ctx context.Context, id uint8) error {
 	s.log.Info("Starting subject deletion...")
-	// Getting existing subject
-	_, err := s.subjectRepo.FindByID(ctx, &id) // does it necessary?
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Subject for delete was not found by id", "subject id", id, "error", err)
-			return fmt.Errorf("subject with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get subject for delete", "subject id", id, "error", err)
-		return fmt.Errorf("failed to get subject for delete: %w", err)
-	}
-	// Delete subject
 	if err := s.subjectRepo.Delete(ctx, &id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Subject does not exist", "subject id", id, "error", err)
+			return fmt.Errorf("subject with id %d does not exist: %w", id, err)
+		}
 		s.log.Error("Failed to delete the subject")
 		return fmt.Errorf("failed to delete the subject: %w", err)
 	}

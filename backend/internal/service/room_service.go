@@ -144,18 +144,11 @@ func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDT
 
 func (s *roomService) DeleteRoom(ctx context.Context, id uint8) error {
 	s.log.Info("Starting room deletion...")
-	// Getting existing room
-	_, err := s.roomRepo.FindByID(ctx, &id) // does it necessary?
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Room for delete was not found by id", "room id", id, "error", err)
-			return fmt.Errorf("room with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get room for delete", "room id", id, "error", err)
-		return fmt.Errorf("failed to get room for delete: %w", err)
-	}
-	// Delete room
 	if err := s.roomRepo.Delete(ctx, &id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Room does not exist", "room id", id, "error", err)
+			return fmt.Errorf("room with id %d does not exist: %w", id, err)
+		}
 		s.log.Error("Failed to delete the room")
 		return fmt.Errorf("failed to delete the room: %w", err)
 	}
