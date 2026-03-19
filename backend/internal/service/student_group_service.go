@@ -13,6 +13,7 @@ type StudentGroupService interface {
 	GetStudentGroups(ctx context.Context, filter repository.StudentGroupFilter) ([]StudentGroupResponseDTO, error)
 	GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error)
 	GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
+	DeleteStudentGroup(ctx context.Context, id uint16) error
 }
 
 type studentGroupService struct {
@@ -90,4 +91,18 @@ func (s *studentGroupService) GetStudentGroups(ctx context.Context, filter repos
 	}
 	s.log.Info("successfully received the list of student groups")
 	return studentGroupDTOs, nil
+}
+
+func (s *studentGroupService) DeleteStudentGroup(ctx context.Context, id uint16) error {
+	s.log.Info("Starting student group deletion...")
+	if err := s.studentGroupRepo.Delete(ctx, &id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Student group does not exist", "group id", id, "error", err)
+			return fmt.Errorf("student group with id %d does not exist: %w", id, err)
+		}
+		s.log.Error("Failed to delete the student group")
+		return fmt.Errorf("failed to delete the student group: %w", err)
+	}
+	s.log.Info("Student group deleted successfully")
+	return nil
 }

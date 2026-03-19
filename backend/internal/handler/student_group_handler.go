@@ -34,7 +34,7 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	groupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert groupID from string to uint64")
-		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusBadRequest)
 		return
 	}
 	// to uint16:
@@ -122,7 +122,7 @@ func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http
 	groupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert groupID from string to uint64")
-		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusBadRequest) // TODO: maybe change InternalServerError to BadRequest in the similar places in the whole code
 		return
 	}
 	// to uint16:
@@ -137,4 +137,26 @@ func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http
 	helpers.SuccessResponse(w, map[string]interface{}{
 		"studentGroup": response,
 	})
+}
+
+func (h *StudentGroupHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert student group ID
+	studentGroupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert student group ID from string to uint64", http.StatusBadRequest)
+		return
+	}
+	studentGroupID := uint16(studentGroupID64)
+	// Delete student group
+	if err := h.studentGroupService.DeleteStudentGroup(r.Context(), studentGroupID); err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to delete the student group: %w", err))
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
