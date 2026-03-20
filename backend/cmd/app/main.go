@@ -82,7 +82,7 @@ func main() {
 	authService := service.NewAuthService(userRepo, jwtRepo, db, serviceConfigs.Auth, log)
 	userService := service.NewUserService(userRepo, studentRepo, roomRepo, db, serviceConfigs.User, log)
 	postService := service.NewPostService(postRepo, db, serviceConfigs.Post, log)
-	studentGroupService := service.NewStudentGroupService(studentGroupRepo, db, log)
+	studentGroupService := service.NewStudentGroupService(userRepo, studentGroupRepo, db, log)
 	roomService := service.NewRoomService(roomRepo, db, log)
 	subjectService := service.NewSubjectService(subjectRepo, db, log)
 	studentService := service.NewStudentService(studentRepo, studentGroupRepo, userRepo, teacherRepo, db, log)
