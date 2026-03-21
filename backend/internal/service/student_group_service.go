@@ -133,6 +133,10 @@ func (s *studentGroupService) AssignAdvisor(ctx context.Context, groupID uint16,
 		}
 		return fmt.Errorf("failed to find student group: %w", err)
 	}
+	// Check if group already has an advisor
+	if group.GroupAdvisorID != nil {
+		return fmt.Errorf("conflict: student group already has an advisor")
+	}
 	// Check if user has a teacher role
 	isTeacher := false
 	for _, role := range user.Roles {
