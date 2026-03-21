@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"slices"
 	"backend/internal/repository"
+	"backend/internal/permissions"
 	"backend/internal/service"
 	"backend/pkg/helpers"
+	"backend/pkg/middleware"
 	"backend/pkg/logger"
 	"fmt"
 	"github.com/google/uuid"
@@ -12,12 +15,14 @@ import (
 )
 
 type StudentGroupHandler struct {
+	teacherService service.TeacherService
 	studentGroupService service.StudentGroupService
 	log                 logger.Logger
 }
 
-func NewStudentGroupHandler(studentGroupService service.StudentGroupService, log logger.Logger) *StudentGroupHandler {
+func NewStudentGroupHandler(teacherService service.TeacherService, studentGroupService service.StudentGroupService, log logger.Logger) *StudentGroupHandler {
 	return &StudentGroupHandler{
+		teacherService: teacherService,
 		studentGroupService: studentGroupService,
 		log:                 log,
 	}
@@ -210,4 +215,59 @@ func (h *StudentGroupHandler) AssignAdvisor(w http.ResponseWriter, r *http.Reque
 	}, http.StatusCreated) // TODO: check that in other, e.g., POST requests
 	                       // there is 201 instead of 200. The same for other
 						   // requests.
+}
+
+func (h *StudentGroupHandler) UnassignAdvisor(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert (to uint16) student group ID
+	studentGroupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert student group ID from string to uint64", http.StatusBadRequest) // TODO: use BadRequest instead of InternalServerError in the whole code like here (when cannot convert parameter)
+		return
+	}
+	studentGroupID := uint16(studentGroupID64)
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if user unassigning himself
+	if slices.Contains(userPermissions, permissions.StudentGroupAdvisorUnassignOwn) && !slices.Contains(userPermissions, permissions.StudentGroupAdvisorUnassignAny) {
+		// Get and convert user ID
+		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+		if !ok {
+			helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		// Get teacher
+		teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
+		if err != nil || teacher == nil {
+			helpers.HandleServiceError(w, fmt.Errorf("failed to find the teacher by ID: %w", err))
+			return
+		}
+		// Check if the teacher is advisor of the student group
+		isAdvisor := false
+		if len(teacher.StudentGroups) > 0 {
+			for _, group := range teacher.StudentGroups {
+				if studentGroupID == group.ID {
+					isAdvisor = true
+				}
+			}
+		}
+		if !isAdvisor {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to unassign advisor from this student group", http.StatusForbidden)
+			return
+		}
+	}
+	// Unassign advisor
+	if err := h.studentGroupService.UnassignAdvisor(r.Context(), studentGroupID); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }

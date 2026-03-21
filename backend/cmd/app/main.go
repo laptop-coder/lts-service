@@ -97,7 +97,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService, userService, serviceConfigs.Auth, log)
 	userHandler := handler.NewUserHandler(userService, log)
 	postHandler := handler.NewPostHandler(postService, log)
-	studentGroupHandler := handler.NewStudentGroupHandler(studentGroupService, log)
+	studentGroupHandler := handler.NewStudentGroupHandler(teacherService, studentGroupService, log)
 	roomHandler := handler.NewRoomHandler(roomService, log)
 	subjectHandler := handler.NewSubjectHandler(subjectService, log)
 	studentHandler := handler.NewStudentHandler(studentService, log)
