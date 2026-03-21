@@ -50,7 +50,8 @@ const (
 	StudentGroupUpdate          = "student_group.update"
 	StudentGroupDelete          = "student_group.delete"
 	StudentGroupAdvisorAssign   = "student_group.advisor.assign"
-	StudentGroupAdvisorUnassign = "student_group.advisor.unassign"
+	StudentGroupAdvisorUnassignAny = "student_group.advisor.unassign.any"
+	StudentGroupAdvisorUnassignOwn = "student_group.advisor.unassign.own"
 	StudentGroupAdvisorRead     = "student_group.advisor.read"
 )
 
