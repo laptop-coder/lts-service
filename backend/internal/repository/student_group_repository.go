@@ -17,6 +17,7 @@ type StudentGroupRepository interface {
 	FindAdvisorByGroupID(ctx context.Context, id *uint16) (*model.User, error)
 	Update(ctx context.Context, studentGroup *model.StudentGroup) error
 	Delete(ctx context.Context, id *uint16) error
+	ExistsByName(ctx context.Context, name *string) (bool, error)
 }
 
 type studentGroupRepository struct {
@@ -143,4 +144,13 @@ func (r *studentGroupRepository) Delete(ctx context.Context, id *uint16) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (r *studentGroupRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&model.StudentGroup{}).
+		Where("name = ?", name).
+		Count(&count).Error
+	return count > 0, err
 }
