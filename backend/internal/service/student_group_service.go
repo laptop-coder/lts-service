@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -105,8 +106,8 @@ func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto Create
 }
 
 func (s *studentGroupService) validateCreateStudentGroupDTO(dto *CreateStudentGroupDTO) error {
-	if dto.Name == "" {
-		return fmt.Errorf("name is required")
+	if strings.TrimSpace(dto.Name) == "" {
+		return fmt.Errorf("name cannot be empty or only whitespace")
 	}
 	if len(dto.Name) < 1 {
 		return fmt.Errorf("name must be at least 1 character")
