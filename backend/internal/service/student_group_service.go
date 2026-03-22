@@ -1,7 +1,6 @@
 package service
 
 import (
-	"strings"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -10,6 +9,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type StudentGroupService interface {
@@ -17,6 +17,7 @@ type StudentGroupService interface {
 	GetStudentGroups(ctx context.Context, filter repository.StudentGroupFilter) ([]StudentGroupResponseDTO, error)
 	GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error)
 	GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
+	UpdateStudentGroup(ctx context.Context, id uint16, dto UpdateStudentGroupDTO) (*StudentGroupResponseDTO, error)
 	DeleteStudentGroup(ctx context.Context, id uint16) error
 	AssignAdvisor(ctx context.Context, groupID uint16, userID uuid.UUID) error
 	UnassignAdvisor(ctx context.Context, groupID uint16) error
@@ -45,6 +46,11 @@ func NewStudentGroupService(
 
 type CreateStudentGroupDTO struct {
 	Name           string     `form:"name" validate:"required,min=1,max=20"`
+	GroupAdvisorID *uuid.UUID `form:"advisorId,omitempty"`
+}
+
+type UpdateStudentGroupDTO struct {
+	Name           *string    `form:"name,omitempty" validate:"omitempty,min=1,max=20"`
 	GroupAdvisorID *uuid.UUID `form:"advisorId,omitempty"`
 }
 
@@ -105,6 +111,75 @@ func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto Create
 	return StudentGroupToDTO(createdGroup), nil
 }
 
+func (s *studentGroupService) UpdateStudentGroup(ctx context.Context, id uint16, dto UpdateStudentGroupDTO) (*StudentGroupResponseDTO, error) {
+	// Input data validation
+	if err := s.validateUpdateStudentGroupDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during student group update: %w", err)
+	}
+	// Get existing group
+	group, err := s.studentGroupRepo.FindByID(ctx, &id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("student group with ID %s was not found", id)
+		}
+		return nil, fmt.Errorf("failed to get student group with ID %s: %w", id, err)
+	}
+	// Track updated fields
+	updatedFields := make([]string, 0)
+	// Update name if provided and changed
+	if dto.Name != nil && *dto.Name != group.Name {
+		// Check name uniqueness
+		exists, err := s.studentGroupRepo.ExistsByName(ctx, dto.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
+		}
+		if exists {
+			return nil, fmt.Errorf("student group with name %s already exists", dto.Name)
+		}
+		group.Name = *dto.Name
+		updatedFields = append(updatedFields, "name")
+	}
+	// Update advisor ID if provided and changed
+	if dto.GroupAdvisorID != nil &&
+		(group.GroupAdvisorID == nil || (*dto.GroupAdvisorID != *group.GroupAdvisorID)) {
+		// Check if advisor exists and has the teacher role
+		user, err := s.userRepo.FindByID(ctx, dto.GroupAdvisorID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, fmt.Errorf("user with ID %s was not found", dto.GroupAdvisorID)
+			}
+		}
+		isTeacher := false
+		for _, role := range user.Roles {
+			if role.Name == "teacher" {
+				isTeacher = true
+				break
+			}
+		}
+		if !isTeacher {
+			return nil, fmt.Errorf("user with ID %s is not a teacher and cannot be student group advisor", dto.GroupAdvisorID)
+		}
+		group.GroupAdvisorID = dto.GroupAdvisorID
+		updatedFields = append(updatedFields, "advisor ID")
+	}
+	// No changes to update, return existing group
+	if len(updatedFields) == 0 {
+		s.log.Info("No changes to update student group", "group ID", id)
+		return StudentGroupToDTO(group), nil
+	}
+	// Update student group in DB
+	if err := s.studentGroupRepo.Update(ctx, group); err != nil {
+		return nil, fmt.Errorf("failed to update student group: %w", err)
+	}
+	// Get updated group for response
+	updatedGroup, err := s.studentGroupRepo.FindByID(ctx, &group.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch updated student group: %w", err)
+	}
+	s.log.Info("Student group was updated successfully", "group ID", id, "updated fields", updatedFields)
+	return StudentGroupToDTO(updatedGroup), nil
+}
+
 func (s *studentGroupService) validateCreateStudentGroupDTO(dto *CreateStudentGroupDTO) error {
 	if strings.TrimSpace(dto.Name) == "" {
 		return fmt.Errorf("name cannot be empty or only whitespace")
@@ -114,6 +189,21 @@ func (s *studentGroupService) validateCreateStudentGroupDTO(dto *CreateStudentGr
 	}
 	if len(dto.Name) > 20 {
 		return fmt.Errorf("name must be at most 20 characters")
+	}
+	return nil
+}
+
+func (s *studentGroupService) validateUpdateStudentGroupDTO(dto *UpdateStudentGroupDTO) error {
+	if dto.Name != nil {
+		if strings.TrimSpace(*dto.Name) == "" {
+			return fmt.Errorf("name cannot be empty or only whitespace")
+		}
+		if len(*dto.Name) < 1 {
+			return fmt.Errorf("name must be at least 1 character")
+		}
+		if len(*dto.Name) > 20 {
+			return fmt.Errorf("name must be at most 20 characters")
+		}
 	}
 	return nil
 }
