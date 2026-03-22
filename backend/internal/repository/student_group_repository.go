@@ -147,6 +147,9 @@ func (r *studentGroupRepository) Delete(ctx context.Context, id *uint16) error {
 }
 
 func (r *studentGroupRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
+	if name == nil {
+		return false, fmt.Errorf("name cannot be nil")
+	}
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.StudentGroup{}).
