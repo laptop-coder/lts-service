@@ -296,7 +296,7 @@ func (h *StudentGroupHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Advisor ID (optional field)
-	if advisorIDFields := r.PostForm["advisorID"]; len(advisorIDFields) == 1 {
+	if advisorIDFields := r.PostForm["advisorId"]; len(advisorIDFields) == 1 {
 		advisorID, err := uuid.Parse(advisorIDFields[0])
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert advisor id to uuid", http.StatusBadRequest)
@@ -350,7 +350,7 @@ func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorResponse(w, "failed to parse form: too much name fields", http.StatusBadRequest)
 		return
 	}
-	if advisorIDFields := r.PostForm["advisorID"]; len(advisorIDFields) == 1 {
+	if advisorIDFields := r.PostForm["advisorId"]; len(advisorIDFields) == 1 {
 		advisorID, err := uuid.Parse(advisorIDFields[0])
 		if err != nil {
 			helpers.ErrorResponse(w, "cannot convert advisor id to uuid", http.StatusBadRequest)
