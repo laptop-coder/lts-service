@@ -67,13 +67,6 @@ type TeacherResponseDTO struct {
 	StudentGroups []StudentGroupResponseDTO `json:"studentGroups,omitempty"`
 }
 
-type StudentGroupResponseDTO struct {
-	ID        uint16 `json:"id"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
-	Name      string `json:"name"`
-}
-
 func StudentGroupToDTO(studentGroup *model.StudentGroup) *StudentGroupResponseDTO {
 	return &StudentGroupResponseDTO{
 		CreatedAt: studentGroup.CreatedAt.Format(time.RFC3339),

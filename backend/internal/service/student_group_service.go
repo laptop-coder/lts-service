@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
@@ -11,6 +12,7 @@ import (
 )
 
 type StudentGroupService interface {
+	CreateStudentGroup(ctx context.Context, dto CreateStudentGroupDTO) (*StudentGroupResponseDTO, error)
 	GetStudentGroups(ctx context.Context, filter repository.StudentGroupFilter) ([]StudentGroupResponseDTO, error)
 	GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error)
 	GetAdvisorByGroupID(ctx context.Context, id uint16) (*UserResponseDTO, error)
@@ -27,7 +29,7 @@ type studentGroupService struct {
 }
 
 func NewStudentGroupService(
-	userRepo         repository.UserRepository,
+	userRepo repository.UserRepository,
 	studentGroupRepo repository.StudentGroupRepository,
 	db *gorm.DB,
 	log logger.Logger,
@@ -38,6 +40,81 @@ func NewStudentGroupService(
 		db:               db,
 		log:              log,
 	}
+}
+
+type CreateStudentGroupDTO struct {
+	Name           string     `form:"name" validate:"required,min=1,max=20"`
+	GroupAdvisorID *uuid.UUID `form:"advisorId,omitempty"`
+}
+
+type StudentGroupResponseDTO struct {
+	ID             uint16     `json:"id"`
+	CreatedAt      string     `json:"createdAt"`
+	UpdatedAt      string     `json:"updatedAt"`
+	Name           string     `json:"name"`
+	GroupAdvisorID *uuid.UUID `json:"advisorId,omitempty"`
+}
+
+func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto CreateStudentGroupDTO) (*StudentGroupResponseDTO, error) {
+	// Input data validation
+	if err := s.validateCreateStudentGroupDTO(&dto); err != nil {
+		return nil, fmt.Errorf("validation error during student group creation: %w", err)
+	}
+	// Check name uniqueness
+	exists, err := s.studentGroupRepo.ExistsByName(ctx, &dto.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
+	}
+	if exists {
+		return nil, fmt.Errorf("student group with name %s already exists", dto.Name)
+	}
+	// Check if advisor exists and has the teacher role (if provided)
+	if dto.GroupAdvisorID != nil {
+		user, err := s.userRepo.FindByID(ctx, dto.GroupAdvisorID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, fmt.Errorf("user with ID %s was not found", dto.GroupAdvisorID)
+			}
+		}
+		isTeacher := false
+		for _, role := range user.Roles {
+			if role.Name == "teacher" {
+				isTeacher = true
+				break
+			}
+		}
+		if !isTeacher {
+			return nil, fmt.Errorf("user with ID %s is not a teacher and cannot be student group advisor", dto.GroupAdvisorID)
+		}
+	}
+	// Create student group
+	group := &model.StudentGroup{
+		Name:           dto.Name,
+		GroupAdvisorID: dto.GroupAdvisorID,
+	}
+	if err := s.studentGroupRepo.Create(ctx, group); err != nil {
+		return nil, fmt.Errorf("failed to create student group: %w", err)
+	}
+	// Get created group for response
+	createdGroup, err := s.studentGroupRepo.FindByID(ctx, &group.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch create student group: %w", err)
+	}
+	s.log.Info("Student group was created successfully", "group ID", createdGroup.ID, "group name", createdGroup.Name)
+	return StudentGroupToDTO(createdGroup), nil
+}
+
+func (s *studentGroupService) validateCreateStudentGroupDTO(dto *CreateStudentGroupDTO) error {
+	if dto.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+	if len(dto.Name) < 1 {
+		return fmt.Errorf("name must be at least 1 character")
+	}
+	if len(dto.Name) > 20 {
+		return fmt.Errorf("name must be at most 20 characters")
+	}
+	return nil
 }
 
 func (s *studentGroupService) GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error) {
