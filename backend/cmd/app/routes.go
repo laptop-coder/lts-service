@@ -27,6 +27,7 @@ func SetupRoutes(
 	staffHandler *handler.StaffHandler,
 	institutionAdministratorHandler *handler.InstitutionAdministratorHandler,
 	roleHandler *handler.RoleHandler,
+	inviteHandler *handler.InviteHandler,
 ) {
 	// Public routes (no auth required)
 	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
@@ -129,6 +130,8 @@ func SetupRoutes(
 	mux.Handle("GET /api/v1/institution_administrator/me", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOwn)(http.HandlerFunc(institutionAdministratorHandler.GetOwn))))
 	mux.Handle("PUT /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionAssign)(http.HandlerFunc(institutionAdministratorHandler.AssignPosition))))
 	mux.Handle("GET /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionRead)(http.HandlerFunc(institutionAdministratorHandler.GetPosition))))
+	// Invite tokens
+	mux.Handle("POST /api/v1/tokens/invite", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminCreate, permissions.TokenInviteUserCreate)(http.HandlerFunc(inviteHandler.Create))))
 	// Roles
 	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
 	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))

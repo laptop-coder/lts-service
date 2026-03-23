@@ -73,6 +73,7 @@ func main() {
 	teacherRepo := repository.NewTeacherRepository(db, log)
 	parentRepo := repository.NewParentRepository(db, log)
 	staffRepo := repository.NewStaffRepository(db, log)
+	roleRepo := repository.NewRoleRepository(db, log)
 	institutionAdministratorRepo := repository.NewInstitutionAdministratorRepository(db, log)
 
 	// Services
@@ -91,6 +92,7 @@ func main() {
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
 	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
+	inviteService := service.NewInviteService(jwtRepo, roleRepo, db, serviceConfigs.Invite, log)
 
 	// Handlers
 	log.Info("Initializing handlers...")
@@ -106,6 +108,7 @@ func main() {
 	staffHandler := handler.NewStaffHandler(staffService, log)
 	institutionAdministratorHandler := handler.NewInstitutionAdministratorHandler(institutionAdministratorService, log)
 	roleHandler := handler.NewRoleHandler(roleService, log)
+	inviteHandler := handler.NewInviteHandler(inviteService, serviceConfigs.Invite, log)
 
 	mux := http.NewServeMux()
 	authMiddleware := middleware.Auth(authService, serviceConfigs.Auth, jwtRepo, db, log)
@@ -130,6 +133,7 @@ func main() {
 		staffHandler,
 		institutionAdministratorHandler,
 		roleHandler,
+		inviteHandler,
 	)
 
 	// Middleware
