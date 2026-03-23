@@ -73,8 +73,10 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*st
 	// Assemble claims
 	claims := InviteTokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer: s.config.TokenIssuer,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.config.TokenExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
 			ID:        uuid.New().String(),
 		},
 		RoleIDs: roleIDs,
