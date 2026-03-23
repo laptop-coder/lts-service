@@ -132,6 +132,7 @@ func SetupRoutes(
 	mux.Handle("GET /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionRead)(http.HandlerFunc(institutionAdministratorHandler.GetPosition))))
 	// Invite tokens
 	mux.Handle("POST /api/v1/tokens/invite", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminCreate, permissions.TokenInviteUserCreate)(http.HandlerFunc(inviteHandler.Create))))
+	mux.Handle("DELETE /api/v1/tokens/invite/{token}", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminDelete, permissions.TokenInviteUserDelete)(http.HandlerFunc(inviteHandler.Revoke))))
 	// Roles
 	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
 	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))

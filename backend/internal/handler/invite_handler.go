@@ -89,3 +89,61 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		"inviteToken": *token,
 	}, http.StatusCreated)
 }
+
+func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get token
+	token := r.PathValue("token")
+	// Parse token
+	claims, err := h.inviteService.ParseToken(token)
+	if err != nil || claims == nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	// Get roleIDs
+	roleIDsInt := claims.RoleIDs
+	if len(roleIDsInt) == 0 {
+		helpers.ErrorResponse(w, "list of role IDs cannot be nil", http.StatusInternalServerError) // HTTP 500 because token was signed by server
+		return
+	}
+	// Convert role IDs from int to uint8
+	roleIDs := make([]uint8, len(roleIDsInt))
+	for i, roleID := range roleIDsInt {
+		roleIDs[i] = uint8(roleID)
+	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Depending on whether token is for admin (role 2) or user (roles 3-7)
+	// registration require different permissions
+	// admin:
+	if slices.Contains(roleIDs, 2) {
+		if !slices.Contains(userPermissions, permissions.TokenInviteAdminDelete) {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to revoke invite token for admin account registration", http.StatusForbidden)
+			return
+		}
+	}
+	// user:
+	for _, roleID := range roleIDs {
+		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
+			if !slices.Contains(userPermissions, permissions.TokenInviteUserDelete) {
+				helpers.ErrorResponse(w, "forbidden: you do not have permission to revoke invite token for user account registration", http.StatusForbidden)
+				return
+			}
+			break
+		}
+	}
+	// Revoke token
+	err = h.inviteService.RevokeToken(r.Context(), token)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
