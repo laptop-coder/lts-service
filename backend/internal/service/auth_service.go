@@ -130,6 +130,7 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 
 func (s *authService) RevokeToken(ctx context.Context, token string) error {
 	s.log.Info("Revoking token")
+	// TODO: maybe add check that token was already revoked (like in invite service)
 	// Parse
 	parsedToken, err := s.ParseToken(token)
 	if err != nil || parsedToken == nil {
@@ -197,7 +198,7 @@ func (s *authService) createToken(userID uuid.UUID, email string, roles []string
 	return &tokenString, nil
 }
 
-func (s *authService) validateToken(tokenString string, expectedType TokenType) (*TokenClaims, error) {
+func (s *authService) validateToken(tokenString string, expectedType TokenType) (*TokenClaims, error) { // TODO: is it necessary? Doesn't it duplicate parseToken method?
 	// Parse token
 	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

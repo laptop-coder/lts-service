@@ -2,6 +2,7 @@ package config
 
 import (
 	"backend/pkg/env"
+	"fmt"
 	"path/filepath"
 	"time"
 )
@@ -13,10 +14,13 @@ type SharedConfig struct {
 
 type SecurityConfig struct {
 	BcryptCost         int
-	JWTSecret          []byte
+	AuthJWTSecret      []byte
+	InviteJWTSecret    []byte
 	AccessTokenExpiry  time.Duration
 	RefreshTokenExpiry time.Duration
-	TokenIssuer        string
+	InviteTokenExpiry  time.Duration
+	AuthTokenIssuer    string
+	InviteTokenIssuer  string
 	CookieSecure       bool
 }
 
@@ -35,10 +39,13 @@ func LoadSharedConfig() SharedConfig {
 	return SharedConfig{
 		Security: SecurityConfig{
 			BcryptCost:         15, // minimal is 4, maximum is 31, default is 10
-			JWTSecret:          []byte(env.GetStringRequired("JWT_SECRET")),
+			AuthJWTSecret:      []byte(env.GetStringRequired("JWT_SECRET_AUTH")),
+			InviteJWTSecret:    []byte(env.GetStringRequired("JWT_SECRET_INVITE")),
 			AccessTokenExpiry:  time.Duration(time.Minute * 15),
 			RefreshTokenExpiry: time.Duration(time.Hour * 24 * 30),
-			TokenIssuer:        env.GetStringRequired("JWT_ISSUER"),
+			InviteTokenExpiry:  time.Duration(time.Hour * 24 * 7),
+			AuthTokenIssuer:    fmt.Sprintf("%s-auth", env.GetStringRequired("JWT_ISSUER_PREFIX")),
+			InviteTokenIssuer:  fmt.Sprintf("%s-invite", env.GetStringRequired("JWT_ISSUER_PREFIX")),
 			CookieSecure:       env.GetBoolRequired("COOKIE_SECURE"),
 		},
 		Storage: StorageConfig{

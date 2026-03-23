@@ -36,7 +36,7 @@ services:
       - RSA_PRIVATE_KEY=RSA_private_key.pem
       - RSA_PUBLIC_KEY=RSA_public_key.pem
       - POSTGRES_HOST=postgres
-      - JWT_ISSUER=lts-backend
+      - JWT_ISSUER_PREFIX=lts-backend
     env_file:
       - .env
     networks:

@@ -28,3 +28,9 @@ type AuthServiceConfig struct {
 	TokenIssuer        string
 	CookieSecure       bool
 }
+
+type InviteServiceConfig struct {
+	JWTSecret   []byte
+	TokenExpiry time.Duration
+	TokenIssuer string
+}

@@ -5,16 +5,18 @@ import (
 )
 
 type ServiceConfigs struct {
-	User service.UserServiceConfig
-	Post service.PostServiceConfig
-	Auth service.AuthServiceConfig
+	User   service.UserServiceConfig
+	Post   service.PostServiceConfig
+	Auth   service.AuthServiceConfig
+	Invite service.InviteServiceConfig
 }
 
 func NewServiceConfigs(sharedConfig SharedConfig) ServiceConfigs {
 	return ServiceConfigs{
-		User: newUserServiceConfig(sharedConfig),
-		Post: newPostServiceConfig(sharedConfig),
-		Auth: newAuthServiceConfig(sharedConfig),
+		User:   newUserServiceConfig(sharedConfig),
+		Post:   newPostServiceConfig(sharedConfig),
+		Auth:   newAuthServiceConfig(sharedConfig),
+		Invite: newInviteServiceConfig(sharedConfig),
 	}
 }
 
@@ -37,10 +39,18 @@ func newPostServiceConfig(sharedConfig SharedConfig) service.PostServiceConfig {
 
 func newAuthServiceConfig(sharedConfig SharedConfig) service.AuthServiceConfig {
 	return service.AuthServiceConfig{
-		JWTSecret:          sharedConfig.Security.JWTSecret,
+		JWTSecret:          sharedConfig.Security.AuthJWTSecret,
 		AccessTokenExpiry:  sharedConfig.Security.AccessTokenExpiry,
 		RefreshTokenExpiry: sharedConfig.Security.RefreshTokenExpiry,
-		TokenIssuer:        sharedConfig.Security.TokenIssuer,
+		TokenIssuer:        sharedConfig.Security.AuthTokenIssuer,
 		CookieSecure:       sharedConfig.Security.CookieSecure,
+	}
+}
+
+func newInviteServiceConfig(sharedConfig SharedConfig) service.InviteServiceConfig {
+	return service.InviteServiceConfig{
+		JWTSecret:   sharedConfig.Security.InviteJWTSecret,
+		TokenExpiry: sharedConfig.Security.InviteTokenExpiry,
+		TokenIssuer: sharedConfig.Security.InviteTokenIssuer,
 	}
 }
