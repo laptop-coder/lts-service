@@ -14,7 +14,7 @@ import (
 
 type InviteTokenClaims struct {
 	jwt.RegisteredClaims
-	RoleIDs []uint8 `json:"roleIds"`
+	RoleIDs []int `json:"roleIds"`
 }
 
 type InviteService interface {
@@ -70,6 +70,11 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*st
 	if int(count) != len(roleIDs) {
 		return nil, fmt.Errorf("some roles were not found by IDs")
 	}
+	// Convert role IDs from uint8 to int
+	roleIDsInt := make([]int, len(roleIDs))
+	for i, roleID := range roleIDs {
+		roleIDsInt[i] = int(roleID)
+	}
 	// Assemble claims
 	claims := InviteTokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -79,7 +84,7 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*st
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			ID:        uuid.New().String(),
 		},
-		RoleIDs: roleIDs,
+		RoleIDs: roleIDsInt,
 	}
 	// Create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -127,9 +132,14 @@ func (s *inviteService) GetRoles(ctx context.Context, tokenString string) ([]Rol
 		return nil, fmt.Errorf("failed to parse invite token")
 	}
 	// Get roleIDs
-	roleIDs := claims.RoleIDs
-	if len(roleIDs) == 0 {
+	roleIDsInt := claims.RoleIDs
+	if len(roleIDsInt) == 0 {
 		return nil, fmt.Errorf("list of the role IDs cannot be empty")
+	}
+	// Convert role IDs from int to uint8
+	roleIDs := make([]uint8, len(roleIDsInt))
+	for i, roleID := range roleIDsInt {
+		roleIDs[i] = uint8(roleID)
 	}
 	// Fetch roles
 	roles, err := s.roleRepo.FindByIDs(ctx, roleIDs)
