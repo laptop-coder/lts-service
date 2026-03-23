@@ -1,27 +1,28 @@
 package handler
 
 import (
-	"slices"
-	"backend/internal/service"
 	"backend/internal/permissions"
+	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"backend/pkg/middleware"
+	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 )
 
 type InviteHandler struct {
 	inviteService       service.InviteService
 	inviteServiceConfig service.InviteServiceConfig
-	log               logger.Logger
+	log                 logger.Logger
 }
 
 func NewInviteHandler(inviteService service.InviteService, inviteServiceConfig service.InviteServiceConfig, log logger.Logger) *InviteHandler {
 	return &InviteHandler{
 		inviteService:       inviteService,
 		inviteServiceConfig: inviteServiceConfig,
-		log:               log,
+		log:                 log,
 	}
 }
 
@@ -146,4 +147,26 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
+func (h *InviteHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get token
+	token := r.PathValue("token")
+	// Get roles
+	roles, err := h.inviteService.GetRoles(r.Context(), token)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	if len(roles) == 0 {
+		helpers.HandleServiceError(w, fmt.Errorf("list of roles cannot be nil"))
+		return
+	}
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"roles": roles,
+	})
 }

@@ -30,8 +30,10 @@ func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	var roles []model.Role
 	err := r.db.WithContext(ctx).
 		Model(&model.Role{}).
+		Preload("Permissions").
+		Find(&roles).
 		Order("name").
-		Find(&roles).Error
+		Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch roles list: %w", err)
 	}
@@ -42,6 +44,7 @@ func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint8) ([]model.Ro
 	var roles []model.Role
 	err := r.db.WithContext(ctx).
 		Where("id IN (?)", ids).
+		Preload("Permissions").
 		Find(&roles).
 		Order("name").
 		Error
