@@ -73,7 +73,7 @@ func (s *authService) Login(ctx context.Context, email string, password string) 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil, fmt.Errorf("invalid credentials (user with this email does not exist)")
 		}
-		return nil, nil, fmt.Errorf("failed to found user by email: %w", err)
+		return nil, nil, fmt.Errorf("failed to find user by email: %w", err)
 	}
 	// Compare passwords
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
@@ -92,10 +92,14 @@ func (s *authService) Login(ctx context.Context, email string, password string) 
 
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error) {
 	s.log.Info("Refreshing access token")
-	// Validate refresh token
-	claims, err := s.validateToken(refreshToken, RefreshToken)
-	if err != nil {
+	// Parse (and validate) refresh token
+	claims, err := s.ParseToken(refreshToken)
+	if err != nil || claims == nil { // TODO: check in the whole code like here
 		return nil, fmt.Errorf("invalid refresh token: %w", err)
+	}
+	// Check token type
+	if claims.TokenType != RefreshToken {
+		return nil, fmt.Errorf("invalid token type: expected refresh")
 	}
 	// Check if token is in black list (i.e. revoked)
 	revoked, err := s.jwtRepo.IsRevoked(ctx, refreshToken)
@@ -108,7 +112,7 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 	// Find user
 	user, err := s.userRepo.FindByID(ctx, &claims.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("user not found by id (%s): %w", &claims.UserID, err)
+		return nil, fmt.Errorf("user not found by id (%s): %w", claims.UserID, err)
 	}
 	// Generate new token pair
 	tokens, err := s.generateTokenPair(ctx, user)
@@ -116,11 +120,7 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 		return nil, fmt.Errorf("failed to generate new tokens: %w", err)
 	}
 	// Revoke old refresh token
-	parsedToken, err := s.ParseToken(refreshToken)
-	if err != nil || parsedToken == nil {
-		return nil, fmt.Errorf("failed to parse old refresh token: %w", err)
-	}
-	if err := s.jwtRepo.Revoke(ctx, refreshToken, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time)); err != nil {
+	if err := s.jwtRepo.Revoke(ctx, refreshToken, time.Until(claims.RegisteredClaims.ExpiresAt.Time)); err != nil {
 		return nil, fmt.Errorf("failed to revoke old refresh token: %w", err)
 	}
 	// Return response
@@ -130,17 +130,27 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 
 func (s *authService) RevokeToken(ctx context.Context, token string) error {
 	s.log.Info("Revoking token")
-	// TODO: maybe add check that token was already revoked (like in invite service)
-	// Parse
+	// Check if token was already revoked
+	revoked, err := s.jwtRepo.IsRevoked(ctx, token)
+	if err != nil {
+		return fmt.Errorf("failed to check if token was already revoked")
+	}
+	if revoked {
+		return fmt.Errorf("token was already revoked")
+	}
+	// Parse token
 	parsedToken, err := s.ParseToken(token)
 	if err != nil || parsedToken == nil {
 		return fmt.Errorf("failed to parse token: %w", err)
+	}
+	// Check if token already expired
+	if parsedToken.ExpiresAt.Time.Before(time.Now()) {
+		return fmt.Errorf("token already expired")
 	}
 	// Revoke
 	if err := s.jwtRepo.Revoke(ctx, token, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time)); err != nil {
 		return fmt.Errorf("failed to revoke token: %w", err)
 	}
-	// Return response
 	s.log.Info("Token revoked successfully")
 	return nil
 }
@@ -198,32 +208,6 @@ func (s *authService) createToken(userID uuid.UUID, email string, roles []string
 	return &tokenString, nil
 }
 
-func (s *authService) validateToken(tokenString string, expectedType TokenType) (*TokenClaims, error) { // TODO: is it necessary? Doesn't it duplicate parseToken method?
-	// Parse token
-	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(s.config.JWTSecret), nil
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %w", err)
-	}
-	if !token.Valid {
-		return nil, fmt.Errorf("invalid token")
-	}
-	claims, ok := token.Claims.(*TokenClaims)
-	if !ok {
-		return nil, fmt.Errorf("invalid claims format")
-	}
-	// Check token type
-	if claims.TokenType != expectedType {
-		return nil, fmt.Errorf("invalid token type: expected %s, got %s", expectedType, claims.TokenType)
-	}
-	// Return response
-	return claims, nil
-}
-
 func (s *authService) ParseToken(tokenString string) (*TokenClaims, error) {
 	// Parse token
 	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -237,6 +221,10 @@ func (s *authService) ParseToken(tokenString string) (*TokenClaims, error) {
 		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
 	if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
+		// Check token issuer
+		if claims.Issuer != s.config.TokenIssuer {
+			return nil, fmt.Errorf("invalid token issuer")
+		}
 		return claims, nil
 	}
 	return nil, fmt.Errorf("invalid token (failed to parse token)")
