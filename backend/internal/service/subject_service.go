@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -23,7 +24,7 @@ type CreateSubjectDTO struct {
 }
 
 type UpdateSubjectDTO struct {
-	Name *string `form:"name,omitempty" validate:"max=20"`
+	Name *string `form:"name,omitempty" validate:"max=100"` // TODO: check other (and this too) validation rules like here. Maybe there are mistakes
 }
 
 type SubjectResponseDTO struct {
@@ -55,6 +56,14 @@ func (s *subjectService) CreateSubject(ctx context.Context, dto CreateSubjectDTO
 	// Input data validation
 	if err := s.validateCreateSubjectDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during subject creation: %w", err)
+	}
+	// Check name uniqueness
+	exists, err := s.subjectRepo.ExistsByName(ctx, &dto.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
+	}
+	if exists {
+		return nil, fmt.Errorf("subject with name '%s' already exists", dto.Name)
 	}
 	// Creating model object
 	subject := &model.Subject{
@@ -114,11 +123,23 @@ func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto Update
 		s.log.Error("Failed to get subject for update", "subject id", id, "error", err)
 		return nil, fmt.Errorf("failed to get subject for update: %w", err)
 	}
-	// Updating field
+	// Update field if provided and was changed
 	if dto.Name != nil && *dto.Name != subject.Name {
+		// Check name uniqueness
+		exists, err := s.subjectRepo.ExistsByName(ctx, dto.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
+		}
+		if exists {
+			return nil, fmt.Errorf("subject with name '%s' already exists", dto.Name)
+		}
 		subject.Name = *dto.Name
+	} else {
+		// No changes to update, return existing subject
+		s.log.Info("No changes to update subject", "subject ID", id)
+		return SubjectToDTO(subject), nil
 	}
-	// Updating subject in DB
+	// Update subject in DB
 	if err := s.subjectRepo.Update(ctx, subject); err != nil {
 		s.log.Error("Failed to update the subject")
 		return nil, fmt.Errorf("failed to update the subject: %w", err)
@@ -147,11 +168,31 @@ func (s *subjectService) DeleteSubject(ctx context.Context, id uint8) error {
 
 func (s *subjectService) validateCreateSubjectDTO(dto *CreateSubjectDTO) error {
 	// TODO: check if teacher with this ID exists in DB
+	if strings.TrimSpace(dto.Name) == "" {
+		return fmt.Errorf("name cannot be empty or only whitespace")
+	}
+	if len(dto.Name) < 3 {
+		return fmt.Errorf("name must be at least 3 characters")
+	}
+	if len(dto.Name) > 100 {
+		return fmt.Errorf("name must be at most 100 characters")
+	}
 	return nil
 }
 
 func (s *subjectService) validateUpdateSubjectDTO(dto *UpdateSubjectDTO) error {
 	// TODO: check if teacher with this ID exists in DB
+	if dto.Name != nil {
+		if strings.TrimSpace(*dto.Name) == "" {
+			return fmt.Errorf("name cannot be only whitespace")
+		}
+		if len(*dto.Name) < 3 {
+			return fmt.Errorf("name must be at least 3 characters")
+		}
+		if len(*dto.Name) > 100 {
+			return fmt.Errorf("name must be at most 100 characters")
+		}
+	}
 	return nil
 }
 

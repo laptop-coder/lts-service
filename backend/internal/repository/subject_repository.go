@@ -15,6 +15,7 @@ type SubjectRepository interface {
 	FindByID(ctx context.Context, id *uint8) (*model.Subject, error)
 	Update(ctx context.Context, subject *model.Subject) error
 	Delete(ctx context.Context, id *uint8) error
+	ExistsByName(ctx context.Context, name *string) (bool, error)
 }
 
 type subjectRepository struct {
@@ -118,4 +119,16 @@ func (r *subjectRepository) Delete(ctx context.Context, id *uint8) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (r *subjectRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
+	if name == nil {
+		return false, fmt.Errorf("name cannot be nil")
+	}
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&model.Subject{}).
+		Where("name = ?", name).
+		Count(&count).Error
+	return count > 0, err
 }
