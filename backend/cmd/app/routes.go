@@ -127,10 +127,10 @@ func SetupRoutes(
 	mux.Handle("PUT /api/v1/staff/{id}/position", authMiddleware(requirePermissions(false, permissions.StaffPositionAssign)(http.HandlerFunc(staffHandler.AssignPosition))))
 	mux.Handle("GET /api/v1/staff/{id}/position", authMiddleware(requirePermissions(false, permissions.StaffPositionRead)(http.HandlerFunc(staffHandler.GetPosition))))
 	// Institution administrator
-	mux.Handle("GET /api/v1/institution_administrator/{id}", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOther)(http.HandlerFunc(institutionAdministratorHandler.GetInstitutionAdministratorByID))))
-	mux.Handle("GET /api/v1/institution_administrator/me", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOwn)(http.HandlerFunc(institutionAdministratorHandler.GetOwn))))
-	mux.Handle("PUT /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionAssign)(http.HandlerFunc(institutionAdministratorHandler.AssignPosition))))
-	mux.Handle("GET /api/v1/institution_administrator/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionRead)(http.HandlerFunc(institutionAdministratorHandler.GetPosition))))
+	mux.Handle("GET /api/v1/institution_administrators/{id}", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOther)(http.HandlerFunc(institutionAdministratorHandler.GetInstitutionAdministratorByID))))
+	mux.Handle("GET /api/v1/institution_administrators/me", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorReadOwn)(http.HandlerFunc(institutionAdministratorHandler.GetOwn))))
+	mux.Handle("PUT /api/v1/institution_administrators/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionAssign)(http.HandlerFunc(institutionAdministratorHandler.AssignPosition))))
+	mux.Handle("GET /api/v1/institution_administrators/{id}/position", authMiddleware(requirePermissions(false, permissions.InstitutionAdministratorPositionRead)(http.HandlerFunc(institutionAdministratorHandler.GetPosition))))
 	// Invite tokens
 	mux.Handle("POST /api/v1/tokens/invite", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminCreate, permissions.TokenInviteUserCreate)(http.HandlerFunc(inviteHandler.Create))))
 	mux.Handle("DELETE /api/v1/tokens/invite/{token}", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminDelete, permissions.TokenInviteUserDelete)(http.HandlerFunc(inviteHandler.Revoke))))
