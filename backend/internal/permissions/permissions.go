@@ -45,14 +45,14 @@ const (
 
 // Student group permissions
 const (
-	StudentGroupCreate          = "student_group.create"
-	StudentGroupReadAny         = "student_group.read.any"
-	StudentGroupUpdate          = "student_group.update"
-	StudentGroupDelete          = "student_group.delete"
-	StudentGroupAdvisorAssign   = "student_group.advisor.assign"
+	StudentGroupCreate             = "student_group.create"
+	StudentGroupReadAny            = "student_group.read.any"
+	StudentGroupUpdate             = "student_group.update"
+	StudentGroupDelete             = "student_group.delete"
+	StudentGroupAdvisorAssign      = "student_group.advisor.assign"
 	StudentGroupAdvisorUnassignAny = "student_group.advisor.unassign.any"
 	StudentGroupAdvisorUnassignOwn = "student_group.advisor.unassign.own"
-	StudentGroupAdvisorRead     = "student_group.advisor.read"
+	StudentGroupAdvisorRead        = "student_group.advisor.read"
 )
 
 // Teacher permissions
@@ -133,4 +133,20 @@ const (
 	StaffReadOwn        = "staff.read.own"
 	StaffPositionAssign = "staff.position.assign"
 	StaffPositionRead   = "staff.position.read"
+)
+
+// Position institution administrator
+const (
+	PositionInstitutionAdministratorCreate = "position.institution_administrator.create"
+	PositionInstitutionAdministratorRead   = "position.institution_administrator.read"
+	PositionInstitutionAdministratorUpdate = "position.institution_administrator.update"
+	PositionInstitutionAdministratorDelete = "position.institution_administrator.delete"
+)
+
+// Position staff
+const (
+	PositionStaffCreate = "position.staff.create"
+	PositionStaffRead   = "position.staff.read"
+	PositionStaffUpdate = "position.staff.update"
+	PositionStaffDelete = "position.staff.delete"
 )

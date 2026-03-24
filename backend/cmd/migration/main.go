@@ -188,6 +188,14 @@ func main() {
 		{ID: 84, Name: permissions.StaffReadOwn},
 		{ID: 85, Name: permissions.StaffPositionAssign},
 		{ID: 86, Name: permissions.StaffPositionRead},
+		{ID: 87, Name: permissions.PositionInstitutionAdministratorCreate},
+		{ID: 88, Name: permissions.PositionInstitutionAdministratorRead},
+		{ID: 89, Name: permissions.PositionInstitutionAdministratorUpdate},
+		{ID: 90, Name: permissions.PositionInstitutionAdministratorDelete},
+		{ID: 91, Name: permissions.PositionStaffCreate},
+		{ID: 92, Name: permissions.PositionStaffRead},
+		{ID: 93, Name: permissions.PositionStaffUpdate},
+		{ID: 94, Name: permissions.PositionStaffDelete},
 	}
 	for _, permission := range permissions {
 		if err := db.FirstOrCreate(&permission, model.Permission{ID: permission.ID}).Error; err != nil {
@@ -203,7 +211,7 @@ func main() {
 	}
 
 	adminPermissions := []string{
-		"post.create", "post.read.any", "post.read.own", "post.update.any", "post.update.own", "post.delete.any", "post.delete.own", "post.photo.delete.any", "post.photo.delete.own", "post.verify", "post.mark.returned.any", "post.mark.returned.own", "user.read.own", "user.read.other", "user.read.all", "user.update.own", "user.delete.any", "user.delete.own", "room.create", "room.read", "room.update", "room.delete", "subject.create", "subject.read", "subject.update", "subject.delete", "student_group.create", "student_group.read.any", "student_group.update", "student_group.delete", "student_group.advisor.assign", "student_group.advisor.unassign.any", "student_group.advisor.read", "teacher.subject.read.any", "teacher.subject.add.any", "teacher.subject.assign.any", "teacher.subject.unassign.any", "teacher.classroom.read.any", "teacher.classroom.assign.any", "teacher.classroom.unassign.any", "teacher.read.other", "parent.student.read.any", "parent.student.add.any", "parent.student.unassign.any", "parent.read.other", "role.assign", "role.add", "role.delete", "role.read.any", "role.read.own", "token.invite.user.create", "token.invite.user.delete", "student.read.other", "student.classroom.read.any", "student.advisor.read.any", "student.parent.read.any", "institution_administrator.read.other", "institution_administrator.position.assign", "institution_administrator.position.read", "staff.read.other", "staff.position.assign", "staff.position.read",
+		"post.create", "post.read.any", "post.read.own", "post.update.any", "post.update.own", "post.delete.any", "post.delete.own", "post.photo.delete.any", "post.photo.delete.own", "post.verify", "post.mark.returned.any", "post.mark.returned.own", "user.read.own", "user.read.other", "user.read.all", "user.update.own", "user.delete.any", "user.delete.own", "room.create", "room.read", "room.update", "room.delete", "subject.create", "subject.read", "subject.update", "subject.delete", "student_group.create", "student_group.read.any", "student_group.update", "student_group.delete", "student_group.advisor.assign", "student_group.advisor.unassign.any", "student_group.advisor.read", "teacher.subject.read.any", "teacher.subject.add.any", "teacher.subject.assign.any", "teacher.subject.unassign.any", "teacher.classroom.read.any", "teacher.classroom.assign.any", "teacher.classroom.unassign.any", "teacher.read.other", "parent.student.read.any", "parent.student.add.any", "parent.student.unassign.any", "parent.read.other", "role.assign", "role.add", "role.delete", "role.read.any", "role.read.own", "token.invite.user.create", "token.invite.user.delete", "student.read.other", "student.classroom.read.any", "student.advisor.read.any", "student.parent.read.any", "institution_administrator.read.other", "institution_administrator.position.assign", "institution_administrator.position.read", "staff.read.other", "staff.position.assign", "staff.position.read", "position.institution_administrator.create", "position.institution_administrator.read", "position.institution_administrator.update", "position.institution_administrator.delete", "position.staff.create", "position.staff.read", "position.staff.update", "position.staff.delete",
 	}
 
 	institutionAdministratorPermissions := []string{
