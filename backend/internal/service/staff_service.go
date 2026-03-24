@@ -25,13 +25,6 @@ type StaffResponseDTO struct {
 	Position StaffPositionResponseDTO
 }
 
-type StaffPositionResponseDTO struct {
-	ID        uint8  `json:"id"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
-	Name      string `json:"name"`
-}
-
 type staffService struct {
 	staffRepo repository.StaffRepository
 	userRepo  repository.UserRepository
@@ -140,11 +133,3 @@ func StaffToDTO(staff *model.Staff) *StaffResponseDTO {
 	}
 }
 
-func StaffPositionToDTO(position *model.StaffPosition) *StaffPositionResponseDTO {
-	return &StaffPositionResponseDTO{
-		ID:        position.ID,
-		CreatedAt: position.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: position.UpdatedAt.Format(time.RFC3339),
-		Name:      position.Name,
-	}
-}

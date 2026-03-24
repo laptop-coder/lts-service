@@ -15,6 +15,7 @@ type StaffPositionRepository interface {
 	FindByID(ctx context.Context, id *uint8) (*model.StaffPosition, error)
 	Update(ctx context.Context, staffPosition *model.StaffPosition) error
 	Delete(ctx context.Context, id *uint8) error
+	ExistsByName(ctx context.Context, name *string) (bool, error)
 }
 
 type staffPositionRepository struct {
@@ -117,4 +118,16 @@ func (r *staffPositionRepository) Delete(ctx context.Context, id *uint8) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (r *staffPositionRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
+	if name == nil {
+		return false, fmt.Errorf("name cannot be nil")
+	}
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&model.StaffPosition{}).
+		Where("name = ?", name).
+		Count(&count).Error
+	return count > 0, err
 }

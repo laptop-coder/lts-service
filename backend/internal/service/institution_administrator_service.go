@@ -25,13 +25,6 @@ type InstitutionAdministratorResponseDTO struct {
 	Position InstitutionAdministratorPositionResponseDTO
 }
 
-type InstitutionAdministratorPositionResponseDTO struct {
-	ID        uint8  `json:"id"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
-	Name      string `json:"name"`
-}
-
 type institutionAdministratorService struct {
 	institutionAdministratorRepo repository.InstitutionAdministratorRepository
 	userRepo                     repository.UserRepository
@@ -95,15 +88,6 @@ func InstitutionAdministratorToDTO(institutionAdministrator *model.InstitutionAd
 	return &InstitutionAdministratorResponseDTO{
 		User:     *UserToDTO(&institutionAdministrator.User),
 		Position: *InstitutionAdministratorPositionToDTO(&institutionAdministrator.Position),
-	}
-}
-
-func InstitutionAdministratorPositionToDTO(position *model.InstitutionAdministratorPosition) *InstitutionAdministratorPositionResponseDTO {
-	return &InstitutionAdministratorPositionResponseDTO{
-		ID:        position.ID,
-		CreatedAt: position.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: position.UpdatedAt.Format(time.RFC3339),
-		Name:      position.Name,
 	}
 }
 
