@@ -28,6 +28,8 @@ func SetupRoutes(
 	institutionAdministratorHandler *handler.InstitutionAdministratorHandler,
 	roleHandler *handler.RoleHandler,
 	inviteHandler *handler.InviteHandler,
+	staffPositionHandler *handler.StaffPositionHandler,
+	institutionAdministratorPositionHandler *handler.InstitutionAdministratorPositionHandler,
 ) {
 	// Public routes (no auth required)
 	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
@@ -134,6 +136,16 @@ func SetupRoutes(
 	// Invite tokens
 	mux.Handle("POST /api/v1/tokens/invite", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminCreate, permissions.TokenInviteUserCreate)(http.HandlerFunc(inviteHandler.Create))))
 	mux.Handle("DELETE /api/v1/tokens/invite/{token}", authMiddleware(requirePermissions(false, permissions.TokenInviteAdminDelete, permissions.TokenInviteUserDelete)(http.HandlerFunc(inviteHandler.Revoke))))
+	// Institution administrator positions
+	mux.Handle("POST /api/v1/institution_administrators/positions", authMiddleware(requirePermissions(false, permissions.PositionInstitutionAdministratorCreate)(http.HandlerFunc(institutionAdministratorPositionHandler.Create))))
+	mux.Handle("GET /api/v1/institution_administrators/positions", authMiddleware(requirePermissions(false, permissions.PositionInstitutionAdministratorRead)(http.HandlerFunc(institutionAdministratorPositionHandler.GetAll))))
+	mux.Handle("PATCH /api/v1/institution_administrators/positions/{id}", authMiddleware(requirePermissions(false, permissions.PositionInstitutionAdministratorUpdate)(http.HandlerFunc(institutionAdministratorPositionHandler.Update))))
+	mux.Handle("DELETE /api/v1/institution_administrators/positions/{id}", authMiddleware(requirePermissions(false, permissions.PositionInstitutionAdministratorDelete)(http.HandlerFunc(institutionAdministratorPositionHandler.Delete))))
+	// Staff positions
+	mux.Handle("POST /api/v1/staff/positions", authMiddleware(requirePermissions(false, permissions.PositionStaffCreate)(http.HandlerFunc(staffPositionHandler.Create))))
+	mux.Handle("GET /api/v1/staff/positions", authMiddleware(requirePermissions(false, permissions.PositionStaffRead)(http.HandlerFunc(staffPositionHandler.GetAll))))
+	mux.Handle("PATCH /api/v1/staff/positions/{id}", authMiddleware(requirePermissions(false, permissions.PositionStaffUpdate)(http.HandlerFunc(staffPositionHandler.Update))))
+	mux.Handle("DELETE /api/v1/staff/positions/{id}", authMiddleware(requirePermissions(false, permissions.PositionStaffDelete)(http.HandlerFunc(staffPositionHandler.Delete))))
 	// Roles
 	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
 	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))
