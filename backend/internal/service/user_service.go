@@ -623,6 +623,10 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, d
 	// TODO: now it is not supposed that length of roleIDs can be 0. So maybe in
 	// this case all roles should be deleted: think about it.
 	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Block attempt to assign superadmin role
+		if slices.Contains(roleIDs, 1) {
+			return fmt.Errorf("forbidden: you cannot assign superadmin role to user")
+		}
 		// Get user
 		var user model.User
 		if err := tx.WithContext(ctx).
@@ -668,6 +672,10 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, d
 
 func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Block attempt to add superadmin role
+		if slices.Contains(roleIDs, 1) {
+			return fmt.Errorf("forbidden: you cannot add superadmin role to user")
+		}
 		// Get user
 		var user model.User
 		if err := tx.WithContext(ctx).
@@ -705,7 +713,9 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 
 func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, userID uuid.UUID, dto UserRolesDTO, roleID uint8) error {
 	switch roleID {
-	case 1, 2: // superadmin, admin (there are no extension tables)
+	case 1: // superadmin
+		return fmt.Errorf("forbidden: you cannot add superadmin to extension table")
+	case 2: // admin (there are no extension tables)
 		return nil
 	case 3: // institution_administrator
 		return tx.Create(&model.InstitutionAdministrator{UserID: userID, PositionID: *dto.InstitutionAdministratorPositionID}).Error

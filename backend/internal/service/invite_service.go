@@ -1,6 +1,7 @@
 package service
 
 import (
+	"slices"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -60,6 +61,10 @@ func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8) (*stri
 }
 
 func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*string, error) {
+	// Block attempt to generate token with superadmin role
+	if slices.Contains(roleIDs, 1) {
+		return nil, fmt.Errorf("forbidden: you cannot generate invite token with superadmin role")
+	}
 	// Check roles existence
 	var count int64
 	if err := s.db.WithContext(ctx).
