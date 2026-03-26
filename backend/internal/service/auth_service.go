@@ -107,12 +107,12 @@ func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*T
 		return nil, fmt.Errorf("failed to check if token was revoked")
 	}
 	if revoked {
-		return nil, fmt.Errorf("token was revoked")
+		return nil, fmt.Errorf("forbidden: token was revoked")
 	}
 	// Find user
 	user, err := s.userRepo.FindByID(ctx, &claims.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("user not found by id (%s): %w", claims.UserID, err)
+		return nil, fmt.Errorf("user not found by id (%s): %w", claims.UserID.String(), err)
 	}
 	// Generate new token pair
 	tokens, err := s.generateTokenPair(ctx, user)

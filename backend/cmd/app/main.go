@@ -75,6 +75,8 @@ func main() {
 	staffRepo := repository.NewStaffRepository(db, log)
 	roleRepo := repository.NewRoleRepository(db, log)
 	institutionAdministratorRepo := repository.NewInstitutionAdministratorRepository(db, log)
+	institutionAdministratorPositionRepo := repository.NewInstitutionAdministratorPositionRepository(db, log)
+	staffPositionRepo := repository.NewStaffPositionRepository(db, log)
 
 	// Services
 	log.Info("Creating service configurations...")
@@ -93,10 +95,12 @@ func main() {
 	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
 	inviteService := service.NewInviteService(jwtRepo, roleRepo, db, serviceConfigs.Invite, log)
+	institutionAdministratorPositionService := service.NewInstitutionAdministratorPositionService(institutionAdministratorPositionRepo, db, log)
+	staffPositionService := service.NewStaffPositionService(staffPositionRepo, db, log)
 
 	// Handlers
 	log.Info("Initializing handlers...")
-	authHandler := handler.NewAuthHandler(authService, userService, serviceConfigs.Auth, log)
+	authHandler := handler.NewAuthHandler(authService, userService, inviteService, serviceConfigs.Auth, log)
 	userHandler := handler.NewUserHandler(userService, log)
 	postHandler := handler.NewPostHandler(postService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(teacherService, studentGroupService, log)
@@ -109,6 +113,8 @@ func main() {
 	institutionAdministratorHandler := handler.NewInstitutionAdministratorHandler(institutionAdministratorService, log)
 	roleHandler := handler.NewRoleHandler(roleService, log)
 	inviteHandler := handler.NewInviteHandler(inviteService, serviceConfigs.Invite, log)
+	institutionAdministratorPositionHandler := handler.NewInstitutionAdministratorPositionHandler(institutionAdministratorPositionService, log)
+	staffPositionHandler := handler.NewStaffPositionHandler(staffPositionService, log)
 
 	mux := http.NewServeMux()
 	authMiddleware := middleware.Auth(authService, serviceConfigs.Auth, jwtRepo, db, log)
@@ -134,6 +140,8 @@ func main() {
 		institutionAdministratorHandler,
 		roleHandler,
 		inviteHandler,
+		staffPositionHandler,
+		institutionAdministratorPositionHandler,
 	)
 
 	// Middleware

@@ -204,7 +204,7 @@ func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUs
 		user.FirstName = *dto.FirstName
 		updatedFieldsCount++
 	}
-	if dto.MiddleName != nil && *dto.MiddleName != *user.MiddleName { // TODO
+	if dto.MiddleName != nil && (user.MiddleName == nil || *dto.MiddleName != *user.MiddleName) {
 		user.MiddleName = dto.MiddleName
 		updatedFieldsCount++
 	}
@@ -335,19 +335,16 @@ func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, d
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
 		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
-			return fmt.Errorf("bad request: special fields for the institution administrator role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty")
 		}
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
-			return fmt.Errorf("bad request: special fields for the staff role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
 		}
-		if slices.Contains(roleIDs, 5) && ((dto.TeacherClassroomID == nil) || (dto.TeacherSubjectIDs == nil)) {
-			return fmt.Errorf("bad request: special fields for the teacher role cannot be empty")
-		}
-		if slices.Contains(roleIDs, 6) && (dto.ParentStudentIDs == nil) {
-			return fmt.Errorf("bad request: special fields for the parent role cannot be empty")
+		if slices.Contains(roleIDs, 5) && (dto.TeacherSubjectIDs == nil) {
+			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
-			return fmt.Errorf("bad request: special fields for the student role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the student role cannot be empty")
 		}
 		// Get user by ID
 		var user model.User
@@ -373,19 +370,16 @@ func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
 		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
-			return fmt.Errorf("bad request: special fields for the institution administrator role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty")
 		}
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
-			return fmt.Errorf("bad request: special fields for the staff role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
 		}
-		if slices.Contains(roleIDs, 5) && ((dto.TeacherClassroomID == nil) || (dto.TeacherSubjectIDs == nil)) {
-			return fmt.Errorf("bad request: special fields for the teacher role cannot be empty")
-		}
-		if slices.Contains(roleIDs, 6) && (dto.ParentStudentIDs == nil) {
-			return fmt.Errorf("bad request: special fields for the parent role cannot be empty")
+		if slices.Contains(roleIDs, 5) && (dto.TeacherSubjectIDs == nil) {
+			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
-			return fmt.Errorf("bad request: special fields for the student role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the student role cannot be empty")
 		}
 		// Get roles by IDs
 		var roles []model.Role

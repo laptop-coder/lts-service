@@ -45,19 +45,20 @@ func HandleServiceError(w http.ResponseWriter, err error) {
 	switch {
 	case strings.Contains(errMsg, "not found"):
 		statusCode = http.StatusNotFound
-	case strings.Contains(errMsg, "already exists"):
-		statusCode = http.StatusConflict
 	case strings.Contains(errMsg, "validation"),
 		strings.Contains(errMsg, "invalid"),
 		strings.Contains(errMsg, "bad request"),
 		strings.Contains(errMsg, "required"):
 		statusCode = http.StatusBadRequest
-	case strings.Contains(errMsg, "unauthorized"):
+	case strings.Contains(errMsg, "unauthorized"),
+		strings.Contains(errMsg, "expired"):
 		statusCode = http.StatusUnauthorized
-	case strings.Contains(errMsg, "conflict"):
+	case strings.Contains(errMsg, "conflict"),
+		strings.Contains(errMsg, "already"):
 		statusCode = http.StatusConflict
 	case strings.Contains(errMsg, "forbidden"),
 		strings.Contains(errMsg, "permission"),
+		strings.Contains(errMsg, "revoked"),
 		strings.Contains(errMsg, "verify"):
 		statusCode = http.StatusForbidden
 	}

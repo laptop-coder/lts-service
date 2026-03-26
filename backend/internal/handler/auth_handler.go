@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"slices"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -15,14 +16,16 @@ import (
 type AuthHandler struct {
 	authService       service.AuthService
 	userService       service.UserService
+	inviteService     service.InviteService
 	authServiceConfig service.AuthServiceConfig
 	log               logger.Logger
 }
 
-func NewAuthHandler(authService service.AuthService, userService service.UserService, authServiceConfig service.AuthServiceConfig, log logger.Logger) *AuthHandler {
+func NewAuthHandler(authService service.AuthService, userService service.UserService, inviteService service.InviteService, authServiceConfig service.AuthServiceConfig, log logger.Logger) *AuthHandler {
 	return &AuthHandler{
 		authService:       authService,
 		userService:       userService,
+		inviteService:     inviteService,
 		authServiceConfig: authServiceConfig,
 		log:               log,
 	}
@@ -40,7 +43,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fieldsData := make(map[string]string)
-	for _, s := range []string{"email", "password", "firstName", "lastName"} {
+	for _, s := range []string{"email", "password", "firstName", "lastName", "inviteToken"} {
 		formFields := r.PostForm[s]
 		if len(formFields) > 1 {
 			helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: too much %s fields", s), http.StatusBadRequest)
@@ -51,29 +54,28 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 		fieldsData[s] = formFields[0]
 	}
+	// Get roles from invite token
+	roles, err := h.inviteService.GetRoles(r.Context(), fieldsData["inviteToken"]) // TODO: change ctx to r.Context() in the whole code
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	if len(roles) == 0 {
+		helpers.ErrorResponse(w, "list of the roles cannot be empty", http.StatusInternalServerError) // HTTP 500 because the token was signed by the server
+		return
+	}
+	userRolesDTO := service.UserRolesDTO{}
+	roleIDs := make([]uint8, len(roles))
+	for i, role := range roles {
+		roleIDs[i] = role.ID
+	}
+	// Assemble create user DTO
 	createUserDTO := service.CreateUserDTO{
 		Email:     fieldsData["email"],
 		Password:  fieldsData["password"],
 		FirstName: fieldsData["firstName"],
 		LastName:  fieldsData["lastName"],
-	}
-	userRolesDTO := service.UserRolesDTO{}
-	if roleIDs := r.PostForm["roleId"]; len(roleIDs) == 0 { // TODO: maybe this check won't work
-		h.log.Error("the list of roles cannot be empty")
-		helpers.ErrorResponse(w, "the list of roles cannot be empty", http.StatusBadRequest)
-		return
-	} else {
-		uints := make([]uint8, len(roleIDs))
-		for i, s := range roleIDs {
-			val, err := strconv.ParseUint(s, 10, 8)
-			if err != nil {
-				h.log.Error("cannot convert IDs of roles from string to uint64")
-				helpers.ErrorResponse(w, "cannot convert IDs of roles from string to uint64", http.StatusInternalServerError)
-				return
-			}
-			uints[i] = uint8(val)
-		}
-		createUserDTO.RoleIDs = uints
+		RoleIDs:   roleIDs,
 	}
 	// Middle name (optional)
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
@@ -97,18 +99,25 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TeacherSubjectIDs (special)
-	teacherSubjectIDsFields := r.PostForm["teacherSubjectIds"]
-	var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
-	for i, subjectIDString := range teacherSubjectIDsFields {
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
-		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+	if teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]; len(teacherSubjectIDsFields) == 0 {
+		// Check if creating user with the teacher role
+		if slices.Contains(roleIDs, 5) { // TODO: make smth like enum for roles constants
+			helpers.ErrorResponse(w, "failed to parse form: at least one teacherSubjectId value must be specified", http.StatusBadRequest)
 			return
 		}
-		subjectID8 := uint8(subjectID64)
-		teacherSubjectIDs[i] = subjectID8
+	} else {
+		var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
+		for i, subjectIDString := range teacherSubjectIDsFields {
+			subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+			if err != nil {
+				helpers.ErrorResponse(w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+				return
+			}
+			subjectID8 := uint8(subjectID64)
+			teacherSubjectIDs[i] = subjectID8
+		}
+		userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
 	}
-	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
 		// Convert to uint16
@@ -119,7 +128,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 		studentGroupID := uint16(studentGroupID64)
 		userRolesDTO.StudentGroupID = &studentGroupID
-	} else if len(studentGroupIDFields) != 0 {
+	} else if len(studentGroupIDFields) == 0 {
+		// Check if creating user with the student role
+		if slices.Contains(roleIDs, 7) {
+			helpers.ErrorResponse(w, "failed to parse form: studentGroupId field must be provided exactly once", http.StatusBadRequest)
+			return
+		}
+	} else {
 		helpers.ErrorResponse(w, "failed to parse form: to much student group id values", http.StatusBadRequest)
 		return
 	}
@@ -133,7 +148,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 		staffPositionID := uint8(staffPositionID64)
 		userRolesDTO.StaffPositionID = &staffPositionID
-	} else if len(staffPositionIDFields) != 0 {
+	} else if len(staffPositionIDFields) == 0 {
+		// Check if creating user with the staff role
+		if slices.Contains(roleIDs, 4) {
+			helpers.ErrorResponse(w, "failed to parse form: staffPositionId field must be provided exactly once", http.StatusBadRequest)
+			return
+		}
+	} else {
 		helpers.ErrorResponse(w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
 		return
 	}
@@ -147,22 +168,29 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
 		userRolesDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
-	} else if len(institutionAdministratorPositionIDFields) != 0 {
+	} else if len(institutionAdministratorPositionIDFields) == 0 {
+		// Check if creating user with the institution administrator role
+		if slices.Contains(roleIDs, 3) {
+			helpers.ErrorResponse(w, "failed to parse form: institutionAdministratorPositionId field must be provided exactly once", http.StatusBadRequest)
+			return
+		}
+	} else {
 		helpers.ErrorResponse(w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
 		return
 	}
 	// ParentStudentIDs (special)
-	parentStudentIDsFields := r.PostForm["parentStudentIds"]
-	var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
-	for i, parentStudentIDString := range parentStudentIDsFields {
-		parentStudentID, err := uuid.Parse(parentStudentIDString)
-		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
-			return
+	if parentStudentIDsFields := r.PostForm["parentStudentId"]; len(parentStudentIDsFields) != 0 {
+		var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
+		for i, parentStudentIDString := range parentStudentIDsFields {
+			parentStudentID, err := uuid.Parse(parentStudentIDString)
+			if err != nil {
+				helpers.ErrorResponse(w, "cannot convert student id to uuid", http.StatusBadRequest)
+				return
+			}
+			parentStudentIDs[i] = parentStudentID
 		}
-		parentStudentIDs[i] = parentStudentID
+		userRolesDTO.ParentStudentIDs = parentStudentIDs
 	}
-	userRolesDTO.ParentStudentIDs = parentStudentIDs
 	// Avatar (optional)
 	formFiles := r.MultipartForm.File["avatar"]
 	if len(formFiles) > 1 {
@@ -222,6 +250,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	})
 	h.log.Debug("Authorized value is set to true in cookies")
 	h.log.Info("User logged in successfully")
+	// Revoke invite token
+	// TODO: move token revoking to user creation transaction. Is it OK now to
+	// return error when user was already created and logged in?
+	if err := h.inviteService.RevokeToken(r.Context(), fieldsData["inviteToken"]); err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
 	helpers.JsonResponse(w, map[string]interface{}{
 		"user": userResponse,
 	},
@@ -364,6 +399,8 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
+// TODO: revoke all user tokens after account delete. Now in middleware.Auth
+// there is a check that user from JWT field (user ID) exists.
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {

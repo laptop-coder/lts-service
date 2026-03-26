@@ -115,7 +115,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 				Preload("Roles.Permissions").
 				First(&user, "id = ?", claims.UserID).Error
 			if err != nil {
-				helpers.ErrorResponse(w, "failed to load user (by user ID from JWT access from cookies)", http.StatusInternalServerError)
+				helpers.ErrorResponse(w, "failed to load user (by user ID from JWT access from cookies)", http.StatusUnauthorized)
 				return
 			}
 			// Collect permissions
