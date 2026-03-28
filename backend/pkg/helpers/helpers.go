@@ -33,10 +33,7 @@ func ErrorResponse(w http.ResponseWriter, message string, statusCode int) {
 }
 
 func SuccessResponse(w http.ResponseWriter, data interface{}) {
-	JsonResponse(w, map[string]interface{}{
-		"success": true,
-		"data":    data,
-	}, http.StatusOK)
+	JsonResponse(w, data, http.StatusOK)
 }
 
 func HandleServiceError(w http.ResponseWriter, err error) {
