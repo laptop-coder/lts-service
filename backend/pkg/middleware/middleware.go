@@ -4,6 +4,7 @@ import (
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/service"
+	"backend/pkg/env"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
 	"context"
@@ -23,6 +24,20 @@ func Logging(log logger.Logger, next http.Handler) http.Handler {
 			"path", r.URL.Path,
 			"duration", time.Since(start),
 		)
+	})
+}
+
+func CORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", fmt.Sprintf("http://127.0.0.1:%s", env.GetStringRequired("FRONTEND_PORT")))
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 
