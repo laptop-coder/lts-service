@@ -12,6 +12,7 @@
   "license": "MIT",
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
+    "prettier": "3.8.1",
     "solid-devtools": "^0.34.3",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
