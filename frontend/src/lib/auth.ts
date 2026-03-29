@@ -6,6 +6,13 @@ const [user, setUser] = createSignal<User | null>(null);
 const [isLoading, setIsLoading] = createSignal(true);
 
 export function useAuth() {
+  // Function to register and load user
+  const register = async (formData: FormData) => {
+    const data = await api.post<{ user: User }>('/users', formData);
+    setUser(data.user);
+    return data.user;
+  };
+
   // Function to log in and load user
   const login = async (email: string, password: string) => {
     const formData = new URLSearchParams();
@@ -38,6 +45,7 @@ export function useAuth() {
     user,
     isLoading,
     login,
+    register,
     logout,
     checkAuth,
     isAuthenticated: () => user() !== null,
