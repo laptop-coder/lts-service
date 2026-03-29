@@ -46,7 +46,7 @@ export const ProtectedRoute: Component<Props> = (props) => {
   return (
     <>
     {auth.isLoading() ? <div class="flex justify-center items-center h-screen">Загрузка...</div> : 
-      (auth.isAuthenticated() ? <Layout>{props?.children}</Layout> : navigate('/login'))
+      (auth.isAuthenticated() ? <PublicRoute>{props?.children}</PublicRoute> : navigate('/login'))
     }
     </>
   )
