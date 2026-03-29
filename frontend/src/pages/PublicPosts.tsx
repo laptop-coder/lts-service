@@ -4,7 +4,7 @@ import type { Post } from "../lib/types";
 import PostCardCompact from '../components/PostCardCompact'
 
 
-const Posts = () => {
+const PublicPosts = () => {
   const [posts, setPosts] = createSignal<Post[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
@@ -55,5 +55,5 @@ const Posts = () => {
   );
 };
 
-export default Posts;
+export default PublicPosts;
 

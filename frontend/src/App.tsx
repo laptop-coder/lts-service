@@ -5,7 +5,7 @@ import { useAuth } from "./lib/auth";
 
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
-const Posts = lazy(() => import("./pages/Posts"));
+const PublicPosts = lazy(() => import("./pages/PublicPosts"));
 
 function App() {
   const auth = useAuth();
@@ -25,7 +25,7 @@ function App() {
         component={ProtectedRoute}
         children={
           <>
-            <Route path="/" component={Posts} />
+            <Route path="/" component={PublicPosts} />
           </>
         }
       />
