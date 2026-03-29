@@ -28,7 +28,7 @@ export function usePermissions() {
   return { hasPermission, hasAnyPermission, hasAllPermissions, hasRole };
 }
 
-export function permissions() {
+export function getPermissions() {
   // Post permissions
   const PostCreate = "post.create";
   const PostReadAny = "post.read.any";
