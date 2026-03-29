@@ -11,7 +11,7 @@ const PublicPosts = () => {
 
   const loadPosts = async () => {
     try {
-      const data = await api.get<{ posts: Post[] }>("/posts?verified=false");
+      const data = await api.get<{ posts: Post[] }>("/posts/public");
       setPosts(data.posts);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка загрузки объявлений");

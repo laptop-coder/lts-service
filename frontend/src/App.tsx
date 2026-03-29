@@ -6,6 +6,7 @@ import { useAuth } from "./lib/auth";
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PublicPosts = lazy(() => import("./pages/PublicPosts"));
+const PostsToVerify = lazy(() => import("./pages/PostsToVerify"));
 
 function App() {
   const auth = useAuth();
@@ -26,6 +27,7 @@ function App() {
         children={
           <>
             <Route path="/" component={PublicPosts} />
+            <Route path="/verification" component={PostsToVerify} />
           </>
         }
       />

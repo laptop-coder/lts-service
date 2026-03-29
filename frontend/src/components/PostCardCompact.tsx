@@ -1,5 +1,7 @@
-import { Show } from "solid-js";
+import { Show, createSignal } from "solid-js";
 import type { Post } from "../lib/types";
+import { usePermissions, getPermissions } from "../lib/permissions";
+import { api } from "../lib/api";
 
 interface Props {
   post: Post;
@@ -7,6 +9,33 @@ interface Props {
 
 const PostCardCompact = (props: Props) => {
   const { post } = props;
+  const { hasPermission } = usePermissions();
+  const { PostVerify, PostDeleteAny } = getPermissions();
+  const [loading, setLoading] = createSignal(false);
+  const [error, setError] = createSignal("");
+
+  const verifyPost = async () => {
+    try {
+      await api.patch<{ posts: Post[] }>(`/posts/${post.id}/verify`);
+      setLoading(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось верифицировать объявление");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deletePost = async () => {
+    try {
+      await api.delete<{}>(`/posts/${post.id}`);
+      setLoading(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось удалить объявление");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("ru-RU");
@@ -20,6 +49,8 @@ const PostCardCompact = (props: Props) => {
         {post.author.firstName}
         {post.author.lastName}
         <Show when={post.description}>{post.description}</Show>
+        {hasPermission(PostVerify) && !post.verified && <button onClick={verifyPost}>Верифицировать</button>}
+        {hasPermission(PostDeleteAny) && <button onClick={deletePost}>Удалить</button>}
       </div>
     </div>
   );
