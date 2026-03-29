@@ -7,6 +7,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PublicPosts = lazy(() => import("./pages/PublicPosts"));
 const PostsToVerify = lazy(() => import("./pages/PostsToVerify"));
+const CreatePost = lazy(() => import("./pages/CreatePost"));
 
 function App() {
   const auth = useAuth();
@@ -27,7 +28,8 @@ function App() {
         children={
           <>
             <Route path="/" component={PublicPosts} />
-            <Route path="/verification" component={PostsToVerify} />
+            <Route path="/posts/verification" component={PostsToVerify} />
+            <Route path="/posts/new" component={CreatePost} />
           </>
         }
       />
