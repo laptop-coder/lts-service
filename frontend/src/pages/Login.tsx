@@ -19,9 +19,9 @@ const Login = () => {
       await auth.login(email(), password());
       navigate("/");
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+      setError(
+        err instanceof Error ? err.message : "Не удалось войти в аккаунт",
+      );
     } finally {
       setLoading(false);
     }

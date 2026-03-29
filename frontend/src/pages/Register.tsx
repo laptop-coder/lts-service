@@ -163,9 +163,9 @@ const Register = () => {
       await auth.register(formData);
       navigate("/");
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+      setError(
+        err instanceof Error ? err.message : "Ошибка регистрации",
+      );
     } finally {
       setLoading(false);
     }
