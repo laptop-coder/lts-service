@@ -1,16 +1,16 @@
-import { Router, Route } from '@solidjs/router';
-import { lazy, onMount } from 'solid-js';
-import {PublicRoute, ProtectedRoute} from './components/Layouts';
-import {useAuth} from './lib/auth'
+import { Router, Route } from "@solidjs/router";
+import { lazy, onMount } from "solid-js";
+import { PublicRoute, ProtectedRoute } from "./components/Layouts";
+import { useAuth } from "./lib/auth";
 
-const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
 
 function App() {
   const auth = useAuth();
   onMount(() => {
-    auth.checkAuth()
-  })
+    auth.checkAuth();
+  });
 
   return (
     <Router>
@@ -24,7 +24,7 @@ function App() {
         component={ProtectedRoute}
         children={
           <>
-          <Route path="/" component={Login} />
+            <Route path="/" component={Login} />
           </>
         }
       />

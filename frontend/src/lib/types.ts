@@ -79,4 +79,3 @@ export interface InstitutionAdministratorPosition {
 export interface LoginResponse {
   user: User;
 }
-
