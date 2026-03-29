@@ -28,7 +28,7 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 space-y-4">
       <input
         type="email"
         value={email()}
