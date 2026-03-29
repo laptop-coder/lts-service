@@ -17,13 +17,13 @@ const Login = () => {
 
     try {
       await auth.login(email(), password());
-      navigate("/");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Не удалось войти в аккаунт",
       );
     } finally {
       setLoading(false);
+      navigate("/");
     }
   };
 

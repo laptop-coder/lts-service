@@ -161,13 +161,13 @@ const Register = () => {
 
     try {
       await auth.register(formData);
-      navigate("/");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка регистрации",
       );
     } finally {
       setLoading(false);
+      navigate("/");
     }
   };
 
