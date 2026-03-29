@@ -38,6 +38,43 @@ export interface Post {
   author: User;
 }
 
+export interface Room {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  teacherId: string;
+}
+
+export interface Subject {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+}
+
+export interface StudentGroup {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  groupAdvisorId: string;
+}
+
+export interface StaffPosition {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+}
+
+export interface InstitutionAdministratorPosition {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+}
+
 // Responses
 export interface LoginResponse {
   user: User;
