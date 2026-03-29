@@ -25,9 +25,9 @@ export const PublicRoute: Component<Props> = (props) => {
           <A href="/"><h1 class="text-xl font-bold">Сервис поиска потерянных вещей</h1></A>
           <div class="flex items-center gap-4">
           {hasPermission(PostCreate) && <A class="text-xl font-bold" href="/posts/new">+</A>}
-            <span>
+            <A href="/profile">
               {auth.user()?.firstName} {auth.user()?.lastName}
-            </span>
+            </A>
             <button
               onClick={handleLogout}
               class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
