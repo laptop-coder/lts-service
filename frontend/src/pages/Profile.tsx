@@ -1,12 +1,12 @@
-import { createSignal, onMount, For, Show, createEffect } from "solid-js";
-import { api } from "../lib/api";
+import { createSignal, For, Show, createEffect } from "solid-js";
+import { usePermissions, getPermissions } from "../lib/permissions";
 import { useAuth } from "../lib/auth";
-import type { Post } from "../lib/types";
-import PostCardCompact from "../components/PostCardCompact";
 
 const Profile = () => {
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
+  const { hasPermission } = usePermissions();
+  const { UserReadOwn } = getPermissions();
 
   const { user } = useAuth();
 
@@ -21,6 +21,8 @@ const Profile = () => {
   };
 
   return (
+    <>
+    {hasPermission(UserReadOwn) &&
     <div class="max-w-4xl mx-auto space-y-6">
       <h1 class="text-2xl font-bold text-center">Профиль</h1>
 
@@ -56,6 +58,8 @@ const Profile = () => {
         </ul>
       </Show>
     </div>
+    }
+    </>
   );
 };
 
