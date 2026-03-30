@@ -13,6 +13,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
 const StudentGroupsManagement = lazy(() => import("./pages/admin/StudentGroupsManagement"));
+const InviteTokens = lazy(() => import("./pages/InviteTokens"));
 
 function App() {
   const auth = useAuth();
@@ -55,6 +56,10 @@ function App() {
               <Route
                 path="/student_groups/management"
                 component={StudentGroupsManagement}
+              />
+              <Route
+                path="/invite_tokens"
+                component={InviteTokens}
               />
             </Route>
           </>
