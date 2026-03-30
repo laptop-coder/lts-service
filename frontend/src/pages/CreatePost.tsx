@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import { usePermissions, getPermissions } from "../lib/permissions";
+import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import { api } from "../lib/api";
 import { useNavigate } from "@solidjs/router";
 import type { Post } from "../lib/types";
@@ -11,7 +11,6 @@ const CreatePost = () => {
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
   const { hasPermission } = usePermissions();
-  const { PostCreate } = getPermissions();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: Event) => {
@@ -36,7 +35,7 @@ const CreatePost = () => {
 
   return (
     <>
-      {hasPermission(PostCreate) && (
+      {hasPermission(PERMISSIONS.POST_CREATE) && (
         <form
           onSubmit={handleSubmit}
           class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 space-y-4"

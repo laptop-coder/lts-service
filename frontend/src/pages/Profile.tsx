@@ -1,12 +1,11 @@
 import { createSignal, For, Show, createEffect } from "solid-js";
-import { usePermissions, getPermissions } from "../lib/permissions";
+import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import { useAuth } from "../lib/auth";
 
 const Profile = () => {
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
   const { hasPermission } = usePermissions();
-  const { UserReadOwn } = getPermissions();
 
   const { user } = useAuth();
 
@@ -22,7 +21,7 @@ const Profile = () => {
 
   return (
     <>
-    {hasPermission(UserReadOwn) &&
+    {hasPermission(PERMISSIONS.USER_READ_OWN) &&
     <div class="max-w-4xl mx-auto space-y-6">
       <h1 class="text-2xl font-bold text-center">Профиль</h1>
 

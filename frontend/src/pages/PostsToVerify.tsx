@@ -1,12 +1,11 @@
 import { createSignal, onMount, For, Show } from "solid-js";
 import { api } from "../lib/api";
-import { usePermissions, getPermissions } from "../lib/permissions";
+import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import type { Post } from "../lib/types";
 import PostCardCompact from "../components/PostCardCompact";
 
 const PostsToVerify = () => {
   const { hasPermission } = usePermissions();
-  const { PostReadAny } = getPermissions();
 
   const [posts, setPosts] = createSignal<Post[]>([]);
   const [loading, setLoading] = createSignal(true);
@@ -31,7 +30,7 @@ const PostsToVerify = () => {
 
   return (
     <>
-      {hasPermission(PostReadAny) && (
+      {hasPermission(PERMISSIONS.POST_READ_ANY) && (
         <div class="max-w-4xl mx-auto space-y-6">
           <h1 class="text-2xl font-bold text-center">Верификация объявлений</h1>
 

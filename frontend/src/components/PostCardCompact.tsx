@@ -1,6 +1,6 @@
 import { Show, createSignal } from "solid-js";
 import type { Post } from "../lib/types";
-import { usePermissions, getPermissions } from "../lib/permissions";
+import { usePermissions,PERMISSIONS } from "../lib/permissions";
 import { api } from "../lib/api";
 
 interface Props {
@@ -10,7 +10,6 @@ interface Props {
 const PostCardCompact = (props: Props) => {
   const { post } = props;
   const { hasPermission } = usePermissions();
-  const { PostVerify, PostDeleteAny } = getPermissions();
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
 
@@ -49,8 +48,8 @@ const PostCardCompact = (props: Props) => {
         {post.author.firstName}
         {post.author.lastName}
         <Show when={post.description}>{post.description}</Show>
-        {hasPermission(PostVerify) && !post.verified && <button onClick={verifyPost}>Верифицировать</button>}
-        {hasPermission(PostDeleteAny) && <button onClick={deletePost}>Удалить</button>}
+        {hasPermission(PERMISSIONS.POST_VERIFY) && !post.verified && <button onClick={verifyPost}>Верифицировать</button>}
+        {hasPermission(PERMISSIONS.POST_DELETE_ANY) && <button onClick={deletePost}>Удалить</button>}
       </div>
     </div>
   );
