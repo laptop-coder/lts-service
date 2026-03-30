@@ -30,229 +30,232 @@ export function usePermissions() {
 
 export function getPermissions() {
   // Post permissions
-  const PostCreate = "post.create";
-  const PostReadAny = "post.read.any";
-  const PostReadOwn = "post.read.own";
-  const PostUpdateAny = "post.update.any";
-  const PostUpdateOwn = "post.update.own";
-  const PostDeleteAny = "post.delete.any";
-  const PostDeleteOwn = "post.delete.own";
-  const PostPhotoDeleteAny = "post.photo.delete.any";
-  const PostPhotoDeleteOwn = "post.photo.delete.own";
-  const PostVerify = "post.verify";
-  const PostMarkReturnedAny = "post.mark.returned.any";
-  const PostMarkReturnedOwn = "post.mark.returned.own";
+  const POST_CREATE = "post.create";
+  const POST_READ_ANY = "post.read.any";
+  const POST_READ_OWN = "post.read.own";
+  const POST_UPDATE_ANY = "post.update.any";
+  const POST_UPDATE_OWN = "post.update.own";
+  const POST_DELETE_ANY = "post.delete.any";
+  const POST_DELETE_OWN = "post.delete.own";
+  const POST_PHOTO_DELETE_ANY = "post.photo.delete.any";
+  const POST_PHOTO_DELETE_OWN = "post.photo.delete.own";
+  const POST_VERIFY = "post.verify";
+  const POST_MARK_RETURNED_ANY = "post.mark.returned.any";
+  const POST_MARK_RETURNED_OWN = "post.mark.returned.own";
 
   // User permissions
-  const UserReadOwn = "user.read.own";
-  const UserReadOther = "user.read.other";
-  const UserReadAll = "user.read.all";
-  const UserUpdateOwn = "user.update.own";
-  const UserDeleteAny = "user.delete.any";
-  const UserDeleteOwn = "user.delete.own";
+  const USER_READ_OWN = "user.read.own";
+  const USER_READ_OTHER = "user.read.other";
+  const USER_READ_ALL = "user.read.all";
+  const USER_UPDATE_OWN = "user.update.own";
+  const USER_DELETE_ANY = "user.delete.any";
+  const USER_DELETE_OWN = "user.delete.own";
 
   // Room permissions
-  const RoomCreate = "room.create";
-  const RoomRead = "room.read";
-  const RoomUpdate = "room.update";
-  const RoomDelete = "room.delete";
+  const ROOM_CREATE = "room.create";
+  const ROOM_READ = "room.read";
+  const ROOM_UPDATE = "room.update";
+  const ROOM_DELETE = "room.delete";
 
   // Subject permissions
-  const SubjectCreate = "subject.create";
-  const SubjectRead = "subject.read";
-  const SubjectUpdate = "subject.update";
-  const SubjectDelete = "subject.delete";
+  const SUBJECT_CREATE = "subject.create";
+  const SUBJECT_READ = "subject.read";
+  const SUBJECT_UPDATE = "subject.update";
+  const SUBJECT_DELETE = "subject.delete";
 
   // Student group permissions
-  const StudentGroupCreate = "student_group.create";
-  const StudentGroupReadAny = "student_group.read.any";
-  const StudentGroupUpdate = "student_group.update";
-  const StudentGroupDelete = "student_group.delete";
-  const StudentGroupAdvisorAssign = "student_group.advisor.assign";
-  const StudentGroupAdvisorUnassignAny = "student_group.advisor.unassign.any";
-  const StudentGroupAdvisorUnassignOwn = "student_group.advisor.unassign.own";
-  const StudentGroupAdvisorRead = "student_group.advisor.read";
+  const STUDENT_GROUP_CREATE = "student_group.create";
+  const STUDENT_GROUP_READ_ANY = "student_group.read.any";
+  const STUDENT_GROUP_UPDATE = "student_group.update";
+  const STUDENT_GROUP_DELETE = "student_group.delete";
+  const STUDENT_GROUP_ADVISOR_ASSIGN = "student_group.advisor.assign";
+  const STUDENT_GROUP_ADVISOR_UNASSIGN_ANY =
+    "student_group.advisor.unassign.any";
+  const STUDENT_GROUP_ADVISOR_UNASSIGN_OWN =
+    "student_group.advisor.unassign.own";
+  const STUDENT_GROUP_ADVISOR_READ = "student_group.advisor.read";
 
   // Teacher permissions
-  const TeacherSubjectReadAny = "teacher.subject.read.any";
-  const TeacherSubjectReadOwn = "teacher.subject.read.own";
-  const TeacherSubjectAddAny = "teacher.subject.add.any";
-  const TeacherSubjectAddOwn = "teacher.subject.add.own";
-  const TeacherSubjectAssignAny = "teacher.subject.assign.any";
-  const TeacherSubjectAssignOwn = "teacher.subject.assign.own";
-  const TeacherSubjectUnassignAny = "teacher.subject.unassign.any";
-  const TeacherSubjectUnassignOwn = "teacher.subject.unassign.own";
-  const TeacherClassroomReadAny = "teacher.classroom.read.any";
-  const TeacherClassroomReadOwn = "teacher.classroom.read.own";
-  const TeacherClassroomAssignAny = "teacher.classroom.assign.any";
-  const TeacherClassroomAssignOwn = "teacher.classroom.assign.own";
-  const TeacherClassroomUnassignAny = "teacher.classroom.unassign.any";
-  const TeacherClassroomUnassignOwn = "teacher.classroom.unassign.own";
-  const TeacherReadOther = "teacher.read.other";
-  const TeacherReadOwn = "teacher.read.own";
-  const TeacherStudentGroupReadOwn = "teacher.student_group.read.own";
+  const TEACHER_SUBJECT_READ_ANY = "teacher.subject.read.any";
+  const TEACHER_SUBJECT_READ_OWN = "teacher.subject.read.own";
+  const TEACHER_SUBJECT_ADD_ANY = "teacher.subject.add.any";
+  const TEACHER_SUBJECT_ADD_OWN = "teacher.subject.add.own";
+  const TEACHER_SUBJECT_ASSIGN_ANY = "teacher.subject.assign.any";
+  const TEACHER_SUBJECT_ASSIGN_OWN = "teacher.subject.assign.own";
+  const TEACHER_SUBJECT_UNASSIGN_ANY = "teacher.subject.unassign.any";
+  const TEACHER_SUBJECT_UNASSIGN_OWN = "teacher.subject.unassign.own";
+  const TEACHER_CLASSROOM_READ_ANY = "teacher.classroom.read.any";
+  const TEACHER_CLASSROOM_READ_OWN = "teacher.classroom.read.own";
+  const TEACHER_CLASSROOM_ASSIGN_ANY = "teacher.classroom.assign.any";
+  const TEACHER_CLASSROOM_ASSIGN_OWN = "teacher.classroom.assign.own";
+  const TEACHER_CLASSROOM_UNASSIGN_ANY = "teacher.classroom.unassign.any";
+  const TEACHER_CLASSROOM_UNASSIGN_OWN = "teacher.classroom.unassign.own";
+  const TEACHER_READ_OTHER = "teacher.read.other";
+  const TEACHER_READ_OWN = "teacher.read.own";
+  const TEACHER_STUDENT_GROUP_READ_OWN = "teacher.student_group.read.own";
 
   // Parent permissions
-  const ParentStudentReadAny = "parent.student.read.any";
-  const ParentStudentReadOwn = "parent.student.read.own";
-  const ParentStudentAddAny = "parent.student.add.any";
-  const ParentStudentAddOwn = "parent.student.add.own";
-  const ParentStudentUnassignAny = "parent.student.unassign.any";
-  const ParentStudentUnassignOwn = "parent.student.unassign.own";
-  const ParentReadOther = "parent.read.other";
-  const ParentReadOwn = "parent.read.own";
-  const ParentStudentGroupReadOwn = "parent.student_group.read.own";
+  const PARENT_STUDENT_READ_ANY = "parent.student.read.any";
+  const PARENT_STUDENT_READ_OWN = "parent.student.read.own";
+  const PARENT_STUDENT_ADD_ANY = "parent.student.add.any";
+  const PARENT_STUDENT_ADD_OWN = "parent.student.add.own";
+  const PARENT_STUDENT_UNASSIGN_ANY = "parent.student.unassign.any";
+  const PARENT_STUDENT_UNASSIGN_OWN = "parent.student.unassign.own";
+  const PARENT_READ_OTHER = "parent.read.other";
+  const PARENT_READ_OWN = "parent.read.own";
+  const PARENT_STUDENT_GROUP_READ_OWN = "parent.student_group.read.own";
 
   // User roles permissions
-  const RoleAssign = "role.assign";
-  const RoleAdd = "role.add";
-  const RoleDelete = "role.delete";
-  const RoleReadAny = "role.read.any";
-  const RoleReadOwn = "role.read.own";
+  const ROLE_ASSIGN = "role.assign";
+  const ROLE_ADD = "role.add";
+  const ROLE_DELETE = "role.delete";
+  const ROLE_READ_ANY = "role.read.any";
+  const ROLE_READ_OWN = "role.read.own";
 
   // Permissions to work with tokens
-  const TokenInviteAdminCreate = "token.invite.admin.create";
-  const TokenInviteUserCreate = "token.invite.user.create";
-  const TokenInviteAdminDelete = "token.invite.admin.delete";
-  const TokenInviteUserDelete = "token.invite.user.delete";
+  const TOKEN_INVITE_ADMIN_CREATE = "token.invite.admin.create";
+  const TOKEN_INVITE_USER_CREATE = "token.invite.user.create";
+  const TOKEN_INVITE_ADMIN_DELETE = "token.invite.admin.delete";
+  const TOKEN_INVITE_USER_DELETE = "token.invite.user.delete";
 
   // Student permissions
-  const StudentReadOther = "student.read.other";
-  const StudentReadOwn = "student.read.own";
-  const StudentClassroomReadAny = "student.classroom.read.any";
-  const StudentClassroomReadOwn = "student.classroom.read.own";
-  const StudentAdvisorReadAny = "student.advisor.read.any";
-  const StudentAdvisorReadOwn = "student.advisor.read.own";
-  const StudentParentReadAny = "student.parent.read.any";
-  const StudentParentReadOwn = "student.parent.read.own";
-  const StudentStudentGroupReadOwn = "student.student_group.read.own";
+  const STUDENT_READ_OTHER = "student.read.other";
+  const STUDENT_READ_OWN = "student.read.own";
+  const STUDENT_CLASSROOM_READ_ANY = "student.classroom.read.any";
+  const STUDENT_CLASSROOM_READ_OWN = "student.classroom.read.own";
+  const STUDENT_ADVISOR_READ_ANY = "student.advisor.read.any";
+  const STUDENT_ADVISOR_READ_OWN = "student.advisor.read.own";
+  const STUDENT_PARENT_READ_ANY = "student.parent.read.any";
+  const STUDENT_PARENT_READ_OWN = "student.parent.read.own";
+  const STUDENT_STUDENT_GROUP_READ_OWN = "student.student_group.read.own";
 
   // Institution administrator
-  const InstitutionAdministratorReadOther =
+  const INSTITUTION_ADMINISTRATOR_READ_OTHER =
     "institution_administrator.read.other";
-  const InstitutionAdministratorReadOwn = "institution_administrator.read.own";
-  const InstitutionAdministratorPositionAssign =
+  const INSTITUTION_ADMINISTRATOR_READ_OWN =
+    "institution_administrator.read.own";
+  const INSTITUTION_ADMINISTRATOR_POSITION_ASSIGN =
     "institution_administrator.position.assign";
-  const InstitutionAdministratorPositionRead =
+  const INSTITUTION_ADMINISTRATOR_POSITION_READ =
     "institution_administrator.position.read";
 
   // Staff
-  const StaffReadOther = "staff.read.other";
-  const StaffReadOwn = "staff.read.own";
-  const StaffPositionAssign = "staff.position.assign";
-  const StaffPositionRead = "staff.position.read";
+  const STAFF_READ_OTHER = "staff.read.other";
+  const STAFF_READ_OWN = "staff.read.own";
+  const STAFF_POSITION_ASSIGN = "staff.position.assign";
+  const STAFF_POSITION_READ = "staff.position.read";
 
   // Position institution administrator
-  const PositionInstitutionAdministratorCreate =
+  const POSITION_INSTITUTION_ADMINISTRATOR_CREATE =
     "position.institution_administrator.create";
-  const PositionInstitutionAdministratorRead =
+  const POSITION_INSTITUTION_ADMINISTRATOR_READ =
     "position.institution_administrator.read";
-  const PositionInstitutionAdministratorUpdate =
+  const POSITION_INSTITUTION_ADMINISTRATOR_UPDATE =
     "position.institution_administrator.update";
-  const PositionInstitutionAdministratorDelete =
+  const POSITION_INSTITUTION_ADMINISTRATOR_DELETE =
     "position.institution_administrator.delete";
 
   // Position staff
-  const PositionStaffCreate = "position.staff.create";
-  const PositionStaffRead = "position.staff.read";
-  const PositionStaffUpdate = "position.staff.update";
-  const PositionStaffDelete = "position.staff.delete";
+  const POSITION_STAFF_CREATE = "position.staff.create";
+  const POSITION_STAFF_READ = "position.staff.read";
+  const POSITION_STAFF_UPDATE = "position.staff.update";
+  const POSITION_STAFF_DELETE = "position.staff.delete";
 
   return {
-    PostCreate,
-    PostReadAny,
-    PostReadOwn,
-    PostUpdateAny,
-    PostUpdateOwn,
-    PostDeleteAny,
-    PostDeleteOwn,
-    PostPhotoDeleteAny,
-    PostPhotoDeleteOwn,
-    PostVerify,
-    PostMarkReturnedAny,
-    PostMarkReturnedOwn,
-    UserReadOwn,
-    UserReadOther,
-    UserReadAll,
-    UserUpdateOwn,
-    UserDeleteAny,
-    UserDeleteOwn,
-    RoomCreate,
-    RoomRead,
-    RoomUpdate,
-    RoomDelete,
-    SubjectCreate,
-    SubjectRead,
-    SubjectUpdate,
-    SubjectDelete,
-    StudentGroupCreate,
-    StudentGroupReadAny,
-    StudentGroupUpdate,
-    StudentGroupDelete,
-    StudentGroupAdvisorAssign,
-    StudentGroupAdvisorUnassignAny,
-    StudentGroupAdvisorUnassignOwn,
-    StudentGroupAdvisorRead,
-    TeacherSubjectReadAny,
-    TeacherSubjectReadOwn,
-    TeacherSubjectAddAny,
-    TeacherSubjectAddOwn,
-    TeacherSubjectAssignAny,
-    TeacherSubjectAssignOwn,
-    TeacherSubjectUnassignAny,
-    TeacherSubjectUnassignOwn,
-    TeacherClassroomReadAny,
-    TeacherClassroomReadOwn,
-    TeacherClassroomAssignAny,
-    TeacherClassroomAssignOwn,
-    TeacherClassroomUnassignAny,
-    TeacherClassroomUnassignOwn,
-    TeacherReadOther,
-    TeacherReadOwn,
-    TeacherStudentGroupReadOwn,
-    ParentStudentReadAny,
-    ParentStudentReadOwn,
-    ParentStudentAddAny,
-    ParentStudentAddOwn,
-    ParentStudentUnassignAny,
-    ParentStudentUnassignOwn,
-    ParentReadOther,
-    ParentReadOwn,
-    ParentStudentGroupReadOwn,
-    RoleAssign,
-    RoleAdd,
-    RoleDelete,
-    RoleReadAny,
-    RoleReadOwn,
-    TokenInviteAdminCreate,
-    TokenInviteUserCreate,
-    TokenInviteAdminDelete,
-    TokenInviteUserDelete,
-    StudentReadOther,
-    StudentReadOwn,
-    StudentClassroomReadAny,
-    StudentClassroomReadOwn,
-    StudentAdvisorReadAny,
-    StudentAdvisorReadOwn,
-    StudentParentReadAny,
-    StudentParentReadOwn,
-    StudentStudentGroupReadOwn,
-    InstitutionAdministratorReadOther,
-    InstitutionAdministratorReadOwn,
-    InstitutionAdministratorPositionAssign,
-    InstitutionAdministratorPositionRead,
-    StaffReadOther,
-    StaffReadOwn,
-    StaffPositionAssign,
-    StaffPositionRead,
-    PositionInstitutionAdministratorCreate,
-    PositionInstitutionAdministratorRead,
-    PositionInstitutionAdministratorUpdate,
-    PositionInstitutionAdministratorDelete,
-    PositionStaffCreate,
-    PositionStaffRead,
-    PositionStaffUpdate,
-    PositionStaffDelete,
+    POST_CREATE,
+    POST_READ_ANY,
+    POST_READ_OWN,
+    POST_UPDATE_ANY,
+    POST_UPDATE_OWN,
+    POST_DELETE_ANY,
+    POST_DELETE_OWN,
+    POST_PHOTO_DELETE_ANY,
+    POST_PHOTO_DELETE_OWN,
+    POST_VERIFY,
+    POST_MARK_RETURNED_ANY,
+    POST_MARK_RETURNED_OWN,
+    USER_READ_OWN,
+    USER_READ_OTHER,
+    USER_READ_ALL,
+    USER_UPDATE_OWN,
+    USER_DELETE_ANY,
+    USER_DELETE_OWN,
+    ROOM_CREATE,
+    ROOM_READ,
+    ROOM_UPDATE,
+    ROOM_DELETE,
+    SUBJECT_CREATE,
+    SUBJECT_READ,
+    SUBJECT_UPDATE,
+    SUBJECT_DELETE,
+    STUDENT_GROUP_CREATE,
+    STUDENT_GROUP_READ_ANY,
+    STUDENT_GROUP_UPDATE,
+    STUDENT_GROUP_DELETE,
+    STUDENT_GROUP_ADVISOR_ASSIGN,
+    STUDENT_GROUP_ADVISOR_UNASSIGN_ANY,
+    STUDENT_GROUP_ADVISOR_UNASSIGN_OWN,
+    STUDENT_GROUP_ADVISOR_READ,
+    TEACHER_SUBJECT_READ_ANY,
+    TEACHER_SUBJECT_READ_OWN,
+    TEACHER_SUBJECT_ADD_ANY,
+    TEACHER_SUBJECT_ADD_OWN,
+    TEACHER_SUBJECT_ASSIGN_ANY,
+    TEACHER_SUBJECT_ASSIGN_OWN,
+    TEACHER_SUBJECT_UNASSIGN_ANY,
+    TEACHER_SUBJECT_UNASSIGN_OWN,
+    TEACHER_CLASSROOM_READ_ANY,
+    TEACHER_CLASSROOM_READ_OWN,
+    TEACHER_CLASSROOM_ASSIGN_ANY,
+    TEACHER_CLASSROOM_ASSIGN_OWN,
+    TEACHER_CLASSROOM_UNASSIGN_ANY,
+    TEACHER_CLASSROOM_UNASSIGN_OWN,
+    TEACHER_READ_OTHER,
+    TEACHER_READ_OWN,
+    TEACHER_STUDENT_GROUP_READ_OWN,
+    PARENT_STUDENT_READ_ANY,
+    PARENT_STUDENT_READ_OWN,
+    PARENT_STUDENT_ADD_ANY,
+    PARENT_STUDENT_ADD_OWN,
+    PARENT_STUDENT_UNASSIGN_ANY,
+    PARENT_STUDENT_UNASSIGN_OWN,
+    PARENT_READ_OTHER,
+    PARENT_READ_OWN,
+    PARENT_STUDENT_GROUP_READ_OWN,
+    ROLE_ASSIGN,
+    ROLE_ADD,
+    ROLE_DELETE,
+    ROLE_READ_ANY,
+    ROLE_READ_OWN,
+    TOKEN_INVITE_ADMIN_CREATE,
+    TOKEN_INVITE_USER_CREATE,
+    TOKEN_INVITE_ADMIN_DELETE,
+    TOKEN_INVITE_USER_DELETE,
+    STUDENT_READ_OTHER,
+    STUDENT_READ_OWN,
+    STUDENT_CLASSROOM_READ_ANY,
+    STUDENT_CLASSROOM_READ_OWN,
+    STUDENT_ADVISOR_READ_ANY,
+    STUDENT_ADVISOR_READ_OWN,
+    STUDENT_PARENT_READ_ANY,
+    STUDENT_PARENT_READ_OWN,
+    STUDENT_STUDENT_GROUP_READ_OWN,
+    INSTITUTION_ADMINISTRATOR_READ_OTHER,
+    INSTITUTION_ADMINISTRATOR_READ_OWN,
+    INSTITUTION_ADMINISTRATOR_POSITION_ASSIGN,
+    INSTITUTION_ADMINISTRATOR_POSITION_READ,
+    STAFF_READ_OTHER,
+    STAFF_READ_OWN,
+    STAFF_POSITION_ASSIGN,
+    STAFF_POSITION_READ,
+    POSITION_INSTITUTION_ADMINISTRATOR_CREATE,
+    POSITION_INSTITUTION_ADMINISTRATOR_READ,
+    POSITION_INSTITUTION_ADMINISTRATOR_UPDATE,
+    POSITION_INSTITUTION_ADMINISTRATOR_DELETE,
+    POSITION_STAFF_CREATE,
+    POSITION_STAFF_READ,
+    POSITION_STAFF_UPDATE,
+    POSITION_STAFF_DELETE,
   };
 }
 
