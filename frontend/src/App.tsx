@@ -7,7 +7,7 @@ import { useAuth } from "./lib/auth";
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PublicPosts = lazy(() => import("./pages/PublicPosts"));
-const PostsToVerify = lazy(() => import("./pages/PostsToVerify"));
+const PostsToVerify = lazy(() => import("./pages/admin/PostsToVerify"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
 const Profile = lazy(() => import("./pages/Profile"));
 

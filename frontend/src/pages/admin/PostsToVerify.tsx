@@ -1,8 +1,8 @@
 import { createSignal, onMount, For, Show } from "solid-js";
-import { api } from "../lib/api";
-import { usePermissions, PERMISSIONS } from "../lib/permissions";
-import type { Post } from "../lib/types";
-import PostCardCompact from "../components/PostCardCompact";
+import { api } from "../../lib/api";
+import { usePermissions, PERMISSIONS } from "../../lib/permissions";
+import type { Post } from "../../lib/types";
+import PostCardCompact from "../../components/PostCardCompact";
 
 const PostsToVerify = () => {
   const { hasPermission } = usePermissions();
