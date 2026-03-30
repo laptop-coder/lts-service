@@ -255,3 +255,23 @@ export function getPermissions() {
     PositionStaffDelete,
   };
 }
+
+export function getRoles() {
+  const SUPERADMIN = "superadmin";
+  const ADMIN = "admin";
+  const INSTITUTION_ADMINISTRATOR = "institution_administrator";
+  const STAFF = "staff";
+  const TEACHER = "teacher";
+  const PARENT = "parent";
+  const STUDENT = "student";
+
+  return {
+    SUPERADMIN,
+    ADMIN,
+    INSTITUTION_ADMINISTRATOR,
+    STAFF,
+    TEACHER,
+    PARENT,
+    STUDENT,
+  };
+}
