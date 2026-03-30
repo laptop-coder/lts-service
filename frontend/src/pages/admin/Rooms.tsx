@@ -74,7 +74,7 @@ const Rooms = () => {
       </Show>
 
       {/* Form for rooms creating */}
-      <Show when={hasPermission(PERMISSIONS.SUBJECT_CREATE)}>
+      <Show when={hasPermission(PERMISSIONS.ROOM_CREATE)}>
         <form onSubmit={createRoom} class="bg-gray-50 p-4 rounded-lg space-y-3">
           <h2 class="font-semibold">Создать новый кабинет</h2>
           <div class="flex gap-2">
@@ -98,7 +98,7 @@ const Rooms = () => {
       </Show>
 
       {/* List of rooms */}
-      {hasPermission(PERMISSIONS.SUBJECT_READ)&&
+      {hasPermission(PERMISSIONS.ROOM_READ)&&
       <>
       <Show when={loading()}>
         <div class="text-center py-8">Загрузка...</div>
@@ -127,7 +127,7 @@ const Rooms = () => {
                     <td class="px-4 py-3 text-sm text-gray-500">{room.id}</td>
                     <td class="px-4 py-3 font-medium">{room.name}</td>
                     <td class="px-4 py-3 text-right">
-                      <Show when={hasPermission(PERMISSIONS.SUBJECT_DELETE)}>
+                      <Show when={hasPermission(PERMISSIONS.ROOM_DELETE)}>
                         <button
                           onClick={() => deleteRoom(room.id)}
                           disabled={deletingId() === room.id}
