@@ -1,5 +1,6 @@
 import { For, Show, createSignal } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
+import { usePermissions, ROLES } from "../lib/permissions";
 
 interface Props {
   children?: any;
@@ -56,6 +57,7 @@ const AdminLayout = (props: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openSubmenu, setOpenSubmenu] = createSignal<string | null>(null);
+  const {hasRole} = usePermissions()
 
   const isActive = (path: string) => location.pathname === path;
   const isParentActive = (tab: Tab) => {
@@ -71,6 +73,9 @@ const AdminLayout = (props: Props) => {
   };
 
   return (
+    <>
+    {
+    hasRole(ROLES.ADMIN) &&
     <div class="flex min-h-screen bg-gray-100">
       <aside class="w-64 bg-white shadow-lg overflow-y-auto">
         <div class="p-4 border-b">
@@ -132,6 +137,8 @@ const AdminLayout = (props: Props) => {
         <div class="bg-white rounded-lg shadow-sm p-6">{props.children}</div>
       </main>
     </div>
+}
+    </>
   );
 };
 
