@@ -1,35 +1,58 @@
 import { createSignal, Show, For } from "solid-js";
 import { api } from "../lib/api";
-import { PERMISSIONS, ROLES } from "../lib/permissions";
+import { PERMISSIONS } from "../lib/permissions";
 import { usePermissions } from "../lib/permissions";
+import QRCodeButton from "../components/QRCode";
 
 const InviteTokens = () => {
   const [count, setCount] = createSignal(1);
   const [selectedRoles, setSelectedRoles] = createSignal<number[]>([]);
-  const [tokens, setTokens] = createSignal<{ token: string; index: number }[]>([]);
+  const [tokens, setTokens] = createSignal<{ token: string; index: number }[]>(
+    [],
+  );
   const [creating, setCreating] = createSignal(false);
   const [error, setError] = createSignal("");
   const [progress, setProgress] = createSignal({ current: 0, total: 0 });
-  const [buttonCopiedIndex, setButtonCopiedIndex] = createSignal<number | null>(null);
+  const [buttonCopiedIndex, setButtonCopiedIndex] = createSignal<number | null>(
+    null,
+  );
 
   const { hasPermission } = usePermissions();
 
   const roles = [
-    { id: 2, name: "Администратор", permission: PERMISSIONS.TOKEN_INVITE_ADMIN_CREATE },
-    { id: 3, name: "Администрация ОУ", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
-    { id: 4, name: "Сотрудник ОУ", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
-    { id: 5, name: "Учитель", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
-    { id: 6, name: "Родитель", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
+    {
+      id: 2,
+      name: "Администратор",
+      permission: PERMISSIONS.TOKEN_INVITE_ADMIN_CREATE,
+    },
+    {
+      id: 3,
+      name: "Администрация ОУ",
+      permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
+    },
+    {
+      id: 4,
+      name: "Сотрудник ОУ",
+      permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
+    },
+    {
+      id: 5,
+      name: "Учитель",
+      permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
+    },
+    {
+      id: 6,
+      name: "Родитель",
+      permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
+    },
     { id: 7, name: "Ученик", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
   ];
 
-  const availableRoles = roles.filter(role =>
-    hasPermission(role.permission)
-  );
+  const availableRoles = roles.filter((role) => hasPermission(role.permission));
 
   const toggleRole = (roleId: number) => {
     if (selectedRoles().includes(roleId)) {
-      setSelectedRoles(selectedRoles().filter(id => id !== roleId));
+      setSelectedRoles(selectedRoles().filter((id) => id !== roleId));
     } else {
       setSelectedRoles([...selectedRoles(), roleId]);
     }
@@ -37,8 +60,11 @@ const InviteTokens = () => {
 
   const createToken = async (roleIds: number[]): Promise<string> => {
     const formData = new URLSearchParams();
-    roleIds.forEach(id => formData.append("roleId", id.toString()));
-    const data = await api.post<{ inviteToken: string }>("/tokens/invite", formData);
+    roleIds.forEach((id) => formData.append("roleId", id.toString()));
+    const data = await api.post<{ inviteToken: string }>(
+      "/tokens/invite",
+      formData,
+    );
     return data.inviteToken;
   };
 
@@ -60,7 +86,9 @@ const InviteTokens = () => {
         results.push({ token, index: i + 1 });
         setProgress({ current: i + 1, total: count() });
       } catch (err) {
-        setError(`Ошибка при создании токена ${i + 1}: ${err instanceof Error ? err.message : err}`);
+        setError(
+          `Ошибка при создании токена ${i + 1}: ${err instanceof Error ? err.message : err}`,
+        );
         break;
       }
     }
@@ -70,8 +98,8 @@ const InviteTokens = () => {
 
   const copyToClipboard = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
-    setButtonCopiedIndex(index)
-    setTimeout(() => setButtonCopiedIndex(null), 2000)
+    setButtonCopiedIndex(index);
+    setTimeout(() => setButtonCopiedIndex(null), 2000);
   };
 
   return (
@@ -85,20 +113,31 @@ const InviteTokens = () => {
       <div class="bg-white rounded-lg shadow p-6 space-y-4 max-w-md">
         {/* Count */}
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Количество токенов</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Количество токенов
+          </label>
           <input
             type="number"
             min="1"
             max="100"
             value={count()}
-            onInput={(e) => setCount(Math.min(100, Math.max(1, parseInt(e.currentTarget.value) || 1)))}
+            onInput={(e) =>
+              setCount(
+                Math.min(
+                  100,
+                  Math.max(1, parseInt(e.currentTarget.value) || 1),
+                ),
+              )
+            }
             class="w-24 px-3 py-2 border rounded-md"
           />
         </div>
 
         {/* Roles */}
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Роли</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Роли
+          </label>
           <div class="space-y-2">
             <For each={availableRoles}>
               {(role) => (
@@ -120,7 +159,9 @@ const InviteTokens = () => {
           disabled={creating()}
           class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
         >
-          {creating() ? `Создание... ${progress().current}/${progress().total}` : "Создать токены"}
+          {creating()
+            ? `Создание... ${progress().current}/${progress().total}`
+            : "Создать токены"}
         </button>
       </div>
 
@@ -132,13 +173,18 @@ const InviteTokens = () => {
             <For each={tokens()}>
               {(item, index) => (
                 <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <code class="text-sm font-mono break-all flex-1">{item.token}</code>
-                  <button
-                    onClick={() => copyToClipboard(item.token, index())}
-                    class="ml-4 px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                  {buttonCopiedIndex() === index() ? 'Скопировано!' : 'Копировать'}
-                  </button>
+                  <code class="text-sm font-mono break-all flex-1">
+                    {item.token}
+                  </code>
+                  <div class="flex gap-2">
+                    <button
+                      onClick={() => copyToClipboard(`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`, index())}
+                      class="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                      {buttonCopiedIndex() === index() ? "Скопировано!" : "Копировать"}
+                    </button>
+                    <QRCodeButton text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`} />
+                  </div>
                 </div>
               )}
             </For>
