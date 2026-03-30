@@ -44,7 +44,13 @@ const tabs: Tab[] = [
   {
     key: "student-groups",
     label: "Учебные группы",
-    path: "/admin/student_groups",
+    subTabs: [
+      {
+        key: "student-groups-management",
+        label: "Управление",
+        path: "/admin/student_groups/management",
+      }
+    ]
   },
   {
     key: "invite-tokens",
