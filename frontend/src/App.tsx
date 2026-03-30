@@ -1,6 +1,7 @@
 import { Router, Route } from "@solidjs/router";
 import { lazy, onMount } from "solid-js";
 import { PublicRoute, ProtectedRoute } from "./components/Layouts";
+import AdminLayout from "./components/AdminLayout";
 import { useAuth } from "./lib/auth";
 
 const Login = lazy(() => import("./pages/Login"));
@@ -29,9 +30,14 @@ function App() {
         children={
           <>
             <Route path="/" component={PublicPosts} />
-            <Route path="/posts/verification" component={PostsToVerify} />
             <Route path="/posts/new" component={CreatePost} />
             <Route path="/profile" component={Profile} />
+            <Route path="/admin" component={AdminLayout}>
+              <Route
+                path="/posts/verification"
+                component={PostsToVerify}
+              ></Route>
+            </Route>
           </>
         }
       />
