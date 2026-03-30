@@ -1,7 +1,7 @@
 import { type Component, type JSX } from "solid-js";
 import { useNavigate, A } from "@solidjs/router";
 import { useAuth } from "../lib/auth";
-import { usePermissions, PERMISSIONS } from "../lib/permissions";
+import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
 
 interface Props {
   children?: JSX.Element;
@@ -10,7 +10,7 @@ interface Props {
 export const PublicRoute: Component<Props> = (props) => {
   const navigate = useNavigate();
   const auth = useAuth();
-  const {hasPermission} = usePermissions();
+  const {hasPermission, hasRole} = usePermissions();
 
   const handleLogout = async () => {
     await auth.logout();
@@ -23,6 +23,7 @@ export const PublicRoute: Component<Props> = (props) => {
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
           <A href="/"><h1 class="text-xl font-bold">Сервис поиска потерянных вещей</h1></A>
           <div class="flex items-center gap-4">
+          {hasRole(ROLES.ADMIN) && <A class="text-xl font-bold" href="/admin">А</A>}
           {hasPermission(PERMISSIONS.POST_CREATE) && <A class="text-xl font-bold" href="/posts/new">+</A>}
             <A href="/profile">
               {auth.user()?.firstName} {auth.user()?.lastName}

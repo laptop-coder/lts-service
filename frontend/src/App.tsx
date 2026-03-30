@@ -1,4 +1,4 @@
-import { Router, Route } from "@solidjs/router";
+import { Router, Route, Navigate } from "@solidjs/router";
 import { lazy, onMount } from "solid-js";
 import { PublicRoute, ProtectedRoute } from "./components/Layouts";
 import AdminLayout from "./components/AdminLayout";
@@ -34,9 +34,13 @@ function App() {
             <Route path="/profile" component={Profile} />
             <Route path="/admin" component={AdminLayout}>
               <Route
+                path="/"
+                component={() => <Navigate href='posts/verification'/>}
+              />
+              <Route
                 path="/posts/verification"
                 component={PostsToVerify}
-              ></Route>
+              />
             </Route>
           </>
         }
