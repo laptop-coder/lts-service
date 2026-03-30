@@ -11,6 +11,7 @@ const PostsToVerify = lazy(() => import("./pages/admin/PostsToVerify"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
+const Rooms = lazy(() => import("./pages/admin/Rooms"));
 
 function App() {
   const auth = useAuth();
@@ -45,6 +46,10 @@ function App() {
               <Route
                 path="/subjects"
                 component={Subjects}
+              />
+              <Route
+                path="/rooms"
+                component={Rooms}
               />
             </Route>
           </>
