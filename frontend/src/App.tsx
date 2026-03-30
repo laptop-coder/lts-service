@@ -10,6 +10,7 @@ const PublicPosts = lazy(() => import("./pages/PublicPosts"));
 const PostsToVerify = lazy(() => import("./pages/admin/PostsToVerify"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Subjects = lazy(() => import("./pages/admin/Subjects"));
 
 function App() {
   const auth = useAuth();
@@ -40,6 +41,10 @@ function App() {
               <Route
                 path="/posts/verification"
                 component={PostsToVerify}
+              />
+              <Route
+                path="/subjects"
+                component={Subjects}
               />
             </Route>
           </>
