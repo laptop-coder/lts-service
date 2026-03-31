@@ -45,7 +45,7 @@ const InviteTokens = () => {
 
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
-  const DELAY_MS = 200;
+  const DELAY_MS = 500;
 
   const roles = [
     {
