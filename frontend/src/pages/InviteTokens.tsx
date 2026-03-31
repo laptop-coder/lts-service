@@ -19,8 +19,33 @@ const InviteTokens = () => {
 
   const { hasPermission } = usePermissions();
 
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-  const DELAY_MS = 200
+  const downloadTokensFile = () => {
+    if (tokens().length === 0 || selectedRoles().length === 0) return;
+    // Assemble content
+    const content = `# Индивидуальные пригласительные ссылки для регистрации аккаунтов\n\nРоли:\n${selectedRoles()
+      .map((id) => `- ${roles.find((r) => r.id === id)?.name}`)
+      .join("\n")}\n\n${tokens()
+      .map(
+        (item) =>
+          `8< ----------------------\n\n${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}\n`,
+      )
+      .join("\n")}`;
+    // Create file in browser
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    // Create download link and click
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invite-tokens_${new Date().toISOString().slice(0, 19)}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+  const DELAY_MS = 200;
 
   const roles = [
     {
@@ -85,7 +110,7 @@ const InviteTokens = () => {
     const results: { token: string; index: number }[] = [];
     for (let i = 0; i < count(); i++) {
       try {
-        await delay(DELAY_MS)
+        await delay(DELAY_MS);
         const token = await createToken(selectedRoles());
         results.push({ token, index: i + 1 });
         setProgress({ current: i + 1, total: count() });
@@ -171,6 +196,12 @@ const InviteTokens = () => {
 
       {/* List of created tokens */}
       <Show when={tokens().length > 0}>
+        <button
+          onClick={downloadTokensFile}
+          class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50"
+        >
+          Скачать Markdown
+        </button>
         <div class="bg-white rounded-lg shadow p-6 space-y-3">
           <h2 class="text-lg font-semibold">Созданные токены</h2>
           <div class="space-y-2 max-h-96 overflow-y-auto">
