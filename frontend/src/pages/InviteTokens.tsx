@@ -19,6 +19,9 @@ const InviteTokens = () => {
 
   const { hasPermission } = usePermissions();
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+  const DELAY_MS = 200
+
   const roles = [
     {
       id: 2,
@@ -82,6 +85,7 @@ const InviteTokens = () => {
     const results: { token: string; index: number }[] = [];
     for (let i = 0; i < count(); i++) {
       try {
+        await delay(DELAY_MS)
         const token = await createToken(selectedRoles());
         results.push({ token, index: i + 1 });
         setProgress({ current: i + 1, total: count() });
@@ -119,12 +123,12 @@ const InviteTokens = () => {
           <input
             type="number"
             min="1"
-            max="100"
+            max="500"
             value={count()}
             onInput={(e) =>
               setCount(
                 Math.min(
-                  100,
+                  500,
                   Math.max(1, parseInt(e.currentTarget.value) || 1),
                 ),
               )
