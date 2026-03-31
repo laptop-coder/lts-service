@@ -49,8 +49,8 @@ const tabs: Tab[] = [
         key: "student-groups-management",
         label: "Управление",
         path: "/admin/student_groups/management",
-      }
-    ]
+      },
+    ],
   },
   {
     key: "invite-tokens",
@@ -63,7 +63,7 @@ const AdminLayout = (props: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openSubmenu, setOpenSubmenu] = createSignal<string | null>(null);
-  const {hasRole} = usePermissions()
+  const { hasRole } = usePermissions();
 
   const isActive = (path: string) => location.pathname === path;
   const isParentActive = (tab: Tab) => {
@@ -80,70 +80,71 @@ const AdminLayout = (props: Props) => {
 
   return (
     <>
-    {
-    hasRole(ROLES.ADMIN) &&
-    <div class="flex min-h-screen bg-gray-100">
-      <aside class="w-64 bg-white shadow-lg overflow-y-auto">
-        <div class="p-4 border-b">
-          <h2 class="text-xl font-bold">Панель администратора</h2>
-        </div>
-        <nav class="p-2">
-          <div class="space-y-1">
-            <For each={tabs}>
-              {(tab) => (
-                <div>
-                  {tab.path ? (
-                    <button
-                      onClick={() => navigate(tab.path!)}
-                      class={`
+      {hasRole(ROLES.ADMIN) && (
+        <div class="flex min-h-screen bg-gray-100">
+          <aside class="w-64 bg-white shadow-lg overflow-y-auto">
+            <div class="p-4 border-b">
+              <h2 class="text-xl font-bold">Панель администратора</h2>
+            </div>
+            <nav class="p-2">
+              <div class="space-y-1">
+                <For each={tabs}>
+                  {(tab) => (
+                    <div>
+                      {tab.path ? (
+                        <button
+                          onClick={() => navigate(tab.path!)}
+                          class={`
                         w-full text-left px-4 py-2 rounded-lg transition-colors
                         ${isActive(tab.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
                       `}
-                    >
-                      {tab.label}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => toggleSubmenu(tab.key)}
-                      class={`
+                        >
+                          {tab.label}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => toggleSubmenu(tab.key)}
+                          class={`
                         w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center
                         ${isParentActive(tab) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
                       `}
-                    >
-                      <span>{tab.label}</span>
-                      <span>{openSubmenu() === tab.key ? "▼" : "▶"}</span>
-                    </button>
-                  )}
+                        >
+                          <span>{tab.label}</span>
+                          <span>{openSubmenu() === tab.key ? "▼" : "▶"}</span>
+                        </button>
+                      )}
 
-                  <Show when={tab.subTabs && openSubmenu() === tab.key}>
-                    <div class="ml-4 mt-1 space-y-1">
-                      <For each={tab.subTabs}>
-                        {(sub) => (
-                          <button
-                            onClick={() => navigate(sub.path)}
-                            class={`
+                      <Show when={tab.subTabs && openSubmenu() === tab.key}>
+                        <div class="ml-4 mt-1 space-y-1">
+                          <For each={tab.subTabs}>
+                            {(sub) => (
+                              <button
+                                onClick={() => navigate(sub.path)}
+                                class={`
                               w-full text-left px-4 py-2 rounded-lg text-sm transition-colors
                               ${isActive(sub.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
                             `}
-                          >
-                            {sub.label}
-                          </button>
-                        )}
-                      </For>
+                              >
+                                {sub.label}
+                              </button>
+                            )}
+                          </For>
+                        </div>
+                      </Show>
                     </div>
-                  </Show>
-                </div>
-              )}
-            </For>
-          </div>
-        </nav>
-      </aside>
+                  )}
+                </For>
+              </div>
+            </nav>
+          </aside>
 
-      <main class="flex-1 p-6 overflow-auto">
-        <div class="bg-white rounded-lg shadow-sm p-6">{props.children}</div>
-      </main>
-    </div>
-}
+          <main class="flex-1 p-6 overflow-auto">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              {props.children}
+            </div>
+          </main>
+        </div>
+      )}
     </>
   );
 };

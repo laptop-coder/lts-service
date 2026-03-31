@@ -2,8 +2,7 @@ import { createSignal, onMount, For, Show } from "solid-js";
 import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
-import type {Room} from '../../lib/types'
-
+import type { Room } from "../../lib/types";
 
 const Rooms = () => {
   const [rooms, setRooms] = createSignal<Room[]>([]);
@@ -20,7 +19,9 @@ const Rooms = () => {
       const data = await api.get<{ rooms: Room[] }>("/rooms");
       setRooms(data.rooms);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка загрузки кабинетов");
+      setError(
+        err instanceof Error ? err.message : "Ошибка загрузки кабинетов",
+      );
     } finally {
       setLoading(false);
     }
@@ -98,54 +99,64 @@ const Rooms = () => {
       </Show>
 
       {/* List of rooms */}
-      {hasPermission(PERMISSIONS.ROOM_READ)&&
-      <>
-      <Show when={loading()}>
-        <div class="text-center py-8">Загрузка...</div>
-      </Show>
+      {hasPermission(PERMISSIONS.ROOM_READ) && (
+        <>
+          <Show when={loading()}>
+            <div class="text-center py-8">Загрузка...</div>
+          </Show>
 
-      <Show when={!loading() && rooms().length === 0}>
-        <div class="text-center text-gray-500 py-8">
-          Нет кабинетов. Создайте первый.
-        </div>
-      </Show>
+          <Show when={!loading() && rooms().length === 0}>
+            <div class="text-center text-gray-500 py-8">
+              Нет кабинетов. Создайте первый.
+            </div>
+          </Show>
 
-      <Show when={!loading() && rooms().length > 0}>
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-          <table class="w-full">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">ID</th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Название</th>
-                <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">Действия</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <For each={rooms()}>
-                {(room) => (
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 text-sm text-gray-500">{room.id}</td>
-                    <td class="px-4 py-3 font-medium">{room.name}</td>
-                    <td class="px-4 py-3 text-right">
-                      <Show when={hasPermission(PERMISSIONS.ROOM_DELETE)}>
-                        <button
-                          onClick={() => deleteRoom(room.id)}
-                          disabled={deletingId() === room.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
-                        >
-                          {deletingId() === room.id ? "Удаление..." : "Удалить"}
-                        </button>
-                      </Show>
-                    </td>
+          <Show when={!loading() && rooms().length > 0}>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                      ID
+                    </th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                      Название
+                    </th>
+                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                      Действия
+                    </th>
                   </tr>
-                )}
-              </For>
-            </tbody>
-          </table>
-        </div>
-      </Show>
-      </>
-}
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <For each={rooms()}>
+                    {(room) => (
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm text-gray-500">
+                          {room.id}
+                        </td>
+                        <td class="px-4 py-3 font-medium">{room.name}</td>
+                        <td class="px-4 py-3 text-right">
+                          <Show when={hasPermission(PERMISSIONS.ROOM_DELETE)}>
+                            <button
+                              onClick={() => deleteRoom(room.id)}
+                              disabled={deletingId() === room.id}
+                              class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                            >
+                              {deletingId() === room.id
+                                ? "Удаление..."
+                                : "Удалить"}
+                            </button>
+                          </Show>
+                        </td>
+                      </tr>
+                    )}
+                  </For>
+                </tbody>
+              </table>
+            </div>
+          </Show>
+        </>
+      )}
     </div>
   );
 };

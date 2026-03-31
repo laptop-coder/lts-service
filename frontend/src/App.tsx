@@ -12,7 +12,9 @@ const CreatePost = lazy(() => import("./pages/CreatePost"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
-const StudentGroupsManagement = lazy(() => import("./pages/admin/StudentGroupsManagement"));
+const StudentGroupsManagement = lazy(
+  () => import("./pages/admin/StudentGroupsManagement"),
+);
 const InviteTokens = lazy(() => import("./pages/InviteTokens"));
 
 function App() {
@@ -39,28 +41,16 @@ function App() {
             <Route path="/admin" component={AdminLayout}>
               <Route
                 path="/"
-                component={() => <Navigate href='posts/verification'/>}
+                component={() => <Navigate href="posts/verification" />}
               />
-              <Route
-                path="/posts/verification"
-                component={PostsToVerify}
-              />
-              <Route
-                path="/subjects"
-                component={Subjects}
-              />
-              <Route
-                path="/rooms"
-                component={Rooms}
-              />
+              <Route path="/posts/verification" component={PostsToVerify} />
+              <Route path="/subjects" component={Subjects} />
+              <Route path="/rooms" component={Rooms} />
               <Route
                 path="/student_groups/management"
                 component={StudentGroupsManagement}
               />
-              <Route
-                path="/invite_tokens"
-                component={InviteTokens}
-              />
+              <Route path="/invite_tokens" component={InviteTokens} />
             </Route>
           </>
         }

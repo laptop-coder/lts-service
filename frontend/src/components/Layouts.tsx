@@ -10,7 +10,7 @@ interface Props {
 export const PublicRoute: Component<Props> = (props) => {
   const navigate = useNavigate();
   const auth = useAuth();
-  const {hasPermission, hasRole} = usePermissions();
+  const { hasPermission, hasRole } = usePermissions();
 
   const handleLogout = async () => {
     await auth.logout();
@@ -21,10 +21,20 @@ export const PublicRoute: Component<Props> = (props) => {
     <div class="min-h-screen bg-gray-100">
       <header class="bg-white shadow">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-          <A href="/"><h1 class="text-xl font-bold">Сервис поиска потерянных вещей</h1></A>
+          <A href="/">
+            <h1 class="text-xl font-bold">Сервис поиска потерянных вещей</h1>
+          </A>
           <div class="flex items-center gap-4">
-          {hasRole(ROLES.ADMIN) && <A class="text-xl font-bold" href="/admin">А</A>}
-          {hasPermission(PERMISSIONS.POST_CREATE) && <A class="text-xl font-bold" href="/posts/new">+</A>}
+            {hasRole(ROLES.ADMIN) && (
+              <A class="text-xl font-bold" href="/admin">
+                А
+              </A>
+            )}
+            {hasPermission(PERMISSIONS.POST_CREATE) && (
+              <A class="text-xl font-bold" href="/posts/new">
+                +
+              </A>
+            )}
             <A href="/profile">
               {auth.user()?.firstName} {auth.user()?.lastName}
             </A>

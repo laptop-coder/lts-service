@@ -1,8 +1,7 @@
 import { createSignal, onMount, For, Show } from "solid-js";
 import { api } from "../lib/api";
 import type { Post } from "../lib/types";
-import PostCardCompact from '../components/PostCardCompact'
-
+import PostCardCompact from "../components/PostCardCompact";
 
 const PublicPosts = () => {
   const [posts, setPosts] = createSignal<Post[]>([]);
@@ -14,7 +13,9 @@ const PublicPosts = () => {
       const data = await api.get<{ posts: Post[] }>("/posts/public");
       setPosts(data.posts);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка загрузки объявлений");
+      setError(
+        err instanceof Error ? err.message : "Ошибка загрузки объявлений",
+      );
     } finally {
       setLoading(false);
     }
@@ -25,35 +26,30 @@ const PublicPosts = () => {
   });
 
   return (
-      <div class="max-w-4xl mx-auto space-y-6">
-        <h1 class="text-2xl font-bold text-center">Объявления</h1>
+    <div class="max-w-4xl mx-auto space-y-6">
+      <h1 class="text-2xl font-bold text-center">Объявления</h1>
 
-        <Show when={loading()}>
-          <div class="text-center py-8">Загрузка...</div>
-        </Show>
+      <Show when={loading()}>
+        <div class="text-center py-8">Загрузка...</div>
+      </Show>
 
-        <Show when={error()}>
-          <div class="bg-red-100 text-red-700 p-4 rounded-lg">{error()}</div>
-        </Show>
+      <Show when={error()}>
+        <div class="bg-red-100 text-red-700 p-4 rounded-lg">{error()}</div>
+      </Show>
 
-        <Show when={!loading() && !error()}>
-          <div class="space-y-4">
-            <For each={posts()}>
-              {(post) => (
-                <PostCardCompact post={post}/>
-              )}
-            </For>
+      <Show when={!loading() && !error()}>
+        <div class="space-y-4">
+          <For each={posts()}>{(post) => <PostCardCompact post={post} />}</For>
 
-            <Show when={posts().length === 0}>
-              <div class="text-center text-gray-500 py-8">
-                Пока нет объявлений
-              </div>
-            </Show>
-          </div>
-        </Show>
-      </div>
+          <Show when={posts().length === 0}>
+            <div class="text-center text-gray-500 py-8">
+              Пока нет объявлений
+            </div>
+          </Show>
+        </div>
+      </Show>
+    </div>
   );
 };
 
 export default PublicPosts;
-

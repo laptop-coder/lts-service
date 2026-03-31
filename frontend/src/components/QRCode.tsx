@@ -37,8 +37,14 @@ const QRCodeButton = (props: Props) => {
       </button>
 
       <Show when={showQR()}>
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={closeQR}>
-          <div class="bg-white p-6 rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={closeQR}
+        >
+          <div
+            class="bg-white p-6 rounded-lg shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img src={qrDataUrl()} alt="QR Code" class="w-64 h-64" />
             <div class="mt-4 text-center">
               <button

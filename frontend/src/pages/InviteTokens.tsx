@@ -178,12 +178,21 @@ const InviteTokens = () => {
                   </code>
                   <div class="flex gap-2">
                     <button
-                      onClick={() => copyToClipboard(`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`, index())}
+                      onClick={() =>
+                        copyToClipboard(
+                          `${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`,
+                          index(),
+                        )
+                      }
                       class="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
                     >
-                      {buttonCopiedIndex() === index() ? "Скопировано!" : "Копировать"}
+                      {buttonCopiedIndex() === index()
+                        ? "Скопировано!"
+                        : "Копировать"}
                     </button>
-                    <QRCodeButton text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`} />
+                    <QRCodeButton
+                      text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`}
+                    />
                   </div>
                 </div>
               )}

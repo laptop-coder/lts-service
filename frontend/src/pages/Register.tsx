@@ -162,9 +162,7 @@ const Register = () => {
     try {
       await auth.register(formData);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Ошибка регистрации",
-      );
+      setError(err instanceof Error ? err.message : "Ошибка регистрации");
     } finally {
       setLoading(false);
       navigate("/");
