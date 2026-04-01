@@ -53,19 +53,16 @@ export const PERMISSIONS = {
 
   // Room permissions
   ROOM_CREATE: "room.create",
-  ROOM_READ: "room.read",
   ROOM_UPDATE: "room.update",
   ROOM_DELETE: "room.delete",
 
   // Subject permissions
   SUBJECT_CREATE: "subject.create",
-  SUBJECT_READ: "subject.read",
   SUBJECT_UPDATE: "subject.update",
   SUBJECT_DELETE: "subject.delete",
 
   // Student group permissions
   STUDENT_GROUP_CREATE: "student_group.create",
-  STUDENT_GROUP_READ_ANY: "student_group.read.any",
   STUDENT_GROUP_UPDATE: "student_group.update",
   STUDENT_GROUP_DELETE: "student_group.delete",
   STUDENT_GROUP_ADVISOR_ASSIGN: "student_group.advisor.assign",
@@ -144,8 +141,6 @@ export const PERMISSIONS = {
   // Position institution administrator
   POSITION_INSTITUTION_ADMINISTRATOR_CREATE:
     "position.institution_administrator.create",
-  POSITION_INSTITUTION_ADMINISTRATOR_READ:
-    "position.institution_administrator.read",
   POSITION_INSTITUTION_ADMINISTRATOR_UPDATE:
     "position.institution_administrator.update",
   POSITION_INSTITUTION_ADMINISTRATOR_DELETE:
@@ -153,7 +148,6 @@ export const PERMISSIONS = {
 
   // Position staff
   POSITION_STAFF_CREATE: "position.staff.create",
-  POSITION_STAFF_READ: "position.staff.read",
   POSITION_STAFF_UPDATE: "position.staff.update",
   POSITION_STAFF_DELETE: "position.staff.delete",
 };
@@ -167,3 +161,13 @@ export const ROLES = {
   PARENT: "parent",
   STUDENT: "student",
 };
+
+export const ROLES_TO_DISPLAY = [
+  {id: 1, name: ROLES.SUPERADMIN, displayName: "Суперадминистратор"},
+  {id: 2, name: ROLES.ADMIN, displayName: "Админ"},
+  {id: 3, name: ROLES.INSTITUTION_ADMINISTRATOR, displayName: "Администрация"},
+  {id: 4, name: ROLES.STAFF, displayName: "Сотрудник"},
+  {id: 5, name: ROLES.TEACHER, displayName: "Преподаватель"},
+  {id: 6, name: ROLES.PARENT, displayName: "Родитель"},
+  {id: 7, name: ROLES.STUDENT, displayName: "Обучающийся"},
+]

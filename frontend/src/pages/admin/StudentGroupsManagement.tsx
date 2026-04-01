@@ -117,7 +117,6 @@ const StudentGroupsManagement = () => {
       </Show>
 
       {/* List of student groups */}
-      {hasPermission(PERMISSIONS.STUDENT_GROUP_READ_ANY) && (
         <>
           <Show when={loading()}>
             <div class="text-center py-8">Загрузка...</div>
@@ -182,7 +181,6 @@ const StudentGroupsManagement = () => {
             </div>
           </Show>
         </>
-      )}
     </div>
   );
 };

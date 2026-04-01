@@ -102,7 +102,6 @@ const Subjects = () => {
       </Show>
 
       {/* List of subjects */}
-      {hasPermission(PERMISSIONS.SUBJECT_READ) && (
         <>
           <Show when={loading()}>
             <div class="text-center py-8">Загрузка...</div>
@@ -161,7 +160,6 @@ const Subjects = () => {
             </div>
           </Show>
         </>
-      )}
     </div>
   );
 };

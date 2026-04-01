@@ -20,7 +20,7 @@ const Rooms = () => {
       setRooms(data.rooms);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Ошибка загрузки кабинетов",
+        err instanceof Error ? err.message : "Ошибка загрузки кабинетов", // TODO: is it safety to print err message?
       );
     } finally {
       setLoading(false);
@@ -99,7 +99,6 @@ const Rooms = () => {
       </Show>
 
       {/* List of rooms */}
-      {hasPermission(PERMISSIONS.ROOM_READ) && (
         <>
           <Show when={loading()}>
             <div class="text-center py-8">Загрузка...</div>
@@ -156,7 +155,6 @@ const Rooms = () => {
             </div>
           </Show>
         </>
-      )}
     </div>
   );
 };
