@@ -99,7 +99,6 @@ const Rooms = () => {
       </Show>
 
       {/* List of rooms */}
-        <>
           <Show when={loading()}>
             <div class="text-center py-8">Загрузка...</div>
           </Show>
@@ -154,7 +153,6 @@ const Rooms = () => {
               </table>
             </div>
           </Show>
-        </>
     </div>
   );
 };

@@ -117,7 +117,6 @@ const StudentGroupsManagement = () => {
       </Show>
 
       {/* List of student groups */}
-        <>
           <Show when={loading()}>
             <div class="text-center py-8">Загрузка...</div>
           </Show>
@@ -180,7 +179,6 @@ const StudentGroupsManagement = () => {
               </table>
             </div>
           </Show>
-        </>
     </div>
   );
 };
