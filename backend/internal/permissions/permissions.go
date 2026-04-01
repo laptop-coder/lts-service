@@ -30,7 +30,6 @@ const (
 // Room permissions
 const (
 	RoomCreate = "room.create"
-	RoomRead   = "room.read"
 	RoomUpdate = "room.update"
 	RoomDelete = "room.delete"
 )
@@ -38,7 +37,6 @@ const (
 // Subject permissions
 const (
 	SubjectCreate = "subject.create"
-	SubjectRead   = "subject.read"
 	SubjectUpdate = "subject.update"
 	SubjectDelete = "subject.delete"
 )
@@ -46,7 +44,6 @@ const (
 // Student group permissions
 const (
 	StudentGroupCreate             = "student_group.create"
-	StudentGroupReadAny            = "student_group.read.any"
 	StudentGroupUpdate             = "student_group.update"
 	StudentGroupDelete             = "student_group.delete"
 	StudentGroupAdvisorAssign      = "student_group.advisor.assign"
@@ -138,7 +135,6 @@ const (
 // Position institution administrator
 const (
 	PositionInstitutionAdministratorCreate = "position.institution_administrator.create"
-	PositionInstitutionAdministratorRead   = "position.institution_administrator.read"
 	PositionInstitutionAdministratorUpdate = "position.institution_administrator.update"
 	PositionInstitutionAdministratorDelete = "position.institution_administrator.delete"
 )
@@ -146,7 +142,6 @@ const (
 // Position staff
 const (
 	PositionStaffCreate = "position.staff.create"
-	PositionStaffRead   = "position.staff.read"
 	PositionStaffUpdate = "position.staff.update"
 	PositionStaffDelete = "position.staff.delete"
 )
