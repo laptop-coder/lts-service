@@ -28,12 +28,7 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 	// Get subjects list
 	var subjects []SubjectResponseDTO
 	for _, subject := range teacher.Subjects {
-		subjects = append(subjects, SubjectResponseDTO{
-			ID:        subject.ID,
-			CreatedAt: subject.CreatedAt.Format(time.RFC3339),
-			UpdatedAt: subject.UpdatedAt.Format(time.RFC3339),
-			Name:      subject.Name,
-		})
+		subjects = append(subjects, *SubjectToDTO(&subject))
 	}
 	// Get teacher classroom (if exists)
 	var classroom *RoomResponseDTO
@@ -51,7 +46,6 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 	return &TeacherResponseDTO{
 		CreatedAt:     teacher.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:     teacher.UpdatedAt.Format(time.RFC3339),
-		User:          *UserToDTO(&teacher.User),
 		Subjects:      subjects,
 		Classroom:     classroom,
 		StudentGroups: studentGroups,
@@ -61,19 +55,9 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 type TeacherResponseDTO struct {
 	CreatedAt     string                    `json:"createdAt"`
 	UpdatedAt     string                    `json:"updatedAt"`
-	User          UserResponseDTO           `json:"user"`
 	Subjects      []SubjectResponseDTO      `json:"subjects"`
 	Classroom     *RoomResponseDTO          `json:"classroom,omitempty"`
 	StudentGroups []StudentGroupResponseDTO `json:"studentGroups,omitempty"`
-}
-
-func StudentGroupToDTO(studentGroup *model.StudentGroup) *StudentGroupResponseDTO {
-	return &StudentGroupResponseDTO{
-		CreatedAt: studentGroup.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: studentGroup.UpdatedAt.Format(time.RFC3339),
-		ID:        studentGroup.ID,
-		Name:      studentGroup.Name,
-	}
 }
 
 type teacherService struct {

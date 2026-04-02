@@ -39,7 +39,6 @@ func (r *staffRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mod
 	}
 	var staff model.Staff
 	result := r.db.WithContext(ctx).
-		Preload("User").
 		Preload("Position").
 		First(&staff, *userID)
 	if result.Error != nil {
@@ -70,7 +69,6 @@ func (r *staffRepository) FindAll(ctx context.Context, filter *StaffFilter) ([]m
 	query = query.Order("last_name")
 	// Find staff
 	result := query.
-		Preload("User").
 		Preload("Position").
 		Find(&staffList)
 	if result.Error != nil {

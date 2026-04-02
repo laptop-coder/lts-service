@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 type StudentGroupService interface {
@@ -60,6 +61,15 @@ type StudentGroupResponseDTO struct {
 	UpdatedAt      string     `json:"updatedAt"`
 	Name           string     `json:"name"`
 	GroupAdvisorID *uuid.UUID `json:"advisorId,omitempty"`
+}
+
+func StudentGroupToDTO(studentGroup *model.StudentGroup) *StudentGroupResponseDTO {
+	return &StudentGroupResponseDTO{
+		CreatedAt: studentGroup.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: studentGroup.UpdatedAt.Format(time.RFC3339),
+		ID:        studentGroup.ID,
+		Name:      studentGroup.Name,
+	}
 }
 
 func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto CreateStudentGroupDTO) (*StudentGroupResponseDTO, error) {

@@ -39,7 +39,6 @@ func (r *institutionAdministratorRepository) FindByID(ctx context.Context, userI
 	}
 	var institutionAdministrator model.InstitutionAdministrator
 	result := r.db.WithContext(ctx).
-		Preload("User").
 		Preload("Position").
 		First(&institutionAdministrator, *userID)
 	if result.Error != nil {
@@ -70,7 +69,6 @@ func (r *institutionAdministratorRepository) FindAll(ctx context.Context, filter
 	query = query.Order("last_name")
 	// Find institutionAdministrators
 	result := query.
-		Preload("User").
 		Preload("Position").
 		Find(&institutionAdministrators)
 	if result.Error != nil {

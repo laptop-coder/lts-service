@@ -39,7 +39,6 @@ func (r *parentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mo
 	}
 	var parent model.Parent
 	result := r.db.WithContext(ctx).
-		Preload("User").
 		Preload("Students").
 		First(&parent, *userID)
 	if result.Error != nil {
@@ -70,7 +69,6 @@ func (r *parentRepository) FindAll(ctx context.Context, filter *ParentFilter) ([
 	query = query.Order("last_name")
 	// Find parents
 	result := query.
-		Preload("User").
 		Preload("Students").
 		Find(&parents)
 	if result.Error != nil {

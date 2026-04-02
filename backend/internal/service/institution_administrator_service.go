@@ -20,7 +20,6 @@ type InstitutionAdministratorService interface {
 }
 
 type InstitutionAdministratorResponseDTO struct {
-	User     UserResponseDTO
 	Position InstitutionAdministratorPositionResponseDTO
 }
 
@@ -85,7 +84,6 @@ func (s *institutionAdministratorService) GetInstitutionAdministrator(ctx contex
 
 func InstitutionAdministratorToDTO(institutionAdministrator *model.InstitutionAdministrator) *InstitutionAdministratorResponseDTO {
 	return &InstitutionAdministratorResponseDTO{
-		User:     *UserToDTO(&institutionAdministrator.User),
 		Position: *InstitutionAdministratorPositionToDTO(&institutionAdministrator.Position),
 	}
 }

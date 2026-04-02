@@ -39,7 +39,6 @@ func (r *teacherRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 	}
 	var teacher model.Teacher
 	result := r.db.WithContext(ctx).
-		Preload("User").
 		Preload("Classroom").
 		Preload("Subjects").
 		Preload("StudentGroups").
@@ -72,7 +71,6 @@ func (r *teacherRepository) FindAll(ctx context.Context, filter *TeacherFilter) 
 	query = query.Order("last_name")
 	// Find teachers
 	result := query.
-		Preload("User").
 		Preload("Classroom").
 		Preload("Subjects").
 		Preload("StudentGroups").

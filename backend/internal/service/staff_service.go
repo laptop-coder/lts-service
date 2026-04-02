@@ -20,7 +20,6 @@ type StaffService interface {
 }
 
 type StaffResponseDTO struct {
-	User     UserResponseDTO
 	Position StaffPositionResponseDTO
 }
 
@@ -127,7 +126,6 @@ func (s *staffService) GetPosition(ctx context.Context, userID uuid.UUID) (*Staf
 
 func StaffToDTO(staff *model.Staff) *StaffResponseDTO {
 	return &StaffResponseDTO{
-		User:     *UserToDTO(&staff.User),
 		Position: *StaffPositionToDTO(&staff.Position),
 	}
 }
