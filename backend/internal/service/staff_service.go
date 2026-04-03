@@ -20,7 +20,7 @@ type StaffService interface {
 }
 
 type StaffResponseDTO struct {
-	Position StaffPositionResponseDTO  `json:"position"`
+	Position StaffPositionResponseDTO `json:"position"`
 }
 
 type staffService struct {
@@ -129,4 +129,3 @@ func StaffToDTO(staff *model.Staff) *StaffResponseDTO {
 		Position: *StaffPositionToDTO(&staff.Position),
 	}
 }
-

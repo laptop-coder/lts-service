@@ -21,7 +21,7 @@ type StudentService interface {
 
 type StudentResponseDTO struct {
 	StudentGroup StudentGroupResponseDTO `json:"studentGroup"`
-	Parents      []ParentResponseDTO `json:"parents"`
+	Parents      []ParentResponseDTO     `json:"parents"`
 }
 
 type studentService struct {

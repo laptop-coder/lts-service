@@ -12,13 +12,13 @@ import (
 
 type StaffPositionHandler struct {
 	staffPositionService service.StaffPositionService
-	log            logger.Logger
+	log                  logger.Logger
 }
 
 func NewStaffPositionHandler(staffPositionService service.StaffPositionService, log logger.Logger) *StaffPositionHandler {
 	return &StaffPositionHandler{
 		staffPositionService: staffPositionService,
-		log:            log,
+		log:                  log,
 	}
 }
 

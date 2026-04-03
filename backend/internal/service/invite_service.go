@@ -1,7 +1,6 @@
 package service
 
 import (
-	"slices"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -10,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"slices"
 	"time"
 )
 
@@ -84,7 +84,7 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*st
 	// Assemble claims
 	claims := InviteTokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer: s.config.TokenIssuer,
+			Issuer:    s.config.TokenIssuer,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.config.TokenExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),

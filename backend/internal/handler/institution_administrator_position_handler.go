@@ -12,13 +12,13 @@ import (
 
 type InstitutionAdministratorPositionHandler struct {
 	institutionAdministratorPositionService service.InstitutionAdministratorPositionService
-	log            logger.Logger
+	log                                     logger.Logger
 }
 
 func NewInstitutionAdministratorPositionHandler(institutionAdministratorPositionService service.InstitutionAdministratorPositionService, log logger.Logger) *InstitutionAdministratorPositionHandler {
 	return &InstitutionAdministratorPositionHandler{
 		institutionAdministratorPositionService: institutionAdministratorPositionService,
-		log:            log,
+		log:                                     log,
 	}
 }
 

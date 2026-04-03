@@ -36,8 +36,8 @@ type InstitutionAdministratorPositionResponseDTO struct {
 
 type institutionAdministratorPositionService struct {
 	institutionAdministratorPositionRepo repository.InstitutionAdministratorPositionRepository
-	db          *gorm.DB
-	log         logger.Logger
+	db                                   *gorm.DB
+	log                                  logger.Logger
 }
 
 func NewInstitutionAdministratorPositionService(
@@ -47,8 +47,8 @@ func NewInstitutionAdministratorPositionService(
 ) InstitutionAdministratorPositionService {
 	return &institutionAdministratorPositionService{
 		institutionAdministratorPositionRepo: institutionAdministratorPositionRepo,
-		db:          db,
-		log:         log,
+		db:                                   db,
+		log:                                  log,
 	}
 }
 

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"slices"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -10,6 +9,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
+	"slices"
 	"strconv"
 )
 

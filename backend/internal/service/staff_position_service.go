@@ -36,8 +36,8 @@ type StaffPositionResponseDTO struct {
 
 type staffPositionService struct {
 	staffPositionRepo repository.StaffPositionRepository
-	db          *gorm.DB
-	log         logger.Logger
+	db                *gorm.DB
+	log               logger.Logger
 }
 
 func NewStaffPositionService(
@@ -47,8 +47,8 @@ func NewStaffPositionService(
 ) StaffPositionService {
 	return &staffPositionService{
 		staffPositionRepo: staffPositionRepo,
-		db:          db,
-		log:         log,
+		db:                db,
+		log:               log,
 	}
 }
 

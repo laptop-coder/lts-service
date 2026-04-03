@@ -317,7 +317,7 @@ func (h *StudentGroupHandler) Create(w http.ResponseWriter, r *http.Request) {
 	helpers.JsonResponse(w, map[string]interface{}{
 		"studentGroup": groupResponse,
 	},
-    http.StatusCreated)
+		http.StatusCreated)
 }
 
 func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -346,7 +346,7 @@ func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
 	dto := service.UpdateStudentGroupDTO{}
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
 		dto.Name = &nameFields[0]
-	} else if len(nameFields) > 1{
+	} else if len(nameFields) > 1 {
 		helpers.ErrorResponse(w, "failed to parse form: too much name fields", http.StatusBadRequest)
 		return
 	}
@@ -357,7 +357,7 @@ func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		dto.GroupAdvisorID = &advisorID
-	} else if len(advisorIDFields) > 1{
+	} else if len(advisorIDFields) > 1 {
 		helpers.ErrorResponse(w, "failed to parse form: to much group advisor ID values", http.StatusBadRequest)
 		return
 	}
