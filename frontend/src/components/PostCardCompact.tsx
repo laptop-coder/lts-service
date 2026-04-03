@@ -2,6 +2,7 @@ import { Show, createSignal } from "solid-js";
 import type { Post } from "../lib/types";
 import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import { api } from "../lib/api";
+import { formatDate } from "../lib/utils";
 
 interface Props {
   post: Post;
@@ -39,10 +40,6 @@ const PostCardCompact = (props: Props) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("ru-RU");
   };
 
   return (
