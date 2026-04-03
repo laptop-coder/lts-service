@@ -163,11 +163,15 @@ export const ROLES = {
 };
 
 export const ROLES_TO_DISPLAY = [
-  {id: 1, name: ROLES.SUPERADMIN, displayName: "Суперадминистратор"},
-  {id: 2, name: ROLES.ADMIN, displayName: "Админ"},
-  {id: 3, name: ROLES.INSTITUTION_ADMINISTRATOR, displayName: "Администрация"},
-  {id: 4, name: ROLES.STAFF, displayName: "Сотрудник"},
-  {id: 5, name: ROLES.TEACHER, displayName: "Преподаватель"},
-  {id: 6, name: ROLES.PARENT, displayName: "Родитель"},
-  {id: 7, name: ROLES.STUDENT, displayName: "Обучающийся"},
-]
+  { id: 1, name: ROLES.SUPERADMIN, displayName: "Суперадминистратор" },
+  { id: 2, name: ROLES.ADMIN, displayName: "Админ" },
+  {
+    id: 3,
+    name: ROLES.INSTITUTION_ADMINISTRATOR,
+    displayName: "Администрация",
+  },
+  { id: 4, name: ROLES.STAFF, displayName: "Сотрудник" },
+  { id: 5, name: ROLES.TEACHER, displayName: "Преподаватель" },
+  { id: 6, name: ROLES.PARENT, displayName: "Родитель" },
+  { id: 7, name: ROLES.STUDENT, displayName: "Обучающийся" },
+];

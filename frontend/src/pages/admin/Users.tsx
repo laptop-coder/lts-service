@@ -146,7 +146,6 @@ const Users = () => {
       setStudentGroupId(studentData.student.studentGroup?.id || null);
     }
 
-
     setError("");
   };
 
@@ -159,8 +158,8 @@ const Users = () => {
     setStaffPositionId(null);
     setParentStudentIds([]);
     setInstitutionAdministratorPositionId(null);
-    setSaving(false)
-    setError("")
+    setSaving(false);
+    setError("");
   };
 
   const toggleRole = (roleId: number) => {
@@ -232,8 +231,8 @@ const Users = () => {
     }
 
     try {
-    setSaving(true);
-      console.log(formData.toString())
+      setSaving(true);
+      console.log(formData.toString());
       await api.put(`/users/${selectedUser()!.id}/roles`, formData);
       // Update locally
       setUsers(
@@ -280,19 +279,22 @@ const Users = () => {
     setParentStudentIds(parentStudentIds.filter((_, i) => i !== index));
   };
 
-
   const deleteUser = async (user: User) => {
-  if (!confirm(`Удалить пользователя ${user.firstName} ${user.lastName}? Это действие нельзя отменить.`)) {
-    return;
-  }
+    if (
+      !confirm(
+        `Удалить пользователя ${user.firstName} ${user.lastName}? Это действие нельзя отменить.`,
+      )
+    ) {
+      return;
+    }
 
-  try {
-    await api.delete(`/users/${user.id}`);
-    setUsers(users().filter(u => u.id !== user.id));
-  } catch (err) {
-    setError("Ошибка удаления"); // TODO
-  }
-};
+    try {
+      await api.delete(`/users/${user.id}`);
+      setUsers(users().filter((u) => u.id !== user.id));
+    } catch (err) {
+      setError("Ошибка удаления"); // TODO
+    }
+  };
 
   return (
     <div class="space-y-6">
@@ -367,13 +369,13 @@ const Users = () => {
                         </button>
                       </Show>
                       <Show when={hasPermission(PERMISSIONS.USER_DELETE_ANY)}>
-      <button
-        onClick={() => deleteUser(user)}
-        class="text-red-600 hover:text-red-800"
-      >
-        Удалить
-      </button>
-    </Show>
+                        <button
+                          onClick={() => deleteUser(user)}
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          Удалить
+                        </button>
+                      </Show>
                     </td>
                   </tr>
                 )}
@@ -483,7 +485,7 @@ const Users = () => {
                   {(subject) => (
                     <label class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer transition">
                       <input
-                  disabled={saving()}
+                        disabled={saving()}
                         type="checkbox"
                         checked={teacherSubjectIds().includes(subject.id)}
                         onChange={() => {
@@ -516,7 +518,7 @@ const Users = () => {
                     {(studentId, index) => (
                       <div class="flex gap-2">
                         <input
-                  disabled={saving()}
+                          disabled={saving()}
                           type="text"
                           value={studentId()}
                           onInput={(e) => {
@@ -528,7 +530,7 @@ const Users = () => {
                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <button
-                  disabled={saving()}
+                          disabled={saving()}
                           type="button"
                           onClick={() => removeStudentId(index)}
                           class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
@@ -540,7 +542,7 @@ const Users = () => {
                   </Index>
 
                   <button
-                  disabled={saving()}
+                    disabled={saving()}
                     type="button"
                     onClick={addStudentId}
                     class="w-full px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"

@@ -117,68 +117,62 @@ const StudentGroupsManagement = () => {
       </Show>
 
       {/* List of student groups */}
-          <Show when={loading()}>
-            <div class="text-center py-8">Загрузка...</div>
-          </Show>
+      <Show when={loading()}>
+        <div class="text-center py-8">Загрузка...</div>
+      </Show>
 
-          <Show when={!loading() && studentGroups().length === 0}>
-            <div class="text-center text-gray-500 py-8">
-              Нет групп. Создайте первую.
-            </div>
-          </Show>
+      <Show when={!loading() && studentGroups().length === 0}>
+        <div class="text-center text-gray-500 py-8">
+          Нет групп. Создайте первую.
+        </div>
+      </Show>
 
-          <Show when={!loading() && studentGroups().length > 0}>
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-              <table class="w-full">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                      ID
-                    </th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                      Название
-                    </th>
-                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
-                      Действия
-                    </th>
+      <Show when={!loading() && studentGroups().length > 0}>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                  ID
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                  Название
+                </th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  Действия
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <For each={studentGroups()}>
+                {(studentGroup) => (
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-500">
+                      {studentGroup.id}
+                    </td>
+                    <td class="px-4 py-3 font-medium">{studentGroup.name}</td>
+                    <td class="px-4 py-3 text-right">
+                      <Show
+                        when={hasPermission(PERMISSIONS.STUDENT_GROUP_DELETE)}
+                      >
+                        <button
+                          onClick={() => deleteStudentGroup(studentGroup.id)}
+                          disabled={deletingId() === studentGroup.id}
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                        >
+                          {deletingId() === studentGroup.id
+                            ? "Удаление..."
+                            : "Удалить"}
+                        </button>
+                      </Show>
+                    </td>
                   </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                  <For each={studentGroups()}>
-                    {(studentGroup) => (
-                      <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm text-gray-500">
-                          {studentGroup.id}
-                        </td>
-                        <td class="px-4 py-3 font-medium">
-                          {studentGroup.name}
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                          <Show
-                            when={hasPermission(
-                              PERMISSIONS.STUDENT_GROUP_DELETE,
-                            )}
-                          >
-                            <button
-                              onClick={() =>
-                                deleteStudentGroup(studentGroup.id)
-                              }
-                              disabled={deletingId() === studentGroup.id}
-                              class="text-red-600 hover:text-red-800 disabled:opacity-50"
-                            >
-                              {deletingId() === studentGroup.id
-                                ? "Удаление..."
-                                : "Удалить"}
-                            </button>
-                          </Show>
-                        </td>
-                      </tr>
-                    )}
-                  </For>
-                </tbody>
-              </table>
-            </div>
-          </Show>
+                )}
+              </For>
+            </tbody>
+          </table>
+        </div>
+      </Show>
     </div>
   );
 };

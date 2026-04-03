@@ -60,7 +60,7 @@ const tabs: Tab[] = [
   {
     key: "users",
     label: "Пользователи",
-    path: "/admin/users"
+    path: "/admin/users",
   },
 ];
 

@@ -102,62 +102,60 @@ const Subjects = () => {
       </Show>
 
       {/* List of subjects */}
-          <Show when={loading()}>
-            <div class="text-center py-8">Загрузка...</div>
-          </Show>
+      <Show when={loading()}>
+        <div class="text-center py-8">Загрузка...</div>
+      </Show>
 
-          <Show when={!loading() && subjects().length === 0}>
-            <div class="text-center text-gray-500 py-8">
-              Нет предметов. Создайте первый.
-            </div>
-          </Show>
+      <Show when={!loading() && subjects().length === 0}>
+        <div class="text-center text-gray-500 py-8">
+          Нет предметов. Создайте первый.
+        </div>
+      </Show>
 
-          <Show when={!loading() && subjects().length > 0}>
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-              <table class="w-full">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                      ID
-                    </th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                      Название
-                    </th>
-                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
-                      Действия
-                    </th>
+      <Show when={!loading() && subjects().length > 0}>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                  ID
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                  Название
+                </th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  Действия
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <For each={subjects()}>
+                {(subject) => (
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-500">
+                      {subject.id}
+                    </td>
+                    <td class="px-4 py-3 font-medium">{subject.name}</td>
+                    <td class="px-4 py-3 text-right">
+                      <Show when={hasPermission(PERMISSIONS.SUBJECT_DELETE)}>
+                        <button
+                          onClick={() => deleteSubject(subject.id)}
+                          disabled={deletingId() === subject.id}
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                        >
+                          {deletingId() === subject.id
+                            ? "Удаление..."
+                            : "Удалить"}
+                        </button>
+                      </Show>
+                    </td>
                   </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                  <For each={subjects()}>
-                    {(subject) => (
-                      <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm text-gray-500">
-                          {subject.id}
-                        </td>
-                        <td class="px-4 py-3 font-medium">{subject.name}</td>
-                        <td class="px-4 py-3 text-right">
-                          <Show
-                            when={hasPermission(PERMISSIONS.SUBJECT_DELETE)}
-                          >
-                            <button
-                              onClick={() => deleteSubject(subject.id)}
-                              disabled={deletingId() === subject.id}
-                              class="text-red-600 hover:text-red-800 disabled:opacity-50"
-                            >
-                              {deletingId() === subject.id
-                                ? "Удаление..."
-                                : "Удалить"}
-                            </button>
-                          </Show>
-                        </td>
-                      </tr>
-                    )}
-                  </For>
-                </tbody>
-              </table>
-            </div>
-          </Show>
+                )}
+              </For>
+            </tbody>
+          </table>
+        </div>
+      </Show>
     </div>
   );
 };
