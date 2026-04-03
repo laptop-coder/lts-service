@@ -280,6 +280,20 @@ const Users = () => {
     setParentStudentIds(parentStudentIds.filter((_, i) => i !== index));
   };
 
+
+  const deleteUser = async (user: User) => {
+  if (!confirm(`Удалить пользователя ${user.firstName} ${user.lastName}? Это действие нельзя отменить.`)) {
+    return;
+  }
+
+  try {
+    await api.delete(`/users/${user.id}`);
+    setUsers(users().filter(u => u.id !== user.id));
+  } catch (err) {
+    setError("Ошибка удаления"); // TODO
+  }
+};
+
   return (
     <div class="space-y-6">
       <h1 class="text-2xl font-bold">Управление ролями пользователей</h1>
@@ -352,6 +366,14 @@ const Users = () => {
                           Изменить роли
                         </button>
                       </Show>
+                      <Show when={hasPermission(PERMISSIONS.USER_DELETE_ANY)}>
+      <button
+        onClick={() => deleteUser(user)}
+        class="text-red-600 hover:text-red-800"
+      >
+        Удалить
+      </button>
+    </Show>
                     </td>
                   </tr>
                 )}
