@@ -32,6 +32,11 @@ const tabs: Tab[] = [
     ],
   },
   {
+    key: "users",
+    label: "Пользователи",
+    path: "/admin/users",
+  },
+  {
     key: "subjects",
     label: "Предметы",
     path: "/admin/subjects",
@@ -40,6 +45,11 @@ const tabs: Tab[] = [
     key: "rooms",
     label: "Кабинеты",
     path: "/admin/rooms",
+  },
+  {
+    key: "student-groups",
+    label: "Учебные группы",
+      path: "/admin/student_groups",
   },
   {
     key: "positions",
@@ -58,25 +68,9 @@ const tabs: Tab[] = [
     ]
   },
   {
-    key: "student-groups",
-    label: "Учебные группы",
-    subTabs: [
-      {
-        key: "student-groups-management",
-        label: "Управление",
-        path: "/admin/student_groups/management",
-      },
-    ],
-  },
-  {
     key: "invite-tokens",
     label: "Инвайт-токены",
     path: "/admin/invite_tokens",
-  },
-  {
-    key: "users",
-    label: "Пользователи",
-    path: "/admin/users",
   },
 ];
 

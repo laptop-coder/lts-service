@@ -12,8 +12,8 @@ const CreatePost = lazy(() => import("./pages/CreatePost"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
-const StudentGroupsManagement = lazy(
-  () => import("./pages/admin/StudentGroupsManagement"),
+const StudentGroups = lazy(
+  () => import("./pages/admin/StudentGroups"),
 );
 const InviteTokens = lazy(() => import("./pages/InviteTokens"));
 const Users = lazy(() => import("./pages/admin/Users"));
@@ -50,8 +50,8 @@ function App() {
               <Route path="/subjects" component={Subjects} />
               <Route path="/rooms" component={Rooms} />
               <Route
-                path="/student_groups/management"
-                component={StudentGroupsManagement}
+                path="/student_groups"
+                component={StudentGroups}
               />
               <Route path="/invite_tokens" component={InviteTokens} />
               <Route path="/users" component={Users} />

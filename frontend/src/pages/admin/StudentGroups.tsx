@@ -4,7 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StudentGroup } from "../../lib/types";
 
-const StudentGroupsManagement = () => {
+const StudentGroups = () => {
   const [studentGroups, setStudentGroups] = createSignal<StudentGroup[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
@@ -177,4 +177,4 @@ const StudentGroupsManagement = () => {
   );
 };
 
-export default StudentGroupsManagement;
+export default StudentGroups;
