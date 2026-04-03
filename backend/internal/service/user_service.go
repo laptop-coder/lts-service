@@ -722,14 +722,27 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 	case 4: // staff
 		return tx.Create(&model.Staff{UserID: userID, PositionID: *dto.StaffPositionID}).Error
 	case 5: // teacher
+		teacher := &model.Teacher{UserID: userID}
 		if dto.TeacherClassroomID != nil {
 			room, err := s.roomRepo.FindByID(ctx, dto.TeacherClassroomID)
 			if err != nil {
 				return err
 			}
-			return tx.Create(&model.Teacher{UserID: userID, Classroom: room}).Error
+			teacher.Classroom = room
 		}
-		return tx.Create(&model.Teacher{UserID: userID}).Error
+		if err := tx.Create(teacher).Error; err != nil {
+			return err
+		}
+		if len(dto.TeacherSubjectIDs) > 0 {
+			var subjects []model.Subject
+			if err := tx.Where("id IN (?)", dto.TeacherSubjectIDs).Find(&subjects).Error; err != nil {
+				return err
+			}
+			if err := tx.Model(teacher).Association("Subjects").Append(&subjects); err != nil {
+				return err
+			}
+		}
+		return nil
 	case 6: // parent
 		if dto.ParentStudentIDs != nil {
 			var students []model.Student
