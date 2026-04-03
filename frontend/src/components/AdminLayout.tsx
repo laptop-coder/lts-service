@@ -21,15 +21,9 @@ interface Tab {
 
 const tabs: Tab[] = [
   {
-    key: "posts",
-    label: "Объявления",
-    subTabs: [
-      {
-        key: "posts-verification",
-        label: "Верификация",
-        path: "/admin/posts/verification",
-      },
-    ],
+    key: "posts-verification",
+    label: "Верификация объявлений",
+    path: "/admin/posts/verification",
   },
   {
     key: "users",

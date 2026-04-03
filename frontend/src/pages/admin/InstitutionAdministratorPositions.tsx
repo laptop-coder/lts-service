@@ -67,7 +67,7 @@ const InstitutionAdministratorPositions = () => {
   return (
     <div class="space-y-6">
       <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Управление должностями</h1>
+        <h1 class="text-2xl font-bold">Управление должностями администрации</h1>
       </div>
 
       <Show when={error()}>
@@ -80,7 +80,7 @@ const InstitutionAdministratorPositions = () => {
           onSubmit={createInstitutionAdministratorPosition}
           class="bg-gray-50 p-4 rounded-lg space-y-3"
         >
-          <h2 class="font-semibold">Создать новую должность администрации</h2>
+          <h2 class="font-semibold">Создать новую должность</h2>
           <div class="flex gap-2">
             <input
               type="text"
