@@ -350,7 +350,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TeacherSubjectIDs (special)
-	teacherSubjectIDsFields := r.PostForm["teacherSubjectIds"]
+	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
 	var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
@@ -489,7 +489,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TeacherSubjectIDs (special)
-	teacherSubjectIDsFields := r.PostForm["teacherSubjectIds"]
+	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
 	var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
