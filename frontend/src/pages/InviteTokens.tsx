@@ -23,7 +23,7 @@ const InviteTokens = () => {
     if (tokens().length === 0 || selectedRoles().length === 0) return;
     // Assemble content
     const content = `# Индивидуальные пригласительные ссылки для регистрации аккаунтов\n\nРоли:\n${selectedRoles()
-      .map((id) => `- ${roles.find((r) => r.id === id)?.name}`)
+      .map((id) => `- ${roles.find((r) => r.id === id)!.name}`)
       .join("\n")}\n\n${tokens()
       .map(
         (item) =>
