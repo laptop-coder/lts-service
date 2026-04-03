@@ -17,6 +17,8 @@ const StudentGroupsManagement = lazy(
 );
 const InviteTokens = lazy(() => import("./pages/InviteTokens"));
 const Users = lazy(() => import("./pages/admin/Users"));
+const StaffPositions = lazy(() => import("./pages/admin/StaffPositions"));
+const InstitutionAdministratorPositions = lazy(() => import("./pages/admin/InstitutionAdministratorPositions"));
 
 function App() {
   const auth = useAuth();
@@ -53,6 +55,8 @@ function App() {
               />
               <Route path="/invite_tokens" component={InviteTokens} />
               <Route path="/users" component={Users} />
+              <Route path="/positions/staff" component={StaffPositions} />
+              <Route path="/positions/institution_administrators" component={InstitutionAdministratorPositions} />
             </Route>
           </>
         }

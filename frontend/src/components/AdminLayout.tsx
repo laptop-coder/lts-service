@@ -42,6 +42,22 @@ const tabs: Tab[] = [
     path: "/admin/rooms",
   },
   {
+    key: "positions",
+    label: "Должности",
+    subTabs: [
+      {
+      key: "positions-institution-administrators",
+      label: "Администрация",
+      path: "/admin/positions/institution_administrators"
+      },
+      {
+      key: "positions-staff",
+      label: "Сотрудники",
+      path: "/admin/positions/staff"
+      }
+    ]
+  },
+  {
     key: "student-groups",
     label: "Учебные группы",
     subTabs: [
