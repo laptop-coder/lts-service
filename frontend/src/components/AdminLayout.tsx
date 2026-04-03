@@ -57,6 +57,11 @@ const tabs: Tab[] = [
     label: "Инвайт-токены",
     path: "/admin/invite_tokens",
   },
+  {
+    key: "users",
+    label: "Пользователи",
+    path: "/admin/users"
+  },
 ];
 
 const AdminLayout = (props: Props) => {

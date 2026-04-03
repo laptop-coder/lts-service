@@ -11,6 +11,44 @@ export interface User {
   roles: Role[];
 }
 
+export interface InstitutionAdministrator {
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  position: InstitutionAdministratorPosition;
+}
+
+export interface Staff {
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  position: StaffPosition;
+}
+
+export interface Parent {
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  students: Student[];
+}
+
+export interface Student {
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  parents: Parent[];
+  studentGroup: StudentGroup;
+}
+
+export interface Teacher {
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  classroom?: Room;
+  subjects: Subject[];
+  studentGroups: StudentGroup[];
+}
+
 export interface Role {
   id: number;
   createdAt: string;
