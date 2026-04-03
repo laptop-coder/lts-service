@@ -23,7 +23,7 @@ type Teacher struct {
 	// teacher you need to unbind him or reassign to other classroom at first
 	// (actual for schools)
 	// 3. one-to-one (teacher-to-room)
-	Classroom *Room `gorm:"foreignKey:TeacherID;references:UserID;constraint:OnDelete:restrict,OnUpdate:restrict"`
+	Classroom *Room `gorm:"foreignKey:TeacherID;references:UserID;constraint:OnDelete:set null,OnUpdate:restrict"`
 	// many-to-many (teacher-to-subject)
 	Subjects []Subject `gorm:"many2many:teacher_subjects;foreignKey:UserID;joinForeignKey:TeacherId;references:ID;joinReferences:SubjectID"`
 	// 1. This is a list of student groups for which this user is the advisor
