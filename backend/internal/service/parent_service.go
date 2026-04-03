@@ -21,7 +21,7 @@ type ParentService interface {
 }
 
 type ParentResponseDTO struct {
-	Students []StudentResponseDTO
+	Students []StudentResponseDTO `json:"students"`
 }
 
 type parentService struct {

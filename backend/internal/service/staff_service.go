@@ -20,7 +20,7 @@ type StaffService interface {
 }
 
 type StaffResponseDTO struct {
-	Position StaffPositionResponseDTO
+	Position StaffPositionResponseDTO  `json:"position"`
 }
 
 type staffService struct {

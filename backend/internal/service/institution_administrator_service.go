@@ -20,7 +20,7 @@ type InstitutionAdministratorService interface {
 }
 
 type InstitutionAdministratorResponseDTO struct {
-	Position InstitutionAdministratorPositionResponseDTO
+	Position InstitutionAdministratorPositionResponseDTO `json:"position"`
 }
 
 type institutionAdministratorService struct {
