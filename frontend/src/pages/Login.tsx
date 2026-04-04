@@ -28,29 +28,71 @@ const Login = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 space-y-4"
-    >
-      <input
-        type="email"
-        value={email()}
-        onInput={(e) => setEmail(e.currentTarget.value)}
-        placeholder="Email"
-        required
-      />
-      <input
-        type="password"
-        value={password()}
-        onInput={(e) => setPassword(e.currentTarget.value)}
-        placeholder="Пароль"
-        required
-      />
-      {error() && <div class="error">{error()}</div>}
-      <button type="submit" disabled={loading()}>
-        {loading() ? "Вход..." : "Войти"}
-      </button>
-    </form>
+    <div class="min-h-[80vh] flex items-center justify-center px-4">
+      <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-800">Вход в аккаунт</h1>
+          <p class="text-gray-500 mt-2">Добро пожаловать!</p>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          class="bg-white rounded-2xl shadow-lg p-6 space-y-5"
+        >
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email()}
+              onInput={(e) => setEmail(e.currentTarget.value)}
+              placeholder="email@example.ru"
+              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Пароль
+            </label>
+            <input
+              type="password"
+              value={password()}
+              onInput={(e) => setPassword(e.currentTarget.value)}
+              placeholder="••••••••"
+              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              required
+            />
+          </div>
+
+          {error() && (
+            <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm border border-red-200">
+              {error()}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading()}
+            class="w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {loading() ? "Вход..." : "Войти"}
+          </button>
+
+          <p class="text-center text-sm text-gray-500 mt-4">
+            Нет аккаунта?{" "}
+            <a
+              href="/register"
+              class="text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              Запросить пригласительную ссылку {/*TODO*/}
+            </a>
+          </p>
+        </form>
+      </div>
+    </div>
   );
 };
 
