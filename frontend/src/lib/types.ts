@@ -1,4 +1,4 @@
-// Models
+// Response DTOs from the backend
 export interface User {
   id: string;
   createdAt: string;
@@ -13,37 +13,27 @@ export interface User {
 
 export interface InstitutionAdministrator {
   userId: string;
-  createdAt: string;
-  updatedAt: string;
   position: InstitutionAdministratorPosition;
 }
 
 export interface Staff {
   userId: string;
-  createdAt: string;
-  updatedAt: string;
   position: StaffPosition;
 }
 
 export interface Parent {
   userId: string;
-  createdAt: string;
-  updatedAt: string;
   students: Student[];
 }
 
 export interface Student {
   userId: string;
-  createdAt: string;
-  updatedAt: string;
   parents: Parent[];
   studentGroup: StudentGroup;
 }
 
 export interface Teacher {
   userId: string;
-  createdAt: string;
-  updatedAt: string;
   classroom?: Room;
   subjects: Subject[];
   studentGroups: StudentGroup[];
@@ -81,7 +71,7 @@ export interface Room {
   createdAt: string;
   updatedAt: string;
   name: string;
-  teacherId: string;
+  teacherId: string | null;
 }
 
 export interface Subject {
@@ -96,7 +86,7 @@ export interface StudentGroup {
   createdAt: string;
   updatedAt: string;
   name: string;
-  groupAdvisorId: string;
+  groupAdvisorId: string | null;
 }
 
 export interface StaffPosition {
