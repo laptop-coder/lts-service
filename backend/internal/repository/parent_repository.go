@@ -40,6 +40,8 @@ func (r *parentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mo
 	var parent model.Parent
 	result := r.db.WithContext(ctx).
 		Preload("Students").
+		Preload("Students.User").
+		Preload("Students.StudentGroup").
 		First(&parent, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -70,6 +72,8 @@ func (r *parentRepository) FindAll(ctx context.Context, filter *ParentFilter) ([
 	// Find parents
 	result := query.
 		Preload("Students").
+		Preload("Students.User").
+		Preload("Students.StudentGroup").
 		Find(&parents)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch parents list: %w", result.Error)
