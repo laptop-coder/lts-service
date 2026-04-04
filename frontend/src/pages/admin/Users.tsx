@@ -232,7 +232,6 @@ const Users = () => {
 
     try {
       setSaving(true);
-      console.log(formData.toString());
       await api.put(`/users/${selectedUser()!.id}/roles`, formData);
       // Update locally
       setUsers(
@@ -296,6 +295,7 @@ const Users = () => {
     }
   };
 
+  // TODO: mark required fields with "*"
   return (
     <div class="space-y-6">
       <h1 class="text-2xl font-bold">Управление ролями пользователей</h1>
@@ -324,6 +324,9 @@ const Users = () => {
                   Email
                 </th>
                 <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                  ID
+                </th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
                   Роли
                 </th>
                 <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
@@ -344,6 +347,9 @@ const Users = () => {
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-500">
                       {user.email}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500">
+                      {user.id}
                     </td>
                     <td class="px-4 py-3">
                       <div class="flex flex-wrap gap-1">
@@ -480,7 +486,7 @@ const Users = () => {
                     {(room) => <option value={room.id}>{room.name}</option>}
                   </For>
                 </select>
-                Выберете предметы
+                Выберете предметы*
                 <For each={subjects()}>
                   {(subject) => (
                     <label class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer transition">
@@ -512,7 +518,7 @@ const Users = () => {
               <Show when={selectedRoles().includes(6)}>
                 <div class="space-y-2">
                   <label class="block text-sm font-medium text-gray-700">
-                    ID учеников (для привязки к родителю)*
+                    ID учеников (для привязки к родителю)
                   </label>
                   <Index each={parentStudentIds}>
                     {(studentId, index) => (
