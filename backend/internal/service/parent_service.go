@@ -140,6 +140,7 @@ func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, stude
 		// Check parent existence
 		var parent model.Parent
 		if err := tx.WithContext(ctx).
+			Preload("Students").
 			Where("user_id = ?", userID).
 			First(&parent).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -177,6 +178,7 @@ func (s *parentService) UnassignStudent(ctx context.Context, userID uuid.UUID, s
 		// Check parent existence
 		var parent model.Parent
 		if err := tx.WithContext(ctx).
+			Preload("Students").
 			Where("user_id = ?", userID).
 			First(&parent).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
