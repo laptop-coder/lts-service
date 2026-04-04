@@ -405,7 +405,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ParentStudentIDs (special)
-	parentStudentIDsFields := r.PostForm["parentStudentIds"]
+	parentStudentIDsFields := r.PostForm["parentStudentId"]
 	var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)
@@ -544,7 +544,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ParentStudentIDs (special)
-	parentStudentIDsFields := r.PostForm["parentStudentIds"]
+	parentStudentIDsFields := r.PostForm["parentStudentId"]
 	var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)
