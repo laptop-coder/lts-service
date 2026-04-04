@@ -83,10 +83,6 @@ func (s *roleService) AddPermissionsToRole(ctx context.Context, roleID uint8, pe
 	// Add permissions to role, return response
 	var role model.Role
 	role.ID = roleID
-	// Init "Permissions" field if empty
-	if role.Permissions == nil {
-		role.Permissions = []model.Permission{}
-	}
 	return s.db.Model(&role).Association("Permissions").Append(&permissions)
 }
 
