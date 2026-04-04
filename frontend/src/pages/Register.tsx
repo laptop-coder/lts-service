@@ -214,6 +214,7 @@ const Register = () => {
                 <input
                   type="text"
                   value={lastName()}
+                  placeholder="Иванов"
                   onInput={(e) => setLastName(e.currentTarget.value)}
                   class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                   required
@@ -226,6 +227,7 @@ const Register = () => {
                 <input
                   type="text"
                   value={firstName()}
+                  placeholder="Иван"
                   onInput={(e) => setFirstName(e.currentTarget.value)}
                   class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                   required
@@ -240,6 +242,7 @@ const Register = () => {
               <input
                 type="text"
                 value={middleName()}
+                placeholder="Иванович"
                 onInput={(e) => setMiddleName(e.currentTarget.value)}
                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
               />
@@ -252,6 +255,7 @@ const Register = () => {
               <input
                 type="email"
                 value={email()}
+                placeholder="email@example.ru"
                 onInput={(e) => setEmail(e.currentTarget.value)}
                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 required
@@ -265,6 +269,7 @@ const Register = () => {
               <input
                 type="password"
                 value={password()}
+                placeholder="••••••••"
                 onInput={(e) => setPassword(e.currentTarget.value)}
                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 required
