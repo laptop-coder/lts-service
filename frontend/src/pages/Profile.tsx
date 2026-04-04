@@ -29,6 +29,9 @@ const Profile = () => {
     null,
   );
   const [teacherSubjects, setTeacherSubjects] = createSignal<Subject[]>([]);
+  const [teacherStudentGroups, setTeacherStudentGroups] = createSignal<
+    StudentGroup[]
+  >([]);
   const [studentGroup, setStudentGroup] = createSignal<StudentGroup | null>(
     null,
   );
@@ -43,8 +46,6 @@ const Profile = () => {
   const [parentStudentsUsers, setParentStudentsUsers] = createSignal<User[]>(
     [],
   );
-  const [loadingParentStudentsUsers, setLoadingParentStudentsUsers] =
-    createSignal(false);
 
   const { user } = useAuth();
 
@@ -73,6 +74,7 @@ const Profile = () => {
       );
       setTeacherClassroom(teacherData.teacher.classroom || null);
       setTeacherSubjects(teacherData.teacher.subjects || []);
+      setTeacherStudentGroups(teacherData.teacher.studentGroups || []);
     }
     if (user()!.roles.some((r) => r.id === 6)) {
       // parent
@@ -82,13 +84,11 @@ const Profile = () => {
       setParentStudents(parentData.parent.students || []);
 
       // load students data
-      setLoadingParentStudentsUsers(true);
       const parentStudentsPromises = parentStudents().map((student) =>
         api.get<{ user: User }>(`/users/${student.userId}`),
       );
       const parentStudentsResponses = await Promise.all(parentStudentsPromises);
       setParentStudentsUsers(parentStudentsResponses.map((r) => r.user));
-      setLoadingParentStudentsUsers(false);
     }
     if (user()!.roles.some((r) => r.id === 7)) {
       // student
@@ -102,90 +102,198 @@ const Profile = () => {
   return (
     <>
       {hasPermission(PERMISSIONS.USER_READ_OWN) && (
-        <div class="max-w-4xl mx-auto space-y-6">
-          <h1 class="text-2xl font-bold text-center">Профиль</h1>
+        <div class="max-w-4xl mx-auto space-y-6 p-4">
+          <h1 class="text-2xl font-bold text-center text-gray-800">
+            Мой профиль
+          </h1>
 
           <Show when={!user()}>
-            <div class="text-center py-8">Загрузка...</div>
+            <div class="text-center py-8 text-gray-500">Загрузка...</div>
           </Show>
 
           <Show when={error()}>
-            <div class="bg-red-100 text-red-700 p-4 rounded-lg">{error()}</div>
+            <div class="bg-red-100 text-red-700 p-4 rounded-xl">{error()}</div>
           </Show>
-
           <Show when={user() && !error()}>
-            <ul>
-              <img
-                class="w-10 h-10"
-                src={`/storage/storage/avatars/${user()!.hasAvatar ? user()!.id : "default"}.jpeg`}
-                alt="Фото профиля"
-              />
-              <li>ID пользователя: {user()!.id}</li>
-              <li>Email: {user()!.email}</li>
-              <li>Имя: {user()!.firstName}</li>
-              <li>Фамилия: {user()!.lastName}</li>
-              {user()!.middleName && <li>Отчество: {user()!.middleName}</li>}
-              <li>Аккаунт создан: {formatDate(user()!.createdAt)}</li>
-              <li>
-                Роли:
-                <ul>
-                  <For
-                    each={ROLES_TO_DISPLAY.filter((rd) =>
-                      user()!
-                        .roles.map((r) => r.id)
-                        .includes(rd.id),
-                    )}
-                  >
-                    {(role) => <li>{role.displayName}</li>}
-                  </For>
-                </ul>
-              </li>
-            </ul>
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                <img
+                  class="w-32 h-32 rounded-full object-cover border-4 border-blue-100"
+                  src={`/storage/storage/avatars/${user()!.hasAvatar ? user()!.id : "default"}.jpeg`}
+                  alt="Фото профиля"
+                />
+                <div class="flex-1 text-center md:text-left">
+                  <h2 class="text-2xl font-bold text-gray-800">
+                    {user()!.lastName} {user()!.firstName} {user()?.middleName}
+                  </h2>
+                  <p class="text-gray-500 mt-1">{user()!.email}</p>
+                  <div class="flex flex-wrap gap-2 mt-3">
+                    <div class="flex flex-wrap gap-1">
+                      <For each={user()!.roles}>
+                        {(ur) => (
+                          <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                            {
+                              ROLES_TO_DISPLAY.find((r) => r.id === ur.id)!
+                                .displayName
+                            }
+                          </span>
+                        )}
+                      </For>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <p>ID: {user()!.id}</p>
+                  <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
+                </div>
+              </div>
+            </div>
 
-            <Show when={user()!.roles.some((r) => r.id === 3)}>
-              {institutionAdministratorPosition()?.name}
-            </Show>
-            <Show when={user()!.roles.some((r) => r.id === 4)}>
-              {staffPosition()?.name}
+            <Show when={user()!.roles.some((r) => r.id === 6)}>
+              <Show when={!parentStudentsUsers()}>
+                <div class="text-center py-8 text-gray-500">Загрузка...</div>
+              </Show>
+              <Show when={parentStudentsUsers()}>
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 class="text-xl font-bold text-gray-800 mb-4">Мои дети</h2>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <For each={parentStudentsUsers()}>
+                      {(user) => (
+                        <div class="border rounded-xl p-4 hover:shadow-md transition">
+                          <div class="flex items-center gap-3">
+                            <img
+                              class="w-12 h-12 rounded-full object-cover"
+                              src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}
+                              alt="Фото профиля"
+                            />
+                            <div>
+                              <p class="font-semibold">
+                                {user.lastName} {user.firstName}{" "}
+                                {user?.middleName}
+                              </p>
+                              <p class="text-sm text-gray-500">{user.email}</p>
+
+                              <div class="flex flex-wrap gap-2 mt-3 mb-3">
+                                <div class="flex flex-wrap gap-1">
+                                  <For
+                                    each={ROLES_TO_DISPLAY.filter((rd) =>
+                                      user.roles.some((ur) => ur.id === rd.id),
+                                    )}
+                                  >
+                                    {(role) => (
+                                      <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                        {role.displayName}
+                                      </span>
+                                    )}
+                                  </For>
+                                </div>
+                              </div>
+                              <div class="text-sm text-gray-500">
+                                <p>ID: {user.id}</p>
+                                <p>
+                                  Аккаунт создан: {formatDate(user.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+              </Show>
             </Show>
             <Show when={user()!.roles.some((r) => r.id === 5)}>
-              {teacherClassroom()?.name}
-              <For each={teacherSubjects()}>{(subject) => subject.name}</For>
+              <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-700">
+                  Преподаватель
+                </h3>
+
+                <div>
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">
+                    Предметы
+                  </h4>
+                  <div class="flex flex-wrap gap-2">
+                    <For each={teacherSubjects()}>
+                      {(subject) => (
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                          {subject.name}
+                        </span>
+                      )}
+                    </For>
+                    <Show when={teacherSubjects().length === 0}>
+                      <span class="text-gray-500 text-sm">Нет предметов</span>
+                    </Show>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">
+                    Кабинет
+                  </h4>
+                  <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span class="text-gray-800">
+                      {teacherClassroom()?.name || "Не указан"}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">
+                    Классное руководство/менторство
+                  </h4>
+                  <div class="flex flex-wrap gap-2">
+                    <For each={teacherStudentGroups()}>
+                      {(group) => (
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm rounded-full">
+                          {group.name}
+                        </span>
+                      )}
+                    </For>
+                    <Show when={teacherStudentGroups().length === 0}>
+                      <span class="text-gray-500 text-sm">
+                        Нет учебных групп или классов
+                      </span>
+                    </Show>
+                  </div>
+                </div>
+              </div>
             </Show>
-            <Show when={user()!.roles.some((r) => r.id === 6)}>
-              <h2 class="text-xl font-bold text-center">Дети</h2>
-              <For each={parentStudentsUsers()}>
-                {(user) => (
-                  <ul>
-                    <img
-                      class="w-10 h-10"
-                      src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}
-                      alt="Фото профиля"
-                    />
-                    <li>ID: {user.id}</li>
-                    <li>
-                      {user.lastName} {user.firstName} {user?.middleName}
-                    </li>
-                    <li>Зарегистрирован: {formatDate(user.createdAt)}</li>
-                    <li>Email: {user.email}</li>
-                    <li>
-                      Роли:{" "}
-                      <ul>
-                        <For
-                          each={ROLES_TO_DISPLAY.filter((rd) =>
-                            user.roles.some((ur) => ur.id === rd.id),
-                          )}
-                        >
-                          {(role) => role.displayName}
-                        </For>
-                      </ul>
-                    </li>
-                  </ul>
-                )}
-              </For>
+            <Show when={user()!.roles.some((r) => r.id === 3)}>
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                  Должность
+                </h3>
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span class="text-gray-800">
+                    {institutionAdministratorPosition()?.name}
+                  </span>
+                </div>
+              </div>
+            </Show>
+            <Show when={user()!.roles.some((r) => r.id === 4)}>
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                  Должность
+                </h3>
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                  <span class="text-gray-800">{staffPosition()?.name}</span>
+                </div>
+              </div>
             </Show>
             <Show when={user()!.roles.some((r) => r.id === 7)}>
-              {studentGroup()?.name}
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                  Класс/учебная группа
+                </h3>
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-pink-500 rounded-full"></span>
+                  <span class="text-gray-800">{studentGroup()?.name}</span>
+                </div>
+              </div>
             </Show>
           </Show>
         </div>
