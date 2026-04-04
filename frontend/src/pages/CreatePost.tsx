@@ -36,28 +36,70 @@ const CreatePost = () => {
   return (
     <>
       {hasPermission(PERMISSIONS.POST_CREATE) && (
-        <form
-          onSubmit={handleSubmit}
-          class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 space-y-4"
-        >
-          <input
-            type="text"
-            value={name()}
-            onInput={(e) => setName(e.currentTarget.value)}
-            placeholder="Название*"
-            required
-          />
-          <input
-            type="text"
-            value={description()}
-            onInput={(e) => setDescription(e.currentTarget.value)}
-            placeholder="Описание"
-          />
-          {error() && <div class="error">{error()}</div>}
-          <button type="submit" disabled={loading()}>
-            {loading() ? "Отправка..." : "Отправить"}
-          </button>
-        </form>
+        <div class="max-w-2xl mx-auto">
+          <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">
+            Создать объявление
+          </h1>
+
+          <form
+            onSubmit={handleSubmit}
+            class="bg-white rounded-2xl shadow-lg p-6 space-y-5"
+          >
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Название *
+              </label>
+              <input
+                type="text"
+                value={name()}
+                onInput={(e) => setName(e.currentTarget.value)}
+                placeholder="Например: синяя шапка, чёрный рюкзак"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none transition"
+                required
+              />
+              <p class="text-xs text-gray-500 mt-1">
+                Коротко опишите, что потеряли
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Описание
+              </label>
+              <textarea
+                value={description()}
+                onInput={(e) => setDescription(e.currentTarget.value)}
+                placeholder="Где и когда потеряли, особые приметы..."
+                rows={5}
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none transition resize-none"
+              />
+              <p class="text-xs text-gray-500 mt-1">Чем подробнее, тем лучше</p>
+            </div>
+
+            {error() && (
+              <div class="bg-red-50 text-red-600 p-3 rounded-xl text-sm border border-red-200">
+                {error()}
+              </div>
+            )}
+
+            <div class="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                disabled={loading()}
+                class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {loading() ? "Отправка..." : "Отправить"}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </>
   );
