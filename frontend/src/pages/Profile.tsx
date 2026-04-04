@@ -1,4 +1,5 @@
 import { createSignal, For, Show, onMount } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 import {
   usePermissions,
   PERMISSIONS,
@@ -22,6 +23,8 @@ import type {
 } from "../lib/types";
 
 const Profile = () => {
+  const auth = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = createSignal("");
   const { hasPermission } = usePermissions();
   // Special fields
@@ -99,6 +102,12 @@ const Profile = () => {
     }
   });
 
+  const handleLogout = async () => {
+    await auth.logout();
+    navigate("/login");
+  };
+
+
   return (
     <>
       {hasPermission(PERMISSIONS.USER_READ_OWN) && (
@@ -145,6 +154,14 @@ const Profile = () => {
                 <div class="text-sm text-gray-500">
                   <p>ID: {user()!.id}</p>
                   <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
+                  <p>
+            <button
+              onClick={handleLogout}
+              class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition mt-5"
+            >
+              Выйти
+            </button>
+                  </p>
                 </div>
               </div>
             </div>
