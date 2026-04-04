@@ -51,7 +51,7 @@ export const PublicRoute: Component<Props> = (props) => {
                 class="w-15 h-15 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
               >
                 <img
-                  class="w-15 h-15 rounded-full object-cover border-2 border-blue-100 hover:brightness-90"
+                  class="w-15 h-15 rounded-full object-cover border-2 border-blue-100 hover:brightness-95 transition"
                   src={`/storage/storage/avatars/${auth.user()?.hasAvatar ? auth.user()?.id : "default"}.jpeg`}
                   alt="Фото профиля"
                 />
