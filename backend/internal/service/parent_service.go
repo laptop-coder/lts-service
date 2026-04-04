@@ -158,6 +158,10 @@ func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, stude
 		if len(students) != len(studentIDs) {
 			return fmt.Errorf("some students not found")
 		}
+		// Init "Students" field if empty
+		if parent.Students == nil {
+			parent.Students = &[]model.Student{}
+		}
 		// Add students
 		if err := tx.Model(&parent).Association("Students").Append(&students); err != nil {
 			return fmt.Errorf("failed to add students: %w", err)
