@@ -253,6 +253,10 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 		if len(subjects) != len(subjectIDs) {
 			return fmt.Errorf("some subjects not found")
 		}
+		// Init "Subjects" field if empty
+		if teacher.Subjects == nil {
+			teacher.Subjects = []model.Subject{}
+		}
 		// Add subjects
 		if err := tx.Model(&teacher).Association("Subjects").Append(&subjects); err != nil {
 			return fmt.Errorf("failed to add subjects: %w", err)

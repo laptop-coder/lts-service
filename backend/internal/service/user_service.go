@@ -700,6 +700,10 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 				return fmt.Errorf("cannot add user to extension table: %w", err)
 			}
 		}
+		// Init "Roles" field if empty
+		if user.Roles == nil {
+			user.Roles = []model.Role{}
+		}
 		// Add new roles to old ones
 		if err := tx.WithContext(ctx).
 			Model(&user).
