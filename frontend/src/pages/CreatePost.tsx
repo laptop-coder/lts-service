@@ -54,7 +54,7 @@ const CreatePost = () => {
                 value={name()}
                 onInput={(e) => setName(e.currentTarget.value)}
                 placeholder="Например: синяя шапка, чёрный рюкзак"
-                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none transition"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 required
               />
               <p class="text-xs text-gray-500 mt-1">
@@ -71,7 +71,7 @@ const CreatePost = () => {
                 onInput={(e) => setDescription(e.currentTarget.value)}
                 placeholder="Где и когда потеряли, особые приметы..."
                 rows={5}
-                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none transition resize-none"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
               />
               <p class="text-xs text-gray-500 mt-1">Чем подробнее, тем лучше</p>
             </div>
@@ -93,7 +93,7 @@ const CreatePost = () => {
               <button
                 type="submit"
                 disabled={loading()}
-                class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading() ? "Отправка..." : "Отправить"}
               </button>

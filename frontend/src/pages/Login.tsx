@@ -73,13 +73,15 @@ const Login = () => {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading()}
-            class="w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            {loading() ? "Вход..." : "Войти"}
-          </button>
+          <div class="flex gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={loading()}
+              class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {loading() ? "Вход..." : "Войти"}
+            </button>
+          </div>
 
           <p class="text-center text-sm text-gray-500 mt-4">
             Нет аккаунта?{" "}
