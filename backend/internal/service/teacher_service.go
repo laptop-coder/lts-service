@@ -235,6 +235,7 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 		// Check teacher existence
 		var teacher model.Teacher
 		if err := tx.WithContext(ctx).
+			Preload("Subjects").
 			Where("user_id = ?", userID).
 			First(&teacher).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {

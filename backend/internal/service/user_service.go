@@ -700,10 +700,6 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 				return fmt.Errorf("cannot add user to extension table: %w", err)
 			}
 		}
-		// Init "Roles" field if empty
-		if user.Roles == nil {
-			user.Roles = []model.Role{}
-		}
 		// Add new roles to old ones
 		if err := tx.WithContext(ctx).
 			Model(&user).
@@ -748,18 +744,18 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 		}
 		return nil
 	case 6: // parent
-		if dto.ParentStudentIDs != nil {
+		parent := &model.Parent{UserID: userID}
+		if len(dto.ParentStudentIDs) > 0 {
 			var students []model.Student
-			for _, studentID := range dto.ParentStudentIDs {
-				student, err := s.studentRepo.FindByID(ctx, &studentID)
-				if err != nil {
-					return err
-				}
-				students = append(students, *student)
+			if err := tx.Where("user_id IN (?)", dto.ParentStudentIDs).Find(&students).Error; err != nil {
+				return fmt.Errorf("failed to find students: %w", err)
 			}
-			return tx.Create(&model.Parent{UserID: userID, Students: &students}).Error
+			if len(students) != len(dto.ParentStudentIDs) {
+				return fmt.Errorf("some students not found")
+			}
+			parent.Students = &students
 		}
-		return tx.Create(&model.Parent{UserID: userID}).Error
+		return tx.Create(parent).Error
 	case 7: // student
 		return tx.Create(&model.Student{UserID: userID, StudentGroupID: *dto.StudentGroupID}).Error
 	}
