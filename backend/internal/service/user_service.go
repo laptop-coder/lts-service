@@ -340,7 +340,7 @@ func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, d
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
 			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
 		}
-		if slices.Contains(roleIDs, 5) && (dto.TeacherSubjectIDs == nil) {
+		if slices.Contains(roleIDs, 5) && (len(dto.TeacherSubjectIDs) == 0) {
 			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
@@ -375,7 +375,7 @@ func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
 			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
 		}
-		if slices.Contains(roleIDs, 5) && (dto.TeacherSubjectIDs == nil) {
+		if slices.Contains(roleIDs, 5) && (len(dto.TeacherSubjectIDs) == 0) {
 			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
