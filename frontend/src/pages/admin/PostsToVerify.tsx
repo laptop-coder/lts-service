@@ -45,7 +45,7 @@ const PostsToVerify = () => {
           <Show when={!loading() && !error()}>
             <div class="space-y-4">
               <For each={posts()}>
-                {(post) => <PostCardCompact post={post} />}
+                {(post) => <PostCardCompact post={post} onChange={loadPosts} />}
               </For>
 
               <Show when={posts().length === 0}>

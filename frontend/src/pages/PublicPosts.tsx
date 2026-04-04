@@ -39,7 +39,7 @@ const PublicPosts = () => {
 
       <Show when={!loading() && !error()}>
         <div class="space-y-4">
-          <For each={posts()}>{(post) => <PostCardCompact post={post} />}</For>
+          <For each={posts()}>{(post) => <PostCardCompact post={post} onChange={loadPosts} />}</For>
 
           <Show when={posts().length === 0}>
             <div class="text-center text-gray-500 py-8">

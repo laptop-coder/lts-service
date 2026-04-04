@@ -7,6 +7,7 @@ import { formatDate } from "../lib/utils";
 
 interface Props {
   post: Post;
+  onChange?: () => void;
 }
 
 const PostCardCompact = (props: Props) => {
@@ -18,8 +19,9 @@ const PostCardCompact = (props: Props) => {
 
   const verifyPost = async () => {
     try {
-      await api.patch<{ posts: Post[] }>(`/posts/${post.id}/verify`);
       setLoading(true);
+      await api.patch<{ posts: Post[] }>(`/posts/${post.id}/verify`);
+      props.onChange?.();
     } catch (err) {
       setError(
         err instanceof Error
@@ -34,8 +36,9 @@ const PostCardCompact = (props: Props) => {
   const deletePost = async () => {
     if (confirm("Удалить объявление? Это действие необратимо.")) {
       try {
-        await api.delete<{}>(`/posts/${post.id}`);
         setLoading(true);
+        await api.delete<{}>(`/posts/${post.id}`);
+        props.onChange?.();
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Не удалось удалить объявление",
