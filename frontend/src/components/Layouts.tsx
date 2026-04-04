@@ -8,45 +8,60 @@ interface Props {
 }
 
 export const PublicRoute: Component<Props> = (props) => {
-  const navigate = useNavigate();
   const auth = useAuth();
   const { hasPermission, hasRole } = usePermissions();
 
-  const handleLogout = async () => {
-    await auth.logout();
-    navigate("/login");
-  };
-
   return (
     <div class="min-h-screen bg-gray-100">
-      <header class="bg-white shadow">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-          <A href="/">
-            <h1 class="text-xl font-bold">Сервис поиска потерянных вещей</h1>
+      <header class="bg-white border-b border-gray-200 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+          <A href="/" class="flex items-center gap-3">
+            <img
+              class="w-10 h-10 rounded-full object-cover"
+              src={`/storage/assets/logo.svg`}
+              alt="Логотип"
+            />
+            <span class="text-xl font-bold text-gray-800">
+              LostThingsSearch
+            </span>
           </A>
-          <div class="flex items-center gap-4">
+
+          <div class="flex items-center gap-3">
             {hasRole(ROLES.ADMIN) && (
-              <A class="text-xl font-bold" href="/admin">
-                А
+              <A
+                href="/admin"
+                class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+              >
+                Админка
               </A>
             )}
+
             {hasPermission(PERMISSIONS.POST_CREATE) && (
-              <A class="text-xl font-bold" href="/posts/new">
-                +
+              <A
+                href="/posts/new"
+                class="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+              >
+                <span class="text-xl font-bold">+</span>
               </A>
             )}
-            <A href="/profile">
-              {auth.user()?.firstName} {auth.user()?.lastName}
-            </A>
-            <button
-              onClick={handleLogout}
-              class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Выйти
-            </button>
+
+            {auth.user() && (
+              <A
+                href="/profile"
+                class="w-15 h-15 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
+              >
+                <img
+                  class="w-15 h-15 rounded-full object-cover border-2 border-blue-100 hover:brightness-90"
+                  src={`/storage/storage/avatars/${auth.user()?.hasAvatar ? auth.user()?.id : "default"}.jpeg`}
+                  alt="Фото профиля"
+                />
+              </A>
+            )}
+
           </div>
         </div>
       </header>
+
       <main class="container mx-auto px-4 py-8">{props?.children}</main>
     </div>
   );
