@@ -20,6 +20,7 @@ type StaffService interface {
 }
 
 type StaffResponseDTO struct {
+	UserID string `json:"userId"`
 	Position StaffPositionResponseDTO `json:"position"`
 }
 
@@ -126,6 +127,7 @@ func (s *staffService) GetPosition(ctx context.Context, userID uuid.UUID) (*Staf
 
 func StaffToDTO(staff *model.Staff) *StaffResponseDTO {
 	return &StaffResponseDTO{
+		UserID:     staff.UserID.String(),
 		Position: *StaffPositionToDTO(&staff.Position),
 	}
 }

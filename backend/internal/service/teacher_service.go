@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type TeacherService interface {
@@ -44,8 +43,7 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 	}
 	// Return response
 	return &TeacherResponseDTO{
-		CreatedAt:     teacher.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:     teacher.UpdatedAt.Format(time.RFC3339),
+		UserID:     teacher.UserID.String(),
 		Subjects:      subjects,
 		Classroom:     classroom,
 		StudentGroups: studentGroups,
@@ -53,8 +51,7 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 }
 
 type TeacherResponseDTO struct {
-	CreatedAt     string                    `json:"createdAt"`
-	UpdatedAt     string                    `json:"updatedAt"`
+	UserID string `json:"userId"`
 	Subjects      []SubjectResponseDTO      `json:"subjects"`
 	Classroom     *RoomResponseDTO          `json:"classroom,omitempty"`
 	StudentGroups []StudentGroupResponseDTO `json:"studentGroups,omitempty"`

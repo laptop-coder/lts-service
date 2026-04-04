@@ -21,6 +21,7 @@ type ParentService interface {
 }
 
 type ParentResponseDTO struct {
+	UserID string `json:"userId"`
 	Students []StudentResponseDTO `json:"students"`
 }
 
@@ -131,6 +132,7 @@ func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
 		}
 	}
 	return &ParentResponseDTO{
+		UserID:     parent.UserID.String(),
 		Students: students,
 	}
 }
