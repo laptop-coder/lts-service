@@ -104,7 +104,7 @@ const AdminLayout = (props: Props) => {
                         <button
                           onClick={() => navigate(tab.path!)}
                           class={`
-                        w-full text-left px-4 py-2 rounded-lg transition-colors
+                        w-full text-left px-4 py-2 rounded-lg transition-colors transition cursor-pointer
                         ${isActive(tab.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
                       `}
                         >
@@ -114,7 +114,7 @@ const AdminLayout = (props: Props) => {
                         <button
                           onClick={() => toggleSubmenu(tab.key)}
                           class={`
-                        w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center
+                        w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center transition cursor-pointer
                         ${isParentActive(tab) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
                       `}
                         >
@@ -130,7 +130,7 @@ const AdminLayout = (props: Props) => {
                               <button
                                 onClick={() => navigate(sub.path)}
                                 class={`
-                              w-full text-left px-4 py-2 rounded-lg text-sm transition-colors
+                              w-full text-left px-4 py-2 rounded-lg text-sm transition-colors transition cursor-pointer
                               ${isActive(sub.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
                             `}
                               >

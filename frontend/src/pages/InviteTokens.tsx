@@ -186,7 +186,7 @@ const InviteTokens = () => {
         <button
           onClick={handleCreate}
           disabled={creating()}
-          class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
         >
           {creating()
             ? `Создание... ${progress().current}/${progress().total}`
@@ -198,7 +198,7 @@ const InviteTokens = () => {
       <Show when={tokens().length > 0}>
         <button
           onClick={downloadTokensFile}
-          class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50"
+          class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
         >
           Скачать Markdown
         </button>
@@ -219,7 +219,7 @@ const InviteTokens = () => {
                           index(),
                         )
                       }
-                      class="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
+                      class="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
                     >
                       {buttonCopiedIndex() === index()
                         ? "Скопировано!"

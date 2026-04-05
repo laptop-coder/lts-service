@@ -288,7 +288,7 @@ const Register = () => {
                       Number(e.currentTarget.value),
                     )
                   }
-                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Выберите должность</option>
                   <For each={institutionAdministratorPositions()}>
@@ -310,7 +310,7 @@ const Register = () => {
                   onChange={(e) =>
                     setStaffPositionId(Number(e.currentTarget.value))
                   }
-                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Выберите должность</option>
                   <For each={staffPositions()}>
@@ -335,7 +335,7 @@ const Register = () => {
                     onChange={(e) =>
                       setTeacherClassroomId(Number(e.currentTarget.value))
                     }
-                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">Выберите кабинет</option>
                     <For each={rooms()}>
@@ -390,7 +390,7 @@ const Register = () => {
                   onChange={(e) =>
                     setStudentGroupId(Number(e.currentTarget.value))
                   }
-                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Выберите группу</option>
                   <For each={studentGroups()}>

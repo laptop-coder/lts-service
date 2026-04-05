@@ -90,7 +90,7 @@ const Rooms = () => {
             <button
               type="submit"
               disabled={creating() || !newRoomName().trim()}
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
             >
               {creating() ? "Создание..." : "Создать"}
             </button>
@@ -136,7 +136,7 @@ const Rooms = () => {
                         <button
                           onClick={() => deleteRoom(room.id)}
                           disabled={deletingId() === room.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
                         >
                           {deletingId() === room.id ? "Удаление..." : "Удалить"}
                         </button>

@@ -429,7 +429,7 @@ const Users = () => {
                         <Show when={hasPermission(PERMISSIONS.ROLE_ASSIGN)}>
                           <button
                             onClick={() => openModal(user)}
-                            class="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition cursor-pointer"
+                            class="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
                           >
                             Изменить роли
                           </button>
@@ -437,7 +437,7 @@ const Users = () => {
                         <Show when={hasPermission(PERMISSIONS.USER_DELETE_ANY)}>
                           <button
                             onClick={() => deleteUser(user)}
-                            class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
+                            class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
                           >
                             Удалить
                           </button>
@@ -534,7 +534,7 @@ const Users = () => {
                         Number(e.currentTarget.value),
                       );
                     }}
-                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <option value="">Выберите должность</option>
                     <For each={institutionAdministratorPositions()}>
@@ -560,7 +560,7 @@ const Users = () => {
                       setError("");
                       setStaffPositionId(Number(e.currentTarget.value));
                     }}
-                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <option value="">Выберите должность</option>
                     <For each={staffPositions()}>
@@ -589,7 +589,7 @@ const Users = () => {
                         setError("");
                         setTeacherClassroomId(Number(e.currentTarget.value));
                       }}
-                      class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       <option value="">Выберите кабинет</option>
                       <For each={rooms()}>
@@ -655,13 +655,13 @@ const Users = () => {
                             updateStudentId(index, e.target.value);
                           }}
                           placeholder={`ID ученика ${index + 1}`}
-                          class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
+                          class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                         <button
                           disabled={saving()}
                           type="button"
                           onClick={() => removeStudentId(index)}
-                          class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition disabled:opacity-50"
+                          class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Удалить
                         </button>
@@ -673,7 +673,7 @@ const Users = () => {
                     disabled={saving()}
                     type="button"
                     onClick={addStudentId}
-                    class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50"
+                    class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     + Добавить ученика
                   </button>
@@ -692,7 +692,7 @@ const Users = () => {
                     onChange={(e) =>
                       setStudentGroupId(Number(e.currentTarget.value))
                     }
-                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <option value="">Выберите группу</option>
                     <For each={studentGroups()}>
@@ -716,7 +716,7 @@ const Users = () => {
               <button
                 onClick={saveRoles}
                 disabled={saving()}
-                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 cursor-pointer"
+                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
                 {saving() ? "Сохранение..." : "Сохранить"}
               </button>

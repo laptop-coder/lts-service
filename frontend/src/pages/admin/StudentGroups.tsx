@@ -108,7 +108,7 @@ const StudentGroups = () => {
             <button
               type="submit"
               disabled={creating() || !newStudentGroupName().trim()}
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
             >
               {creating() ? "Создание..." : "Создать"}
             </button>
@@ -158,7 +158,7 @@ const StudentGroups = () => {
                         <button
                           onClick={() => deleteStudentGroup(studentGroup.id)}
                           disabled={deletingId() === studentGroup.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
                         >
                           {deletingId() === studentGroup.id
                             ? "Удаление..."
