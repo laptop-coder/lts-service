@@ -29,35 +29,48 @@ const PostsToVerify = () => {
   });
 
   return (
-    <>
-      {hasPermission(PERMISSIONS.POST_READ_ANY) && (
-        <div class="max-w-4xl mx-auto space-y-6">
-          <h1 class="text-2xl font-bold text-center">Верификация объявлений</h1>
-
-          <Show when={loading()}>
-            <div class="text-center py-8">Загрузка...</div>
-          </Show>
-
-          <Show when={error()}>
-            <div class="bg-red-100 text-red-700 p-4 rounded-lg">{error()}</div>
-          </Show>
-
-          <Show when={!loading() && !error()}>
-            <div class="space-y-4">
-              <For each={posts()}>
-                {(post) => <PostCardCompact post={post} onChange={loadPosts} />}
-              </For>
-
-              <Show when={posts().length === 0}>
-                <div class="text-center text-gray-500 py-8">
-                  Пока нет объявлений
-                </div>
-              </Show>
-            </div>
-          </Show>
+    hasPermission(PERMISSIONS.POST_READ_ANY) && (
+      <div class="max-w-4xl mx-auto px-4 py-6">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 text-center">
+            Верификация объявлений
+          </h1>
+          <p class="text-gray-500 text-center mt-2">
+            Проверьте и подтвердите объявления пользователей
+          </p>
         </div>
-      )}
-    </>
+
+        <Show when={loading()}>
+          <div class="flex justify-center items-center py-16">
+            <div class="text-gray-500">Загрузка...</div>
+          </div>
+        </Show>
+
+        <Show when={error()}>
+          <div class="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl">
+            {error()}
+          </div>
+        </Show>
+
+        <Show when={!loading() && !error()}>
+          <div class="space-y-4">
+            <For each={posts()}>
+              {(post) => <PostCardCompact post={post} onChange={loadPosts} />}
+            </For>
+
+            <Show when={posts().length === 0}>
+              <div class="text-center py-16">
+                <div class="text-5xl mb-3">📭</div>
+                <p class="text-gray-500">Нет объявлений на верификацию</p>
+                <p class="text-gray-400 text-sm mt-1">
+                  Все объявления проверены
+                </p>
+              </div>
+            </Show>
+          </div>
+        </Show>
+      </div>
+    )
   );
 };
 
