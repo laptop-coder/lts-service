@@ -141,7 +141,7 @@ const StaffPositions = () => {
                         <button
                           onClick={() => deleteStaffPosition(staffPosition.id)}
                           disabled={deletingId() === staffPosition.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
                         >
                           {deletingId() === staffPosition.id
                             ? "Удаление..."

@@ -141,7 +141,7 @@ const Subjects = () => {
                         <button
                           onClick={() => deleteSubject(subject.id)}
                           disabled={deletingId() === subject.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
                         >
                           {deletingId() === subject.id
                             ? "Удаление..."

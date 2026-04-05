@@ -141,7 +141,7 @@ const InstitutionAdministratorPositions = () => {
                         <button
                           onClick={() => deleteInstitutionAdministratorPosition(institutionAdministratorPosition.id)}
                           disabled={deletingId() === institutionAdministratorPosition.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
                         >
                           {deletingId() === institutionAdministratorPosition.id
                             ? "Удаление..."

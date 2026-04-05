@@ -158,7 +158,7 @@ const StudentGroups = () => {
                         <button
                           onClick={() => deleteStudentGroup(studentGroup.id)}
                           disabled={deletingId() === studentGroup.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
                         >
                           {deletingId() === studentGroup.id
                             ? "Удаление..."

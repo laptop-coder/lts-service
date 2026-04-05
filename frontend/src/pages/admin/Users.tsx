@@ -429,7 +429,7 @@ const Users = () => {
                         <Show when={hasPermission(PERMISSIONS.ROLE_ASSIGN)}>
                           <button
                             onClick={() => openModal(user)}
-                            class="text-blue-600 hover:text-blue-800 transition cursor-pointer"
+                            class="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition cursor-pointer"
                           >
                             Изменить роли
                           </button>
@@ -437,7 +437,7 @@ const Users = () => {
                         <Show when={hasPermission(PERMISSIONS.USER_DELETE_ANY)}>
                           <button
                             onClick={() => deleteUser(user)}
-                            class="text-red-600 hover:text-red-800 transition cursor-pointer"
+                            class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
                           >
                             Удалить
                           </button>

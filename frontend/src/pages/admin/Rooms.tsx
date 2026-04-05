@@ -136,7 +136,7 @@ const Rooms = () => {
                         <button
                           onClick={() => deleteRoom(room.id)}
                           disabled={deletingId() === room.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer"
                         >
                           {deletingId() === room.id ? "Удаление..." : "Удалить"}
                         </button>
