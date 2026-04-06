@@ -55,6 +55,15 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		roleID := uint8(roleID64)
 		roleIDs[i] = roleID
 	}
+	// Get email
+	emailFields := r.PostForm["email"]
+	email := ""
+	if len(emailFields) == 1 {
+		email = emailFields[0]
+	} else if len(emailFields) > 1 {
+		helpers.ErrorResponse(w, "too much email fields", http.StatusBadRequest)
+		return
+	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
@@ -81,7 +90,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// Generate token
-	token, err := h.inviteService.CreateToken(r.Context(), roleIDs)
+	token, err := h.inviteService.CreateToken(r.Context(), roleIDs, &email)
 	if err != nil || token == nil {
 		helpers.HandleServiceError(w, err)
 		return
@@ -168,5 +177,23 @@ func (h *InviteHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	}
 	helpers.SuccessResponse(w, map[string]interface{}{
 		"roles": roles,
+	})
+}
+
+func (h *InviteHandler) GetEmail(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get token
+	token := r.PathValue("token")
+	// Get email
+	email, err := h.inviteService.GetEmail(r.Context(), token)
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"email": email,
 	})
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -16,17 +17,20 @@ import (
 type InviteTokenClaims struct {
 	jwt.RegisteredClaims
 	RoleIDs []int `json:"roleIds"`
+	Email *string `json:"email,omitempty"`
 }
 
 type InviteService interface {
-	CreateToken(ctx context.Context, roleIDs []uint8) (*string, error)
+	CreateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error)
 	GetRoles(ctx context.Context, tokenString string) ([]RoleResponseDTO, error)
+	GetEmail(ctx context.Context, tokenString string) (*string, error)
 	RevokeToken(ctx context.Context, tokenString string) error
 	ParseToken(tokenString string) (*InviteTokenClaims, error)
 }
 
 type inviteService struct {
 	jwtRepo  repository.JWTRepository
+	userRepo  repository.UserRepository
 	roleRepo repository.RoleRepository
 	db       *gorm.DB
 	config   InviteServiceConfig
@@ -35,6 +39,7 @@ type inviteService struct {
 
 func NewInviteService(
 	jwtRepo repository.JWTRepository,
+	userRepo repository.UserRepository,
 	roleRepo repository.RoleRepository,
 	db *gorm.DB,
 	config InviteServiceConfig,
@@ -42,6 +47,7 @@ func NewInviteService(
 ) InviteService {
 	return &inviteService{
 		jwtRepo:  jwtRepo,
+		userRepo:  userRepo,
 		roleRepo: roleRepo,
 		db:       db,
 		config:   config,
@@ -49,9 +55,9 @@ func NewInviteService(
 	}
 }
 
-func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8) (*string, error) {
+func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error) {
 	s.log.Info("Starting create invite token")
-	token, err := s.generateToken(ctx, roleIDs)
+	token, err := s.generateToken(ctx, roleIDs, email)
 	if err != nil || token == nil {
 		s.log.Error("Failed to create invite token", "error", err.Error())
 		return nil, fmt.Errorf("failed to generate invite token: %w", err)
@@ -60,7 +66,7 @@ func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8) (*stri
 	return token, nil
 }
 
-func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*string, error) {
+func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error) {
 	// Block attempt to generate token with superadmin role
 	if slices.Contains(roleIDs, 1) {
 		return nil, fmt.Errorf("forbidden: you cannot generate invite token with superadmin role")
@@ -91,6 +97,17 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8) (*st
 			ID:        uuid.New().String(),
 		},
 		RoleIDs: roleIDsInt,
+	}
+	if email != nil {
+		// Check email uniqueness
+		existingUser, err := s.userRepo.FindByEmail(ctx, email)
+		if err == nil && existingUser != nil {
+			return nil, fmt.Errorf("user with this email already exists")
+		}
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("failed to check email uniqueness: %w", err)
+		}
+		claims.Email = email
 	}
 	// Create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -159,6 +176,24 @@ func (s *inviteService) GetRoles(ctx context.Context, tokenString string) ([]Rol
 	}
 	return dtos, nil
 }
+
+func (s *inviteService) GetEmail(ctx context.Context, tokenString string) (*string, error) {
+	// Check if token was revoked
+	revoked, err := s.jwtRepo.IsRevoked(ctx, tokenString)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if invite token was revoked")
+	}
+	if revoked {
+		return nil, fmt.Errorf("invite token was revoked")
+	}
+	// Parse token
+	claims, err := s.ParseToken(tokenString)
+	if err != nil || claims == nil {
+		return nil, fmt.Errorf("failed to parse invite token")
+	}
+	return claims.Email, nil
+}
+
 
 func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) error {
 	s.log.Info("Starting invite token revoke")

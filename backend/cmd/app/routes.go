@@ -36,7 +36,8 @@ func SetupRoutes(
 	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
 	mux.HandleFunc("GET /api/v1/posts/public", postHandler.GetPostsPublic)
 	mux.HandleFunc("/health", healthHandler)
-	mux.HandleFunc("GET /api/v1/tokens/invite/{token}", inviteHandler.GetRoles)
+	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/roles", inviteHandler.GetRoles)
+	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/email", inviteHandler.GetEmail)
 
 	// Secure routes (auth required)
 

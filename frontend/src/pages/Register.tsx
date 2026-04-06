@@ -68,7 +68,7 @@ const Register = () => {
     try {
       // Get roles from the invite token
       const rolesData = await api.get<{ roles: Role[] }>(
-        `/tokens/invite/${inviteToken}`,
+        `/tokens/invite/${inviteToken}/roles`,
       );
       setRoleIds(rolesData.roles.map((role) => role.id));
       setRoleNames(rolesData.roles.map((role) => role.name));

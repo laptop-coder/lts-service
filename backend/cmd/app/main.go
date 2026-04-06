@@ -94,7 +94,7 @@ func main() {
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
 	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
-	inviteService := service.NewInviteService(jwtRepo, roleRepo, db, serviceConfigs.Invite, log)
+	inviteService := service.NewInviteService(jwtRepo, userRepo, roleRepo, db, serviceConfigs.Invite, log)
 	institutionAdministratorPositionService := service.NewInstitutionAdministratorPositionService(institutionAdministratorPositionRepo, db, log)
 	staffPositionService := service.NewStaffPositionService(staffPositionRepo, db, log)
 
