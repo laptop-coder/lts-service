@@ -114,7 +114,7 @@ const Rooms = () => {
         <div class="text-center py-16">
           <div class="text-5xl mb-3">🚪</div>
           <p class="text-gray-500">Нет кабинетов</p>
-          <p class="text-gray-400 text-sm mt-1">Создайте первый кабинет</p>
+          <p class="text-gray-400 text-sm mt-1">Создайте первый</p>
         </div>
       </Show>
 

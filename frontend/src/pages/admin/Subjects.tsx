@@ -65,95 +65,105 @@ const Subjects = () => {
   });
 
   return (
-    <div class="space-y-6">
-      <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Управление предметами</h1>
+    <div class="space-y-6 p-4">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Управление предметами</h1>
+        <p class="text-gray-500 mt-1">Список учебных дисциплин</p>
       </div>
 
       <Show when={error()}>
-        <div class="bg-red-100 text-red-700 p-3 rounded-lg">{error()}</div>
+        <div class="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl">
+          {error()}
+        </div>
       </Show>
 
       {/* Form for subjects creating */}
       <Show when={hasPermission(PERMISSIONS.SUBJECT_CREATE)}>
-        <form
-          onSubmit={createSubject}
-          class="bg-gray-50 p-4 rounded-lg space-y-3"
-        >
-          <h2 class="font-semibold">Создать новый предмет</h2>
-          <div class="flex gap-2">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Добавить предмет
+          </h2>
+          <form onSubmit={createSubject} class="flex gap-3">
             <input
               type="text"
               value={newSubjectName()}
               onInput={(e) => setNewSubjectName(e.currentTarget.value)}
               placeholder="Название предмета"
-              class="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
               disabled={creating()}
             />
             <button
               type="submit"
               disabled={creating() || !newSubjectName().trim()}
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
+              class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
             >
               {creating() ? "Создание..." : "Создать"}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </Show>
 
       {/* List of subjects */}
       <Show when={loading()}>
-        <div class="text-center py-8">Загрузка...</div>
+        <div class="flex justify-center py-16">
+          <div class="text-gray-500">Загрузка...</div>
+        </div>
       </Show>
 
       <Show when={!loading() && subjects().length === 0}>
-        <div class="text-center text-gray-500 py-8">
-          Нет предметов. Создайте первый.
+        <div class="text-center py-16">
+          <div class="text-5xl mb-3">📚</div>
+          <p class="text-gray-500">Нет предметов</p>
+          <p class="text-gray-400 text-sm mt-1">Создайте первый</p>
         </div>
       </Show>
 
       <Show when={!loading() && subjects().length > 0}>
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-          <table class="w-full">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                  ID
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-medium text-gray-500">
-                  Название
-                </th>
-                <th class="px-4 py-3 text-right text-sm font-medium text-gray-500">
-                  Действия
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <For each={subjects()}>
-                {(subject) => (
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 text-sm text-gray-500">
-                      {subject.id}
-                    </td>
-                    <td class="px-4 py-3 font-medium">{subject.name}</td>
-                    <td class="px-4 py-3 text-right">
-                      <Show when={hasPermission(PERMISSIONS.SUBJECT_DELETE)}>
-                        <button
-                          onClick={() => deleteSubject(subject.id)}
-                          disabled={deletingId() === subject.id}
-                          class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
-                        >
-                          {deletingId() === subject.id
-                            ? "Удаление..."
-                            : "Удалить"}
-                        </button>
-                      </Show>
-                    </td>
-                  </tr>
-                )}
-              </For>
-            </tbody>
-          </table>
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    ID
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Название
+                  </th>
+                  <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">
+                    Действия
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <For each={subjects()}>
+                  {(subject) => (
+                    <tr class="hover:bg-gray-50 transition">
+                      <td class="px-6 py-4 text-sm text-gray-500 font-mono">
+                        {subject.id}
+                      </td>
+                      <td class="px-6 py-4 font-medium text-gray-800">
+                        {subject.name}
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                        <Show when={hasPermission(PERMISSIONS.SUBJECT_DELETE)}>
+                          <button
+                            onClick={() => deleteSubject(subject.id)}
+                            disabled={deletingId() === subject.id}
+                            class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
+                          >
+                            {deletingId() === subject.id
+                              ? "Удаление..."
+                              : "Удалить"}
+                          </button>
+                        </Show>
+                      </td>
+                    </tr>
+                  )}
+                </For>
+              </tbody>
+            </table>
+          </div>
         </div>
       </Show>
     </div>
