@@ -17,6 +17,7 @@ import type {
 const Register = () => {
   // Data about new user
   const [email, setEmail] = createSignal("");
+  const [emailPreloaded, setEmailPreloaded] = createSignal(false);
   const [password, setPassword] = createSignal("");
   const [firstName, setFirstName] = createSignal("");
   const [middleName, setMiddleName] = createSignal("");
@@ -66,6 +67,14 @@ const Register = () => {
 
   onMount(async () => {
     try {
+      // Try to get email from the invite token
+      const emailData = await api.get<{ email: string }>(
+        `/tokens/invite/${inviteToken}/email`,
+      );
+      if (emailData.email) {
+        setEmailPreloaded(true)
+        setEmail(emailData.email)
+      }
       // Get roles from the invite token
       const rolesData = await api.get<{ roles: Role[] }>(
         `/tokens/invite/${inviteToken}/roles`,
@@ -108,7 +117,7 @@ const Register = () => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("email", email());
+    if (!emailPreloaded()) formData.append("email", email());
     formData.append("password", password());
     formData.append("firstName", firstName());
     if (middleName()?.trim()) formData.append("middleName", middleName());
@@ -253,11 +262,12 @@ const Register = () => {
                 Email *
               </label>
               <input
+              disabled={emailPreloaded()}
                 type="email"
                 value={email()}
                 placeholder="email@example.ru"
                 onInput={(e) => setEmail(e.currentTarget.value)}
-                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:cursor-not-allowed"
                 required
               />
             </div>

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strings"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -42,8 +43,9 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorResponse(w, "failed to parse multipart/formdata form", http.StatusBadRequest)
 		return
 	}
+	// Get fields data
 	fieldsData := make(map[string]string)
-	for _, s := range []string{"email", "password", "firstName", "lastName", "inviteToken"} {
+	for _, s := range []string{ "password", "firstName", "lastName", "inviteToken"} {
 		formFields := r.PostForm[s]
 		if len(formFields) > 1 {
 			helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: too much %s fields", s), http.StatusBadRequest)
@@ -52,7 +54,37 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: %s field cannot be empty", s), http.StatusBadRequest)
 			return
 		}
-		fieldsData[s] = formFields[0]
+		trimmed := strings.TrimSpace(formFields[0]) // TODO: add checks like here in the whole code
+		if trimmed == "" {
+			helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: %s field cannot be empty or only whitespace", s), http.StatusBadRequest)
+			return
+		}
+		fieldsData[s] = trimmed
+	}
+	// Try to get email from the invite token
+	var email *string
+	email, err := h.inviteService.GetEmail(r.Context(), fieldsData["inviteToken"])
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	if email == nil {
+		// Get email from the form
+		emailFields := r.PostForm["email"]
+		if len(emailFields) != 1 {
+			helpers.ErrorResponse(w, "email must be specified exactly once in the form", http.StatusBadRequest)
+			return
+		}
+		trimmedEmail := strings.TrimSpace(emailFields[0])
+		if trimmedEmail == "" {
+			helpers.ErrorResponse(w, "email cannot be empty or only whitespace", http.StatusBadRequest)
+			return
+		}
+		email = &trimmedEmail
+	}
+	if email == nil {
+		helpers.ErrorResponse(w, "error getting email", http.StatusInternalServerError)
+		return
 	}
 	// Get roles from invite token
 	roles, err := h.inviteService.GetRoles(r.Context(), fieldsData["inviteToken"]) // TODO: change ctx to r.Context() in the whole code
@@ -71,7 +103,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	// Assemble create user DTO
 	createUserDTO := service.CreateUserDTO{
-		Email:     fieldsData["email"],
+		Email:     *email,
 		Password:  fieldsData["password"],
 		FirstName: fieldsData["firstName"],
 		LastName:  fieldsData["lastName"],

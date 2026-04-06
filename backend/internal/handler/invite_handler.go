@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strings"
 	"backend/internal/permissions"
 	"backend/internal/service"
 	"backend/pkg/helpers"
@@ -57,9 +58,12 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get email
 	emailFields := r.PostForm["email"]
-	email := ""
+	var email *string
 	if len(emailFields) == 1 {
-		email = emailFields[0]
+		trimmed := strings.TrimSpace(emailFields[0])
+		if trimmed != "" {
+			email = &trimmed
+		}
 	} else if len(emailFields) > 1 {
 		helpers.ErrorResponse(w, "too much email fields", http.StatusBadRequest)
 		return
@@ -90,7 +94,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// Generate token
-	token, err := h.inviteService.CreateToken(r.Context(), roleIDs, &email)
+	token, err := h.inviteService.CreateToken(r.Context(), roleIDs, email)
 	if err != nil || token == nil {
 		helpers.HandleServiceError(w, err)
 		return
