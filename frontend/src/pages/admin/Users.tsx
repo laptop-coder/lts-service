@@ -1,5 +1,4 @@
-import { onCleanup } from "solid-js";
-import { createSignal, Show, For, Index, onMount } from "solid-js";
+import { createSignal, Show, For, Index, onMount, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";

@@ -132,106 +132,127 @@ const InviteTokens = () => {
   };
 
   return (
-    <div class="space-y-6">
-      <h1 class="text-2xl font-bold">Создание инвайт-токенов</h1>
+    <div class="space-y-8 p-4 max-w-4xl mx-auto">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Инвайт-токены</h1>
+        <p class="text-gray-500 mt-1">
+          Создание пригласительных ссылок для регистрации
+        </p>
+      </div>
 
       <Show when={error()}>
-        <div class="bg-red-100 text-red-700 p-3 rounded-lg">{error()}</div>
+        <div class="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl">
+          {error()}
+        </div>
       </Show>
 
-      <div class="bg-white rounded-lg shadow p-6 space-y-4 max-w-md">
-        {/* Count */}
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Количество токенов
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="500"
-            value={count()}
-            onInput={(e) =>
-              setCount(
-                Math.min(
-                  500,
-                  Math.max(1, parseInt(e.currentTarget.value) || 1),
-                ),
-              )
-            }
-            class="w-24 px-3 py-2 border rounded-md"
-          />
-        </div>
+      <div class="bg-white rounded-2xl shadow-lg p-6 max-w-md">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          Параметры токенов
+        </h2>
 
-        {/* Roles */}
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Роли
-          </label>
-          <div class="space-y-2">
-            <For each={availableRoles}>
-              {(role) => (
-                <label class="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedRoles().includes(role.id)}
-                    onChange={() => toggleRole(role.id)}
-                  />
-                  <span>{role.name}</span>
-                </label>
-              )}
-            </For>
+        <div class="space-y-4">
+          {/* Count */}
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Количество токенов
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="500"
+              value={count()}
+              onInput={(e) =>
+                setCount(
+                  Math.min(
+                    500,
+                    Math.max(1, parseInt(e.currentTarget.value) || 1),
+                  ),
+                )
+              }
+              class="w-32 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            />
           </div>
-        </div>
 
-        <button
-          onClick={handleCreate}
-          disabled={creating()}
-          class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
-        >
-          {creating()
-            ? `Создание... ${progress().current}/${progress().total}`
-            : "Создать токены"}
-        </button>
+          {/* Roles */}
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Роли
+            </label>
+            <div class="space-y-2">
+              <For each={availableRoles}>
+                {(role) => (
+                  <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedRoles().includes(role.id)}
+                      onChange={() => toggleRole(role.id)}
+                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span class="text-gray-700">{role.name}</span>
+                  </label>
+                )}
+              </For>
+            </div>
+          </div>
+
+          <button
+            onClick={handleCreate}
+            disabled={creating()}
+            class="w-full py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
+          >
+            {creating()
+              ? `Создание... ${progress().current}/${progress().total}`
+              : "Создать токены"}
+          </button>
+        </div>
       </div>
 
       {/* List of created tokens */}
       <Show when={tokens().length > 0}>
-        <button
-          onClick={downloadTokensFile}
-          class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
-        >
-          Скачать Markdown
-        </button>
-        <div class="bg-white rounded-lg shadow p-6 space-y-3">
-          <h2 class="text-lg font-semibold">Созданные токены</h2>
-          <div class="space-y-2 max-h-96 overflow-y-auto">
-            <For each={tokens()}>
-              {(item, index) => (
-                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <code class="text-sm font-mono break-all flex-1">
-                    {item.token}
-                  </code>
-                  <div class="flex gap-2">
-                    <button
-                      onClick={() =>
-                        copyToClipboard(
-                          `${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`,
-                          index(),
-                        )
-                      }
-                      class="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
-                    >
-                      {buttonCopiedIndex() === index()
-                        ? "Скопировано!"
-                        : "Копировать"}
-                    </button>
-                    <QRCodeButton
-                      text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`}
-                    />
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-800">
+              Созданные токены
+            </h2>
+            <button
+              onClick={downloadTokensFile}
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition cursor-pointer font-medium"
+            >
+              📥 Скачать Markdown
+            </button>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="divide-y divide-gray-100">
+              <For each={tokens()}>
+                {(item, index) => (
+                  <div class="p-4 hover:bg-gray-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <code class="text-sm font-mono break-all text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
+                      {item.token}
+                    </code>
+                    <div class="flex gap-2">
+                      <button
+                        onClick={() =>
+                          copyToClipboard(
+                            `${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`,
+                            index(),
+                          )
+                        }
+                        class="w-28 px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium"
+                      >
+                        {buttonCopiedIndex() === index()
+                          ? "✓ Скопировано"
+                          : "📋 Копировать"}
+                      </button>
+                      <QRCodeButton
+                        text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-            </For>
+                )}
+              </For>
+            </div>
           </div>
         </div>
       </Show>

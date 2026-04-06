@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, onCleanup, onMount } from "solid-js";
 import QRCode from "qrcode";
 
 interface Props {
@@ -26,11 +26,25 @@ const QRCodeButton = (props: Props) => {
 
   const closeQR = () => setShowQR(false);
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && showQR()) {
+      closeQR();
+    }
+  };
+
+  onMount(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    onCleanup(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+    });
+  });
+
+
   return (
     <>
       <button
         onClick={generateQR}
-        class="ml-2 px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition cursor-pointer"
+        class="ml-2 px-3 py-1 text-sm bg-green-700 text-white rounded hover:bg-green-800 transition cursor-pointer"
         title="Показать QR-код"
       >
         QR
@@ -38,7 +52,7 @@ const QRCodeButton = (props: Props) => {
 
       <Show when={showQR()}>
         <div
-          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={closeQR}
         >
           <div
