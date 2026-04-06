@@ -156,7 +156,7 @@ const Profile = () => {
                   <p>
                     <button
                       onClick={handleLogout}
-                      class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition mt-5"
+                      class="px-3 py-1.5 bg-red-700 text-white rounded-lg hover:bg-red-800 transition mt-5 cursor-pointer"
                     >
                       Выйти
                     </button>
@@ -166,10 +166,7 @@ const Profile = () => {
             </div>
 
             <Show when={user()!.roles.some((r) => r.id === 6)}>
-              <Show when={!parentStudentsUsers()}>
-                <div class="text-center py-8 text-gray-500">Загрузка...</div>
-              </Show>
-              <Show when={parentStudentsUsers()}>
+              <Show when={parentStudentsUsers().length > 0}>
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                   <h2 class="text-xl font-bold text-gray-800 mb-4">Мои дети</h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

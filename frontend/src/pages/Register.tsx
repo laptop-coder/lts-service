@@ -417,7 +417,7 @@ const Register = () => {
                       <button
                         type="button"
                         onClick={() => removeStudentId(index)}
-                        class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition"
+                        class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition cursor-pointer"
                       >
                         Удалить
                       </button>

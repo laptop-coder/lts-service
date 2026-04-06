@@ -660,7 +660,7 @@ const Users = () => {
                           disabled={saving()}
                           type="button"
                           onClick={() => removeStudentId(index)}
-                          class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Удалить
                         </button>
