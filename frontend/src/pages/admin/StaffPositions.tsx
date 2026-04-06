@@ -16,11 +16,15 @@ const StaffPositions = () => {
 
   const loadStaffPositions = async () => {
     try {
-      const data = await api.get<{ staffPositions: StaffPosition[] }>("/staff/positions");
+      const data = await api.get<{ staffPositions: StaffPosition[] }>(
+        "/staff/positions",
+      );
       setStaffPositions(data.staffPositions);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Ошибка загрузки списка должностей",
+        err instanceof Error
+          ? err.message
+          : "Ошибка загрузки списка должностей",
       );
     } finally {
       setLoading(false);
@@ -40,7 +44,9 @@ const StaffPositions = () => {
       setNewStaffPositionName("");
       await loadStaffPositions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка создания должности");
+      setError(
+        err instanceof Error ? err.message : "Ошибка создания должности",
+      );
     } finally {
       setCreating(false);
     }
@@ -54,7 +60,9 @@ const StaffPositions = () => {
       await api.delete(`/staff/positions/${id}`);
       await loadStaffPositions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка удаления должности");
+      setError(
+        err instanceof Error ? err.message : "Ошибка удаления должности",
+      );
     } finally {
       setDeletingId(null);
     }
@@ -137,7 +145,9 @@ const StaffPositions = () => {
                     </td>
                     <td class="px-4 py-3 font-medium">{staffPosition.name}</td>
                     <td class="px-4 py-3 text-right">
-                      <Show when={hasPermission(PERMISSIONS.POSITION_STAFF_DELETE)}>
+                      <Show
+                        when={hasPermission(PERMISSIONS.POSITION_STAFF_DELETE)}
+                      >
                         <button
                           onClick={() => deleteStaffPosition(staffPosition.id)}
                           disabled={deletingId() === staffPosition.id}

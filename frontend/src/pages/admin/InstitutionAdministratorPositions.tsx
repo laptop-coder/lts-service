@@ -5,10 +5,16 @@ import { usePermissions } from "../../lib/permissions";
 import type { InstitutionAdministratorPosition } from "../../lib/types";
 
 const InstitutionAdministratorPositions = () => {
-  const [institutionAdministratorPositions, setInstitutionAdministratorPositions] = createSignal<InstitutionAdministratorPosition[]>([]);
+  const [
+    institutionAdministratorPositions,
+    setInstitutionAdministratorPositions,
+  ] = createSignal<InstitutionAdministratorPosition[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
-  const [newInstitutionAdministratorPositionName, setNewInstitutionAdministratorPositionName] = createSignal("");
+  const [
+    newInstitutionAdministratorPositionName,
+    setNewInstitutionAdministratorPositionName,
+  ] = createSignal("");
   const [creating, setCreating] = createSignal(false);
   const [deletingId, setDeletingId] = createSignal<number | null>(null);
 
@@ -16,11 +22,17 @@ const InstitutionAdministratorPositions = () => {
 
   const loadInstitutionAdministratorPositions = async () => {
     try {
-      const data = await api.get<{ institutionAdministratorPositions: InstitutionAdministratorPosition[] }>("/institution_administrators/positions");
-      setInstitutionAdministratorPositions(data.institutionAdministratorPositions);
+      const data = await api.get<{
+        institutionAdministratorPositions: InstitutionAdministratorPosition[];
+      }>("/institution_administrators/positions");
+      setInstitutionAdministratorPositions(
+        data.institutionAdministratorPositions,
+      );
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Ошибка загрузки списка должностей",
+        err instanceof Error
+          ? err.message
+          : "Ошибка загрузки списка должностей",
       );
     } finally {
       setLoading(false);
@@ -40,7 +52,9 @@ const InstitutionAdministratorPositions = () => {
       setNewInstitutionAdministratorPositionName("");
       await loadInstitutionAdministratorPositions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка создания должности");
+      setError(
+        err instanceof Error ? err.message : "Ошибка создания должности",
+      );
     } finally {
       setCreating(false);
     }
@@ -54,7 +68,9 @@ const InstitutionAdministratorPositions = () => {
       await api.delete(`/institution_administrators/positions/${id}`);
       await loadInstitutionAdministratorPositions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка удаления должности");
+      setError(
+        err instanceof Error ? err.message : "Ошибка удаления должности",
+      );
     } finally {
       setDeletingId(null);
     }
@@ -75,7 +91,11 @@ const InstitutionAdministratorPositions = () => {
       </Show>
 
       {/* Form for positions creating */}
-      <Show when={hasPermission(PERMISSIONS.POSITION_INSTITUTION_ADMINISTRATOR_CREATE)}>
+      <Show
+        when={hasPermission(
+          PERMISSIONS.POSITION_INSTITUTION_ADMINISTRATOR_CREATE,
+        )}
+      >
         <form
           onSubmit={createInstitutionAdministratorPosition}
           class="bg-gray-50 p-4 rounded-lg space-y-3"
@@ -85,14 +105,20 @@ const InstitutionAdministratorPositions = () => {
             <input
               type="text"
               value={newInstitutionAdministratorPositionName()}
-              onInput={(e) => setNewInstitutionAdministratorPositionName(e.currentTarget.value)}
+              onInput={(e) =>
+                setNewInstitutionAdministratorPositionName(
+                  e.currentTarget.value,
+                )
+              }
               placeholder="Название должности"
               class="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={creating()}
             />
             <button
               type="submit"
-              disabled={creating() || !newInstitutionAdministratorPositionName().trim()}
+              disabled={
+                creating() || !newInstitutionAdministratorPositionName().trim()
+              }
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
             >
               {creating() ? "Создание..." : "Создать"}
@@ -106,7 +132,9 @@ const InstitutionAdministratorPositions = () => {
         <div class="text-center py-8">Загрузка...</div>
       </Show>
 
-      <Show when={!loading() && institutionAdministratorPositions().length === 0}>
+      <Show
+        when={!loading() && institutionAdministratorPositions().length === 0}
+      >
         <div class="text-center text-gray-500 py-8">
           Нет должностей. Создайте первую.
         </div>
@@ -135,12 +163,24 @@ const InstitutionAdministratorPositions = () => {
                     <td class="px-4 py-3 text-sm text-gray-500">
                       {institutionAdministratorPosition.id}
                     </td>
-                    <td class="px-4 py-3 font-medium">{institutionAdministratorPosition.name}</td>
+                    <td class="px-4 py-3 font-medium">
+                      {institutionAdministratorPosition.name}
+                    </td>
                     <td class="px-4 py-3 text-right">
-                      <Show when={hasPermission(PERMISSIONS.POSITION_INSTITUTION_ADMINISTRATOR_DELETE)}>
+                      <Show
+                        when={hasPermission(
+                          PERMISSIONS.POSITION_INSTITUTION_ADMINISTRATOR_DELETE,
+                        )}
+                      >
                         <button
-                          onClick={() => deleteInstitutionAdministratorPosition(institutionAdministratorPosition.id)}
-                          disabled={deletingId() === institutionAdministratorPosition.id}
+                          onClick={() =>
+                            deleteInstitutionAdministratorPosition(
+                              institutionAdministratorPosition.id,
+                            )
+                          }
+                          disabled={
+                            deletingId() === institutionAdministratorPosition.id
+                          }
                           class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
                         >
                           {deletingId() === institutionAdministratorPosition.id

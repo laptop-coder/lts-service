@@ -12,13 +12,13 @@ const CreatePost = lazy(() => import("./pages/CreatePost"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
-const StudentGroups = lazy(
-  () => import("./pages/admin/StudentGroups"),
-);
+const StudentGroups = lazy(() => import("./pages/admin/StudentGroups"));
 const InviteTokens = lazy(() => import("./pages/InviteTokens"));
 const Users = lazy(() => import("./pages/admin/Users"));
 const StaffPositions = lazy(() => import("./pages/admin/StaffPositions"));
-const InstitutionAdministratorPositions = lazy(() => import("./pages/admin/InstitutionAdministratorPositions"));
+const InstitutionAdministratorPositions = lazy(
+  () => import("./pages/admin/InstitutionAdministratorPositions"),
+);
 
 function App() {
   const auth = useAuth();
@@ -49,14 +49,14 @@ function App() {
               <Route path="/posts/verification" component={PostsToVerify} />
               <Route path="/subjects" component={Subjects} />
               <Route path="/rooms" component={Rooms} />
-              <Route
-                path="/student_groups"
-                component={StudentGroups}
-              />
+              <Route path="/student_groups" component={StudentGroups} />
               <Route path="/invite_tokens" component={InviteTokens} />
               <Route path="/users" component={Users} />
               <Route path="/positions/staff" component={StaffPositions} />
-              <Route path="/positions/institution_administrators" component={InstitutionAdministratorPositions} />
+              <Route
+                path="/positions/institution_administrators"
+                component={InstitutionAdministratorPositions}
+              />
             </Route>
           </>
         }

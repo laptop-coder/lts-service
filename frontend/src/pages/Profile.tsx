@@ -107,7 +107,6 @@ const Profile = () => {
     navigate("/login");
   };
 
-
   return (
     <>
       {hasPermission(PERMISSIONS.USER_READ_OWN) && (
@@ -155,12 +154,12 @@ const Profile = () => {
                   <p>ID: {user()!.id}</p>
                   <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
                   <p>
-            <button
-              onClick={handleLogout}
-              class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition mt-5"
-            >
-              Выйти
-            </button>
+                    <button
+                      onClick={handleLogout}
+                      class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition mt-5"
+                    >
+                      Выйти
+                    </button>
                   </p>
                 </div>
               </div>

@@ -57,7 +57,6 @@ export const PublicRoute: Component<Props> = (props) => {
                 />
               </A>
             )}
-
           </div>
         </div>
       </header>

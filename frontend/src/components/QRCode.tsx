@@ -39,7 +39,6 @@ const QRCodeButton = (props: Props) => {
     });
   });
 
-
   return (
     <>
       <button

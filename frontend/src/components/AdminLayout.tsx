@@ -43,23 +43,23 @@ const tabs: Tab[] = [
   {
     key: "student-groups",
     label: "Учебные группы",
-      path: "/admin/student_groups",
+    path: "/admin/student_groups",
   },
   {
     key: "positions",
     label: "Должности",
     subTabs: [
       {
-      key: "positions-institution-administrators",
-      label: "Администрация",
-      path: "/admin/positions/institution_administrators"
+        key: "positions-institution-administrators",
+        label: "Администрация",
+        path: "/admin/positions/institution_administrators",
       },
       {
-      key: "positions-staff",
-      label: "Сотрудники",
-      path: "/admin/positions/staff"
-      }
-    ]
+        key: "positions-staff",
+        label: "Сотрудники",
+        path: "/admin/positions/staff",
+      },
+    ],
   },
   {
     key: "invite-tokens",
