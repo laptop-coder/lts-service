@@ -65,7 +65,7 @@ const InviteTokens = () => {
     },
     {
       id: 5,
-      name: "Учитель",
+      name: "Преподаватель",
       permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
     },
     {
@@ -73,7 +73,7 @@ const InviteTokens = () => {
       name: "Родитель",
       permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
     },
-    { id: 7, name: "Ученик", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
+    { id: 7, name: "Обучающийся", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
   ];
 
   const availableRoles = roles.filter((role) => hasPermission(role.permission));
