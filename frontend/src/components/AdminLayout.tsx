@@ -91,48 +91,42 @@ const AdminLayout = (props: Props) => {
     <>
       {hasRole(ROLES.ADMIN) && (
         <div class="flex min-h-screen bg-gray-100">
-          <aside class="w-64 bg-white shadow-lg overflow-y-auto">
-            <div class="p-4 border-b">
-              <h2 class="text-xl font-bold">Панель администратора</h2>
+          <aside class="w-64 bg-white border-r border-gray-200 rounded-lg flex flex-col">
+            <div class="p-5 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-800">
+                Панель администратора
+              </h2>
+              <p class="text-xs text-gray-400 mt-1">Управление системой</p>
             </div>
-            <nav class="p-2">
-              <div class="space-y-1">
+            <nav class="flex-1 p-3">
+              <div class="space-y-0.5">
                 <For each={tabs}>
                   {(tab) => (
                     <div>
                       {tab.path ? (
                         <button
                           onClick={() => navigate(tab.path!)}
-                          class={`
-                        w-full text-left px-4 py-2 rounded-lg transition-colors transition cursor-pointer
-                        ${isActive(tab.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
-                      `}
+                          class={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${isActive(tab.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
                         >
                           {tab.label}
                         </button>
                       ) : (
                         <button
                           onClick={() => toggleSubmenu(tab.key)}
-                          class={`
-                        w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center transition cursor-pointer
-                        ${isParentActive(tab) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
-                      `}
+                          class={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex justify-between items-center cursor-pointer ${isParentActive(tab) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
                         >
                           <span>{tab.label}</span>
-                          <span>{openSubmenu() === tab.key ? "▼" : "▶"}</span>
+                          <span>{openSubmenu() === tab.key ? "▾" : "▸"}</span>
                         </button>
                       )}
 
                       <Show when={tab.subTabs && openSubmenu() === tab.key}>
-                        <div class="ml-4 mt-1 space-y-1">
+                        <div class="ml-3 pl-3 border-l border-gray-200 mt-1 space-y-0.5">
                           <For each={tab.subTabs}>
                             {(sub) => (
                               <button
                                 onClick={() => navigate(sub.path)}
-                                class={`
-                              w-full text-left px-4 py-2 rounded-lg text-sm transition-colors transition cursor-pointer
-                              ${isActive(sub.path) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"}
-                            `}
+                                class={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer ${isActive(sub.path) ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
                               >
                                 {sub.label}
                               </button>
