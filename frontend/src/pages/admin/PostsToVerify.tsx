@@ -30,12 +30,12 @@ const PostsToVerify = () => {
 
   return (
     hasPermission(PERMISSIONS.POST_READ_ANY) && (
-      <div class="max-w-4xl mx-auto px-4 py-6">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-800 text-center">
+      <div class="space-y-6 p-4">
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold text-gray-800">
             Верификация объявлений
           </h1>
-          <p class="text-gray-500 text-center mt-2">
+          <p class="text-gray-500 mt-1">
             Проверьте и подтвердите объявления пользователей
           </p>
         </div>

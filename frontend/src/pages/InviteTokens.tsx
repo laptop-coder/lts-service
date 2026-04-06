@@ -73,7 +73,11 @@ const InviteTokens = () => {
       name: "Родитель",
       permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
     },
-    { id: 7, name: "Обучающийся", permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE },
+    {
+      id: 7,
+      name: "Обучающийся",
+      permission: PERMISSIONS.TOKEN_INVITE_USER_CREATE,
+    },
   ];
 
   const availableRoles = roles.filter((role) => hasPermission(role.permission));
@@ -132,7 +136,7 @@ const InviteTokens = () => {
   };
 
   return (
-    <div class="space-y-8 p-4 max-w-4xl mx-auto">
+    <div class="space-y-6 p-4">
       <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Инвайт-токены</h1>
         <p class="text-gray-500 mt-1">
