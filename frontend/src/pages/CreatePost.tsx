@@ -71,7 +71,7 @@ const CreatePost = () => {
                 onInput={(e) => setDescription(e.currentTarget.value)}
                 placeholder="Где и когда потеряли, особые приметы..."
                 rows={5}
-                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition min-h-[140px] max-h-[600px]"
               />
               <p class="text-xs text-gray-500 mt-1">Чем подробнее, тем лучше</p>
             </div>
