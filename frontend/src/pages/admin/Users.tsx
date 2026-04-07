@@ -1,7 +1,12 @@
 import { createSignal, Show, For, Index, onMount, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 import { api } from "../../lib/api";
-import { PERMISSIONS, ROLES, usePermissions, ROLES_TO_DISPLAY  } from "../../lib/permissions";
+import {
+  PERMISSIONS,
+  ROLES,
+  usePermissions,
+  ROLES_TO_DISPLAY,
+} from "../../lib/permissions";
 import type {
   User,
   Room,
@@ -53,7 +58,7 @@ const Users = () => {
     setInstitutionAdministratorPositions,
   ] = createSignal<InstitutionAdministratorPosition[]>([]);
 
-  const { hasPermission, hasRole } = usePermissions();
+  const { hasPermission, hasAnyPermission, hasRole } = usePermissions();
 
   const loadUsers = async () => {
     try {
@@ -424,7 +429,12 @@ const Users = () => {
                         </div>
                       </td>
                       <td class="px-6 py-4 space-x-3 flex align-center justify-center">
-                        <Show when={hasPermission(PERMISSIONS.ROLE_ASSIGN)}>
+                        <Show
+                          when={hasAnyPermission(
+                            PERMISSIONS.ROLE_ADMIN_ASSIGN,
+                            PERMISSIONS.ROLE_USER_ASSIGN,
+                          )}
+                        >
                           <button
                             onClick={() => openModal(user)}
                             class="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
@@ -493,7 +503,7 @@ const Users = () => {
                 <div class="space-y-2">
                   <For
                     each={ROLES_TO_DISPLAY.filter(
-                      (role) => ![1, 2].includes(role.id),
+                      (role) => !(hasRole(ROLES.SUPERADMIN) ? [1] : [1, 2]).includes(role.id), // TODO: is it correct?
                     )}
                   >
                     {(role) => (
