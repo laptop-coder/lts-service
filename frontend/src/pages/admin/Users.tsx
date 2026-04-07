@@ -1,8 +1,7 @@
 import { createSignal, Show, For, Index, onMount, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 import { api } from "../../lib/api";
-import { PERMISSIONS } from "../../lib/permissions";
-import { usePermissions, ROLES_TO_DISPLAY } from "../../lib/permissions";
+import { PERMISSIONS, ROLES, usePermissions, ROLES_TO_DISPLAY  } from "../../lib/permissions";
 import type {
   User,
   Room,
@@ -54,7 +53,7 @@ const Users = () => {
     setInstitutionAdministratorPositions,
   ] = createSignal<InstitutionAdministratorPosition[]>([]);
 
-  const { hasPermission } = usePermissions();
+  const { hasPermission, hasRole } = usePermissions();
 
   const loadUsers = async () => {
     try {
@@ -114,7 +113,7 @@ const Users = () => {
     setSelectedRoles(user.roles.map((r) => r.id));
 
     // Get current special fields data (depends on roles)
-    if (user.roles.some((r) => r.id === 3)) {
+    if (hasRole(ROLES.INSTITUTION_ADMINISTRATOR)) {
       // institution administrator
       const institutionAdministratorData = await api.get<{
         institutionAdministrator: InstitutionAdministrator;
@@ -124,12 +123,12 @@ const Users = () => {
           null,
       );
     }
-    if (user.roles.some((r) => r.id === 4)) {
+    if (hasRole(ROLES.STAFF)) {
       // staff
       const staffData = await api.get<{ staff: Staff }>(`/staff/${user.id}`);
       setStaffPositionId(staffData.staff.position?.id || null);
     }
-    if (user.roles.some((r) => r.id === 5)) {
+    if (hasRole(ROLES.TEACHER)) {
       // teacher
       const teacherData = await api.get<{ teacher: Teacher }>(
         `/teachers/${user.id}`,
@@ -139,7 +138,7 @@ const Users = () => {
         teacherData.teacher.subjects?.map((s: Subject) => s.id) || [],
       );
     }
-    if (user.roles.some((r) => r.id === 6)) {
+    if (hasRole(ROLES.PARENT)) {
       // parent
       const parentData = await api.get<{ parent: Parent }>(
         `/parents/${user.id}`,
@@ -148,7 +147,7 @@ const Users = () => {
         parentData.parent.students?.map((s: Student) => s.userId) || [],
       );
     }
-    if (user.roles.some((r) => r.id === 7)) {
+    if (hasRole(ROLES.STUDENT)) {
       // student
       const studentData = await api.get<{ student: Student }>(
         `/students/${user.id}`,

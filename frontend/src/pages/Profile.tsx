@@ -3,6 +3,7 @@ import { useNavigate } from "@solidjs/router";
 import {
   usePermissions,
   PERMISSIONS,
+  ROLES,
   ROLES_TO_DISPLAY,
 } from "../lib/permissions";
 import { useAuth } from "../lib/auth";
@@ -51,12 +52,13 @@ const Profile = () => {
   );
 
   const { user } = useAuth();
+  const { hasRole } = usePermissions();
 
   onMount(async () => {
     if (!user()) return;
 
     // Get special fields data (depends on roles)
-    if (user()!.roles.some((r) => r.id === 3)) {
+    if (hasRole(ROLES.INSTITUTION_ADMINISTRATOR)) {
       // institution administrator
       const institutionAdministratorData = await api.get<{
         institutionAdministrator: InstitutionAdministrator;
@@ -65,12 +67,12 @@ const Profile = () => {
         institutionAdministratorData.institutionAdministrator.position || null,
       );
     }
-    if (user()!.roles.some((r) => r.id === 4)) {
+    if (hasRole(ROLES.STAFF)) {
       // staff
       const staffData = await api.get<{ staff: Staff }>(`/staff/${user()!.id}`);
       setStaffPosition(staffData.staff.position || null);
     }
-    if (user()!.roles.some((r) => r.id === 5)) {
+    if (hasRole(ROLES.TEACHER)) {
       // teacher
       const teacherData = await api.get<{ teacher: Teacher }>(
         `/teachers/${user()!.id}`,
@@ -79,7 +81,7 @@ const Profile = () => {
       setTeacherSubjects(teacherData.teacher.subjects || []);
       setTeacherStudentGroups(teacherData.teacher.studentGroups || []);
     }
-    if (user()!.roles.some((r) => r.id === 6)) {
+    if (hasRole(ROLES.PARENT)) {
       // parent
       const parentData = await api.get<{ parent: Parent }>(
         `/parents/${user()!.id}`,
@@ -93,7 +95,7 @@ const Profile = () => {
       const parentStudentsResponses = await Promise.all(parentStudentsPromises);
       setParentStudentsUsers(parentStudentsResponses.map((r) => r.user));
     }
-    if (user()!.roles.some((r) => r.id === 7)) {
+    if (hasRole(ROLES.STUDENT)) {
       // student
       const studentData = await api.get<{ student: Student }>(
         `/students/${user()!.id}`,
@@ -165,7 +167,7 @@ const Profile = () => {
               </div>
             </div>
 
-            <Show when={user()!.roles.some((r) => r.id === 6)}>
+            <Show when={hasRole(ROLES.PARENT)}>
               <Show when={parentStudentsUsers().length > 0}>
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                   <h2 class="text-xl font-bold text-gray-800 mb-4">Мои дети</h2>
@@ -216,7 +218,7 @@ const Profile = () => {
                 </div>
               </Show>
             </Show>
-            <Show when={user()!.roles.some((r) => r.id === 5)}>
+            <Show when={hasRole(ROLES.TEACHER)}>
               <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
                 <h3 class="text-lg font-semibold text-gray-700">
                   Преподаватель
@@ -273,7 +275,7 @@ const Profile = () => {
                 </div>
               </div>
             </Show>
-            <Show when={user()!.roles.some((r) => r.id === 3)}>
+            <Show when={hasRole(ROLES.INSTITUTION_ADMINISTRATOR)}>
               <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Должность
@@ -286,7 +288,7 @@ const Profile = () => {
                 </div>
               </div>
             </Show>
-            <Show when={user()!.roles.some((r) => r.id === 4)}>
+            <Show when={hasRole(ROLES.STAFF)}>
               <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Должность
@@ -297,7 +299,7 @@ const Profile = () => {
                 </div>
               </div>
             </Show>
-            <Show when={user()!.roles.some((r) => r.id === 7)}>
+            <Show when={hasRole(ROLES.STUDENT)}>
               <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Класс/учебная группа
