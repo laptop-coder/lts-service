@@ -101,9 +101,12 @@ export const PERMISSIONS = {
   PARENT_STUDENT_GROUP_READ_OWN: "parent.student_group.read.own",
 
   // User roles permissions
-  ROLE_ASSIGN: "role.assign",
-  ROLE_ADD: "role.add",
-  ROLE_DELETE: "role.delete",
+  ROLE_ADMIN_ASSIGN: "role.admin.assign",
+  ROLE_USER_ASSIGN: "role.user.assign",
+  ROLE_ADMIN_ADD: "role.admin.add",
+  ROLE_USER_ADD: "role.user.add",
+  ROLE_ADMIN_UNASSIGN: "role.admin.unassign",
+  ROLE_USER_UNASSIGN: "role.user.unassign",
   ROLE_READ_ANY: "role.read.any",
   ROLE_READ_OWN: "role.read.own",
 
