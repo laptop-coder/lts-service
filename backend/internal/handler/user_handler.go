@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"slices"
 	"backend/internal/repository"
+	"backend/internal/permissions"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -333,6 +335,31 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		}
 		roleIDs[i] = uint8(val)
 	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Depending on whether assigning admin role (2) or user roles (3-7) require
+	// different permissions
+	// admin:
+	if slices.Contains(roleIDs, 2) {
+		if !slices.Contains(userPermissions, permissions.RoleAdminAssign) {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to assign admin role", http.StatusForbidden)
+			return
+		}
+	}
+	// user:
+	for _, roleID := range roleIDs {
+		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
+			if !slices.Contains(userPermissions, permissions.RoleUserAssign) {
+				helpers.ErrorResponse(w, "forbidden: you do not have permission to assign user role", http.StatusForbidden)
+				return
+			}
+			break
+		}
+	}
 	// Get special fields (for user-extension tables)
 	userRolesDTO := service.UserRolesDTO{}
 	// TeacherClassroomID (special)
@@ -472,6 +499,31 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		}
 		roleIDs[i] = uint8(val)
 	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Depending on whether adding admin role (2) or user roles (3-7) require
+	// different permissions
+	// admin:
+	if slices.Contains(roleIDs, 2) {
+		if !slices.Contains(userPermissions, permissions.RoleAdminAdd) {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to add admin role", http.StatusForbidden)
+			return
+		}
+	}
+	// user:
+	for _, roleID := range roleIDs {
+		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
+			if !slices.Contains(userPermissions, permissions.RoleUserAdd) {
+				helpers.ErrorResponse(w, "forbidden: you do not have permission to add user role", http.StatusForbidden)
+				return
+			}
+			break
+		}
+	}
 	// Get special fields (for user-extension tables)
 	userRolesDTO := service.UserRolesDTO{}
 	// TeacherClassroomID (special)
@@ -596,6 +648,28 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	roleID := uint8(roleID64)
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Depending on whether adding admin role (2) or user roles (3-7) require
+	// different permissions
+	// admin:
+	if roleID == 2 {
+		if !slices.Contains(userPermissions, permissions.RoleAdminUnassign) {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to unassign admin role", http.StatusForbidden)
+			return
+		}
+	}
+	// user:
+	if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
+		if !slices.Contains(userPermissions, permissions.RoleUserUnassign) {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to unassign user role", http.StatusForbidden)
+			return
+		}
+	}
 	// Remove user role
 	if err := h.userService.RemoveRoleFromUser(ctx, userID, roleID); err != nil {
 		helpers.HandleServiceError(w, err)

@@ -88,9 +88,12 @@ const (
 
 // User roles permissions
 const (
-	RoleAssign  = "role.assign"
-	RoleAdd     = "role.add"
-	RoleDelete  = "role.delete"
+	RoleAdminAssign  = "role.admin.assign"
+	RoleUserAssign  = "role.user.assign"
+	RoleAdminAdd     = "role.admin.add"
+	RoleUserAdd     = "role.user.add"
+	RoleAdminUnassign  = "role.admin.unassign"
+	RoleUserUnassign  = "role.user.unassign"
 	RoleReadAny = "role.read.any"
 	RoleReadOwn = "role.read.own"
 )
