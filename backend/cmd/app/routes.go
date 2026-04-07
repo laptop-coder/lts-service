@@ -49,9 +49,9 @@ func SetupRoutes(
 	mux.Handle("GET /api/v1/users", authMiddleware(requirePermissions(false, permissions.UserReadAll)(http.HandlerFunc(userHandler.GetUsers))))
 	mux.Handle("GET /api/v1/users/me", authMiddleware(requirePermissions(false, permissions.UserReadOwn)(http.HandlerFunc(userHandler.GetOwnUser))))
 	// User roles
-	mux.Handle("PUT /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAssign)(http.HandlerFunc(userHandler.AssignRoles))))
-	mux.Handle("POST /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAdd)(http.HandlerFunc(userHandler.AddRoles))))
-	mux.Handle("DELETE /api/v1/users/{userId}/roles/{roleId}", authMiddleware(requirePermissions(false, permissions.RoleDelete)(http.HandlerFunc(userHandler.RemoveRole))))
+	mux.Handle("PUT /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAdminAssign, permissions.RoleUserAssign)(http.HandlerFunc(userHandler.AssignRoles))))
+	mux.Handle("POST /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleAdminAdd, permissions.RoleUserAdd)(http.HandlerFunc(userHandler.AddRoles))))
+	mux.Handle("DELETE /api/v1/users/{userId}/roles/{roleId}", authMiddleware(requirePermissions(false, permissions.RoleAdminUnassign, permissions.RoleUserUnassign)(http.HandlerFunc(userHandler.RemoveRole))))
 	mux.Handle("GET /api/v1/users/{id}/roles", authMiddleware(requirePermissions(false, permissions.RoleReadAny)(http.HandlerFunc(userHandler.GetRoles))))
 	mux.Handle("GET /api/v1/users/me/roles", authMiddleware(requirePermissions(false, permissions.RoleReadOwn)(http.HandlerFunc(userHandler.GetOwnRoles))))
 	// Student groups
