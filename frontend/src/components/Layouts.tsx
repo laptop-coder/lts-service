@@ -45,7 +45,7 @@ export const PublicRoute: Component<Props> = (props) => {
               </A>
             )}
 
-            {auth.user() && (
+            {auth.user() ? (
               <A
                 href="/profile"
                 class="w-10 h-10 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
@@ -55,6 +55,13 @@ export const PublicRoute: Component<Props> = (props) => {
                   src={`/storage/storage/avatars/${auth.user()?.hasAvatar ? auth.user()?.id : "default"}.jpeg`}
                   alt="Фото профиля"
                 />
+              </A>
+            ) : (
+              <A
+                href="/login"
+                class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Войти
               </A>
             )}
           </div>

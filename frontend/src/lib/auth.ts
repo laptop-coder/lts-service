@@ -48,6 +48,6 @@ export function useAuth() {
     register,
     logout,
     checkAuth,
-    isAuthenticated: () => user() !== null,
+    isAuthenticated: () => user() !== null, //TODO: is it necessary?
   };
 }

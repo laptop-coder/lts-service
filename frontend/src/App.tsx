@@ -31,6 +31,11 @@ function App() {
       {/* Public routes */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route
+        path="/"
+        component={PublicRoute}
+        children={<Route path="/" component={PublicPosts} />}
+      />
 
       {/* Protected routes */}
       <Route
@@ -38,7 +43,6 @@ function App() {
         component={ProtectedRoute}
         children={
           <>
-            <Route path="/" component={PublicPosts} />
             <Route path="/posts/new" component={CreatePost} />
             <Route path="/profile" component={Profile} />
             <Route path="/admin" component={AdminLayout}>
