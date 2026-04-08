@@ -80,7 +80,7 @@ func main() {
 
 	// Services
 	log.Info("Creating service configurations...")
-	serviceConfigs := config.NewServiceConfigs(sharedConfig)
+	serviceConfigs := config.NewServiceConfigs(sharedConfig, appConfig)
 	log.Info("Initializing services...")
 	authService := service.NewAuthService(userRepo, jwtRepo, db, serviceConfigs.Auth, log)
 	userService := service.NewUserService(userRepo, studentRepo, roomRepo, db, serviceConfigs.User, log)
@@ -94,7 +94,8 @@ func main() {
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
 	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
-	inviteService := service.NewInviteService(jwtRepo, userRepo, roleRepo, db, serviceConfigs.Invite, log)
+	emailService, err := service.NewEmailService(serviceConfigs.Email, log)
+	inviteService := service.NewInviteService(emailService, jwtRepo, userRepo, roleRepo, db, serviceConfigs.Invite, log)
 	institutionAdministratorPositionService := service.NewInstitutionAdministratorPositionService(institutionAdministratorPositionRepo, db, log)
 	staffPositionService := service.NewStaffPositionService(staffPositionRepo, db, log)
 

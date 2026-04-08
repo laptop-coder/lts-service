@@ -1,11 +1,11 @@
 package service
 
 import (
-	"errors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -16,8 +16,8 @@ import (
 
 type InviteTokenClaims struct {
 	jwt.RegisteredClaims
-	RoleIDs []int `json:"roleIds"`
-	Email *string `json:"email,omitempty"`
+	RoleIDs []int   `json:"roleIds"`
+	Email   *string `json:"email,omitempty"`
 }
 
 type InviteService interface {
@@ -25,19 +25,22 @@ type InviteService interface {
 	GetRoles(ctx context.Context, tokenString string) ([]RoleResponseDTO, error)
 	GetEmail(ctx context.Context, tokenString string) (*string, error)
 	RevokeToken(ctx context.Context, tokenString string) error
-	ParseToken(tokenString string) (*InviteTokenClaims, error)
+	ParseToken(tokenString string) (*InviteTokenClaims, error) // TODO: add context to parameters of all services
+	MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint8) error
 }
 
 type inviteService struct {
-	jwtRepo  repository.JWTRepository
-	userRepo  repository.UserRepository
-	roleRepo repository.RoleRepository
-	db       *gorm.DB
-	config   InviteServiceConfig
-	log      logger.Logger
+	emailService EmailService
+	jwtRepo      repository.JWTRepository
+	userRepo     repository.UserRepository
+	roleRepo     repository.RoleRepository
+	db           *gorm.DB
+	config       InviteServiceConfig
+	log          logger.Logger
 }
 
 func NewInviteService(
+	emailService EmailService,
 	jwtRepo repository.JWTRepository,
 	userRepo repository.UserRepository,
 	roleRepo repository.RoleRepository,
@@ -46,12 +49,13 @@ func NewInviteService(
 	log logger.Logger,
 ) InviteService {
 	return &inviteService{
-		jwtRepo:  jwtRepo,
-		userRepo:  userRepo,
-		roleRepo: roleRepo,
-		db:       db,
-		config:   config,
-		log:      log,
+		emailService: emailService,
+		jwtRepo:      jwtRepo,
+		userRepo:     userRepo,
+		roleRepo:     roleRepo,
+		db:           db,
+		config:       config,
+		log:          log,
 	}
 }
 
@@ -194,7 +198,6 @@ func (s *inviteService) GetEmail(ctx context.Context, tokenString string) (*stri
 	return claims.Email, nil
 }
 
-
 func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) error {
 	s.log.Info("Starting invite token revoke")
 	// Check if token was already revoked
@@ -220,4 +223,16 @@ func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) err
 	}
 	s.log.Info("Invite token revoked successfully")
 	return nil
+}
+
+func (s *inviteService) MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint8) error {
+	// Generate invite token
+	token, err := s.CreateToken(ctx, roleIDs, email)
+	if err != nil || token == nil {
+		return err
+	}
+	// Create invite link
+	link := fmt.Sprintf("%s/register?inviteToken=%s", s.config.FrontendURL, *token)
+	// Send link
+	return s.emailService.SendInviteLink(ctx, email, link)
 }

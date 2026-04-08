@@ -2,6 +2,7 @@ package config
 
 import (
 	"backend/internal/service"
+	"backend/pkg/env"
 )
 
 type ServiceConfigs struct {
@@ -9,14 +10,16 @@ type ServiceConfigs struct {
 	Post   service.PostServiceConfig
 	Auth   service.AuthServiceConfig
 	Invite service.InviteServiceConfig
+	Email  service.EmailServiceConfig
 }
 
-func NewServiceConfigs(sharedConfig SharedConfig) ServiceConfigs {
+func NewServiceConfigs(sharedConfig SharedConfig, appConfig AppConfig) ServiceConfigs {
 	return ServiceConfigs{
 		User:   newUserServiceConfig(sharedConfig),
 		Post:   newPostServiceConfig(sharedConfig),
 		Auth:   newAuthServiceConfig(sharedConfig),
-		Invite: newInviteServiceConfig(sharedConfig),
+		Invite: newInviteServiceConfig(sharedConfig, appConfig),
+		Email:  newEmailServiceConfig(),
 	}
 }
 
@@ -47,10 +50,21 @@ func newAuthServiceConfig(sharedConfig SharedConfig) service.AuthServiceConfig {
 	}
 }
 
-func newInviteServiceConfig(sharedConfig SharedConfig) service.InviteServiceConfig {
+func newInviteServiceConfig(sharedConfig SharedConfig, appConfig AppConfig) service.InviteServiceConfig {
 	return service.InviteServiceConfig{
 		JWTSecret:   sharedConfig.Security.InviteJWTSecret,
 		TokenExpiry: sharedConfig.Security.InviteTokenExpiry,
 		TokenIssuer: sharedConfig.Security.InviteTokenIssuer,
+		FrontendURL: appConfig.FrontendURL,
+	}
+}
+
+func newEmailServiceConfig() service.EmailServiceConfig {
+	return service.EmailServiceConfig{
+		Host:     env.GetStringRequired("EMAIL_HOST"),
+		Port:     env.GetIntRequired("EMAIL_PORT"),
+		Username: env.GetStringRequired("EMAIL_USERNAME"),
+		Password: env.GetStringRequired("EMAIL_PASSWORD"),
+		From:     env.GetStringRequired("EMAIL_USERNAME"),
 	}
 }

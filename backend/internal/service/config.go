@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// TODO: what is it? :) For what?
 type Config struct {
 	User UserServiceConfig
 }
@@ -33,4 +34,13 @@ type InviteServiceConfig struct {
 	JWTSecret   []byte
 	TokenExpiry time.Duration
 	TokenIssuer string
+	FrontendURL string
+}
+
+type EmailServiceConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	From     string
 }

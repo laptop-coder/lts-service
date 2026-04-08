@@ -128,6 +128,8 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	for i, roleID := range roleIDsInt {
 		roleIDs[i] = uint8(roleID)
 	}
+	// TODO: move this code to service layer (the same for the whole code: move
+	// business logic to the service layer):
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
@@ -201,3 +203,43 @@ func (h *InviteHandler) GetEmail(w http.ResponseWriter, r *http.Request) {
 		"email": email,
 	})
 }
+
+
+func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get email
+	emailFields := r.PostForm["email"]
+	var email *string
+	if len(emailFields) == 1 {
+		trimmed := strings.TrimSpace(emailFields[0])
+		if trimmed != "" {
+			email = &trimmed
+		} else {
+			helpers.ErrorResponse(w, "email cannot be empty or only whitespace", http.StatusBadRequest)
+			return
+		}
+	} else if len(emailFields) != 1 {
+		helpers.ErrorResponse(w, "email must be provided exactly once", http.StatusBadRequest)
+		return
+	}
+	// Make request
+	err := h.inviteService.MakeInviteRequest(r.Context(), email, []uint8{7}) // TODO: change "7" to the constant
+	if err != nil {
+		helpers.HandleServiceError(w, err)
+		return
+	}
+	helpers.JsonResponse(w, map[string]interface{}{
+		"message": "the email with the registration link has been sent",
+	}, http.StatusAccepted)
+}
+

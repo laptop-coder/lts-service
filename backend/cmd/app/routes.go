@@ -32,12 +32,14 @@ func SetupRoutes(
 	institutionAdministratorPositionHandler *handler.InstitutionAdministratorPositionHandler,
 ) {
 	// Public routes (no auth required)
+	// TODO: split this routes into categories (i.e. mix with secure routes)
 	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
 	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
 	mux.HandleFunc("GET /api/v1/posts/public", postHandler.GetPostsPublic)
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/roles", inviteHandler.GetRoles)
 	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/email", inviteHandler.GetEmail)
+	mux.HandleFunc("POST /api/v1/invite/request/student", inviteHandler.MakeStudentInviteRequest)
 
 	// Secure routes (auth required)
 
