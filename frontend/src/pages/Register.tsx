@@ -12,6 +12,7 @@ import type {
   StaffPosition,
   InstitutionAdministratorPosition,
 } from "../lib/types";
+import RequestStudentInvite from './RequestStudentInvite'
 
 // TODO: add avatar support
 const Register = () => {
@@ -46,7 +47,7 @@ const Register = () => {
 
   const inviteToken = searchParams.inviteToken;
   if (typeof inviteToken !== "string") {
-    return <div>Для регистрации нужен инвайт-токен</div>;
+    return <RequestStudentInvite/>
   }
   // Roles
   const [roleIds, setRoleIds] = createSignal<number[]>([]);

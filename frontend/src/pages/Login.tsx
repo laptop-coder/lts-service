@@ -89,7 +89,7 @@ const Login = () => {
               href="/register"
               class="text-blue-600 hover:text-blue-700 hover:underline"
             >
-              Запросить пригласительную ссылку {/*TODO*/}
+              Запросить пригласительную ссылку ученика {/*TODO*/}
             </a>
           </p>
         </form>
