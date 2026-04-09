@@ -74,6 +74,16 @@ const PostCardCompact = (props: Props) => {
               <span>Обновлено: {formatDate(post.updatedAt)}</span>
             </div>
 
+         <Show when={post.hasPhoto}>
+           <div class="mt-3">
+             <img
+               src={`/storage/storage/post_photos/${post.id}.jpeg`}
+               alt="Фото объявления"
+               class="w-full object-cover rounded-xl"
+             />
+           </div>
+         </Show>
+
             <Show when={post.description}>
               <p class="mt-3 text-gray-600 text-sm line-clamp-2">
                 {post.description}

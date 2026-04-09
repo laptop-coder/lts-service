@@ -250,6 +250,7 @@ func (s *postService) validatePostPhoto(fileHeader *multipart.FileHeader) error 
 	return nil
 }
 
+// TODO: add photo compressing
 func (s *postService) savePostPhoto(postID uuid.UUID, fileHeader *multipart.FileHeader) error {
 	// Creating directory (if not exists)
 	if err := os.MkdirAll(s.config.PhotoUploadPath, 0755); err != nil {
