@@ -32,6 +32,7 @@ type UserService interface {
 	// Roles
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]RoleResponseDTO, error)
 	AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error // replace old roles with new ones
+	AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error // replace old roles with new ones
 	AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error
 	RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error
 	RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, roleID uint8) error
@@ -365,6 +366,61 @@ func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, d
 		return s.assignRolesToUser(ctx, userID, dto, roleIDs)
 	})
 }
+
+func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Filter IDs: skip superadmin and admin roles
+		var filteredIDs []uint8
+		for _, id := range roleIDs {
+			if id != 1 && id != 2 {
+				filteredIDs = append(filteredIDs, id)
+			}
+		}
+		roleIDs = filteredIDs
+		// Check if required fields in DTO are filled in
+		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
+			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty")
+		}
+		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
+			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
+		}
+		if slices.Contains(roleIDs, 5) && (len(dto.TeacherSubjectIDs) == 0) {
+			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
+		}
+		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
+			return fmt.Errorf("bad request: required special fields for the student role cannot be empty")
+		}
+		// Get user by ID
+		var user model.User
+		if err := tx.Preload("Roles").First(&user, userID).Error; err != nil {
+			return fmt.Errorf("user not found: %w", err)
+		}
+		// Get roles by IDs
+		var roles []model.Role
+		if len(roleIDs) > 0 {
+			if err := tx.Where("id IN (?)", roleIDs).Find(&roles).Error; err != nil {
+				return fmt.Errorf("failed to fetch roles: %w", err)
+			}
+			if len(roles) != len(roleIDs) {
+				return fmt.Errorf("some roles not found")
+			}
+		}
+		// Save superadmin/admin roles if user has them
+		// TODO: maybe it is better to return error if user has superadmin role? Superadmin cannot have any other role.
+		var adminRoleIDs []uint8
+		for _, role := range user.Roles {
+			if role.ID == 1 || role.ID == 2 {
+				adminRoleIDs = append(adminRoleIDs, role.ID)
+			}
+		}
+		// Append these roles to the new roles
+		roleIDs = append(adminRoleIDs, roleIDs...)
+		// Return response
+		return s.assignRolesToUser(ctx, userID, dto, roleIDs)
+	})
+}
+
+
 
 func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {

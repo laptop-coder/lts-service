@@ -118,7 +118,7 @@ const Users = () => {
     setSelectedRoles(user.roles.map((r) => r.id));
 
     // Get current special fields data (depends on roles)
-    if (hasRole(ROLES.INSTITUTION_ADMINISTRATOR)) {
+    if (user.roles.some((r) => r.id === 3)) {
       // institution administrator
       const institutionAdministratorData = await api.get<{
         institutionAdministrator: InstitutionAdministrator;
@@ -128,12 +128,12 @@ const Users = () => {
           null,
       );
     }
-    if (hasRole(ROLES.STAFF)) {
+    if (user.roles.some((r) => r.id === 4)) {
       // staff
       const staffData = await api.get<{ staff: Staff }>(`/staff/${user.id}`);
       setStaffPositionId(staffData.staff.position?.id || null);
     }
-    if (hasRole(ROLES.TEACHER)) {
+    if (user.roles.some((r) => r.id === 5)) {
       // teacher
       const teacherData = await api.get<{ teacher: Teacher }>(
         `/teachers/${user.id}`,
@@ -143,7 +143,7 @@ const Users = () => {
         teacherData.teacher.subjects?.map((s: Subject) => s.id) || [],
       );
     }
-    if (hasRole(ROLES.PARENT)) {
+    if (user.roles.some((r) => r.id === 6)) {
       // parent
       const parentData = await api.get<{ parent: Parent }>(
         `/parents/${user.id}`,
@@ -152,7 +152,7 @@ const Users = () => {
         parentData.parent.students?.map((s: Student) => s.userId) || [],
       );
     }
-    if (hasRole(ROLES.STUDENT)) {
+    if (user.roles.some((r) => r.id === 7)) {
       // student
       const studentData = await api.get<{ student: Student }>(
         `/students/${user.id}`,
@@ -246,7 +246,7 @@ const Users = () => {
 
     try {
       setSaving(true);
-      await api.put(`/users/${selectedUser()!.id}/roles`, formData);
+      await api.put(`/users/${selectedUser()!.id}/roles${!hasPermission(PERMISSIONS.ROLE_ADMIN_ASSIGN) ? '/non_admin': ''}`, formData);
       // Update locally
       setUsers(
         users().map((u) =>
