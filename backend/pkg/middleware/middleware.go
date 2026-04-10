@@ -9,6 +9,7 @@ import (
 	"backend/pkg/logger"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"net/http"
 	"slices"
@@ -47,7 +48,7 @@ const UserIDKey contextKey = "user_id"
 const UserRolesKey contextKey = "user_roles"
 const UserPermissionsKey contextKey = "user_permissions"
 
-func Auth(authService service.AuthService, authServiceConfig service.AuthServiceConfig, jwtRepo repository.JWTRepository, db *gorm.DB, log logger.Logger) func(http.Handler) http.Handler {
+func Auth(authService service.AuthService, authServiceConfig service.AuthServiceConfig, jwtRepo repository.JWTRepository, db *gorm.DB, log logger.Logger, allowUnauthorized bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get JWT access from cookies
@@ -58,6 +59,13 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 				// Get refresh token
 				jwtRefresh, err := helpers.GetCookie("jwt_refresh", r)
 				if err != nil {
+					if allowUnauthorized {
+						ctx = context.WithValue(ctx, UserIDKey, uuid.Nil)
+						ctx = context.WithValue(ctx, UserRolesKey, []string{})
+						ctx = context.WithValue(ctx, UserPermissionsKey, []string{})
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
 					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to get refresh token from cookies: %s", err.Error()))
 					return
@@ -67,6 +75,13 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 				// TODO: in the whole backend code fix situations like this.
 				// When pointer is returned check if it nil.
 				if err != nil || tokens == nil {
+					if allowUnauthorized {
+						ctx = context.WithValue(ctx, UserIDKey, uuid.Nil)
+						ctx = context.WithValue(ctx, UserRolesKey, []string{})
+						ctx = context.WithValue(ctx, UserPermissionsKey, []string{})
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
 					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to refresh access token: %s", err.Error()))
 					return
@@ -74,12 +89,26 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 				// Parse new tokens
 				parsedAccessToken, err := authService.ParseToken(tokens.AccessToken)
 				if err != nil || parsedAccessToken == nil {
+					if allowUnauthorized {
+						ctx = context.WithValue(ctx, UserIDKey, uuid.Nil)
+						ctx = context.WithValue(ctx, UserRolesKey, []string{})
+						ctx = context.WithValue(ctx, UserPermissionsKey, []string{})
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
 					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to parse access token: %s", err.Error()))
 					return
 				}
 				parsedRefreshToken, err := authService.ParseToken(tokens.RefreshToken)
 				if err != nil || parsedRefreshToken == nil {
+					if allowUnauthorized {
+						ctx = context.WithValue(ctx, UserIDKey, uuid.Nil)
+						ctx = context.WithValue(ctx, UserRolesKey, []string{})
+						ctx = context.WithValue(ctx, UserPermissionsKey, []string{})
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
 					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to parse refresh token: %s", err.Error()))
 					return
@@ -118,6 +147,14 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 			// Validate token
 			claims, err := authService.ParseToken(jwtAccess)
 			if err != nil || claims == nil {
+				if allowUnauthorized {
+					ctx := r.Context()
+					ctx = context.WithValue(ctx, UserIDKey, uuid.Nil)
+					ctx = context.WithValue(ctx, UserRolesKey, []string{})
+					ctx = context.WithValue(ctx, UserPermissionsKey, []string{})
+					next.ServeHTTP(w, r.WithContext(ctx))
+					return
+				}
 				helpers.ErrorResponse(w, "invalid token", http.StatusUnauthorized)
 				log.Error(fmt.Sprintf("Failed to validate access token: %s", err.Error()))
 				return
@@ -130,6 +167,13 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 				Preload("Roles.Permissions").
 				First(&user, "id = ?", claims.UserID).Error
 			if err != nil {
+				if allowUnauthorized {
+					ctx = context.WithValue(ctx, UserIDKey, uuid.Nil)
+					ctx = context.WithValue(ctx, UserRolesKey, []string{})
+					ctx = context.WithValue(ctx, UserPermissionsKey, []string{})
+					next.ServeHTTP(w, r.WithContext(ctx))
+					return
+				}
 				helpers.ErrorResponse(w, "failed to load user (by user ID from JWT access from cookies)", http.StatusUnauthorized)
 				return
 			}
