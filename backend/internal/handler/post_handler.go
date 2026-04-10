@@ -31,9 +31,9 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10 MB
+	r.Body = http.MaxBytesReader(w, r.Body, 15<<20) // 15 MB
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
+	if err := r.ParseMultipartForm(15 << 20); err != nil {
 		helpers.ErrorResponse(w, "failed to parse multipart/formdata form", http.StatusBadRequest)
 		return
 	}

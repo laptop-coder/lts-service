@@ -1,7 +1,9 @@
 // Package service provides business logic and use cases.
 package service
 
+
 import (
+	"image/color"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -10,7 +12,13 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/image/draw"
 	"gorm.io/gorm"
+	"image"
+	"image/jpeg"
+	_ "image/gif"
+	_ "image/png"
+	_ "golang.org/x/image/webp"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -31,7 +39,7 @@ type UserService interface {
 	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
 	// Roles
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]RoleResponseDTO, error)
-	AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error // replace old roles with new ones
+	AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error         // replace old roles with new ones
 	AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error // replace old roles with new ones
 	AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error
 	RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error
@@ -114,11 +122,13 @@ func NewUserService(
 func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDTO, userRolesDTO UserRolesDTO) (*UserResponseDTO, error) {
 	// Input data validation
 	if err := s.validateCreateUserDTO(&createUserDTO); err != nil {
+		s.log.Error("Validation error during user creation", "error", err.Error())
 		return nil, fmt.Errorf("validation error during user creation: %w", err)
 	}
 	// Check email uniqueness
 	existingUser, err := s.userRepo.FindByEmail(ctx, &createUserDTO.Email)
 	if err == nil && existingUser != nil {
+		s.log.Error("User with this email already exists")
 		return nil, fmt.Errorf("user with this email already exists")
 	}
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -127,6 +137,7 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 	// Password hashing
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(createUserDTO.Password), s.config.BcryptCost)
 	if err != nil {
+		s.log.Error("Failed to hash password", "error", err.Error())
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 	// Generating ID for user
@@ -136,10 +147,12 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 	if createUserDTO.Avatar != nil {
 		// Validating
 		if err := s.validateAvatarFile(createUserDTO.Avatar); err != nil {
+			s.log.Error("Avatar validation failed", "error", err.Error())
 			return nil, fmt.Errorf("avatar validation failed: %w", err)
 		}
 		// Saving to storage
 		if err := s.saveAvatarFile(userID, createUserDTO.Avatar); err != nil {
+			s.log.Error("Failed to save avatar to storage", "error", err.Error())
 			return nil, fmt.Errorf("failed to save avatar to storage: %w", err)
 		}
 		hasAvatar = true
@@ -162,11 +175,13 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 			if hasAvatar {
 				s.removeAvatarFile(userID)
 			}
+			s.log.Error("Failed to create user", "error", err.Error())
 			return fmt.Errorf("failed to create user: %w", err)
 		}
 		return nil
 	})
 	if err != nil {
+		s.log.Error("Transaction failed", "error", err.Error())
 		return nil, fmt.Errorf("transaction failed: %w", err)
 	}
 	// TODO: add transaction for roles assigning. If user was created, but roles
@@ -174,11 +189,13 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 	// must be deleted
 	// Assign roles to user
 	if err := s.assignRolesToUser(ctx, userID, userRolesDTO, createUserDTO.RoleIDs); err != nil {
+		s.log.Error("Failed to assign roles to user", "error", err.Error())
 		return nil, fmt.Errorf("failed to assign roles to user: %w", err)
 	}
 	// Get created user for response
 	createdUser, err := s.userRepo.FindByID(ctx, &user.ID)
 	if err != nil {
+		s.log.Error("Failed to fetch created user", "error", err.Error())
 		return nil, fmt.Errorf("failed to fetch created user: %w", err)
 	}
 	return UserToDTO(createdUser), nil
@@ -420,8 +437,6 @@ func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid
 	})
 }
 
-
-
 func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserRolesDTO, roleIDs []uint8) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
@@ -537,18 +552,35 @@ func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error
 func (s *userService) saveAvatarFile(userID uuid.UUID, fileHeader *multipart.FileHeader) error {
 	// Creating directory (if not exists)
 	if err := os.MkdirAll(s.config.AvatarUploadPath, 0755); err != nil {
+		s.log.Error("Failed to create upload directory for avatars", "error", err.Error())
 		return fmt.Errorf("failed to create upload directory for avatars: %w", err)
 	}
 	// Opening source file
 	srcFile, err := fileHeader.Open()
 	if err != nil {
+		s.log.Error("Failed to open uploaded file", "error", err.Error())
 		return fmt.Errorf("failed to open uploaded file: %w", err)
 	}
 	defer srcFile.Close()
+	// Decode image
+	img, format, err := image.Decode(srcFile)
+	if err != nil {
+		s.log.Error("Failed to decode image", "format", format, "error", err.Error())
+		return fmt.Errorf("failed to decode image (format: %s): %w", format, err)
+	}
+	s.log.Info("Decoded image", "format", format)
+	// Convert to RGBA
+	bounds := img.Bounds()
+    rgba := image.NewRGBA(bounds)
+    draw.Draw(rgba, bounds, img, bounds.Min, draw.Src)
+	// Resize to 200x200
+	const avatarSize = 200
+	dst := image.NewRGBA(image.Rect(0, 0, avatarSize, avatarSize))
+	draw.Draw(dst, dst.Bounds(), image.NewUniform(color.White), image.Point{}, draw.Src) // white background (instead of transparent background in PNG)
+	draw.ApproxBiLinear.Scale(dst, dst.Bounds(), rgba, rgba.Bounds(), draw.Over, nil)
 	// Creating file path (where to save avatar)
 	filePath := filepath.Join(
 		s.config.AvatarUploadPath,
-		// TODO: convert to jpeg. Now it is not converting, but only renaming
 		fmt.Sprintf("%s.jpeg", userID.String()),
 	)
 	// Creating file in storage
@@ -557,11 +589,11 @@ func (s *userService) saveAvatarFile(userID uuid.UUID, fileHeader *multipart.Fil
 		return fmt.Errorf("failed to create file: %w", err)
 	}
 	defer dstFile.Close()
-	// Copying the content from the source file to the destination file
-	if _, err = io.Copy(dstFile, srcFile); err != nil {
-		// Deleting a partially filled file in the case of error
+	// Encode as JPEG with 80% quality
+	opts := jpeg.Options{Quality: 80}
+	if err := jpeg.Encode(dstFile, dst, &opts); err != nil {
 		os.Remove(filePath)
-		return fmt.Errorf("failed to copy file: %w", err)
+		return fmt.Errorf("failed to encode image: %w", err)
 	}
 	return nil
 }
