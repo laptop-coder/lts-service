@@ -12,9 +12,8 @@ import type {
   StaffPosition,
   InstitutionAdministratorPosition,
 } from "../lib/types";
-import RequestStudentInvite from './RequestStudentInvite'
+import RequestStudentInvite from "./RequestStudentInvite";
 
-// TODO: add avatar support
 const Register = () => {
   // Data about new user
   const [email, setEmail] = createSignal("");
@@ -38,6 +37,9 @@ const Register = () => {
   ] = createSignal<number | null>(null);
   const [parentStudentIds, setParentStudentIds] = createStore<string[]>([]);
 
+  const [avatar, setAvatar] = createSignal<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = createSignal<string | null>(null);
+
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
 
@@ -47,7 +49,7 @@ const Register = () => {
 
   const inviteToken = searchParams.inviteToken;
   if (typeof inviteToken !== "string") {
-    return <RequestStudentInvite/>
+    return <RequestStudentInvite />;
   }
   // Roles
   const [roleIds, setRoleIds] = createSignal<number[]>([]);
@@ -73,8 +75,8 @@ const Register = () => {
         `/tokens/invite/${inviteToken}/email`,
       );
       if (emailData.email) {
-        setEmailPreloaded(true)
-        setEmail(emailData.email)
+        setEmailPreloaded(true);
+        setEmail(emailData.email);
       }
       // Get roles from the invite token
       const rolesData = await api.get<{ roles: Role[] }>(
@@ -112,6 +114,24 @@ const Register = () => {
     }
   });
 
+  const handleAvatarChange = (e: Event) => {
+    const input = e.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      setAvatar(file);
+      const preview = URL.createObjectURL(file);
+      setAvatarPreview(preview);
+    }
+  };
+
+  const removeAvatar = () => {
+    setAvatar(null);
+    if (avatarPreview()) {
+      URL.revokeObjectURL(avatarPreview()!);
+      setAvatarPreview(null);
+    }
+  };
+
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     setError("");
@@ -124,6 +144,7 @@ const Register = () => {
     if (middleName()?.trim()) formData.append("middleName", middleName());
     formData.append("lastName", lastName());
     formData.append("inviteToken", inviteToken);
+    if (avatar()) formData.append("avatar", avatar()!);
     if (roleIds().includes(3)) {
       if (!institutionAdministratorPositionId()) {
         setError("Выберите должность администрации ОУ");
@@ -216,6 +237,73 @@ const Register = () => {
             onSubmit={handleSubmit}
             class="bg-white rounded-2xl shadow-lg p-6 space-y-5"
           >
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Аватар
+              </label>
+
+              <Show when={!avatarPreview()}>
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 transition">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      class="w-8 h-8 text-gray-400 mb-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      ></path>
+                    </svg>
+                    <p class="text-sm text-gray-500">
+                      Нажмите для загрузки аватара
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                      JPEG, PNG, WebP, GIF (макс. 10MB)
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleAvatarChange}
+                    class="hidden"
+                  />
+                </label>
+              </Show>
+
+              <Show when={avatarPreview()}>
+                <div class="relative inline-block">
+                  <img
+                    src={avatarPreview()!}
+                    alt="Preview"
+                    class="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeAvatar}
+                    class="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </Show>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -263,7 +351,7 @@ const Register = () => {
                 Email *
               </label>
               <input
-              disabled={emailPreloaded()}
+                disabled={emailPreloaded()}
                 type="email"
                 value={email()}
                 placeholder="email@example.ru"
