@@ -343,8 +343,10 @@ func (s *postService) GetPostByID(ctx context.Context, id uuid.UUID) (*PostRespo
 	post, err := s.postRepo.FindByID(ctx, &id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.log.Error("Post with id %s was not found", "error", err.Error())
 			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
 		}
+		s.log.Error("Failed to get post", "error", err.Error())
 		return nil, fmt.Errorf("failed to get post: %w", err)
 	}
 	return PostToDTO(post), nil

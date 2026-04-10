@@ -69,8 +69,8 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 	if filter.Limit > 0 {
 		query = query.Limit(filter.Limit)
 	}
-	// Sort posts by name in the alphabetical order
-	query = query.Order("name")
+	// Sort posts
+	query = query.Order("created_at")
 	// Find posts
 	result := query.Preload("Author").Preload("Author.Roles").Find(&posts)
 	if result.Error != nil {

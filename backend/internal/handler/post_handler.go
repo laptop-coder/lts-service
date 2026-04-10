@@ -334,6 +334,53 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		h.log.Error("Cannot convert post id to uuid")
+		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
+	}
+	// Get post
+	post, err := h.postService.GetPostByID(r.Context(), postID)
+	if err != nil {
+		h.log.Error("Failed to get post by id", "error", err.Error())
+		helpers.HandleServiceError(w, fmt.Errorf("failed to get post by id: %w", err))
+		return
+	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		h.log.Error("Cannot get user permissions")
+		helpers.ErrorResponse(w, "cannot get user permissions", http.StatusUnauthorized) // TODO: for permissions getting use message like here in the whole code (change in the other places from "unauthorized" message)
+		return
+	}
+	// Get ID of the authorized user
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		h.log.Error("Cannot convert user id to uuid")
+		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Return post in three cases:
+	// 1. if post verified (public access)
+	// 2. if post was not verified, but the user is the author of this post
+	// 3. if the user is not the author of the post, but he has permission to read any post
+	if post.Verified || (slices.Contains(userPermissions, permissions.PostReadOwn) && (post.Author.ID == userID)) || slices.Contains(userPermissions, permissions.PostReadAny) {
+		helpers.SuccessResponse(w, map[string]interface{}{
+			"post": post,
+		})
+		return
+	}
+	helpers.ErrorResponse(w, "forbidden: you do not have permission to view this post", http.StatusForbidden)
+}
+
 func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
