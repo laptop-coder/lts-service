@@ -143,35 +143,39 @@ const EditPost = () => {
                 </label>
 
                 <Show when={!photoPreview()}>
-                  <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 transition">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg
-                        class="w-8 h-8 text-gray-400 mb-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        ></path>
-                      </svg>
-                      <p class="text-sm text-gray-500">
-                        Нажмите для загрузки фото
-                      </p>
-                      <p class="text-xs text-gray-400 mt-1">
-                        JPEG, PNG, WebP, GIF (макс. 10MB)
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      onChange={handlePhotoChange}
-                      class="hidden"
-                    />
-                  </label>
+                  {(hasPermission(PERMISSIONS.POST_PHOTO_UPDATE_ANY) ||
+                    (hasPermission(PERMISSIONS.POST_PHOTO_UPDATE_OWN) &&
+                      postAuthorId() === auth.user()?.id)) && (
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 transition">
+                      <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg
+                          class="w-8 h-8 text-gray-400 mb-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          ></path>
+                        </svg>
+                        <p class="text-sm text-gray-500">
+                          Нажмите для загрузки фото
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">
+                          JPEG, PNG, WebP, GIF (макс. 10MB)
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handlePhotoChange}
+                        class="hidden"
+                      />
+                    </label>
+                  )}
                 </Show>
 
                 <Show when={photoPreview()}>
@@ -181,25 +185,29 @@ const EditPost = () => {
                       alt="Preview"
                       class="w-full h-48 object-cover rounded-xl"
                     />
-                    <button
-                      type="button"
-                      onClick={removePhoto}
-                      class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition cursor-pointer disabled:cursor-not-allowed"
-                    >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    {(hasPermission(PERMISSIONS.POST_PHOTO_DELETE_ANY) ||
+                      (hasPermission(PERMISSIONS.POST_PHOTO_DELETE_OWN) &&
+                        postAuthorId() === auth.user()?.id)) && (
+                      <button
+                        type="button"
+                        onClick={removePhoto}
+                        class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition cursor-pointer disabled:cursor-not-allowed"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        ></path>
-                      </svg>
-                    </button>
+                        <svg
+                          class="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                          ></path>
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </Show>
                 <p class="text-xs text-gray-500 mt-1">
