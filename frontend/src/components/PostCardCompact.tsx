@@ -71,18 +71,18 @@ const PostCardCompact = (props: Props) => {
                 {post.author.firstName} {post.author.lastName}
               </span>
               <span>•</span>
-              <span>Обновлено: {formatDate(post.updatedAt)}</span>
+              <span>Последнее изменение: {formatDate(post.updatedAt)}</span>
             </div>
 
-         <Show when={post.hasPhoto}>
-           <div class="mt-3">
-             <img
-               src={`/storage/storage/post_photos/${post.id}.jpeg`}
-               alt="Фото объявления"
-               class="w-full object-cover rounded-xl"
-             />
-           </div>
-         </Show>
+            <Show when={post.hasPhoto}>
+              <div class="mt-3">
+                <img
+                  src={`/storage/storage/post_photos/${post.id}.jpeg`}
+                  alt="Фото объявления"
+                  class="w-full object-cover rounded-xl"
+                />
+              </div>
+            </Show>
 
             <Show when={post.description}>
               <p class="mt-3 text-gray-600 text-sm line-clamp-2">
@@ -91,6 +91,16 @@ const PostCardCompact = (props: Props) => {
             </Show>
 
             <div class="flex items-center gap-3 mt-4">
+              {(hasPermission(PERMISSIONS.POST_UPDATE_ANY) ||
+                (hasPermission(PERMISSIONS.POST_UPDATE_OWN) &&
+                  post.author.id === auth.user()?.id)) && (
+                <a
+                  href={`/posts/${post.id}/edit`}
+                  class="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
+                >
+                  Редактировать
+                </a>
+              )}
               {hasPermission(PERMISSIONS.POST_VERIFY) && !post.verified && (
                 <button
                   onClick={verifyPost}

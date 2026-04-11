@@ -9,6 +9,7 @@ const Register = lazy(() => import("./pages/Register"));
 const PublicPosts = lazy(() => import("./pages/PublicPosts"));
 const PostsToVerify = lazy(() => import("./pages/admin/PostsToVerify"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
+const EditPost = lazy(() => import("./pages/EditPost"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
@@ -44,6 +45,7 @@ function App() {
         children={
           <>
             <Route path="/posts/new" component={CreatePost} />
+            <Route path="/posts/:id/edit" component={EditPost} />
             <Route path="/profile" component={Profile} />
             <Route path="/admin" component={AdminLayout}>
               <Route
