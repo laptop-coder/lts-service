@@ -233,14 +233,17 @@ func (s *postService) RemovePhoto(ctx context.Context, postID uuid.UUID) error {
 func (s *postService) UpdatePhoto(ctx context.Context, postID uuid.UUID, photo *multipart.FileHeader) error {
 	post, err := s.postRepo.FindByID(ctx, &postID)
 	if err != nil {
+		s.log.Error("Post not found", "error", err.Error())
 		return fmt.Errorf("post not found: %w", err)
 	}
 	// Validating the file
 	if err := s.validatePostPhoto(photo); err != nil {
+		s.log.Error("Failed to validate the file", "error", err.Error())
 		return err
 	}
 	// Saving new photo
 	if err := s.savePostPhoto(postID, photo); err != nil {
+		s.log.Error("Failed to save new photo", "error", err.Error())
 		return err
 	}
 	// Mark existence of the photo in the database
@@ -248,6 +251,7 @@ func (s *postService) UpdatePhoto(ctx context.Context, postID uuid.UUID, photo *
 	if err := s.postRepo.Update(ctx, post); err != nil {
 		// Rollback file saving in the case of error
 		s.removePostPhoto(postID)
+		s.log.Error("Failed to update post photo", "error", err.Error())
 		return fmt.Errorf("failed to update post photo: %w", err)
 	}
 	return nil

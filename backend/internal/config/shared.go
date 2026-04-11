@@ -57,7 +57,7 @@ func LoadSharedConfig() SharedConfig {
 			PostPhoto: ImageStorageConfig{
 				UploadPath:       filepath.Join(env.GetStringRequired("PATH_TO_STORAGE"), "post_photos"),
 				MaxSize:          10 * 1024 * 1024, // 10 MB
-				AllowedMIMETypes: []string{"image/jpeg", "image/png", "image/webp"},
+				AllowedMIMETypes: []string{"image/jpeg", "image/png", "image/webp", "image/gif"},
 			},
 		},
 	}
