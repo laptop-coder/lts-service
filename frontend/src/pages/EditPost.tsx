@@ -184,7 +184,7 @@ const EditPost = () => {
                     <button
                       type="button"
                       onClick={removePhoto}
-                      class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                      class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition cursor-pointer disabled:cursor-not-allowed"
                     >
                       <svg
                         class="w-5 h-5"

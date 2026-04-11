@@ -1,4 +1,4 @@
-import { createSignal, For, Show, onMount } from "solid-js";
+import { createSignal, For, Show, onMount, Index } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import {
   usePermissions,
@@ -27,6 +27,7 @@ const Profile = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const [error, setError] = createSignal("");
+  const [loading, setLoading] = createSignal(false);
   const { hasPermission } = usePermissions();
   // Special fields
   const [teacherClassroom, setTeacherClassroom] = createSignal<Room | null>(
@@ -46,6 +47,12 @@ const Profile = () => {
     institutionAdministratorPosition,
     setInstitutionAdministratorPosition,
   ] = createSignal<InstitutionAdministratorPosition | null>(null);
+  const [newParentStudentId, setNewParentStudentId] = createSignal<string>("");
+  const [parentStudentRemovingId, setParentStudentRemovingId] = createSignal<
+    string | null
+  >(null);
+  const [parentStudentAdding, setParentStudentAdding] =
+    createSignal<boolean>(false);
   const [parentStudents, setParentStudents] = createSignal<Student[]>([]);
   const [parentStudentsUsers, setParentStudentsUsers] = createSignal<User[]>(
     [],
@@ -87,17 +94,7 @@ const Profile = () => {
     }
     if (hasRole(ROLES.PARENT)) {
       // parent
-      const parentData = await api.get<{ parent: Parent }>(
-        `/parents/${user()!.id}`,
-      );
-      setParentStudents(parentData.parent.students || []);
-
-      // load students data
-      const parentStudentsPromises = parentStudents().map((student) =>
-        api.get<{ user: User }>(`/users/${student.userId}`),
-      );
-      const parentStudentsResponses = await Promise.all(parentStudentsPromises);
-      setParentStudentsUsers(parentStudentsResponses.map((r) => r.user));
+      await loadParentStudents();
     }
     if (hasRole(ROLES.STUDENT)) {
       // student
@@ -119,6 +116,59 @@ const Profile = () => {
   const handleLogout = async () => {
     await auth.logout();
     navigate("/login");
+  };
+
+  const loadParentStudents = async () => {
+    try {
+      const data = await api.get<{ students: Student[] }>(
+        "/parents/me/students",
+      );
+      setParentStudents(data.students);
+
+      // load students data
+      const parentStudentsPromises = parentStudents().map((student) =>
+        api.get<{ user: User }>(`/users/${student.userId}`),
+      );
+      const parentStudentsResponses = await Promise.all(parentStudentsPromises);
+      setParentStudentsUsers(parentStudentsResponses.map((r) => r.user));
+    } catch (err) {
+      setError("Ошибка загрузки учеников");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addParentStudent = async (e: Event) => {
+    e.preventDefault();
+    if (!newParentStudentId().trim()) return;
+
+    setParentStudentAdding(true);
+    try {
+      const formData = new URLSearchParams();
+      formData.append("studentId", newParentStudentId().trim());
+
+      await api.post("/parents/me/students", formData);
+      setNewParentStudentId("");
+      await loadParentStudents();
+    } catch (err) {
+      setError("Ошибка добавления ученика");
+    } finally {
+      setParentStudentAdding(false);
+    }
+  };
+
+  const removeParentStudent = async (id: string) => {
+    if (!confirm("Отвязать ученика?")) return;
+
+    setParentStudentRemovingId(id);
+    try {
+      await api.delete(`/parents/me/students/${id}`);
+      await loadParentStudents();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка удаления кабинета");
+    } finally {
+      setParentStudentRemovingId(null);
+    }
   };
 
   return (
@@ -186,7 +236,7 @@ const Profile = () => {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <For each={parentStudentsUsers()}>
                       {(user) => (
-                        <div class="border rounded-xl p-4 hover:shadow-md transition">
+                        <div class="border rounded-xl p-4 hover:shadow-md transition relative">
                           <div class="flex items-center gap-3">
                             <img
                               class="w-12 h-12 rounded-full object-cover"
@@ -198,6 +248,26 @@ const Profile = () => {
                                 {user.lastName} {user.firstName}{" "}
                                 {user?.middleName}
                               </p>
+                              <button
+                                type="button"
+                                onClick={() => removeParentStudent(user.id)}
+                                disabled={parentStudentRemovingId() === user.id}
+                                class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition cursor-pointer disabled:cursor-not-allowed"
+                              >
+                                <svg
+                                  class="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                  ></path>
+                                </svg>
+                              </button>
                               <p class="text-sm text-gray-500">{user.email}</p>
 
                               <div class="flex flex-wrap gap-2 mt-3 mb-3">
@@ -229,6 +299,33 @@ const Profile = () => {
                   </div>
                 </div>
               </Show>
+
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">
+                  Добавить ребёнка
+                </h2>
+                <form onSubmit={addParentStudent} class="flex gap-3">
+                  <input
+                    type="text"
+                    value={newParentStudentId()}
+                    onInput={(e) =>
+                      setNewParentStudentId(e.currentTarget.value)
+                    }
+                    placeholder="ID ученика"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
+                    disabled={parentStudentAdding()}
+                  />
+                  <button
+                    type="submit"
+                    disabled={
+                      parentStudentAdding() || !newParentStudentId().trim()
+                    }
+                    class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
+                  >
+                    {parentStudentAdding() ? "Добавление..." : "Добавить"}
+                  </button>
+                </form>
+              </div>
             </Show>
             <Show when={hasRole(ROLES.TEACHER)}>
               <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
@@ -314,7 +411,9 @@ const Profile = () => {
             <Show when={hasRole(ROLES.STUDENT)}>
               <Show when={studentParentsUsers().length > 0}>
                 <div class="bg-white rounded-2xl shadow-lg p-6">
-                  <h2 class="text-xl font-bold text-gray-800 mb-4">Мои родители</h2>
+                  <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    Мои родители
+                  </h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <For each={studentParentsUsers()}>
                       {(user) => (

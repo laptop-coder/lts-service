@@ -90,7 +90,7 @@ func (h *ParentHandler) GetStudents(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"parentStudents": response,
+		"students": response,
 	})
 }
 
@@ -114,7 +114,7 @@ func (h *ParentHandler) GetStudentsOwn(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"parentStudents": response,
+		"students": response, // TODO: think about this messages-wrappers (like "students" here) in the whole code of the API
 	})
 }
 
