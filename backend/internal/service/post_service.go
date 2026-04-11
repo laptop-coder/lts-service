@@ -8,7 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"golang.org/x/image/draw"
+	_ "golang.org/x/image/webp"
 	"gorm.io/gorm"
+	"image"
+	_ "image/gif"
+	"image/jpeg"
+	_ "image/png"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -274,7 +280,6 @@ func (s *postService) validatePostPhoto(fileHeader *multipart.FileHeader) error 
 	return nil
 }
 
-// TODO: add photo compressing
 func (s *postService) savePostPhoto(postID uuid.UUID, fileHeader *multipart.FileHeader) error {
 	// Creating directory (if not exists)
 	if err := os.MkdirAll(s.config.PhotoUploadPath, 0755); err != nil {
@@ -286,10 +291,32 @@ func (s *postService) savePostPhoto(postID uuid.UUID, fileHeader *multipart.File
 		return fmt.Errorf("failed to open uploaded file (post photo): %w", err)
 	}
 	defer srcFile.Close()
+	// Decode image
+	img, format, err := image.Decode(srcFile)
+	if err != nil {
+		s.log.Error("Failed to decode image", "format", format, "error", err.Error())
+		return fmt.Errorf("failed to decode image (format: %s): %w", format, err)
+	}
+	s.log.Info("Decoded image (post photo)", "format", format)
+	// Convert to RGBA
+	bounds := img.Bounds()
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, img, bounds.Min, draw.Src)
+	// Resize if too large (max width 1200px)
+	bounds = rgba.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+	maxWidth := 1200
+	var dst image.Image = rgba
+	if width > maxWidth {
+		newHeight := height * maxWidth / width
+		resized := image.NewRGBA(image.Rect(0, 0, maxWidth, newHeight))
+		draw.ApproxBiLinear.Scale(resized, resized.Bounds(), rgba, bounds, draw.Over, nil)
+		dst = resized
+	}
 	// Creating file path (where to save post photo)
 	filePath := filepath.Join(
 		s.config.PhotoUploadPath,
-		// TODO: convert to jpeg. Now it is not converting, but only renaming
 		fmt.Sprintf("%s.jpeg", postID.String()),
 	)
 	// Creating file in storage
@@ -298,11 +325,11 @@ func (s *postService) savePostPhoto(postID uuid.UUID, fileHeader *multipart.File
 		return fmt.Errorf("failed to create file: %w", err)
 	}
 	defer dstFile.Close()
-	// Copying the content from the source file to the destination file
-	if _, err = io.Copy(dstFile, srcFile); err != nil {
-		// Deleting a partially filled file in the case of error
+	// Encode as JPEG with 85% quality
+	opts := jpeg.Options{Quality: 85}
+	if err := jpeg.Encode(dstFile, dst, &opts); err != nil {
 		os.Remove(filePath)
-		return fmt.Errorf("failed to copy file: %w", err)
+		return fmt.Errorf("failed to encode image: %w", err)
 	}
 	return nil
 }

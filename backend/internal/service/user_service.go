@@ -568,7 +568,7 @@ func (s *userService) saveAvatarFile(userID uuid.UUID, fileHeader *multipart.Fil
 		s.log.Error("Failed to decode image", "format", format, "error", err.Error())
 		return fmt.Errorf("failed to decode image (format: %s): %w", format, err)
 	}
-	s.log.Info("Decoded image", "format", format)
+	s.log.Info("Decoded image (avatar)", "format", format)
 	// Convert to RGBA
 	bounds := img.Bounds()
     rgba := image.NewRGBA(bounds)
