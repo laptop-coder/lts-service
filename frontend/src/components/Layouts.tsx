@@ -12,7 +12,7 @@ export const PublicRoute: Component<Props> = (props) => {
   const { hasPermission, hasRole } = usePermissions();
 
   return (
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gray-50">
       <header class="bg-white border-b border-gray-200 shadow-sm">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
           <A href="/" class="flex items-center gap-3">
