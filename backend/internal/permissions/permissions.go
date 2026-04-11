@@ -12,6 +12,8 @@ const (
 	PostDeleteOwn       = "post.delete.own"
 	PostPhotoDeleteAny  = "post.photo.delete.any"
 	PostPhotoDeleteOwn  = "post.photo.delete.own"
+	PostPhotoUpdateAny  = "post.photo.update.any"
+	PostPhotoUpdateOwn  = "post.photo.update.own"
 	PostVerify          = "post.verify"
 	PostMarkReturnedAny = "post.mark.returned.any"
 	PostMarkReturnedOwn = "post.mark.returned.own"

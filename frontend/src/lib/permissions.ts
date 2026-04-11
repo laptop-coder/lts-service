@@ -39,6 +39,8 @@ export const PERMISSIONS = {
   POST_DELETE_OWN: "post.delete.own",
   POST_PHOTO_DELETE_ANY: "post.photo.delete.any",
   POST_PHOTO_DELETE_OWN: "post.photo.delete.own",
+  POST_PHOTO_UPDATE_ANY: "post.photo.update.any",
+  POST_PHOTO_UPDATE_OWN: "post.photo.update.own",
   POST_VERIFY: "post.verify",
   POST_MARK_RETURNED_ANY: "post.mark.returned.any",
   POST_MARK_RETURNED_OWN: "post.mark.returned.own",
