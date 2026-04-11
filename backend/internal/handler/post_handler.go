@@ -252,6 +252,70 @@ func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
+func (h *PostHandler) UpdatePhoto(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPut {
+		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 15<<20) // 15 MB
+	// Parse form
+	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
+	if err := r.ParseMultipartForm(15 << 20); err != nil {
+		helpers.ErrorResponse(w, "failed to parse multipart/formdata form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert post ID
+	postID, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		helpers.ErrorResponse(w, "cannot convert post id to uuid", http.StatusBadRequest)
+		return
+	}
+	// Get user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if user deleting photo of his own post
+	if slices.Contains(userPermissions, permissions.PostPhotoUpdateOwn) && !slices.Contains(userPermissions, permissions.PostPhotoUpdateAny) {
+		// Get and convert user ID
+		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+		if !ok {
+			helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		// Get post
+		post, err := h.postService.GetPostByID(r.Context(), postID)
+		if err != nil || post == nil {
+			helpers.HandleServiceError(w, fmt.Errorf("failed to find the post by ID: %w", err))
+			return
+		}
+		// Check if the post belongs to the user
+		if userID != post.Author.ID {
+			helpers.ErrorResponse(w, "forbidden: you do not have permission to update photo of this post", http.StatusForbidden)
+			return
+		}
+	}
+	// Get photo file from the request
+	formFiles := r.MultipartForm.File["photo"]
+	if len(formFiles) > 1 {
+		helpers.ErrorResponse(w, "failed to parse form: to much photo files", http.StatusBadRequest)
+		return
+	} else if len(formFiles) == 0 {
+		helpers.ErrorResponse(w, "failed to parse form: post photo cannot be empty", http.StatusBadRequest)
+		return
+	}
+	// Update post photo
+	if err := h.postService.UpdatePhoto(r.Context(), postID, formFiles[0]); err != nil {
+		helpers.HandleServiceError(w, fmt.Errorf("failed to update post photo: %w", err))
+		return
+	}
+	// Return response
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
+}
+
 func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {

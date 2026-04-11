@@ -24,6 +24,7 @@ type PostService interface {
 	UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePostDTO) (*PostResponseDTO, error)
 	DeletePost(ctx context.Context, id uuid.UUID) error
 	RemovePhoto(ctx context.Context, postID uuid.UUID) error
+	UpdatePhoto(ctx context.Context, postID uuid.UUID, dto *multipart.FileHeader) error
 	GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
 	GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error)
 	VerifyPost(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error)
@@ -220,6 +221,29 @@ func (s *postService) RemovePhoto(ctx context.Context, postID uuid.UUID) error {
 		return fmt.Errorf("transaction failed: %w", err)
 	}
 	s.log.Info("Post photo file was successfully removed")
+	return nil
+}
+
+func (s *postService) UpdatePhoto(ctx context.Context, postID uuid.UUID, photo *multipart.FileHeader) error {
+	post, err := s.postRepo.FindByID(ctx, &postID)
+	if err != nil {
+		return fmt.Errorf("post not found: %w", err)
+	}
+	// Validating the file
+	if err := s.validatePostPhoto(photo); err != nil {
+		return err
+	}
+	// Saving new photo
+	if err := s.savePostPhoto(postID, photo); err != nil {
+		return err
+	}
+	// Mark existence of the photo in the database
+	post.HasPhoto = true
+	if err := s.postRepo.Update(ctx, post); err != nil {
+		// Rollback file saving in the case of error
+		s.removePostPhoto(postID)
+		return fmt.Errorf("failed to update post photo: %w", err)
+	}
 	return nil
 }
 
