@@ -66,7 +66,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 						next.ServeHTTP(w, r.WithContext(ctx))
 						return
 					}
-					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					helpers.ErrorResponse(log, w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to get refresh token from cookies: %s", err.Error()))
 					return
 				}
@@ -82,7 +82,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 						next.ServeHTTP(w, r.WithContext(ctx))
 						return
 					}
-					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					helpers.ErrorResponse(log, w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to refresh access token: %s", err.Error()))
 					return
 				}
@@ -96,7 +96,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 						next.ServeHTTP(w, r.WithContext(ctx))
 						return
 					}
-					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					helpers.ErrorResponse(log, w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to parse access token: %s", err.Error()))
 					return
 				}
@@ -109,7 +109,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 						next.ServeHTTP(w, r.WithContext(ctx))
 						return
 					}
-					helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+					helpers.ErrorResponse(log, w, "unauthorized", http.StatusUnauthorized)
 					log.Error(fmt.Sprintf("Failed to parse refresh token: %s", err.Error()))
 					return
 				}
@@ -155,7 +155,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 					next.ServeHTTP(w, r.WithContext(ctx))
 					return
 				}
-				helpers.ErrorResponse(w, "invalid token", http.StatusUnauthorized)
+				helpers.ErrorResponse(log, w, "invalid token", http.StatusUnauthorized)
 				log.Error(fmt.Sprintf("Failed to validate access token: %s", err.Error()))
 				return
 			}
@@ -174,7 +174,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 					next.ServeHTTP(w, r.WithContext(ctx))
 					return
 				}
-				helpers.ErrorResponse(w, "failed to load user (by user ID from JWT access from cookies)", http.StatusUnauthorized)
+				helpers.ErrorResponse(log, w, "failed to load user (by user ID from JWT access from cookies)", http.StatusUnauthorized)
 				return
 			}
 			// Collect permissions
@@ -202,20 +202,20 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 	}
 }
 
-func RequireRoles(all bool, requiredRoles ...string) func(http.Handler) http.Handler {
+func RequireRoles(log logger.Logger, all bool, requiredRoles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get roles from context
 			userRoles, ok := r.Context().Value(UserRolesKey).([]string)
 			if !ok {
-				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 				return
 			}
 			if all {
 				// Check if user has all required roles
 				for _, role := range requiredRoles {
 					if !slices.Contains(userRoles, role) {
-						helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+						helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 						return
 					}
 				}
@@ -229,26 +229,26 @@ func RequireRoles(all bool, requiredRoles ...string) func(http.Handler) http.Han
 						return
 					}
 				}
-				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 			}
 		})
 	}
 }
 
-func RequirePermissions(all bool, requiredPermissions ...string) func(http.Handler) http.Handler {
+func RequirePermissions(log logger.Logger, all bool, requiredPermissions ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get user permissions from context
 			userPermissions, ok := r.Context().Value(UserPermissionsKey).([]string)
 			if !ok {
-				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 				return
 			}
 			if all {
 				// Check if user has all required permissions
 				for _, permission := range requiredPermissions {
 					if !slices.Contains(userPermissions, permission) {
-						helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+						helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 						return
 					}
 				}
@@ -262,7 +262,7 @@ func RequirePermissions(all bool, requiredPermissions ...string) func(http.Handl
 						return
 					}
 				}
-				helpers.ErrorResponse(w, "forbidden", http.StatusForbidden)
+				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 			}
 		})
 	}

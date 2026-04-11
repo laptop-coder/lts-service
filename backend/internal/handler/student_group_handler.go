@@ -31,7 +31,7 @@ func NewStudentGroupHandler(teacherService service.TeacherService, studentGroupS
 func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert student group ID.
@@ -39,7 +39,7 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	groupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert groupID from string to uint64")
-		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "cannot convert groupID from string to uint64", http.StatusBadRequest)
 		return
 	}
 	// to uint16:
@@ -47,7 +47,7 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 	// Get student group advisor
 	response, err := h.studentGroupService.GetAdvisorByGroupID(r.Context(), groupID)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to get student group advisor by group id: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to get student group advisor by group id: %w", err))
 		return
 	}
 	// Return response
@@ -59,7 +59,7 @@ func (h *StudentGroupHandler) GetAdvisorByGroupID(w http.ResponseWriter, r *http
 func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Parse query parameters (for filter)
@@ -75,7 +75,7 @@ func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Re
 	if groupAdvisorIDString != "" {
 		groupAdvisorID, err := uuid.Parse(groupAdvisorIDString)
 		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert group advisor id from string to uuid", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "cannot convert group advisor id from string to uuid", http.StatusBadRequest)
 			return
 		}
 		// Add to filter
@@ -90,7 +90,7 @@ func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Re
 			filter.Limit = limit
 		} else {
 			h.log.Error("invalid limit")
-			helpers.ErrorResponse(w, "invalid limit", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "invalid limit", http.StatusBadRequest)
 			return
 		}
 	}
@@ -100,14 +100,14 @@ func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Re
 			filter.Offset = offset
 		} else {
 			h.log.Error("invalid offset")
-			helpers.ErrorResponse(w, "invalid offset", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "invalid offset", http.StatusBadRequest)
 			return
 		}
 	}
 	// Get student groups
 	studentGroups, err := h.studentGroupService.GetStudentGroups(r.Context(), filter)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to get student groups: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to get student groups: %w", err))
 		return
 	}
 	// Return response
@@ -119,7 +119,7 @@ func (h *StudentGroupHandler) GetStudentGroups(w http.ResponseWriter, r *http.Re
 func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert student group ID.
@@ -127,7 +127,7 @@ func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http
 	groupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert groupID from string to uint64")
-		helpers.ErrorResponse(w, "cannot convert groupID from string to uint64", http.StatusBadRequest) // TODO: maybe change InternalServerError to BadRequest in the similar places in the whole code
+		helpers.ErrorResponse(h.log, w, "cannot convert groupID from string to uint64", http.StatusBadRequest) // TODO: maybe change InternalServerError to BadRequest in the similar places in the whole code
 		return
 	}
 	// to uint16:
@@ -135,7 +135,7 @@ func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http
 	// Get student group
 	response, err := h.studentGroupService.GetStudentGroupByID(r.Context(), groupID)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to get student group by id: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to get student group by id: %w", err))
 		return
 	}
 	// Return response
@@ -147,19 +147,19 @@ func (h *StudentGroupHandler) GetStudentGroupByID(w http.ResponseWriter, r *http
 func (h *StudentGroupHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert student group ID
 	studentGroupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert student group ID from string to uint64", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusBadRequest)
 		return
 	}
 	studentGroupID := uint16(studentGroupID64)
 	// Delete student group
 	if err := h.studentGroupService.DeleteStudentGroup(r.Context(), studentGroupID); err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to delete the student group: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to delete the student group: %w", err))
 		return
 	}
 	// Return response
@@ -169,13 +169,13 @@ func (h *StudentGroupHandler) Delete(w http.ResponseWriter, r *http.Request) {
 func (h *StudentGroupHandler) AssignAdvisor(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert (to uint16) student group ID
 	studentGroupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert student group ID from string to uint64", http.StatusBadRequest) // TODO: use BadRequest instead of InternalServerError in the whole code like here (when cannot convert parameter)
+		helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusBadRequest) // TODO: use BadRequest instead of InternalServerError in the whole code like here (when cannot convert parameter)
 		return
 	}
 	studentGroupID := uint16(studentGroupID64)
@@ -183,29 +183,29 @@ func (h *StudentGroupHandler) AssignAdvisor(w http.ResponseWriter, r *http.Reque
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert user ID
 	userIDFields := r.PostForm["userId"]
 	if len(userIDFields) != 1 {
-		helpers.ErrorResponse(w, "failed to parse form: userID value must be provided exactly once", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: userID value must be provided exactly once", http.StatusBadRequest)
 		return
 	}
 	userID, err := uuid.Parse(userIDFields[0])
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert user id to uuid", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
 		return
 	}
 	// Assign advisor
 	if err := h.studentGroupService.AssignAdvisor(r.Context(), studentGroupID, userID); err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Get updated student group
 	studentGroup, err := h.studentGroupService.GetStudentGroupByID(r.Context(), studentGroupID)
 	if err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Return response
@@ -221,20 +221,20 @@ func (h *StudentGroupHandler) AssignAdvisor(w http.ResponseWriter, r *http.Reque
 func (h *StudentGroupHandler) UnassignAdvisor(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert (to uint16) student group ID
 	studentGroupID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert student group ID from string to uint64", http.StatusBadRequest) // TODO: use BadRequest instead of InternalServerError in the whole code like here (when cannot convert parameter)
+		helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusBadRequest) // TODO: use BadRequest instead of InternalServerError in the whole code like here (when cannot convert parameter)
 		return
 	}
 	studentGroupID := uint16(studentGroupID64)
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	// Check if user unassigning himself
@@ -242,13 +242,13 @@ func (h *StudentGroupHandler) UnassignAdvisor(w http.ResponseWriter, r *http.Req
 		// Get and convert user ID
 		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 		if !ok {
-			helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+			helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 		// Get teacher
 		teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
 		if err != nil || teacher == nil {
-			helpers.HandleServiceError(w, fmt.Errorf("failed to find the teacher by ID: %w", err))
+			helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to find the teacher by ID: %w", err))
 			return
 		}
 		// Check if the teacher is advisor of the student group
@@ -261,13 +261,13 @@ func (h *StudentGroupHandler) UnassignAdvisor(w http.ResponseWriter, r *http.Req
 			}
 		}
 		if !isAdvisor {
-			helpers.ErrorResponse(w, "forbidden: you do not have permission to unassign advisor from this student group", http.StatusForbidden)
+			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to unassign advisor from this student group", http.StatusForbidden)
 			return
 		}
 	}
 	// Unassign advisor
 	if err := h.studentGroupService.UnassignAdvisor(r.Context(), studentGroupID); err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
@@ -276,14 +276,14 @@ func (h *StudentGroupHandler) UnassignAdvisor(w http.ResponseWriter, r *http.Req
 func (h *StudentGroupHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// DTO
@@ -292,25 +292,25 @@ func (h *StudentGroupHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
 		dto.Name = nameFields[0]
 	} else {
-		helpers.ErrorResponse(w, "failed to parse form: name must be provided exactly once", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: name must be provided exactly once", http.StatusBadRequest)
 		return
 	}
 	// Advisor ID (optional field)
 	if advisorIDFields := r.PostForm["advisorId"]; len(advisorIDFields) == 1 {
 		advisorID, err := uuid.Parse(advisorIDFields[0])
 		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert advisor id to uuid", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "cannot convert advisor id to uuid", http.StatusBadRequest)
 			return
 		}
 		dto.GroupAdvisorID = &advisorID
 	} else if len(advisorIDFields) > 1 {
-		helpers.ErrorResponse(w, "failed to parse form: to much group advisor ID values", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: to much group advisor ID values", http.StatusBadRequest)
 		return
 	}
 	// Create student group
 	groupResponse, err := h.studentGroupService.CreateStudentGroup(r.Context(), dto)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to create the student group: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to create the student group: %w", err))
 		return
 	}
 	// Return response
@@ -323,14 +323,14 @@ func (h *StudentGroupHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert (to uint16) student group ID:
@@ -338,7 +338,7 @@ func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// convert to uint16
 	groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert student group ID from string to uint64", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusBadRequest)
 		return
 	}
 	groupID := uint16(groupID64)
@@ -347,24 +347,24 @@ func (h *StudentGroupHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) > 1 {
-		helpers.ErrorResponse(w, "failed to parse form: too much name fields", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: too much name fields", http.StatusBadRequest)
 		return
 	}
 	if advisorIDFields := r.PostForm["advisorId"]; len(advisorIDFields) == 1 {
 		advisorID, err := uuid.Parse(advisorIDFields[0])
 		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert advisor id to uuid", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "cannot convert advisor id to uuid", http.StatusBadRequest)
 			return
 		}
 		dto.GroupAdvisorID = &advisorID
 	} else if len(advisorIDFields) > 1 {
-		helpers.ErrorResponse(w, "failed to parse form: to much group advisor ID values", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: to much group advisor ID values", http.StatusBadRequest)
 		return
 	}
 	// Update student group
 	groupResponse, err := h.studentGroupService.UpdateStudentGroup(r.Context(), groupID, dto)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to update the student group: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to update the student group: %w", err))
 		return
 	}
 	// Return response

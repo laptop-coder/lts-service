@@ -25,23 +25,23 @@ func NewRoomHandler(roomService service.RoomService, log logger.Logger) *RoomHan
 
 func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get name
 	nameFields := r.PostForm["name"]
 	if len(nameFields) == 0 {
-		helpers.ErrorResponse(w, "failed to parse form: name field is required", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: name field is required", http.StatusBadRequest)
 		return
 	} else if len(nameFields) > 1 {
-		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
 		return
 	}
 	name := nameFields[0]
@@ -49,12 +49,12 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	teacherIDFields := r.PostForm["teacherId"]
 	var teacherID *uuid.UUID
 	if len(teacherIDFields) > 1 {
-		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much teacherID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: to much teacherID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
 		return
 	} else if len(teacherIDFields) == 1 {
 		teacherIDUUID, err := uuid.Parse(teacherIDFields[0])
 		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "cannot convert teacher id to uuid", http.StatusBadRequest)
 			return
 		}
 		teacherID = &teacherIDUUID
@@ -67,7 +67,7 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Create room
 	roomResponse, err := h.roomService.CreateRoom(r.Context(), dto)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to create the room: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to create the room: %w", err))
 		return
 	}
 	helpers.JsonResponse(w, map[string]interface{}{
@@ -80,7 +80,7 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *RoomHandler) GetRooms(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Parse query parameters (for filter)
@@ -100,7 +100,7 @@ func (h *RoomHandler) GetRooms(w http.ResponseWriter, r *http.Request) {
 			filter.Limit = limit
 		} else {
 			h.log.Error("invalid limit")
-			helpers.ErrorResponse(w, "invalid limit", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "invalid limit", http.StatusBadRequest)
 			return
 		}
 	}
@@ -110,14 +110,14 @@ func (h *RoomHandler) GetRooms(w http.ResponseWriter, r *http.Request) {
 			filter.Offset = offset
 		} else {
 			h.log.Error("invalid offset")
-			helpers.ErrorResponse(w, "invalid offset", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "invalid offset", http.StatusBadRequest)
 			return
 		}
 	}
 	// Get rooms
 	rooms, err := h.roomService.GetRooms(r.Context(), filter)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to get rooms: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to get rooms: %w", err))
 		return
 	}
 	// Return response
@@ -129,20 +129,20 @@ func (h *RoomHandler) GetRooms(w http.ResponseWriter, r *http.Request) {
 func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert room ID
 	roomID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert room ID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(h.log, w, "cannot convert room ID from string to uint64", http.StatusInternalServerError)
 		return
 	}
 	roomID := uint8(roomID64)
@@ -151,25 +151,25 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) != 0 {
-		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: to much name values (%d)", len(nameFields)), http.StatusBadRequest)
 		return
 	}
 	if teacherIDFields := r.PostForm["teacherId"]; len(teacherIDFields) == 1 {
 		// Convert teacher ID to UUID
 		teacherID, err := uuid.Parse(teacherIDFields[0])
 		if err != nil {
-			helpers.ErrorResponse(w, "cannot convert teacher id to uuid", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "cannot convert teacher id to uuid", http.StatusBadRequest)
 			return
 		}
 		dto.TeacherID = &teacherID
 	} else if len(teacherIDFields) != 0 {
-		helpers.ErrorResponse(w, fmt.Sprintf("failed to parse form: to much teacher ID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: to much teacher ID values (%d)", len(teacherIDFields)), http.StatusBadRequest)
 		return
 	}
 	// Update room
 	roomResponse, err := h.roomService.UpdateRoom(r.Context(), roomID, dto)
 	if err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to update the room: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to update the room: %w", err))
 		return
 	}
 	// Return response
@@ -181,19 +181,19 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *RoomHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get and convert room ID
 	roomID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
 	if err != nil {
-		helpers.ErrorResponse(w, "cannot convert room ID from string to uint64", http.StatusInternalServerError)
+		helpers.ErrorResponse(h.log, w, "cannot convert room ID from string to uint64", http.StatusInternalServerError)
 		return
 	}
 	roomID := uint8(roomID64)
 	// Delete room
 	if err := h.roomService.DeleteRoom(r.Context(), roomID); err != nil {
-		helpers.HandleServiceError(w, fmt.Errorf("failed to delete the room: %w", err))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to delete the room: %w", err))
 		return
 	}
 	// Return response

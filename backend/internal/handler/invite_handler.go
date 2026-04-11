@@ -29,20 +29,20 @@ func NewInviteHandler(inviteService service.InviteService, inviteServiceConfig s
 
 func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get and convert (to uint8) role IDs
 	roleIDFields := r.PostForm["roleId"]
 	if len(roleIDFields) == 0 {
-		helpers.ErrorResponse(w, "failed to parse form: at least one roleId value must be provided", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse form: at least one roleId value must be provided", http.StatusBadRequest)
 		return
 	}
 	roleIDs := make([]uint8, len(roleIDFields))
@@ -50,7 +50,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert role ID from string to uint64")
-			helpers.ErrorResponse(w, "cannot convert role ID from string to uint64", http.StatusInternalServerError)
+			helpers.ErrorResponse(h.log, w, "cannot convert role ID from string to uint64", http.StatusInternalServerError)
 			return
 		}
 		roleID := uint8(roleID64)
@@ -65,13 +65,13 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 			email = &trimmed
 		}
 	} else if len(emailFields) > 1 {
-		helpers.ErrorResponse(w, "too much email fields", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "too much email fields", http.StatusBadRequest)
 		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	// Depending on whether token is for admin (role 2) or user (roles 3-7)
@@ -79,7 +79,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// admin:
 	if slices.Contains(roleIDs, 2) {
 		if !slices.Contains(userPermissions, permissions.TokenInviteAdminCreate) {
-			helpers.ErrorResponse(w, "forbidden: you do not have permission to create invite token for admin account registration", http.StatusForbidden)
+			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to create invite token for admin account registration", http.StatusForbidden)
 			return
 		}
 	}
@@ -87,7 +87,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	for _, roleID := range roleIDs {
 		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
 			if !slices.Contains(userPermissions, permissions.TokenInviteUserCreate) {
-				helpers.ErrorResponse(w, "forbidden: you do not have permission to create invite token for user account registration", http.StatusForbidden)
+				helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to create invite token for user account registration", http.StatusForbidden)
 				return
 			}
 			break
@@ -96,7 +96,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Generate token
 	token, err := h.inviteService.CreateToken(r.Context(), roleIDs, email)
 	if err != nil || token == nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	helpers.JsonResponse(w, map[string]interface{}{
@@ -106,7 +106,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get token
@@ -114,13 +114,13 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	// Parse token
 	claims, err := h.inviteService.ParseToken(token)
 	if err != nil || claims == nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Get roleIDs
 	roleIDsInt := claims.RoleIDs
 	if len(roleIDsInt) == 0 {
-		helpers.ErrorResponse(w, "list of role IDs cannot be nil", http.StatusInternalServerError) // HTTP 500 because token was signed by server
+		helpers.ErrorResponse(h.log, w, "list of role IDs cannot be nil", http.StatusInternalServerError) // HTTP 500 because token was signed by server
 		return
 	}
 	// Convert role IDs from int to uint8
@@ -133,7 +133,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(w, "unauthorized", http.StatusUnauthorized)
+		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	// Depending on whether token is for admin (role 2) or user (roles 3-7)
@@ -141,7 +141,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	// admin:
 	if slices.Contains(roleIDs, 2) {
 		if !slices.Contains(userPermissions, permissions.TokenInviteAdminDelete) {
-			helpers.ErrorResponse(w, "forbidden: you do not have permission to revoke invite token for admin account registration", http.StatusForbidden)
+			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to revoke invite token for admin account registration", http.StatusForbidden)
 			return
 		}
 	}
@@ -149,7 +149,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	for _, roleID := range roleIDs {
 		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
 			if !slices.Contains(userPermissions, permissions.TokenInviteUserDelete) {
-				helpers.ErrorResponse(w, "forbidden: you do not have permission to revoke invite token for user account registration", http.StatusForbidden)
+				helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to revoke invite token for user account registration", http.StatusForbidden)
 				return
 			}
 			break
@@ -158,7 +158,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	// Revoke token
 	err = h.inviteService.RevokeToken(r.Context(), token)
 	if err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
@@ -166,7 +166,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 
 func (h *InviteHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get token
@@ -174,11 +174,11 @@ func (h *InviteHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	// Get roles
 	roles, err := h.inviteService.GetRoles(r.Context(), token)
 	if err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	if len(roles) == 0 {
-		helpers.HandleServiceError(w, fmt.Errorf("list of roles cannot be nil"))
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("list of roles cannot be nil"))
 		return
 	}
 	helpers.SuccessResponse(w, map[string]interface{}{
@@ -188,7 +188,7 @@ func (h *InviteHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 
 func (h *InviteHandler) GetEmail(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Get token
@@ -196,7 +196,7 @@ func (h *InviteHandler) GetEmail(w http.ResponseWriter, r *http.Request) {
 	// Get email
 	email, err := h.inviteService.GetEmail(r.Context(), token)
 	if err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	helpers.SuccessResponse(w, map[string]interface{}{
@@ -207,14 +207,14 @@ func (h *InviteHandler) GetEmail(w http.ResponseWriter, r *http.Request) {
 
 func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
 		return
 	}
 	// Get email
@@ -225,17 +225,17 @@ func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.
 		if trimmed != "" {
 			email = &trimmed
 		} else {
-			helpers.ErrorResponse(w, "email cannot be empty or only whitespace", http.StatusBadRequest)
+			helpers.ErrorResponse(h.log, w, "email cannot be empty or only whitespace", http.StatusBadRequest)
 			return
 		}
 	} else if len(emailFields) != 1 {
-		helpers.ErrorResponse(w, "email must be provided exactly once", http.StatusBadRequest)
+		helpers.ErrorResponse(h.log, w, "email must be provided exactly once", http.StatusBadRequest)
 		return
 	}
 	// Make request
 	err := h.inviteService.MakeInviteRequest(r.Context(), email, []uint8{7}) // TODO: change "7" to the constant
 	if err != nil {
-		helpers.HandleServiceError(w, err)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	helpers.JsonResponse(w, map[string]interface{}{

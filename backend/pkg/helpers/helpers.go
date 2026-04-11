@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"backend/pkg/logger"
 )
 
 func JsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
@@ -26,7 +27,8 @@ func JsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	w.Write(encodedData)
 }
 
-func ErrorResponse(w http.ResponseWriter, message string, statusCode int) {
+func ErrorResponse(log logger.Logger, w http.ResponseWriter, message string, statusCode int) {
+	log.Error(message, "status_code", statusCode)
 	JsonResponse(w, map[string]string{
 		"error": message,
 	}, statusCode)
@@ -36,7 +38,7 @@ func SuccessResponse(w http.ResponseWriter, data interface{}) {
 	JsonResponse(w, data, http.StatusOK)
 }
 
-func HandleServiceError(w http.ResponseWriter, err error) {
+func HandleServiceError(log logger.Logger, w http.ResponseWriter, err error) {
 	errMsg := err.Error()
 	statusCode := http.StatusInternalServerError
 	switch {
@@ -59,7 +61,7 @@ func HandleServiceError(w http.ResponseWriter, err error) {
 		strings.Contains(errMsg, "verify"):
 		statusCode = http.StatusForbidden
 	}
-	ErrorResponse(w, errMsg, statusCode)
+	ErrorResponse(log, w, errMsg, statusCode)
 }
 
 func GetCookie(cookieKey string, r *http.Request) (string, error) {
