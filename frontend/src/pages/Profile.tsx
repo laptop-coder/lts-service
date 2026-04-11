@@ -50,6 +50,10 @@ const Profile = () => {
   const [parentStudentsUsers, setParentStudentsUsers] = createSignal<User[]>(
     [],
   );
+  const [studentParents, setStudentParents] = createSignal<Parent[]>([]);
+  const [studentParentsUsers, setStudentParentsUsers] = createSignal<User[]>(
+    [],
+  );
 
   const { user } = useAuth();
   const { hasRole } = usePermissions();
@@ -101,6 +105,14 @@ const Profile = () => {
         `/students/${user()!.id}`,
       );
       setStudentGroup(studentData.student.studentGroup || null);
+      setStudentParents(studentData.student.parents || []);
+
+      // load parents data
+      const studentParentsPromises = studentParents().map((parent) =>
+        api.get<{ user: User }>(`/users/${parent.userId}`),
+      );
+      const studentParentsResponses = await Promise.all(studentParentsPromises);
+      setStudentParentsUsers(studentParentsResponses.map((r) => r.user));
     }
   });
 
@@ -300,6 +312,49 @@ const Profile = () => {
               </div>
             </Show>
             <Show when={hasRole(ROLES.STUDENT)}>
+              <Show when={studentParentsUsers().length > 0}>
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 class="text-xl font-bold text-gray-800 mb-4">Мои родители</h2>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <For each={studentParentsUsers()}>
+                      {(user) => (
+                        <div class="border rounded-xl p-4 hover:shadow-md transition">
+                          <div class="flex items-center gap-3">
+                            <img
+                              class="w-12 h-12 rounded-full object-cover"
+                              src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}
+                              alt="Фото профиля"
+                            />
+                            <div>
+                              <p class="font-semibold">
+                                {user.lastName} {user.firstName}{" "}
+                                {user?.middleName}
+                              </p>
+                              <p class="text-sm text-gray-500">{user.email}</p>
+
+                              <div class="flex flex-wrap gap-2 mt-3 mb-3">
+                                <div class="flex flex-wrap gap-1">
+                                  <For
+                                    each={ROLES_TO_DISPLAY.filter((rd) =>
+                                      user.roles.some((ur) => ur.id === rd.id),
+                                    )}
+                                  >
+                                    {(role) => (
+                                      <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                        {role.displayName}
+                                      </span>
+                                    )}
+                                  </For>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+              </Show>
               <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Класс/учебная группа
