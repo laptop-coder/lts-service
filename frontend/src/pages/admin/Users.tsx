@@ -1,6 +1,7 @@
 import { createSignal, Show, For, Index, onMount, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 import { api } from "../../lib/api";
+import { useAuth } from "../../lib/auth";
 import {
   PERMISSIONS,
   ROLES,
@@ -22,6 +23,7 @@ import type {
 } from "../../lib/types";
 
 const Users = () => {
+  const auth = useAuth();
   const [users, setUsers] = createSignal<User[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [selectedUser, setSelectedUser] = createSignal<User | null>(null);
@@ -246,7 +248,10 @@ const Users = () => {
 
     try {
       setSaving(true);
-      await api.put(`/users/${selectedUser()!.id}/roles${!hasPermission(PERMISSIONS.ROLE_ADMIN_ASSIGN) ? '/non_admin': ''}`, formData);
+      await api.put(
+        `/users/${selectedUser()!.id}/roles${!hasPermission(PERMISSIONS.ROLE_ADMIN_ASSIGN) ? "/non_admin" : ""}`,
+        formData,
+      );
       // Update locally
       setUsers(
         users().map((u) =>
@@ -392,7 +397,9 @@ const Users = () => {
                             alt="Аватар"
                             class="w-8 h-8 rounded-full object-cover"
                           />
-                          <span>
+                          <span
+                            class={`${auth.user()?.id === user.id ? "font-semibold" : ""}`}
+                          >
                             {user.lastName} {user.firstName}{" "}
                             {user?.middleName || ""}
                           </span>
@@ -503,7 +510,10 @@ const Users = () => {
                 <div class="space-y-2">
                   <For
                     each={ROLES_TO_DISPLAY.filter(
-                      (role) => !(hasRole(ROLES.SUPERADMIN) ? [1] : [1, 2]).includes(role.id), // TODO: is it correct?
+                      (role) =>
+                        !(hasRole(ROLES.SUPERADMIN) ? [1] : [1, 2]).includes(
+                          role.id,
+                        ), // TODO: is it correct?
                     )}
                   >
                     {(role) => (
