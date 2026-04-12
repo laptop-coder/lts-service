@@ -20,6 +20,7 @@ const StaffPositions = lazy(() => import("./pages/admin/StaffPositions"));
 const InstitutionAdministratorPositions = lazy(
   () => import("./pages/admin/InstitutionAdministratorPositions"),
 );
+const About = lazy(() => import("./pages/About"));
 
 function App() {
   const auth = useAuth();
@@ -36,6 +37,11 @@ function App() {
         path="/"
         component={PublicRoute}
         children={<Route path="/" component={PublicPosts} />}
+      />
+      <Route
+        path="/about"
+        component={PublicRoute}
+        children={<Route path="/" component={About} />}
       />
 
       {/* Protected routes */}
