@@ -61,6 +61,7 @@ const Profile = () => {
   const [studentParentsUsers, setStudentParentsUsers] = createSignal<User[]>(
     [],
   );
+  const [uploadingAvatar, setUploadingAvatar] = createSignal(false);
 
   const { user } = useAuth();
   const { hasRole } = usePermissions();
@@ -171,6 +172,29 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: Event) => {
+    const input = e.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      await api.put("/users/me/avatar", formData);
+      // Update user data
+      const userData = await api.get<{ user: User }>("/users/me");
+      auth.user()!.hasAvatar = userData.user.hasAvatar;
+      // Reload page
+      window.location.reload();
+    } catch (err) {
+      setError("Не удалось обновить аватар");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   return (
     <>
       {hasPermission(PERMISSIONS.USER_READ_OWN) && (
@@ -189,11 +213,40 @@ const Profile = () => {
           <Show when={user() && !error()}>
             <div class="bg-white rounded-2xl shadow-lg p-6">
               <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                <img
-                  class="w-32 h-32 rounded-full object-cover border-4 border-blue-100"
-                  src={`/storage/storage/avatars/${user()!.hasAvatar ? user()!.id : "default"}.jpeg`}
-                  alt="Фото профиля"
-                />
+                <div class="relative group w-32 h-32 rounded-full">
+                  <img
+                    class="w-32 h-32 rounded-full object-cover border-4 border-blue-100"
+                    src={`/storage/storage/avatars/${user()!.hasAvatar ? user()!.id : "default"}.jpeg`}
+                    alt="Фото профиля"
+                  />
+                  <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                    <svg
+                      class="w-8 h-8 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handleAvatarUpload}
+                      class="hidden"
+                      disabled={uploadingAvatar()}
+                    />
+                  </label>
+                  <Show when={uploadingAvatar()}>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                      <div class="text-white text-sm">Загрузка...</div>
+                    </div>
+                  </Show>
+                </div>
                 <div class="flex-1 text-center md:text-left">
                   <h2 class="text-2xl font-bold text-gray-800">
                     {user()!.lastName} {user()!.firstName} {user()?.middleName}
