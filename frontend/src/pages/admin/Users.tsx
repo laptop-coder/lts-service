@@ -681,7 +681,7 @@ const Users = () => {
                     disabled={saving()}
                     type="button"
                     onClick={addStudentId}
-                    class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     + Добавить ученика
                   </button>

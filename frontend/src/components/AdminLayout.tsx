@@ -90,7 +90,7 @@ const AdminLayout = (props: Props) => {
   return (
     <>
       {hasRole(ROLES.ADMIN) && (
-        <div class="flex min-h-screen bg-gray-100">
+        <div class="flex min-h-screen bg-gray-50">
           <aside class="w-64 bg-white border-r border-gray-200 rounded-lg flex flex-col">
             <div class="p-5 border-b border-gray-200">
               <h2 class="text-lg font-semibold text-gray-800">

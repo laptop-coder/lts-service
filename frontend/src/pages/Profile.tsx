@@ -317,7 +317,7 @@ const Profile = () => {
                         disabled={
                           parentStudentAdding() || !newParentStudentId().trim()
                         }
-                        class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
+                        class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium cursor-pointer"
                       >
                         {parentStudentAdding() ? "Добавление..." : "Добавить"}
                       </button>
