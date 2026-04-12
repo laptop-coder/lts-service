@@ -70,7 +70,7 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 		query = query.Limit(filter.Limit)
 	}
 	// Sort posts
-	query = query.Order("created_at")
+	query = query.Order("created_at DESC")
 	// Find posts
 	result := query.Preload("Author").Preload("Author.Roles").Find(&posts)
 	if result.Error != nil {
