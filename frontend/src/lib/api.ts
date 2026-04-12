@@ -44,7 +44,9 @@ async function request<T>(
   if (!response.ok) {
     const errorMessage =
       data.error || `Request failed with status ${response.status}`;
-    throw new Error(errorMessage);
+    const error = new Error(errorMessage);
+    (error as any).status = response.status
+    throw error
   }
 
   return data as T;
