@@ -207,7 +207,7 @@ func main() {
 
 	// Lists of permissions by roles
 	superadminPermissions := []string{
-		"role.admin.assign", "role.admin.add", "role.admin.unassign", "token.invite.admin.create", "token.invite.admin.delete",
+		"user.read.own", "user.read.other", "role.admin.assign", "role.admin.add", "role.admin.unassign", "role.read.any", "role.read.own", "token.invite.admin.create", "token.invite.admin.delete",
 	}
 
 	adminPermissions := []string{
