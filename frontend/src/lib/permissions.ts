@@ -58,7 +58,8 @@ export const PERMISSIONS = {
   USER_READ_OTHER: "user.read.other",
   USER_READ_ALL: "user.read.all",
   USER_UPDATE_OWN: "user.update.own",
-  USER_DELETE_ANY: "user.delete.any",
+  USER_DELETE_ANY_ADMIN: "user.delete.any.admin",
+  USER_DELETE_ANY_USER: "user.delete.any.user",
   USER_DELETE_OWN: "user.delete.own",
 
   // Room permissions

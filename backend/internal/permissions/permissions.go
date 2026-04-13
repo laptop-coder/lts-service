@@ -25,7 +25,8 @@ const (
 	UserReadOther = "user.read.other"
 	UserReadAll   = "user.read.all"
 	UserUpdateOwn = "user.update.own"
-	UserDeleteAny = "user.delete.any"
+	UserDeleteAnyAdmin = "user.delete.any.admin"
+	UserDeleteAnyUser = "user.delete.any.user"
 	UserDeleteOwn = "user.delete.own"
 )
 
