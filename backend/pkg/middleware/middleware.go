@@ -208,6 +208,7 @@ func RequireRoles(log logger.Logger, all bool, requiredRoles ...string) func(htt
 			// Get roles from context
 			userRoles, ok := r.Context().Value(UserRolesKey).([]string)
 			if !ok {
+				log.Error("Forbidden: failed to get roles from context")
 				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 				return
 			}
@@ -215,6 +216,7 @@ func RequireRoles(log logger.Logger, all bool, requiredRoles ...string) func(htt
 				// Check if user has all required roles
 				for _, role := range requiredRoles {
 					if !slices.Contains(userRoles, role) {
+						log.Error("Forbidden: user must have all required roles")
 						helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 						return
 					}
@@ -229,6 +231,7 @@ func RequireRoles(log logger.Logger, all bool, requiredRoles ...string) func(htt
 						return
 					}
 				}
+				log.Error("Forbidden: user must have at least one required role")
 				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 			}
 		})
@@ -241,6 +244,7 @@ func RequirePermissions(log logger.Logger, all bool, requiredPermissions ...stri
 			// Get user permissions from context
 			userPermissions, ok := r.Context().Value(UserPermissionsKey).([]string)
 			if !ok {
+				log.Error("Forbidden: failed to get permissions from context")
 				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 				return
 			}
@@ -248,6 +252,7 @@ func RequirePermissions(log logger.Logger, all bool, requiredPermissions ...stri
 				// Check if user has all required permissions
 				for _, permission := range requiredPermissions {
 					if !slices.Contains(userPermissions, permission) {
+						log.Error("Forbidden: user must have all required permissions")
 						helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 						return
 					}
@@ -262,6 +267,7 @@ func RequirePermissions(log logger.Logger, all bool, requiredPermissions ...stri
 						return
 					}
 				}
+				log.Error("Forbidden: user must have at least one required permission")
 				helpers.ErrorResponse(log, w, "forbidden", http.StatusForbidden)
 			}
 		})
