@@ -25,7 +25,15 @@ export function usePermissions() {
     return user.roles.some((r) => r.name === roleName);
   };
 
-  return { hasPermission, hasAnyPermission, hasAllPermissions, hasRole };
+  const hasAnyRole = (...roles: string[]): boolean => {
+    return roles.some((r) => hasRole(r));
+  };
+
+  const hasAllRoles = (...roles: string[]): boolean => {
+    return roles.every((r) => hasRole(r));
+  };
+
+  return { hasPermission, hasAnyPermission, hasAllPermissions, hasRole, hasAnyRole, hasAllRoles };
 }
 
 export const PERMISSIONS = {
