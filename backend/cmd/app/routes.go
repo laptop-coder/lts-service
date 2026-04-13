@@ -68,7 +68,7 @@ func SetupRoutes(
 	mux.Handle("POST /api/v1/student_groups", authMiddleware(false)(requirePermissions(log, false, permissions.StudentGroupCreate)(http.HandlerFunc(studentGroupHandler.Create))))
 	mux.Handle("PATCH /api/v1/student_groups/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.StudentGroupUpdate)(http.HandlerFunc(studentGroupHandler.Update))))
 	// Auth
-	mux.Handle("DELETE /api/v1/users/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.UserDeleteAny)(http.HandlerFunc(authHandler.DeleteAccount))))
+	mux.Handle("DELETE /api/v1/users/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.UserDeleteAnyAdmin, permissions.UserDeleteAnyUser)(http.HandlerFunc(authHandler.DeleteAccount))))
 	mux.Handle("DELETE /api/v1/users/me", authMiddleware(false)(requirePermissions(log, false, permissions.UserDeleteOwn)(http.HandlerFunc(authHandler.DeleteOwnAccount))))
 	mux.Handle("POST /api/v1/auth/logout", authMiddleware(false)(http.HandlerFunc(authHandler.Logout)))
 	// Posts

@@ -103,7 +103,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email *string) (*model
 		return nil, fmt.Errorf("user email cannot be nil")
 	}
 	var user model.User
-	result := r.db.WithContext(ctx).Where("email = ?", *email).First(&user)
+	result := r.db.WithContext(ctx).Preload("Roles").Where("email = ?", *email).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user was not found by email: %w", result.Error)

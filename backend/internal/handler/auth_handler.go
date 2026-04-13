@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"strings"
+	"backend/internal/permissions"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 type AuthHandler struct {
@@ -45,7 +46,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get fields data
 	fieldsData := make(map[string]string)
-	for _, s := range []string{ "password", "firstName", "lastName", "inviteToken"} {
+	for _, s := range []string{"password", "firstName", "lastName", "inviteToken"} {
 		formFields := r.PostForm[s]
 		if len(formFields) > 1 {
 			helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: too much %s fields", s), http.StatusBadRequest)
@@ -444,6 +445,43 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
 		return
+	}
+	// Get roles of user to delete
+	roles, err := h.userService.GetUserRoles(r.Context(), userID)
+	if err != nil {
+		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to get user roles (user ID: %s): %w", userID, err))
+	}
+	// Get auth user permissions
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// Check if auth user has permission to delete this user
+	// TODO: rewrite. Add wrapper, e.g. HasRole; add constants (ADMIN, e.g.)
+	hasAdminRole := false
+	hasUserRole := false
+	for _, role := range roles {
+		if role.Name == "admin" {
+			hasAdminRole = true
+		} else if role.Name == "superadmin" {
+			helpers.ErrorResponse(h.log, w, "forbidden: you cannot delete user with superadmin role", http.StatusForbidden)
+			return
+		} else {
+			hasUserRole = true
+		}
+	}
+	if hasAdminRole {
+		if !slices.Contains(userPermissions, permissions.UserDeleteAnyAdmin) {
+			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to delete user with admin role", http.StatusForbidden)
+			return
+		}
+	}
+	if hasUserRole {
+		if !slices.Contains(userPermissions, permissions.UserDeleteAnyUser) {
+			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to delete user with non-admin role", http.StatusForbidden)
+			return
+		}
 	}
 	// Delete user
 	if err := h.userService.DeleteUser(r.Context(), userID); err != nil {
