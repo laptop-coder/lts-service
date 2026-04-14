@@ -1,7 +1,6 @@
 import { createSignal, Show, For } from "solid-js";
 import { api } from "../lib/api";
-import { PERMISSIONS } from "../lib/permissions";
-import { usePermissions } from "../lib/permissions";
+import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
 import QRCodeButton from "../components/QRCode";
 
 const InviteTokens = () => {
@@ -17,7 +16,7 @@ const InviteTokens = () => {
     null,
   );
 
-  const { hasPermission } = usePermissions();
+  const { hasPermission, hasRole } = usePermissions();
 
   const downloadTokensFile = () => {
     if (tokens().length === 0 || selectedRoles().length === 0) return;
@@ -101,6 +100,10 @@ const InviteTokens = () => {
   };
 
   const handleCreate = async () => {
+    if (hasRole(ROLES.SUPERADMIN)) {
+      setSelectedRoles([2])
+    }
+
     if (selectedRoles().length === 0) {
       setError("Выберите хотя бы одну роль");
       return;
@@ -140,7 +143,8 @@ const InviteTokens = () => {
       <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Инвайт-токены</h1>
         <p class="text-gray-500 mt-1">
-          Создание пригласительных ссылок для регистрации
+          Создание пригласительных ссылок для регистрации{" "}
+          {hasRole(ROLES.SUPERADMIN) && "админов"}
         </p>
       </div>
 
@@ -186,12 +190,21 @@ const InviteTokens = () => {
             <div class="space-y-2">
               <For each={availableRoles}>
                 {(role) => (
-                  <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                  <label
+                    class={`flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition cursor-pointer ${((hasRole(ROLES.SUPERADMIN) && role.id === 2) || creating()) && "cursor-not-allowed"}`}
+                  >
                     <input
                       type="checkbox"
-                      checked={selectedRoles().includes(role.id)}
+                      checked={
+                        selectedRoles().includes(role.id) ||
+                        (hasRole(ROLES.SUPERADMIN) && role.id === 2)
+                      }
                       onChange={() => toggleRole(role.id)}
-                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
+                      disabled={
+                        (hasRole(ROLES.SUPERADMIN) && role.id === 2) ||
+                        creating()
+                      }
                     />
                     <span class="text-gray-700">{role.name}</span>
                   </label>

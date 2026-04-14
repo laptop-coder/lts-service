@@ -19,7 +19,7 @@ interface Tab {
   subTabs?: SubTab[];
 }
 
-const tabs: Tab[] = [
+const adminTabs: Tab[] = [
   {
     key: "posts-verification",
     label: "Верификация объявлений",
@@ -68,11 +68,24 @@ const tabs: Tab[] = [
   },
 ];
 
+const superadminTabs: Tab[] = [
+  {
+    key: "users",
+    label: "Пользователи",
+    path: "/admin/users",
+  },
+  {
+    key: "invite-tokens",
+    label: "Инвайт-токены",
+    path: "/admin/invite_tokens",
+  },
+];
+
 const AdminLayout = (props: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openSubmenu, setOpenSubmenu] = createSignal<string | null>(null);
-  const { hasRole } = usePermissions();
+  const { hasRole, hasAnyRole } = usePermissions();
 
   const isActive = (path: string) => location.pathname === path;
   const isParentActive = (tab: Tab) => {
@@ -89,18 +102,21 @@ const AdminLayout = (props: Props) => {
 
   return (
     <>
-      {hasRole(ROLES.ADMIN) && (
+      {hasAnyRole(ROLES.ADMIN, ROLES.SUPERADMIN) && (
         <div class="flex min-h-screen bg-gray-50">
           <aside class="w-64 bg-white border-r border-gray-200 rounded-lg flex flex-col">
             <div class="p-5 border-b border-gray-200">
               <h2 class="text-lg font-semibold text-gray-800">
-                Панель администратора
+                Панель{" "}
+                {hasRole(ROLES.ADMIN)
+                  ? "администратора"
+                  : "суперадминистратора"}
               </h2>
               <p class="text-xs text-gray-400 mt-1">Управление системой</p>
             </div>
             <nav class="flex-1 p-3">
               <div class="space-y-0.5">
-                <For each={tabs}>
+                <For each={hasRole(ROLES.ADMIN) ? adminTabs : superadminTabs}>
                   {(tab) => (
                     <div>
                       {tab.path ? (

@@ -3,6 +3,7 @@ import { lazy, onMount } from "solid-js";
 import { PublicRoute, ProtectedRoute } from "./components/Layouts";
 import AdminLayout from "./components/AdminLayout";
 import { useAuth } from "./lib/auth";
+import { ROLES, usePermissions } from "./lib/permissions";
 
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -15,7 +16,7 @@ const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
 const StudentGroups = lazy(() => import("./pages/admin/StudentGroups"));
 const InviteTokens = lazy(() => import("./pages/InviteTokens"));
-const Users = lazy(() => import("./pages/admin/Users"));
+const Users = lazy(() => import("./pages/Users"));
 const StaffPositions = lazy(() => import("./pages/admin/StaffPositions"));
 const InstitutionAdministratorPositions = lazy(
   () => import("./pages/admin/InstitutionAdministratorPositions"),
@@ -28,6 +29,7 @@ function App() {
   onMount(() => {
     auth.checkAuth();
   });
+  const { hasRole } = usePermissions();
 
   return (
     <Router>
@@ -39,7 +41,11 @@ function App() {
         component={PublicRoute}
         children={<Route path="/" component={PublicPosts} />}
       />
-      <Route path="/posts/:id" component={PublicRoute} children={<Route path="/" component={PostDetails}/>} />
+      <Route
+        path="/posts/:id"
+        component={PublicRoute}
+        children={<Route path="/" component={PostDetails} />}
+      />
       <Route
         path="/about"
         component={PublicRoute}
@@ -58,7 +64,13 @@ function App() {
             <Route path="/admin" component={AdminLayout}>
               <Route
                 path="/"
-                component={() => <Navigate href="posts/verification" />}
+                component={() =>
+                  hasRole(ROLES.ADMIN) ? (
+                    <Navigate href="posts/verification" />
+                  ) : (
+                    <Navigate href="users" />
+                  )
+                }
               />
               <Route path="/posts/verification" component={PostsToVerify} />
               <Route path="/subjects" component={Subjects} />

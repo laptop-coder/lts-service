@@ -1,13 +1,13 @@
 import { createSignal, Show, For, Index, onMount, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
-import { api } from "../../lib/api";
-import { useAuth } from "../../lib/auth";
+import { api } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import {
   PERMISSIONS,
   ROLES,
   usePermissions,
   ROLES_TO_DISPLAY,
-} from "../../lib/permissions";
+} from "../lib/permissions";
 import type {
   User,
   Room,
@@ -20,7 +20,7 @@ import type {
   Teacher,
   InstitutionAdministrator,
   Staff,
-} from "../../lib/types";
+} from "../lib/types";
 
 const Users = () => {
   const auth = useAuth();
@@ -60,7 +60,7 @@ const Users = () => {
     setInstitutionAdministratorPositions,
   ] = createSignal<InstitutionAdministratorPosition[]>([]);
 
-  const { hasPermission, hasAnyPermission, hasRole } = usePermissions();
+  const { hasPermission, hasRole } = usePermissions();
 
   const loadUsers = async () => {
     try {
@@ -321,6 +321,67 @@ const Users = () => {
     setTimeout(() => setShowCopied(false), 2000);
   };
 
+  const addAdminRole = async (user: User) => {
+    try {
+      setSaving(true);
+      const formData = new URLSearchParams();
+      formData.append("roleId", "2");
+
+      await api.post(`/users/${user.id}/roles`, formData);
+
+      // Update locally (add admin role)
+      setUsers(
+        users().map((u) =>
+          u.id === user.id
+            ? {
+                ...u,
+                roles: [
+                  ...u.roles,
+                  {
+                    id: 2,
+                    name: ROLES.ADMIN,
+                    createdAt: "", // TODO: is it OK? :)
+                    updatedAt: "",
+                    permissions: [],
+                  },
+                ].filter(
+                  (r, index, self) =>
+                    index === self.findIndex((t) => t.id === r.id), // remove duplicates
+                ),
+              }
+            : u,
+        ),
+      );
+    } catch (err) {
+      setError("Ошибка добавления роли админа");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const removeAdminRole = async (user: User) => {
+    try {
+      setSaving(true);
+      await api.delete(`/users/${user.id}/roles/2`);
+
+      // Update locally (remove admin role)
+      setUsers(
+        users().map((u) =>
+          u.id === user.id
+            ? {
+                ...u,
+                roles: u.roles.filter((r) => r.id !== 2),
+              }
+            : u,
+        ),
+      );
+    } catch (err) {
+      setError("Ошибка удаления роли админа");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // TODO: mark required fields with "*"
   return (
     <div class="space-y-6 p-4">
@@ -437,10 +498,7 @@ const Users = () => {
                       </td>
                       <td class="px-6 py-4 space-x-3 flex align-center justify-center">
                         <Show
-                          when={hasAnyPermission(
-                            PERMISSIONS.ROLE_ADMIN_ASSIGN,
-                            PERMISSIONS.ROLE_USER_ASSIGN,
-                          )}
+                          when={hasPermission(PERMISSIONS.ROLE_USER_ASSIGN)}
                         >
                           <button
                             onClick={() => openModal(user)}
@@ -449,7 +507,49 @@ const Users = () => {
                             Изменить роли
                           </button>
                         </Show>
-                        <Show when={hasPermission(PERMISSIONS.USER_DELETE_ANY)}>
+                        <Show
+                          when={hasPermission(PERMISSIONS.ROLE_ADMIN_ASSIGN)}
+                        >
+                          <Show
+                            when={user.roles.every(
+                              (r) => r.name !== ROLES.ADMIN,
+                            )}
+                          >
+                            <button
+                              onClick={() => addAdminRole(user)}
+                              class="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
+                            >
+                              Сделать админом
+                            </button>
+                          </Show>
+                          <Show
+                            when={
+                              user.roles.some((r) => r.name === ROLES.ADMIN) &&
+                              user.roles.length > 1
+                            }
+                          >
+                            <button
+                              onClick={() => removeAdminRole(user)}
+                              class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
+                            >
+                              Снять права админа
+                            </button>
+                          </Show>
+                        </Show>
+                        <Show
+                          when={
+                            (user.roles.every(
+                              (r) =>
+                                r.name !== ROLES.ADMIN &&
+                                r.name !== ROLES.SUPERADMIN,
+                            ) &&
+                              hasPermission(
+                                PERMISSIONS.USER_DELETE_ANY_USER,
+                              )) ||
+                            (user.roles.every((r) => r.name === ROLES.ADMIN) &&
+                              hasPermission(PERMISSIONS.USER_DELETE_ANY_ADMIN))
+                          }
+                        >
                           <button
                             onClick={() => deleteUser(user)}
                             class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
@@ -509,12 +609,15 @@ const Users = () => {
                 </label>
                 <div class="space-y-2">
                   <For
-                    each={ROLES_TO_DISPLAY.filter(
-                      (role) =>
-                        !(hasRole(ROLES.SUPERADMIN) ? [1] : [1, 2]).includes(
-                          role.id,
-                        ), // TODO: is it correct?
-                    )}
+                    each={ROLES_TO_DISPLAY.filter((role) => {
+                      if (hasRole(ROLES.ADMIN)) {
+                        return (
+                          role.name !== ROLES.SUPERADMIN &&
+                          role.name !== ROLES.ADMIN
+                        ); // TODO: make in the whole frontend code like here
+                      }
+                      return false;
+                    })}
                   >
                     {(role) => (
                       <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition cursor-pointer">

@@ -9,7 +9,7 @@ interface Props {
 
 export const PublicRoute: Component<Props> = (props) => {
   const auth = useAuth();
-  const { hasPermission, hasRole } = usePermissions();
+  const { hasPermission, hasRole, hasAnyRole } = usePermissions();
 
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col">
@@ -27,7 +27,7 @@ export const PublicRoute: Component<Props> = (props) => {
           </A>
 
           <div class="flex items-center gap-3">
-            {hasRole(ROLES.ADMIN) && (
+            {hasAnyRole(ROLES.ADMIN, ROLES.SUPERADMIN) && (
               <A
                 href="/admin"
                 class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
