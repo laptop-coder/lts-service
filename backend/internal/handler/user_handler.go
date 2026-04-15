@@ -1,9 +1,8 @@
 package handler
 
 import (
-	"slices"
-	"backend/internal/repository"
 	"backend/internal/permissions"
+	"backend/internal/repository"
 	"backend/internal/service"
 	"backend/pkg/helpers"
 	"backend/pkg/logger"
@@ -11,6 +10,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
+	"slices"
 	"strconv"
 )
 
@@ -611,7 +611,6 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		"message": "roles updated successfully",
 	})
 }
-
 
 func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

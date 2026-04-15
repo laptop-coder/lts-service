@@ -1,10 +1,10 @@
 package helpers
 
 import (
+	"backend/pkg/logger"
 	"encoding/json"
 	"net/http"
 	"strings"
-	"backend/pkg/logger"
 )
 
 func JsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {

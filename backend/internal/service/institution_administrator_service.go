@@ -20,7 +20,7 @@ type InstitutionAdministratorService interface {
 }
 
 type InstitutionAdministratorResponseDTO struct {
-	UserID string `json:"userId"`
+	UserID   string                                      `json:"userId"`
 	Position InstitutionAdministratorPositionResponseDTO `json:"position"`
 }
 
@@ -85,7 +85,7 @@ func (s *institutionAdministratorService) GetInstitutionAdministrator(ctx contex
 
 func InstitutionAdministratorToDTO(institutionAdministrator *model.InstitutionAdministrator) *InstitutionAdministratorResponseDTO {
 	return &InstitutionAdministratorResponseDTO{
-		UserID:     institutionAdministrator.UserID.String(),
+		UserID:   institutionAdministrator.UserID.String(),
 		Position: *InstitutionAdministratorPositionToDTO(&institutionAdministrator.Position),
 	}
 }

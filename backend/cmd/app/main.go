@@ -118,9 +118,9 @@ func main() {
 	staffPositionHandler := handler.NewStaffPositionHandler(staffPositionService, log)
 
 	mux := http.NewServeMux()
-	authMiddleware := func(allowUnauthorized bool) func (http.Handler) http.Handler {
-	return	middleware.Auth(authService, serviceConfigs.Auth, jwtRepo, db, log, allowUnauthorized)
-}
+	authMiddleware := func(allowUnauthorized bool) func(http.Handler) http.Handler {
+		return middleware.Auth(authService, serviceConfigs.Auth, jwtRepo, db, log, allowUnauthorized)
+	}
 	requireRoles := middleware.RequireRoles
 	requirePermissions := middleware.RequirePermissions
 

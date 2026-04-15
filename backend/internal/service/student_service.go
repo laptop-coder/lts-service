@@ -20,7 +20,7 @@ type StudentService interface {
 }
 
 type StudentResponseDTO struct {
-	UserID string `json:"userId"`
+	UserID       string                  `json:"userId"`
 	StudentGroup StudentGroupResponseDTO `json:"studentGroup"`
 	Parents      []ParentResponseDTO     `json:"parents"`
 }
@@ -175,7 +175,7 @@ func StudentToDTO(student *model.Student) *StudentResponseDTO {
 		}
 	}
 	return &StudentResponseDTO{
-		UserID:     student.UserID.String(),
+		UserID:       student.UserID.String(),
 		StudentGroup: *StudentGroupToDTO(&student.StudentGroup),
 		Parents:      parents,
 	}

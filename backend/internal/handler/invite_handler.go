@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"strings"
 	"backend/internal/permissions"
 	"backend/internal/service"
 	"backend/pkg/helpers"
@@ -11,6 +10,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 type InviteHandler struct {
@@ -204,7 +204,6 @@ func (h *InviteHandler) GetEmail(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
 func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
@@ -242,4 +241,3 @@ func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.
 		"message": "the email with the registration link has been sent",
 	}, http.StatusAccepted)
 }
-

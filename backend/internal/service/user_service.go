@@ -1,9 +1,7 @@
 // Package service provides business logic and use cases.
 package service
 
-
 import (
-	"image/color"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -13,12 +11,13 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/image/draw"
+	_ "golang.org/x/image/webp"
 	"gorm.io/gorm"
 	"image"
-	"image/jpeg"
+	"image/color"
 	_ "image/gif"
+	"image/jpeg"
 	_ "image/png"
-	_ "golang.org/x/image/webp"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -571,8 +570,8 @@ func (s *userService) saveAvatarFile(userID uuid.UUID, fileHeader *multipart.Fil
 	s.log.Info("Decoded image (avatar)", "format", format)
 	// Convert to RGBA
 	bounds := img.Bounds()
-    rgba := image.NewRGBA(bounds)
-    draw.Draw(rgba, bounds, img, bounds.Min, draw.Src)
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, img, bounds.Min, draw.Src)
 	// Resize to 200x200
 	const avatarSize = 200
 	dst := image.NewRGBA(image.Rect(0, 0, avatarSize, avatarSize))

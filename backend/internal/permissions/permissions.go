@@ -21,13 +21,13 @@ const (
 
 // User permissions
 const (
-	UserReadOwn   = "user.read.own"
-	UserReadOther = "user.read.other"
-	UserReadAll   = "user.read.all"
-	UserUpdateOwn = "user.update.own"
+	UserReadOwn        = "user.read.own"
+	UserReadOther      = "user.read.other"
+	UserReadAll        = "user.read.all"
+	UserUpdateOwn      = "user.update.own"
 	UserDeleteAnyAdmin = "user.delete.any.admin"
-	UserDeleteAnyUser = "user.delete.any.user"
-	UserDeleteOwn = "user.delete.own"
+	UserDeleteAnyUser  = "user.delete.any.user"
+	UserDeleteOwn      = "user.delete.own"
 )
 
 // Room permissions
@@ -91,14 +91,14 @@ const (
 
 // User roles permissions
 const (
-	RoleAdminAssign  = "role.admin.assign"
-	RoleUserAssign  = "role.user.assign"
-	RoleAdminAdd     = "role.admin.add"
-	RoleUserAdd     = "role.user.add"
-	RoleAdminUnassign  = "role.admin.unassign"
+	RoleAdminAssign   = "role.admin.assign"
+	RoleUserAssign    = "role.user.assign"
+	RoleAdminAdd      = "role.admin.add"
+	RoleUserAdd       = "role.user.add"
+	RoleAdminUnassign = "role.admin.unassign"
 	RoleUserUnassign  = "role.user.unassign"
-	RoleReadAny = "role.read.any"
-	RoleReadOwn = "role.read.own"
+	RoleReadAny       = "role.read.any"
+	RoleReadOwn       = "role.read.own"
 )
 
 // Permissions to work with tokens

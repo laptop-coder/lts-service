@@ -111,7 +111,7 @@ func main() {
 		{ID: 7, Name: permissions.PostDeleteOwn},
 		{ID: 8, Name: permissions.PostPhotoDeleteAny},
 		{ID: 9, Name: permissions.PostPhotoDeleteOwn},
-		{ID: 93, Name: permissions.PostPhotoUpdateAny},//TODO: numeration
+		{ID: 93, Name: permissions.PostPhotoUpdateAny}, //TODO: numeration
 		{ID: 94, Name: permissions.PostPhotoUpdateOwn},
 		{ID: 10, Name: permissions.PostVerify},
 		{ID: 11, Name: permissions.PostMarkReturnedAny},
