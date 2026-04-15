@@ -12,6 +12,7 @@ const PostsToVerify = lazy(() => import("./pages/admin/PostsToVerify"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
 const EditPost = lazy(() => import("./pages/EditPost"));
 const Profile = lazy(() => import("./pages/Profile"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const Subjects = lazy(() => import("./pages/admin/Subjects"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
 const StudentGroups = lazy(() => import("./pages/admin/StudentGroups"));
@@ -61,6 +62,7 @@ function App() {
             <Route path="/posts/new" component={CreatePost} />
             <Route path="/posts/:id/edit" component={EditPost} />
             <Route path="/profile" component={Profile} />
+            <Route path="/users/:id" component={PublicProfile} />
             <Route path="/admin" component={AdminLayout}>
               <Route
                 path="/"
