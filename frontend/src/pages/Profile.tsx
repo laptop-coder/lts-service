@@ -283,10 +283,10 @@ const Profile = () => {
             </div>
 
             <Show when={hasRole(ROLES.PARENT)}>
-              <Show when={parentStudentsUsers().length > 0}>
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                  <h2 class="text-xl font-bold text-gray-800 mb-4">Мои дети</h2>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800">Мои дети</h2>
+                <Show when={parentStudentsUsers().length > 0}>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 mb-5">
                     <For each={parentStudentsUsers()}>
                       {(user) => (
                         <div class="border rounded-xl p-4 hover:shadow-md transition relative">
@@ -350,34 +350,34 @@ const Profile = () => {
                       )}
                     </For>
                   </div>
-                  <div class="bg-white rounded-2xl shadow-lg p-6 mt-5">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                      Добавить ребёнка
-                    </h2>
-                    <form onSubmit={addParentStudent} class="flex gap-3">
-                      <input
-                        type="text"
-                        value={newParentStudentId()}
-                        onInput={(e) =>
-                          setNewParentStudentId(e.currentTarget.value)
-                        }
-                        placeholder="ID ученика"
-                        class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
-                        disabled={parentStudentAdding()}
-                      />
-                      <button
-                        type="submit"
-                        disabled={
-                          parentStudentAdding() || !newParentStudentId().trim()
-                        }
-                        class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium cursor-pointer"
-                      >
-                        {parentStudentAdding() ? "Добавление..." : "Добавить"}
-                      </button>
-                    </form>
-                  </div>
+                </Show>
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 class="text-lg font-semibold text-gray-800 mb-4">
+                    Добавить ребёнка
+                  </h2>
+                  <form onSubmit={addParentStudent} class="flex gap-3">
+                    <input
+                      type="text"
+                      value={newParentStudentId()}
+                      onInput={(e) =>
+                        setNewParentStudentId(e.currentTarget.value)
+                      }
+                      placeholder="ID ученика"
+                      class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
+                      disabled={parentStudentAdding()}
+                    />
+                    <button
+                      type="submit"
+                      disabled={
+                        parentStudentAdding() || !newParentStudentId().trim()
+                      }
+                      class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium cursor-pointer"
+                    >
+                      {parentStudentAdding() ? "Добавление..." : "Добавить"}
+                    </button>
+                  </form>
                 </div>
-              </Show>
+              </div>
             </Show>
             <Show when={hasRole(ROLES.TEACHER)}>
               <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
