@@ -61,6 +61,7 @@ type CreateUserDTO struct {
 type UserRolesDTO struct {
 	TeacherClassroomID                 *uint8      `form:"teacherClassroomId,omitempty"`
 	TeacherSubjectIDs                  []uint8     `form:"teacherSubjectIds,omitempty"`
+	TeacherStudentGroupIDs             []uint16    `form:"teacherStudentGroupIds,omitempty"`
 	StudentGroupID                     *uint16     `form:"studentGroupId,omitempty"`
 	StaffPositionID                    *uint8      `form:"staffPositionId,omitempty"`
 	InstitutionAdministratorPositionID *uint8      `form:"instituionAdministratorPositionId,omitempty"`
@@ -827,6 +828,13 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 			}
 			if err := tx.Model(teacher).Association("Subjects").Append(&subjects); err != nil {
 				return err
+			}
+		}
+		if len(dto.TeacherStudentGroupIDs) > 0 {
+			if err := tx.Model(&model.StudentGroup{}).
+				Where("id IN (?)", dto.TeacherStudentGroupIDs).
+				Update("group_advisor_id", userID).Error; err != nil {
+				return nil
 			}
 		}
 		return nil

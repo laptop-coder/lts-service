@@ -27,6 +27,9 @@ const Register = () => {
     number | null
   >(null);
   const [teacherSubjectIds, setTeacherSubjectIds] = createSignal<number[]>([]);
+  const [teacherStudentGroupIds, setTeacherStudentGroupIds] = createStore<
+    number[]
+  >([]);
   const [studentGroupId, setStudentGroupId] = createSignal<number | null>(null);
   const [staffPositionId, setStaffPositionId] = createSignal<number | null>(
     null,
@@ -175,6 +178,9 @@ const Register = () => {
       teacherSubjectIds().forEach((subjectId) => {
         formData.append("teacherSubjectId", String(subjectId));
       });
+      teacherStudentGroupIds.forEach((groupId) => {
+        formData.append("teacherStudentGroupId", String(groupId));
+      });
     }
     if (roleIds().includes(6)) {
       parentStudentIds.forEach((studentId) => {
@@ -201,6 +207,7 @@ const Register = () => {
     }
   };
 
+  // Parent students
   const addStudentId = () => {
     setParentStudentIds([...parentStudentIds, ""]);
   };
@@ -211,6 +218,24 @@ const Register = () => {
 
   const removeStudentId = (index: number) => {
     setParentStudentIds(parentStudentIds.filter((_, i) => i !== index));
+  };
+
+  // Student groups where teacher is the advisor
+  const addTeacherStudentGroupId = () => {
+    setTeacherStudentGroupIds([
+      ...teacherStudentGroupIds.map((id) => Number(id)),
+      0,
+    ]);
+  };
+
+  const updateTeacherStudentGroupId = (index: number, value: number) => {
+    setTeacherStudentGroupIds(index, value);
+  };
+
+  const removeTeacherStudentGroupId = (index: number) => {
+    setTeacherStudentGroupIds(
+      teacherStudentGroupIds.filter((_, i) => i !== index),
+    );
   };
 
   return (
@@ -476,6 +501,50 @@ const Register = () => {
                     </For>
                   </div>
                 </div>
+                <div class="space-y-3 border-t border-gray-200 pt-4">
+                  <h3 class="font-medium text-gray-800">
+                    Классное руководство/менторство
+                  </h3>
+
+                  <Index each={teacherStudentGroupIds}>
+                    {(groupId, index) => (
+                      <div class="flex gap-2">
+                        <select
+                          value={groupId() || ""}
+                          onChange={(e) =>
+                            updateTeacherStudentGroupId(
+                              index,
+                              Number(e.target.value),
+                            )
+                          }
+                          class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <option value="">Выберите группу</option>
+                          <For each={studentGroups().filter(group => !teacherStudentGroupIds.filter((_, i) => i !== index).includes(group.id))}>
+                            {(group) => (
+                              <option value={group.id}>{group.name}</option>
+                            )}
+                          </For>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => removeTeacherStudentGroupId(index)}
+                          class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition cursor-pointer"
+                        >
+                          Удалить
+                        </button>
+                      </div>
+                    )}
+                  </Index>
+
+                  <button
+                    type="button"
+                    onClick={addTeacherStudentGroupId}
+                    class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+                  >
+                    + Добавить группу
+                  </button>
+                </div>
               </div>
             </Show>
 
@@ -527,7 +596,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={addStudentId}
-                  class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium"
+                  class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
                 >
                   + Добавить ученика
                 </button>

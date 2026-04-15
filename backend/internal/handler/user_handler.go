@@ -389,6 +389,20 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		teacherSubjectIDs[i] = subjectID8
 	}
 	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	// TeacherStudentGroupIDs (special)
+	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
+		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
+		for i, groupIDString := range teacherStudentGroupIDsFields {
+			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
+			if err != nil {
+				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				return
+			}
+			groupID16 := uint16(groupID64)
+			teacherStudentGroupIDs[i] = groupID16
+		}
+		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
 		// Convert to uint16
@@ -539,6 +553,20 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		teacherSubjectIDs[i] = subjectID8
 	}
 	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	// TeacherStudentGroupIDs (special)
+	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
+		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
+		for i, groupIDString := range teacherStudentGroupIDsFields {
+			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
+			if err != nil {
+				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				return
+			}
+			groupID16 := uint16(groupID64)
+			teacherStudentGroupIDs[i] = groupID16
+		}
+		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
 		// Convert to uint16
@@ -703,6 +731,20 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		teacherSubjectIDs[i] = subjectID8
 	}
 	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	// TeacherStudentGroupIDs (special)
+	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
+		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
+		for i, groupIDString := range teacherStudentGroupIDsFields {
+			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
+			if err != nil {
+				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				return
+			}
+			groupID16 := uint16(groupID64)
+			teacherStudentGroupIDs[i] = groupID16
+		}
+		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
 		// Convert to uint16

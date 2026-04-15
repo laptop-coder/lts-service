@@ -40,6 +40,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10 MB
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
+	// TODO: check if r.MultipartForm == nil and r.PostForm == nil (in all handlers)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
 		helpers.ErrorResponse(h.log, w, "failed to parse multipart/formdata form", http.StatusBadRequest)
 		return
@@ -93,7 +94,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
-	if len(roles) == 0 {
+	if roles == nil || len(roles) == 0 { // TODO: check if roles == nil in the whole code
 		helpers.ErrorResponse(h.log, w, "list of the roles cannot be empty", http.StatusInternalServerError) // HTTP 500 because the token was signed by the server
 		return
 	}
@@ -150,6 +151,20 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			teacherSubjectIDs[i] = subjectID8
 		}
 		userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	}
+	// TeacherStudentGroupIDs (special)
+	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
+		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
+		for i, groupIDString := range teacherStudentGroupIDsFields {
+			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
+			if err != nil {
+				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				return
+			}
+			groupID16 := uint16(groupID64)
+			teacherStudentGroupIDs[i] = groupID16
+		}
+		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
 	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
@@ -254,6 +269,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
+	// TODO: in the whole code check if parsedAccessToken.RegisteredClaims.ExpiresAt == nil. The same for refresh
 	// Set cookies
 	http.SetCookie(w, &http.Cookie{
 		Name:     "jwt_access",
