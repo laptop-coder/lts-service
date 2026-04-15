@@ -21,6 +21,7 @@ import type {
   InstitutionAdministrator,
   Staff,
 } from "../lib/types";
+import { A } from "@solidjs/router";
 
 const Users = () => {
   const auth = useAuth();
@@ -475,11 +476,16 @@ const Users = () => {
                     <tr class="hover:bg-gray-50 transition">
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                          <img
-                            src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}
-                            alt="Аватар"
-                            class="w-8 h-8 rounded-full object-cover"
-                          />
+                          <A
+                            href={`/users/${user.id}`}
+                            class="w-8 h-8 bg-gray-100 rounded-full hover:bg-gray-200 transition aspect-square"
+                          >
+                            <img
+                              class="w-8 h-8 rounded-full object-cover border-2 border-blue-100 hover:brightness-95 transition"
+                              src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}
+                              alt="Фото профиля"
+                            />
+                          </A>
                           <span
                             class={`${auth.user()?.id === user.id ? "font-semibold" : ""}`}
                           >

@@ -4,6 +4,7 @@ import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { formatDate } from "../lib/utils";
+import { A } from "@solidjs/router";
 
 interface Props {
   post: Post;
@@ -66,12 +67,16 @@ const PostCardCompact = (props: Props) => {
     >
       <div class="p-5">
         <div class="flex items-start gap-4">
-          <img
-            class={`w-12 h-12 rounded-full object-cover flex-shrink-0 ${props.post.thingReturnedToOwner ? "grayscale" : ""}`}
-            src={`/storage/storage/avatars/${props.post.author.hasAvatar ? props.post.author.id : "default"}.jpeg`}
-            alt="Фото профиля"
-          />
-
+          <A
+            href={`/users/${props.post.author.id}`}
+            class="w-10 h-10 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
+          >
+            <img
+              class={`w-10 h-10 rounded-full object-cover border-2 border-blue-100 hover:brightness-95 transition flex-shrink-0 ${props.post.thingReturnedToOwner ? "grayscale" : ""}`}
+              src={`/storage/storage/avatars/${props.post.author.hasAvatar ? props.post.author.id : "default"}.jpeg`}
+              alt="Фото профиля"
+            />
+          </A>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between flex-wrap gap-2">
               <h3
