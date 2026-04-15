@@ -68,23 +68,28 @@ export const PublicRoute: Component<Props> = (props) => {
         </div>
       </header>
 
-      <main class="container mx-auto px-4 py-8" flex-1>{props?.children}</main>
+      <main class="container mx-auto px-4 py-8" flex-1>
+        {props?.children}
+      </main>
 
-       <footer class="bg-white border-t border-gray-200 mt-auto">
-      <div class="container mx-auto px-4 py-6">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="text-sm text-gray-500">
-            © {new Date().getFullYear()} LostThingsSearch.
-          </div>
-          
-          <div class="flex gap-6">
-            <a href="/about" class="text-sm text-gray-500 hover:text-gray-700 transition">
-              О проекте
-            </a>
+      <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="container mx-auto px-4 py-6">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-gray-500">
+              © {new Date().getFullYear()} LostThingsSearch.
+            </div>
+
+            <div class="flex gap-6">
+              <a
+                href="/about"
+                class="text-sm text-gray-500 hover:text-gray-700 transition"
+              >
+                О проекте
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
     </div>
   );
 };

@@ -33,7 +33,14 @@ export function usePermissions() {
     return roles.every((r) => hasRole(r));
   };
 
-  return { hasPermission, hasAnyPermission, hasAllPermissions, hasRole, hasAnyRole, hasAllRoles };
+  return {
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    hasRole,
+    hasAnyRole,
+    hasAllRoles,
+  };
 }
 
 export const PERMISSIONS = {

@@ -125,7 +125,7 @@ const PublicProfile = () => {
   });
 
   const loadParentStudents = async () => {
-    if (!user()) return
+    if (!user()) return;
 
     try {
       const data = await api.get<{ students: Student[] }>(
@@ -200,7 +200,12 @@ const PublicProfile = () => {
               </div>
             </div>
 
-            <Show when={hasRole(ROLES.ADMIN) && user()!.roles.find(r => r.name === ROLES.PARENT)}>
+            <Show
+              when={
+                hasRole(ROLES.ADMIN) &&
+                user()!.roles.find((r) => r.name === ROLES.PARENT)
+              }
+            >
               <Show when={parentStudentsUsers().length > 0}>
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                   <h2 class="text-xl font-bold text-gray-800 mb-4">Дети</h2>
@@ -251,7 +256,7 @@ const PublicProfile = () => {
                 </div>
               </Show>
             </Show>
-            <Show when={user()!.roles.find(r => r.name === ROLES.TEACHER)}>
+            <Show when={user()!.roles.find((r) => r.name === ROLES.TEACHER)}>
               <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
                 <h3 class="text-lg font-semibold text-gray-700">
                   Преподаватель
@@ -308,7 +313,11 @@ const PublicProfile = () => {
                 </div>
               </div>
             </Show>
-            <Show when={user()!.roles.find(r => r.name===ROLES.INSTITUTION_ADMINISTRATOR)}>
+            <Show
+              when={user()!.roles.find(
+                (r) => r.name === ROLES.INSTITUTION_ADMINISTRATOR,
+              )}
+            >
               <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Должность
@@ -321,7 +330,7 @@ const PublicProfile = () => {
                 </div>
               </div>
             </Show>
-            <Show when={user()!.roles.find(r=>r.name===ROLES.STAFF)}>
+            <Show when={user()!.roles.find((r) => r.name === ROLES.STAFF)}>
               <div class="bg-white rounded-2xl shadow-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Должность
@@ -332,8 +341,10 @@ const PublicProfile = () => {
                 </div>
               </div>
             </Show>
-            <Show when={user()!.roles.find(r => r.name === ROLES.STUDENT)}>
-              <Show when={hasRole(ROLES.ADMIN) && studentParentsUsers().length > 0}>
+            <Show when={user()!.roles.find((r) => r.name === ROLES.STUDENT)}>
+              <Show
+                when={hasRole(ROLES.ADMIN) && studentParentsUsers().length > 0}
+              >
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                   <h2 class="text-xl font-bold text-gray-800 mb-4">
                     Родители ученика

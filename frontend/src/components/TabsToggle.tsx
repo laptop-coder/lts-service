@@ -1,8 +1,7 @@
-import { JSX, createSignal, onMount, For, createEffect } from 'solid-js';
-import type { Signal, Setter } from 'solid-js';
+import { JSX, createSignal, onMount, For, createEffect } from "solid-js";
+import type { Signal, Setter } from "solid-js";
 
-import { Motion } from 'solid-motionone';
-
+import { Motion } from "solid-motionone";
 
 const TabsToggle = (props: {
   tabs: string[];
@@ -30,7 +29,7 @@ const TabsToggle = (props: {
   const tabsRefs: HTMLButtonElement[] = [];
 
   onMount(() => {
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     createEffect(() => {
       if (screenSize()) {
         const rect = tabsRefs[activeTab()].getBoundingClientRect();
@@ -49,7 +48,7 @@ const TabsToggle = (props: {
     });
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   });
 
@@ -57,7 +56,7 @@ const TabsToggle = (props: {
   return (
     <div class="relative bg-gray-100 rounded-xl w-full">
       <div
-      class="relative z-10 flex justify-evenly"
+        class="relative z-10 flex justify-evenly"
         id={props.tabsHTMLElementId}
       >
         <For each={props.tabs}>
@@ -67,7 +66,7 @@ const TabsToggle = (props: {
               onClick={() => {
                 setActiveTab(index());
                 props.setActiveTab(props.tabs[index()]);
-                props.afterChange()
+                props.afterChange();
               }}
               class="flex-1 py-4 text-sm font-medium transition-colors cursor-pointer text-center"
             >
@@ -80,7 +79,7 @@ const TabsToggle = (props: {
         initial={false}
         animate={{
           x: activeTabInfo().left + 5,
-          width: String(activeTabInfo().width - 10 + 'px'),
+          width: String(activeTabInfo().width - 10 + "px"),
         }}
         transition={{ duration: 0.3 }}
         class="absolute top-1 bottom-1 z-0 bg-white rounded-lg shadow-sm"

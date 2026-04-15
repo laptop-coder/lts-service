@@ -101,7 +101,7 @@ const InviteTokens = () => {
 
   const handleCreate = async () => {
     if (hasRole(ROLES.SUPERADMIN)) {
-      setSelectedRoles([2])
+      setSelectedRoles([2]);
     }
 
     if (selectedRoles().length === 0) {
