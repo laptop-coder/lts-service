@@ -297,13 +297,11 @@ const Users = () => {
     setError("");
     setParentStudentIds([...parentStudentIds, ""]);
   };
-
   const updateStudentId = (index: number, value: string) => {
     setSaving(false);
     setError("");
     setParentStudentIds(index, value);
   };
-
   const removeStudentId = (index: number) => {
     setSaving(false);
     setError("");

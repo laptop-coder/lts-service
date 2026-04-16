@@ -1,4 +1,5 @@
-import { createSignal, For, Show, onMount } from "solid-js";
+import { createSignal, For, Show, onMount, Index } from "solid-js";
+import { createStore } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
 import {
   usePermissions,
@@ -47,12 +48,6 @@ const Profile = () => {
     institutionAdministratorPosition,
     setInstitutionAdministratorPosition,
   ] = createSignal<InstitutionAdministratorPosition | null>(null);
-  const [newParentStudentId, setNewParentStudentId] = createSignal<string>("");
-  const [parentStudentRemovingId, setParentStudentRemovingId] = createSignal<
-    string | null
-  >(null);
-  const [parentStudentAdding, setParentStudentAdding] =
-    createSignal<boolean>(false);
   const [parentStudents, setParentStudents] = createSignal<Student[]>([]);
   const [parentStudentsUsers, setParentStudentsUsers] = createSignal<User[]>(
     [],
@@ -66,8 +61,64 @@ const Profile = () => {
   const { user } = useAuth();
   const { hasRole } = usePermissions();
 
-  onMount(async () => {
-    if (!user()) return;
+  // For profile edit
+  const [editMode, setEditMode] = createSignal(false);
+  const [saving, setSaving] = createSignal(false);
+  // Data for <select> tags
+  const [rooms, setRooms] = createSignal<Room[]>([]);
+  const [subjects, setSubjects] = createSignal<Subject[]>([]);
+  const [studentGroups, setStudentGroups] = createSignal<StudentGroup[]>([]);
+  const [staffPositions, setStaffPositions] = createSignal<StaffPosition[]>([]);
+  const [
+    institutionAdministratorPositions,
+    setInstitutionAdministratorPositions,
+  ] = createSignal<InstitutionAdministratorPosition[]>([]);
+  // Fields for <select> tags
+  const [teacherClassroomId, setTeacherClassroomId] = createSignal<
+    number | null
+  >(null);
+  const [teacherSubjectIds, setTeacherSubjectIds] = createSignal<number[]>([]);
+  const [teacherStudentGroupIds, setTeacherStudentGroupIds] = createStore<
+    number[]
+  >([]);
+  const [studentGroupId, setStudentGroupId] = createSignal<number | null>(null);
+  const [staffPositionId, setStaffPositionId] = createSignal<number | null>(
+    null,
+  );
+  const [
+    institutionAdministratorPositionId,
+    setInstitutionAdministratorPositionId,
+  ] = createSignal<number | null>(null);
+  const [parentStudentIds, setParentStudentIds] = createStore<string[]>([]);
+
+  const loadDataForSelect = async () => {
+    const [
+      roomsData,
+      subjectsData,
+      groupsData,
+      staffPositionData,
+      institutionAdministratorPositionData,
+    ] = await Promise.all([
+      api.get<{ rooms: Room[] }>("/rooms"),
+      api.get<{ subjects: Subject[] }>("/subjects"),
+      api.get<{ studentGroups: StudentGroup[] }>("/student_groups"),
+      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions"),
+      api.get<{
+        institutionAdministratorPositions: InstitutionAdministratorPosition[];
+      }>("/institution_administrators/positions"),
+    ]);
+    setRooms(roomsData.rooms);
+    setSubjects(subjectsData.subjects);
+    setStudentGroups(groupsData.studentGroups);
+    setStaffPositions(staffPositionData.staffPositions);
+    setInstitutionAdministratorPositions(
+      institutionAdministratorPositionData.institutionAdministratorPositions,
+    );
+  };
+
+  const loadAllData = async () => {
+    setLoading(true);
+    await loadDataForSelect();
 
     // Get special fields data (depends on roles)
     if (hasRole(ROLES.INSTITUTION_ADMINISTRATOR)) {
@@ -78,11 +129,16 @@ const Profile = () => {
       setInstitutionAdministratorPosition(
         institutionAdministratorData.institutionAdministrator.position || null,
       );
+      setInstitutionAdministratorPositionId(
+        institutionAdministratorData.institutionAdministrator.position.id ||
+          null,
+      );
     }
     if (hasRole(ROLES.STAFF)) {
       // staff
       const staffData = await api.get<{ staff: Staff }>(`/staff/${user()!.id}`);
       setStaffPosition(staffData.staff.position || null);
+      setStaffPositionId(staffData.staff.position.id || null);
     }
     if (hasRole(ROLES.TEACHER)) {
       // teacher
@@ -92,6 +148,11 @@ const Profile = () => {
       setTeacherClassroom(teacherData.teacher.classroom || null);
       setTeacherSubjects(teacherData.teacher.subjects || []);
       setTeacherStudentGroups(teacherData.teacher.studentGroups || []);
+      setTeacherClassroomId(teacherData.teacher.classroom?.id || null);
+      setTeacherSubjectIds(teacherData.teacher.subjects.map((s) => s.id) || []);
+      setTeacherStudentGroupIds(
+        teacherData.teacher.studentGroups?.map((g) => g.id) || [],
+      );
     }
     if (hasRole(ROLES.PARENT)) {
       // parent
@@ -104,6 +165,8 @@ const Profile = () => {
       );
       setStudentGroup(studentData.student.studentGroup || null);
       setStudentParents(studentData.student.parents || []);
+      setStudentGroupId(studentData.student.studentGroup.id || null);
+      setStudentParents(studentData.student.parents || []);
 
       // load parents data
       const studentParentsPromises = studentParents().map((parent) =>
@@ -112,6 +175,12 @@ const Profile = () => {
       const studentParentsResponses = await Promise.all(studentParentsPromises);
       setStudentParentsUsers(studentParentsResponses.map((r) => r.user));
     }
+    setLoading(false);
+  };
+
+  onMount(async () => {
+    if (!user()) return;
+    await loadAllData();
   });
 
   const handleLogout = async () => {
@@ -125,6 +194,7 @@ const Profile = () => {
         "/parents/me/students",
       );
       setParentStudents(data.students);
+      setParentStudentIds(data.students.map((s) => s.userId));
 
       // load students data
       const parentStudentsPromises = parentStudents().map((student) =>
@@ -139,37 +209,37 @@ const Profile = () => {
     }
   };
 
-  const addParentStudent = async (e: Event) => {
-    e.preventDefault();
-    if (!newParentStudentId().trim()) return;
-
-    setParentStudentAdding(true);
-    try {
-      const formData = new URLSearchParams();
-      formData.append("studentId", newParentStudentId().trim());
-
-      await api.post("/parents/me/students", formData);
-      setNewParentStudentId("");
-      await loadParentStudents();
-    } catch (err) {
-      setError("Ошибка добавления ученика");
-    } finally {
-      setParentStudentAdding(false);
-    }
+  // Parent students
+  const addStudentId = () => {
+    setSaving(false);
+    setError("");
+    setParentStudentIds([...parentStudentIds, ""]);
+  };
+  const updateStudentId = (index: number, value: string) => {
+    setSaving(false);
+    setError("");
+    setParentStudentIds(index, value);
+  };
+  const removeStudentId = (index: number) => {
+    setSaving(false);
+    setError("");
+    setParentStudentIds(parentStudentIds.filter((_, i) => i !== index));
   };
 
-  const removeParentStudent = async (id: string) => {
-    if (!confirm("Отвязать ученика?")) return;
-
-    setParentStudentRemovingId(id);
-    try {
-      await api.delete(`/parents/me/students/${id}`);
-      await loadParentStudents();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка удаления кабинета");
-    } finally {
-      setParentStudentRemovingId(null);
-    }
+  // Student groups where teacher is the advisor
+  const addTeacherStudentGroupId = () => {
+    setTeacherStudentGroupIds([
+      ...teacherStudentGroupIds.map((id) => Number(id)),
+      0,
+    ]);
+  };
+  const updateTeacherStudentGroupId = (index: number, value: number) => {
+    setTeacherStudentGroupIds(index, value);
+  };
+  const removeTeacherStudentGroupId = (index: number) => {
+    setTeacherStudentGroupIds(
+      teacherStudentGroupIds.filter((_, i) => i !== index),
+    );
   };
 
   const handleAvatarUpload = async (e: Event) => {
@@ -193,6 +263,56 @@ const Profile = () => {
     } finally {
       setUploadingAvatar(false);
     }
+  };
+
+  const cancelEdit = async () => {
+    setEditMode(false);
+    await loadAllData();
+  };
+
+  const saveProfile = async () => {
+    const formData = new URLSearchParams();
+
+    if (hasRole(ROLES.INSTITUTION_ADMINISTRATOR)) {
+      if (institutionAdministratorPositionId())
+        formData.append(
+          "institutionAdministratorPositionId",
+          String(institutionAdministratorPositionId()),
+        );
+    }
+
+    if (hasRole(ROLES.STAFF)) {
+      if (staffPositionId())
+        formData.append("staffPositionId", String(staffPositionId()));
+    }
+
+    if (hasRole(ROLES.TEACHER)) {
+      if (teacherClassroomId())
+        formData.append("teacherClassroomId", String(teacherClassroomId()));
+      teacherSubjectIds().forEach((id) =>
+        formData.append("teacherSubjectId", String(id)),
+      );
+      teacherStudentGroupIds.forEach((id) =>
+        formData.append("teacherStudentGroupId", String(id)),
+      );
+    }
+
+    if (hasRole(ROLES.PARENT)) {
+      parentStudentIds.forEach((studentId) => {
+        if (studentId.trim()) {
+          formData.append("parentStudentId", studentId);
+        }
+      });
+    }
+
+    if (hasRole(ROLES.STUDENT)) {
+      if (studentGroup())
+        formData.append("studentGroupId", String(studentGroupId()));
+    }
+
+    await api.put("/users/me/extensions", formData);
+    setEditMode(false);
+    await loadAllData();
   };
 
   return (
@@ -270,26 +390,97 @@ const Profile = () => {
                 <div class="text-sm text-gray-500">
                   <p>ID: {user()!.id}</p>
                   <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
-                  <p>
-                    <button
-                      onClick={handleLogout}
-                      class="px-3 py-1.5 bg-red-700 text-white rounded-lg hover:bg-red-800 transition mt-5 cursor-pointer"
-                    >
-                      Выйти
-                    </button>
-                  </p>
+                  <div class="flex gap-1 flex-col">
+                    <p>
+                      <button
+                        onClick={handleLogout}
+                        class="px-3 py-1.5 bg-red-700 text-white rounded-lg hover:bg-red-800 transition mt-5 cursor-pointer"
+                      >
+                        Выйти
+                      </button>
+                    </p>
+                    <div class="flex gap-3 flex-row">
+                      <Show when={!editMode()}>
+                        <button
+                          onClick={() => setEditMode(true)}
+                          class="px-3 py-1.5 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition mt-5 cursor-pointer"
+                        >
+                          Редактировать
+                        </button>
+                      </Show>
+                      <Show when={editMode()}>
+                        <button
+                          onClick={cancelEdit}
+                          class="px-3 py-1.5 bg-red-700 text-white rounded-lg hover:bg-red-800 transition mt-5 cursor-pointer"
+                        >
+                          Отмена
+                        </button>
+                        <button
+                          onClick={saveProfile}
+                          class="px-3 py-1.5 bg-green-700 text-white rounded-lg hover:bg-green-800 transition mt-5 cursor-pointer"
+                        >
+                          Сохранить
+                        </button>
+                      </Show>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             <Show when={hasRole(ROLES.PARENT)}>
-              <div class="bg-white rounded-2xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800">Мои дети</h2>
-                <Show when={parentStudentsUsers().length > 0}>
+              <Show when={parentStudentsUsers().length > 0 || editMode()}>
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                  <h2 class="text-xl font-bold text-gray-800">Мои дети</h2>
+                  <Show when={editMode()}>
+                    <div class="space-y-3 border-t border-gray-100 pt-4">
+                      <h3 class="font-medium text-gray-800">
+                        Привязка учеников
+                      </h3>
+
+                      <Index each={parentStudentIds}>
+                        {(studentId, index) => (
+                          <div class="flex gap-2">
+                            <input
+                              disabled={saving()}
+                              type="text"
+                              value={studentId()}
+                              onInput={(e) => {
+                                setSaving(false);
+                                setError("");
+                                updateStudentId(index, e.target.value);
+                              }}
+                              placeholder={`ID ученика ${index + 1}`}
+                              class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                            <button
+                              disabled={saving()}
+                              type="button"
+                              onClick={() => removeStudentId(index)}
+                              class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        )}
+                      </Index>
+
+                      <button
+                        disabled={saving()}
+                        type="button"
+                        onClick={addStudentId}
+                        class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        + Добавить ученика
+                      </button>
+                    </div>
+                  </Show>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 mb-5">
                     <For each={parentStudentsUsers()}>
                       {(user) => (
-                        <div class="border rounded-xl p-4 hover:shadow-md transition relative">
+                        <div
+                          class={`border rounded-xl p-4 hover:shadow-md transition relative ${!parentStudentIds.includes(user.id) ? "opacity-50" : ""}`}
+                        >
                           <div class="flex items-center gap-3">
                             <img
                               class="w-12 h-12 rounded-full object-cover"
@@ -301,26 +492,6 @@ const Profile = () => {
                                 {user.lastName} {user.firstName}{" "}
                                 {user?.middleName}
                               </p>
-                              <button
-                                type="button"
-                                onClick={() => removeParentStudent(user.id)}
-                                disabled={parentStudentRemovingId() === user.id}
-                                class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition cursor-pointer disabled:cursor-not-allowed"
-                              >
-                                <svg
-                                  class="w-5 h-5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                  ></path>
-                                </svg>
-                              </button>
                               <p class="text-sm text-gray-500">{user.email}</p>
 
                               <div class="flex flex-wrap gap-2 mt-3 mb-3">
@@ -350,34 +521,8 @@ const Profile = () => {
                       )}
                     </For>
                   </div>
-                </Show>
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                  <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                    Добавить ребёнка
-                  </h2>
-                  <form onSubmit={addParentStudent} class="flex gap-3">
-                    <input
-                      type="text"
-                      value={newParentStudentId()}
-                      onInput={(e) =>
-                        setNewParentStudentId(e.currentTarget.value)
-                      }
-                      placeholder="ID ученика"
-                      class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
-                      disabled={parentStudentAdding()}
-                    />
-                    <button
-                      type="submit"
-                      disabled={
-                        parentStudentAdding() || !newParentStudentId().trim()
-                      }
-                      class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium cursor-pointer"
-                    >
-                      {parentStudentAdding() ? "Добавление..." : "Добавить"}
-                    </button>
-                  </form>
                 </div>
-              </div>
+              </Show>
             </Show>
             <Show when={hasRole(ROLES.TEACHER)}>
               <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
@@ -385,55 +530,161 @@ const Profile = () => {
                   Преподаватель
                 </h3>
 
-                <div>
-                  <h4 class="text-sm font-medium text-gray-500 mb-2">
-                    Предметы
-                  </h4>
-                  <div class="flex flex-wrap gap-2">
-                    <For each={teacherSubjects()}>
-                      {(subject) => (
-                        <span class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                          {subject.name}
-                        </span>
-                      )}
-                    </For>
-                    <Show when={teacherSubjects().length === 0}>
-                      <span class="text-gray-500 text-sm">Нет предметов</span>
-                    </Show>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 class="text-sm font-medium text-gray-500 mb-2">
-                    Кабинет
-                  </h4>
-                  <div class="flex items-center gap-3">
-                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span class="text-gray-800">
-                      {teacherClassroom()?.name || "Не указан"}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 class="text-sm font-medium text-gray-500 mb-2">
-                    Классное руководство/менторство
-                  </h4>
-                  <div class="flex flex-wrap gap-2">
-                    <For each={teacherStudentGroups()}>
-                      {(group) => (
-                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm rounded-full">
-                          {group.name}
-                        </span>
-                      )}
-                    </For>
-                    <Show when={teacherStudentGroups().length === 0}>
-                      <span class="text-gray-500 text-sm">
-                        Нет учебных групп или классов
+                <Show when={!editMode()}>
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">
+                      Кабинет
+                    </h4>
+                    <div class="flex items-center gap-3">
+                      <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span class="text-gray-800">
+                        {teacherClassroom()?.name || "Не указан"}
                       </span>
-                    </Show>
+                    </div>
                   </div>
-                </div>
+
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">
+                      Предметы
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                      <For each={teacherSubjects()}>
+                        {(subject) => (
+                          <span class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                            {subject.name}
+                          </span>
+                        )}
+                      </For>
+                      <Show when={teacherSubjects().length === 0}>
+                        <span class="text-gray-500 text-sm">Нет предметов</span>
+                      </Show>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">
+                      Классное руководство/менторство
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                      <For each={teacherStudentGroups()}>
+                        {(group) => (
+                          <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm rounded-full">
+                            {group.name}
+                          </span>
+                        )}
+                      </For>
+                      <Show when={teacherStudentGroups().length === 0}>
+                        <span class="text-gray-500 text-sm">
+                          Нет учебных групп или классов
+                        </span>
+                      </Show>
+                    </div>
+                  </div>
+                </Show>
+                <Show when={editMode()}>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      Классный кабинет *
+                    </label>
+                    <select
+                      value={teacherClassroomId() || ""}
+                      onChange={(e) =>
+                        setTeacherClassroomId(Number(e.currentTarget.value))
+                      }
+                      class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <option value="">Выберите кабинет</option>
+                      <For each={rooms()}>
+                        {(room) => <option value={room.id}>{room.name}</option>}
+                      </For>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Предметы *
+                    </label>
+                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 border border-gray-200 rounded-xl">
+                      <For each={subjects()}>
+                        {(subject) => (
+                          <label class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition">
+                            <input
+                              type="checkbox"
+                              checked={teacherSubjectIds().includes(subject.id)}
+                              onChange={() => {
+                                if (teacherSubjectIds().includes(subject.id)) {
+                                  setTeacherSubjectIds((prev) =>
+                                    prev.filter((id) => id !== subject.id),
+                                  );
+                                } else {
+                                  setTeacherSubjectIds((prev) => [
+                                    ...prev,
+                                    subject.id,
+                                  ]);
+                                }
+                              }}
+                              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <span class="text-gray-700 text-sm">
+                              {subject.name}
+                            </span>
+                          </label>
+                        )}
+                      </For>
+                    </div>
+                  </div>
+                  <div class="space-y-3 border-t border-gray-200 pt-4">
+                    <h3 class="font-medium text-gray-800">
+                      Классное руководство/менторство
+                    </h3>
+
+                    <Index each={teacherStudentGroupIds}>
+                      {(groupId, index) => (
+                        <div class="flex gap-2">
+                          <select
+                            value={groupId() || ""}
+                            onChange={(e) =>
+                              updateTeacherStudentGroupId(
+                                index,
+                                Number(e.target.value),
+                              )
+                            }
+                            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <option value="">Выберите группу</option>
+                            <For
+                              each={studentGroups().filter(
+                                (group) =>
+                                  !teacherStudentGroupIds
+                                    .filter((_, i) => i !== index)
+                                    .includes(group.id),
+                              )}
+                            >
+                              {(group) => (
+                                <option value={group.id}>{group.name}</option>
+                              )}
+                            </For>
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => removeTeacherStudentGroupId(index)}
+                            class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition cursor-pointer"
+                          >
+                            Удалить
+                          </button>
+                        </div>
+                      )}
+                    </Index>
+
+                    <button
+                      type="button"
+                      onClick={addTeacherStudentGroupId}
+                      class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+                    >
+                      + Добавить группу
+                    </button>
+                  </div>
+                </Show>
               </div>
             </Show>
             <Show when={hasRole(ROLES.INSTITUTION_ADMINISTRATOR)}>
@@ -441,12 +692,40 @@ const Profile = () => {
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Должность
                 </h3>
-                <div class="flex items-center gap-3">
-                  <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span class="text-gray-800">
-                    {institutionAdministratorPosition()?.name}
-                  </span>
-                </div>
+                <Show when={!editMode()}>
+                  <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                    <span class="text-gray-800">
+                      {institutionAdministratorPosition()?.name}
+                    </span>
+                  </div>
+                </Show>
+                <Show when={editMode()}>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Должность администрации ОУ *
+                    </label>
+                    <select
+                      disabled={saving()}
+                      value={institutionAdministratorPositionId() || ""}
+                      onChange={(e) => {
+                        setSaving(false);
+                        setError("");
+                        setInstitutionAdministratorPositionId(
+                          Number(e.currentTarget.value),
+                        );
+                      }}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <option value="">Выберите должность</option>
+                      <For each={institutionAdministratorPositions()}>
+                        {(position) => (
+                          <option value={position.id}>{position.name}</option>
+                        )}
+                      </For>
+                    </select>
+                  </div>
+                </Show>
               </div>
             </Show>
             <Show when={hasRole(ROLES.STAFF)}>
@@ -454,10 +733,36 @@ const Profile = () => {
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Должность
                 </h3>
-                <div class="flex items-center gap-3">
-                  <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                  <span class="text-gray-800">{staffPosition()?.name}</span>
-                </div>
+                <Show when={!editMode()}>
+                  <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                    <span class="text-gray-800">{staffPosition()?.name}</span>
+                  </div>
+                </Show>
+                <Show when={editMode()}>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Должность сотрудника ОУ *
+                    </label>
+                    <select
+                      disabled={saving()}
+                      value={staffPositionId() || ""}
+                      onChange={(e) => {
+                        setSaving(false);
+                        setError("");
+                        setStaffPositionId(Number(e.currentTarget.value));
+                      }}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <option value="">Выберите должность</option>
+                      <For each={staffPositions()}>
+                        {(position) => (
+                          <option value={position.id}>{position.name}</option>
+                        )}
+                      </For>
+                    </select>
+                  </div>
+                </Show>
               </div>
             </Show>
             <Show when={hasRole(ROLES.STUDENT)}>
@@ -510,10 +815,34 @@ const Profile = () => {
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Класс/учебная группа
                 </h3>
-                <div class="flex items-center gap-3">
-                  <span class="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  <span class="text-gray-800">{studentGroup()?.name}</span>
-                </div>
+                <Show when={!editMode()}>
+                  <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 bg-pink-500 rounded-full"></span>
+                    <span class="text-gray-800">{studentGroup()?.name}</span>
+                  </div>
+                </Show>
+                <Show when={editMode()}>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Учебная группа *
+                    </label>
+                    <select
+                      disabled={saving()}
+                      value={studentGroupId() || ""}
+                      onChange={(e) =>
+                        setStudentGroupId(Number(e.currentTarget.value))
+                      }
+                      class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <option value="">Выберите группу</option>
+                      <For each={studentGroups()}>
+                        {(group) => (
+                          <option value={group.id}>{group.name}</option>
+                        )}
+                      </For>
+                    </select>
+                  </div>
+                </Show>
               </div>
             </Show>
           </Show>
