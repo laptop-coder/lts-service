@@ -361,7 +361,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// Get special fields (for user-extension tables)
-	userRolesDTO := service.UserRolesDTO{}
+	userExtensionsDTO := service.UserExtensionsDTO{}
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint8
@@ -371,7 +371,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
-		userRolesDTO.TeacherClassroomID = &teacherClassroomID
+		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
 		return
@@ -388,7 +388,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		subjectID8 := uint8(subjectID64)
 		teacherSubjectIDs[i] = subjectID8
 	}
-	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	userExtensionsDTO.TeacherSubjectIDs = teacherSubjectIDs
 	// TeacherStudentGroupIDs (special)
 	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
 		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
@@ -401,7 +401,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 			groupID16 := uint16(groupID64)
 			teacherStudentGroupIDs[i] = groupID16
 		}
-		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+		userExtensionsDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
 	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
@@ -412,7 +412,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
-		userRolesDTO.StudentGroupID = &studentGroupID
+		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
 		return
@@ -426,7 +426,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
-		userRolesDTO.StaffPositionID = &staffPositionID
+		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
 		return
@@ -440,7 +440,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
-		userRolesDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
 		return
@@ -456,9 +456,9 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		}
 		parentStudentIDs[i] = parentStudentID
 	}
-	userRolesDTO.ParentStudentIDs = parentStudentIDs
+	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	// Replace old roles with new ones
-	if err := h.userService.AssignRolesToUser(ctx, userID, userRolesDTO, roleIDs); err != nil {
+	if err := h.userService.AssignRolesToUser(ctx, userID, userExtensionsDTO, roleIDs); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
@@ -474,6 +474,132 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		"roles":   roles,
 		"message": "roles updated successfully",
 	})
+}
+
+// Handler to assign roles-depending fields that extends the "user" table.
+func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request) {
+	// Check method
+	if r.Method != http.MethodPut {
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		return
+	}
+	// Get and convert user ID
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		return
+	}
+	// Get fields (for user-extension tables)
+	userExtensionsDTO := service.UserExtensionsDTO{}
+	// TeacherClassroomID
+	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
+		// Convert to uint8
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		if err != nil {
+			helpers.ErrorResponse(h.log, w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		teacherClassroomID := uint8(teacherClassroomID64)
+		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
+	} else if len(teacherClassroomIDFields) != 0 {
+		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		return
+	}
+	// TODO: read only required fields (depending on roles)
+	// TeacherSubjectIDs
+	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
+	var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
+	for i, subjectIDString := range teacherSubjectIDsFields {
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		if err != nil {
+			helpers.ErrorResponse(h.log, w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		subjectID8 := uint8(subjectID64)
+		teacherSubjectIDs[i] = subjectID8
+	}
+	userExtensionsDTO.TeacherSubjectIDs = teacherSubjectIDs
+	// TeacherStudentGroupIDs
+	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
+		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
+		for i, groupIDString := range teacherStudentGroupIDsFields {
+			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
+			if err != nil {
+				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				return
+			}
+			groupID16 := uint16(groupID64)
+			teacherStudentGroupIDs[i] = groupID16
+		}
+		userExtensionsDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+	}
+	// StudentGroupID
+	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
+		// Convert to uint16
+		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
+		if err != nil {
+			helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		studentGroupID := uint16(studentGroupID64)
+		userExtensionsDTO.StudentGroupID = &studentGroupID
+	} else if len(studentGroupIDFields) != 0 {
+		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		return
+	}
+	// StaffPositionID
+	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
+		// Convert to uint8
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		if err != nil {
+			helpers.ErrorResponse(h.log, w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		staffPositionID := uint8(staffPositionID64)
+		userExtensionsDTO.StaffPositionID = &staffPositionID
+	} else if len(staffPositionIDFields) != 0 {
+		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		return
+	}
+	// InstitutionAdministratorPositionID
+	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
+		// Convert to uint8
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		if err != nil {
+			helpers.ErrorResponse(h.log, w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			return
+		}
+		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
+		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+	} else if len(institutionAdministratorPositionIDFields) != 0 {
+		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		return
+	}
+	// ParentStudentIDs
+	parentStudentIDsFields := r.PostForm["parentStudentId"]
+	var parentStudentIDs = make([]uuid.UUID, len(parentStudentIDsFields))
+	for i, parentStudentIDString := range parentStudentIDsFields {
+		parentStudentID, err := uuid.Parse(parentStudentIDString)
+		if err != nil {
+			helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+			return
+		}
+		parentStudentIDs[i] = parentStudentID
+	}
+	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
+	// Replace old extensions with new ones
+	if err := h.userService.AssignExtensionsToUser(r.Context(), userID, userExtensionsDTO); err != nil {
+		helpers.HandleServiceError(h.log, w, err)
+		return
+	}
+	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
 
 func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request) {
@@ -525,7 +651,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		return
 	}
 	// Get special fields (for user-extension tables)
-	userRolesDTO := service.UserRolesDTO{}
+	userExtensionsDTO := service.UserExtensionsDTO{}
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint8
@@ -535,7 +661,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
-		userRolesDTO.TeacherClassroomID = &teacherClassroomID
+		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
 		return
@@ -552,7 +678,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		subjectID8 := uint8(subjectID64)
 		teacherSubjectIDs[i] = subjectID8
 	}
-	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	userExtensionsDTO.TeacherSubjectIDs = teacherSubjectIDs
 	// TeacherStudentGroupIDs (special)
 	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
 		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
@@ -565,7 +691,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 			groupID16 := uint16(groupID64)
 			teacherStudentGroupIDs[i] = groupID16
 		}
-		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+		userExtensionsDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
 	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
@@ -576,7 +702,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
-		userRolesDTO.StudentGroupID = &studentGroupID
+		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
 		return
@@ -590,7 +716,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
-		userRolesDTO.StaffPositionID = &staffPositionID
+		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
 		return
@@ -604,7 +730,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
-		userRolesDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
 		return
@@ -620,9 +746,9 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		}
 		parentStudentIDs[i] = parentStudentID
 	}
-	userRolesDTO.ParentStudentIDs = parentStudentIDs
+	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	// Replace old roles with new ones
-	if err := h.userService.AssignNonAdminRolesToUser(ctx, userID, userRolesDTO, roleIDs); err != nil {
+	if err := h.userService.AssignNonAdminRolesToUser(ctx, userID, userExtensionsDTO, roleIDs); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
@@ -703,7 +829,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// Get special fields (for user-extension tables)
-	userRolesDTO := service.UserRolesDTO{}
+	userExtensionsDTO := service.UserExtensionsDTO{}
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint8
@@ -713,7 +839,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
-		userRolesDTO.TeacherClassroomID = &teacherClassroomID
+		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
 		return
@@ -730,7 +856,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		subjectID8 := uint8(subjectID64)
 		teacherSubjectIDs[i] = subjectID8
 	}
-	userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+	userExtensionsDTO.TeacherSubjectIDs = teacherSubjectIDs
 	// TeacherStudentGroupIDs (special)
 	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
 		var teacherStudentGroupIDs = make([]uint16, len(teacherStudentGroupIDsFields))
@@ -743,7 +869,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 			groupID16 := uint16(groupID64)
 			teacherStudentGroupIDs[i] = groupID16
 		}
-		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+		userExtensionsDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
 	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
@@ -754,7 +880,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
-		userRolesDTO.StudentGroupID = &studentGroupID
+		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
 		return
@@ -768,7 +894,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
-		userRolesDTO.StaffPositionID = &staffPositionID
+		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
 		return
@@ -782,7 +908,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
-		userRolesDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
 		return
@@ -798,9 +924,9 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		}
 		parentStudentIDs[i] = parentStudentID
 	}
-	userRolesDTO.ParentStudentIDs = parentStudentIDs
+	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	// Add new roles to the old ones
-	if err := h.userService.AddRolesToUser(ctx, userID, userRolesDTO, roleIDs); err != nil {
+	if err := h.userService.AddRolesToUser(ctx, userID, userExtensionsDTO, roleIDs); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}

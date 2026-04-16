@@ -47,6 +47,7 @@ func SetupRoutes(
 	// User
 	mux.Handle("PATCH /api/v1/users/me", authMiddleware(false)(requirePermissions(log, false, permissions.UserUpdateOwn)(http.HandlerFunc(userHandler.UpdateOwnProfile))))
 	mux.Handle("PUT /api/v1/users/me/avatar", authMiddleware(false)(requirePermissions(log, false, permissions.UserUpdateOwn)(http.HandlerFunc(userHandler.UpdateOwnAvatar))))
+	mux.Handle("PUT /api/v1/users/me/extensions", authMiddleware(false)(requirePermissions(log, false, permissions.UserUpdateOwn)(http.HandlerFunc(userHandler.AssignExtensionsOwn))))
 	mux.Handle("DELETE /api/v1/users/me/avatar", authMiddleware(false)(requirePermissions(log, false, permissions.UserUpdateOwn)(http.HandlerFunc(userHandler.RemoveOwnAvatar))))
 	mux.Handle("GET /api/v1/users/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.UserReadOther)(http.HandlerFunc(userHandler.GetUserByID))))
 	mux.Handle("GET /api/v1/users", authMiddleware(false)(requirePermissions(log, false, permissions.UserReadAll)(http.HandlerFunc(userHandler.GetUsers))))

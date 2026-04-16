@@ -98,7 +98,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorResponse(h.log, w, "list of the roles cannot be empty", http.StatusInternalServerError) // HTTP 500 because the token was signed by the server
 		return
 	}
-	userRolesDTO := service.UserRolesDTO{}
+	userExtensionsDTO := service.UserExtensionsDTO{}
 	roleIDs := make([]uint8, len(roles))
 	for i, role := range roles {
 		roleIDs[i] = role.ID
@@ -127,7 +127,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
-		userRolesDTO.TeacherClassroomID = &teacherClassroomID
+		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
 		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
 		return
@@ -150,7 +150,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			subjectID8 := uint8(subjectID64)
 			teacherSubjectIDs[i] = subjectID8
 		}
-		userRolesDTO.TeacherSubjectIDs = teacherSubjectIDs
+		userExtensionsDTO.TeacherSubjectIDs = teacherSubjectIDs
 	}
 	// TeacherStudentGroupIDs (special)
 	if teacherStudentGroupIDsFields := r.PostForm["teacherStudentGroupId"]; len(teacherStudentGroupIDsFields) != 0 {
@@ -164,7 +164,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			groupID16 := uint16(groupID64)
 			teacherStudentGroupIDs[i] = groupID16
 		}
-		userRolesDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
+		userExtensionsDTO.TeacherStudentGroupIDs = teacherStudentGroupIDs
 	}
 	// StudentGroupID (special)
 	if studentGroupIDFields := r.PostForm["studentGroupId"]; len(studentGroupIDFields) == 1 {
@@ -175,7 +175,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
-		userRolesDTO.StudentGroupID = &studentGroupID
+		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) == 0 {
 		// Check if creating user with the student role
 		if slices.Contains(roleIDs, 7) {
@@ -195,7 +195,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
-		userRolesDTO.StaffPositionID = &staffPositionID
+		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) == 0 {
 		// Check if creating user with the staff role
 		if slices.Contains(roleIDs, 4) {
@@ -215,7 +215,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
-		userRolesDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
+		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) == 0 {
 		// Check if creating user with the institution administrator role
 		if slices.Contains(roleIDs, 3) {
@@ -237,7 +237,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			}
 			parentStudentIDs[i] = parentStudentID
 		}
-		userRolesDTO.ParentStudentIDs = parentStudentIDs
+		userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	}
 	// Avatar (optional)
 	formFiles := r.MultipartForm.File["avatar"]
@@ -247,7 +247,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	} else if len(formFiles) == 1 {
 		createUserDTO.Avatar = formFiles[0]
 	}
-	userResponse, err := h.userService.CreateUser(r.Context(), createUserDTO, userRolesDTO)
+	userResponse, err := h.userService.CreateUser(r.Context(), createUserDTO, userExtensionsDTO)
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to create the user: %w", err))
 		return
