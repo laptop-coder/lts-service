@@ -834,7 +834,7 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 			if err := tx.Model(&model.StudentGroup{}).
 				Where("id IN (?)", dto.TeacherStudentGroupIDs).
 				Update("group_advisor_id", userID).Error; err != nil {
-				return nil
+				return err
 			}
 		}
 		return nil

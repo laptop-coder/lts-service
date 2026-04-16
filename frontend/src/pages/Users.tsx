@@ -148,6 +148,9 @@ const Users = () => {
       setTeacherSubjectIds(
         teacherData.teacher.subjects?.map((s: Subject) => s.id) || [],
       );
+      setTeacherStudentGroupIds(
+        teacherData.teacher.studentGroups?.map((g: StudentGroup) => g.id) || [],
+      );
     }
     if (user.roles.some((r) => r.id === 6)) {
       // parent
@@ -234,6 +237,11 @@ const Users = () => {
       teacherSubjectIds().forEach((subjectId) => {
         formData.append("teacherSubjectId", String(subjectId));
       });
+      if (teacherStudentGroupIds.length > 0) {
+        teacherStudentGroupIds.forEach((groupId) => {
+          formData.append("teacherStudentGroupId", String(groupId));
+        });
+      }
     }
     if (selectedRoles().includes(6)) {
       parentStudentIds.forEach((studentId) => {

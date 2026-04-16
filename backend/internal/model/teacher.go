@@ -16,12 +16,8 @@ type Teacher struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	// ClassroomID *uint8 `gorm:"default:null"` // TODO: remove if not necessary
-
 	// 1. Classroom may not be specified
-	// 2. Can't remove teacher if there are room, assigned to him. To remove the
-	// teacher you need to unbind him or reassign to other classroom at first
-	// (actual for schools)
+	// 2. Unbind classroom after teacher remove
 	// 3. one-to-one (teacher-to-room)
 	Classroom *Room `gorm:"foreignKey:TeacherID;references:UserID;constraint:OnDelete:set null,OnUpdate:restrict"`
 	// many-to-many (teacher-to-subject)
@@ -33,7 +29,7 @@ type Teacher struct {
 	// 3. We consider that one group can have only one advisor (mentor, e.g.),
 	// but one advisor can manage many groups, so: one-to-many (teacher-to-group,
 	// i.e. advisor-to-group)
-	StudentGroups *[]StudentGroup `gorm:"foreignKey:GroupAdvisorID;references:UserID"`
+	StudentGroups *[]StudentGroup `gorm:"foreignKey:GroupAdvisorID;references:UserID;constraint:OnDelete:set null,OnUpdate:restrict"`
 }
 
 func AddConstraintsTeacherSubjects(db *gorm.DB) error {
