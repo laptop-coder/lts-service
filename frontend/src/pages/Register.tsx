@@ -520,7 +520,14 @@ const Register = () => {
                           class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <option value="">Выберите группу</option>
-                          <For each={studentGroups().filter(group => !teacherStudentGroupIds.filter((_, i) => i !== index).includes(group.id))}>
+                          <For
+                            each={studentGroups().filter(
+                              (group) =>
+                                !teacherStudentGroupIds
+                                  .filter((_, i) => i !== index)
+                                  .includes(group.id),
+                            )}
+                          >
                             {(group) => (
                               <option value={group.id}>{group.name}</option>
                             )}

@@ -1,4 +1,4 @@
-import { createSignal, For, Show, onMount, Index } from "solid-js";
+import { createSignal, For, Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import {
   usePermissions,
