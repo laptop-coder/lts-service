@@ -87,35 +87,40 @@ const Register = () => {
       );
       setRoleIds(rolesData.roles.map((role) => role.id));
       setRoleNames(rolesData.roles.map((role) => role.name));
-      // Get all rooms
-      const roomsData = await api.get<{ rooms: Room[] }>("/rooms");
-      setRooms(roomsData.rooms);
-      // Get all subjects
-      const subjectsData = await api.get<{ subjects: Subject[] }>("/subjects");
-      setSubjects(subjectsData.subjects);
-      // Get all student groups
-      const studentGroupsData = await api.get<{
-        studentGroups: StudentGroup[];
-      }>("/student_groups");
-      setStudentGroups(studentGroupsData.studentGroups);
-      // Get all staff positions
-      const staffPositionsData = await api.get<{
-        staffPositions: StaffPosition[];
-      }>("/staff/positions");
-      setStaffPositions(staffPositionsData.staffPositions);
-      // Get all institution administrator positions
-      const institutionAdministratorPositionsData = await api.get<{
-        institutionAdministratorPositions: InstitutionAdministratorPosition[];
-      }>("/institution_administrators/positions");
-      setInstitutionAdministratorPositions(
-        institutionAdministratorPositionsData.institutionAdministratorPositions,
-      );
+
+      await loadDataForSelect()
     } catch (err) {
       // TODO
     } finally {
       setLoading(false);
     }
   });
+
+  const loadDataForSelect = async () => {
+    const [
+      roomsData,
+      subjectsData,
+      groupsData,
+      staffPositionData,
+      institutionAdministratorPositionData,
+    ] = await Promise.all([
+      api.get<{ rooms: Room[] }>("/rooms"),
+      api.get<{ subjects: Subject[] }>("/subjects"),
+      api.get<{ studentGroups: StudentGroup[] }>("/student_groups"),
+      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions"),
+      api.get<{
+        institutionAdministratorPositions: InstitutionAdministratorPosition[];
+      }>("/institution_administrators/positions"),
+    ]);
+    setRooms(roomsData.rooms);
+    setSubjects(subjectsData.subjects);
+    setStudentGroups(groupsData.studentGroups);
+    setStaffPositions(staffPositionData.staffPositions);
+    setInstitutionAdministratorPositions(
+      institutionAdministratorPositionData.institutionAdministratorPositions,
+    );
+  };
+
 
   const handleAvatarChange = (e: Event) => {
     const input = e.currentTarget as HTMLInputElement;
