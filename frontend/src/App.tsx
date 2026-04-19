@@ -25,6 +25,7 @@ const InstitutionAdministratorPositions = lazy(
 const About = lazy(() => import("./pages/About"));
 const PostDetails = lazy(() => import("./pages/PostDetails"));
 const ListOfConversations = lazy(() => import("./pages/ListOfConversations"));
+const ConversationView = lazy(() => import("./pages/ConversationView"));
 
 function App() {
   const auth = useAuth();
@@ -65,6 +66,7 @@ function App() {
             <Route path="/profile" component={Profile} />
             <Route path="/users/:id" component={PublicProfile} />
             <Route path="/conversations" component={ListOfConversations} />
+            <Route path="/conversations/:id" component={ConversationView} />
             <Route path="/admin" component={AdminLayout}>
               <Route
                 path="/"

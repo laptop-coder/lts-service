@@ -114,7 +114,7 @@ export interface Conversation {
 export interface ConversationListItem {
   id: string;
   updatedAt: string;
-  postID: string;
+  postId: string;
   postName: string;
   unreadCount: number;
   lastMessage?: string;
@@ -125,7 +125,7 @@ export interface Message {
   id: string;
   createdAt: string;
   updatedAt: string;
-  senderID: string;
+  senderId: string;
   content: string;
   isRead: boolean;
 }

@@ -27,35 +27,43 @@ export const PublicRoute: Component<Props> = (props) => {
           </A>
 
           <div class="flex items-center gap-3">
-            {hasAnyRole(ROLES.ADMIN, ROLES.SUPERADMIN) && (
-              <A
-                href="/admin"
-                class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-              >
-                Админка
-              </A>
-            )}
-
-            {hasPermission(PERMISSIONS.POST_CREATE) && (
-              <A
-                href="/posts/new"
-                class="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-              >
-                <span class="text-xl font-bold">+</span>
-              </A>
-            )}
-
             {auth.user() ? (
-              <A
-                href="/profile"
-                class="w-10 h-10 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
-              >
-                <img
-                  class="w-10 h-10 rounded-full object-cover border-2 border-blue-100 hover:brightness-95 transition"
-                  src={`/storage/storage/avatars/${auth.user()?.hasAvatar ? auth.user()?.id : "default"}.jpeg`}
-                  alt="Фото профиля"
-                />
-              </A>
+              <>
+                <A
+                  href="/conversations"
+                  class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                >
+                  <span>💬</span>
+                </A>
+                {hasAnyRole(ROLES.ADMIN, ROLES.SUPERADMIN) && (
+                  <A
+                    href="/admin"
+                    class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                  >
+                    Админка
+                  </A>
+                )}
+
+                {hasPermission(PERMISSIONS.POST_CREATE) && (
+                  <A
+                    href="/posts/new"
+                    class="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                  >
+                    <span class="text-xl font-bold">+</span>
+                  </A>
+                )}
+
+                <A
+                  href="/profile"
+                  class="w-10 h-10 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
+                >
+                  <img
+                    class="w-10 h-10 rounded-full object-cover border-2 border-blue-100 hover:brightness-95 transition"
+                    src={`/storage/storage/avatars/${auth.user()?.hasAvatar ? auth.user()?.id : "default"}.jpeg`}
+                    alt="Фото профиля"
+                  />
+                </A>
+              </>
             ) : (
               <A
                 href="/login"

@@ -35,7 +35,9 @@ func (r *conversationRepository) FindByID(ctx context.Context, id uuid.UUID) (*m
         Preload("Post").
         Preload("Post.Author").
         Preload("Requester").
-		Preload("Messages").
+		Preload("Messages", func(db *gorm.DB) *gorm.DB {
+			return db.Order("created_at ASC")
+		}).
         Where("id = ?", id).
         First(&conversation).Error
     
@@ -51,7 +53,9 @@ func (r *conversationRepository) FindByPostAndUsers(ctx context.Context, postID,
         Preload("Post").
         Preload("Post.Author").
         Preload("Requester").
-		Preload("Messages").
+		Preload("Messages", func(db *gorm.DB) *gorm.DB {
+			return db.Order("created_at ASC")
+		}).
         Where("post_id = ? AND author_id = ? AND requester_id = ?", postID, authorID, requesterID).
         First(&conversation).Error
     
@@ -68,7 +72,9 @@ func (r *conversationRepository) FindByUserID(ctx context.Context, userID uuid.U
         Preload("Post").
         Preload("Post.Author").
         Preload("Requester").
-		Preload("Messages").
+		Preload("Messages", func(db *gorm.DB) *gorm.DB {
+			return db.Order("created_at ASC")
+		}).
         Where("author_id = ? OR requester_id = ?", userID, userID).
         Order("updated_at DESC")
     

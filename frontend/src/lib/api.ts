@@ -89,5 +89,5 @@ export const conversationApi = {
     api.post<{ message: Message }>(`/conversations/${convId}/messages`, {
       message,
     }),
-  markAsRead: (convId: string) => api.put(`/conversations/${convId}/read`),
+  markAsRead: (convId: string) => api.patch(`/conversations/${convId}/messages/read`),
 };
