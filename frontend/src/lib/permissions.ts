@@ -60,6 +60,12 @@ export const PERMISSIONS = {
   POST_MARK_RETURNED_ANY: "post.mark.returned.any",
   POST_MARK_RETURNED_OWN: "post.mark.returned.own",
 
+  // Post conversation permissions
+  CONVERSATION_CREATE: "conversation.create",
+  CONVERSATION_READ_OWN: "conversation.read.own",
+  CONVERSATION_MESSAGE_SEND: "conversation.message.send",
+  CONVERSATION_MESSAGE_MARK_AS_READ: "conversation.message.mark_as_read",
+
   // User permissions
   USER_READ_OWN: "user.read.own",
   USER_READ_OTHER: "user.read.other",

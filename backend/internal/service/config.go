@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/env"
 	"time"
 )
 
@@ -38,9 +39,11 @@ type InviteServiceConfig struct {
 }
 
 type EmailServiceConfig struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
-	From     string
+	Host        string
+	Port        int
+	Username    string
+	Password    string
+	From        string
+	FrontendURL string
+	AppMode     env.AppMode
 }

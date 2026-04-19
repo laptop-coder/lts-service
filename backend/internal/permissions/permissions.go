@@ -19,6 +19,14 @@ const (
 	PostMarkReturnedOwn = "post.mark.returned.own"
 )
 
+// Post conversation permissions
+const (
+	ConversationCreate            = "conversation.create"
+	ConversationReadOwn           = "conversation.read.own"
+	ConversationMessageSend       = "conversation.message.send"
+	ConversationMessageMarkAsRead = "conversation.message.mark_as_read"
+)
+
 // User permissions
 const (
 	UserReadOwn        = "user.read.own"

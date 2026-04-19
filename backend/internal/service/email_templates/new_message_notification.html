@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 30px 30px 0 30px; text-align: center;">
+              <h1 style="color: #1f2937; margin: 10px 0 0 0;">LostThingsSearch</h1>
+              <p style="color: #6b7280; margin: 5px 0 0 0;">Сервис поиска потерянных вещей</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding: 30px;">
+              <h2 style="color: #1f2937; margin: 0 0 15 0; text-align: center;">Новое сообщение</h2>
+              <p style="color: #4b5563; line-height: 1.5; margin: 0 0 20 0;">
+              Здравствуйте, {{.RecipientFirstName}}!<br><br>
+              Пользователь {{.SenderFirstName}} {{.SenderLastName}} отправил Вам сообщение: {{.Message}}<br><br>
+              Перейдите в личный кабинет, чтобы ответить
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{.Link}}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 8px; font-weight: 600;">
+                      Открыть личный кабинет
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 30px; background-color: #f9fafb; border-radius: 0 0 16px 16px; text-align: center;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+              {{.FooterText}}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

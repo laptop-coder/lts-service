@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+type AppMode string
+
+const (
+	AppModeDev  AppMode = "dev"
+	AppModeProd AppMode = "prod"
+)
+
 func GetString(key string, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

@@ -27,7 +27,8 @@ func main() {
 
 	// Configs
 	log.Info("Loading configurations...")
-	appConfig := config.LoadAppConfig()
+	appMode := config.ParseAppMode(env.GetStringRequired("APP_MODE"))
+	appConfig := config.LoadAppConfig(appMode)
 	sharedConfig := config.LoadSharedConfig()
 
 	// Database
@@ -67,6 +68,8 @@ func main() {
 	jwtRepo := repository.NewJWTRepository(jwtClient, log)
 	studentGroupRepo := repository.NewStudentGroupRepository(db, log)
 	postRepo := repository.NewPostRepository(db, log)
+	msgRepo := repository.NewMessageRepository(db, log)
+	convRepo := repository.NewConversationRepository(db, log)
 	roomRepo := repository.NewRoomRepository(db, log)
 	subjectRepo := repository.NewSubjectRepository(db, log)
 	studentRepo := repository.NewStudentRepository(db, log)
@@ -84,7 +87,9 @@ func main() {
 	log.Info("Initializing services...")
 	authService := service.NewAuthService(userRepo, jwtRepo, db, serviceConfigs.Auth, log)
 	userService := service.NewUserService(userRepo, studentRepo, roomRepo, db, serviceConfigs.User, log)
+	emailService, err := service.NewEmailService(serviceConfigs.Email, log)
 	postService := service.NewPostService(postRepo, db, serviceConfigs.Post, log)
+	conversationService := service.NewConversationService(convRepo, msgRepo, postRepo, userRepo, emailService, db, log)
 	studentGroupService := service.NewStudentGroupService(userRepo, studentGroupRepo, db, log)
 	roomService := service.NewRoomService(roomRepo, db, log)
 	subjectService := service.NewSubjectService(subjectRepo, db, log)
@@ -94,7 +99,6 @@ func main() {
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
 	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
 	roleService := service.NewRoleService(db, log)
-	emailService, err := service.NewEmailService(serviceConfigs.Email, log)
 	inviteService := service.NewInviteService(emailService, jwtRepo, userRepo, roleRepo, db, serviceConfigs.Invite, log)
 	institutionAdministratorPositionService := service.NewInstitutionAdministratorPositionService(institutionAdministratorPositionRepo, db, log)
 	staffPositionService := service.NewStaffPositionService(staffPositionRepo, db, log)
@@ -104,6 +108,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService, userService, inviteService, serviceConfigs.Auth, log)
 	userHandler := handler.NewUserHandler(userService, log)
 	postHandler := handler.NewPostHandler(postService, log)
+	conversationHandler := handler.NewConversationHandler(conversationService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(teacherService, studentGroupService, log)
 	roomHandler := handler.NewRoomHandler(roomService, log)
 	subjectHandler := handler.NewSubjectHandler(subjectService, log)
@@ -133,6 +138,7 @@ func main() {
 		authHandler,
 		userHandler,
 		postHandler,
+		conversationHandler,
 		studentGroupHandler,
 		roomHandler,
 		subjectHandler,

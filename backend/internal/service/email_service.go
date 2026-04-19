@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/internal/model"
 	"backend/pkg/env"
 	"backend/pkg/logger"
 	"bytes"
@@ -19,6 +20,7 @@ var templatesFS embed.FS
 type EmailService interface {
 	Send(ctx context.Context, to []string, subject, body string) error
 	SendInviteLink(ctx context.Context, to *string, link string) error
+	SendNewMessageNotification(ctx context.Context, dto *NewMessageNotificationDTO) error
 }
 
 type emailService struct {
@@ -51,19 +53,21 @@ func (s *emailService) Send(ctx context.Context, to []string, subject, body stri
 		return fmt.Errorf("failed to connect: %w", err)
 	}
 	defer conn.Close()
-	// Assemble TLS config
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: env.GetBoolRequired("SMTP_SKIP_VERIFY"), // TODO: move to the config
-		ServerName:         s.config.Host,
-	}
-	// STARTTLS: upgrade connection to TLS
-	if err := conn.StartTLS(tlsConfig); err != nil {
-		return fmt.Errorf("failed to start TLS: %w", err)
-	}
-	// Auth
-	auth := smtp.PlainAuth("", s.config.Username, s.config.Password, s.config.Host)
-	if err := conn.Auth(auth); err != nil {
-		return fmt.Errorf("failed to auth: %w", err)
+	if s.config.AppMode == env.AppModeProd {
+		// Assemble TLS config
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: env.GetBoolRequired("SMTP_SKIP_VERIFY"), // TODO: move to the config
+			ServerName:         s.config.Host,
+		}
+		// STARTTLS: upgrade connection to TLS
+		if err := conn.StartTLS(tlsConfig); err != nil {
+			return fmt.Errorf("failed to start TLS: %w", err)
+		}
+		// Auth
+		auth := smtp.PlainAuth("", s.config.Username, s.config.Password, s.config.Host)
+		if err := conn.Auth(auth); err != nil {
+			return fmt.Errorf("failed to auth: %w", err)
+		}
 	}
 	// Sender
 	if err := conn.Mail(s.config.From); err != nil {
@@ -114,4 +118,44 @@ func (s *emailService) SendInviteLink(ctx context.Context, to *string, link stri
 		return err
 	}
 	return s.Send(ctx, []string{*to}, "Добро пожаловать!", body.String())
+}
+
+type NewMessageNotificationDTO struct {
+	Post      model.Post `json:"post"`
+	Recipient model.User `json:"recipient"`
+	Sender    model.User `json:"sender"`
+	Message   string     `json:"message"`
+}
+
+func (s *emailService) validateNewMessageNotificationDTO(dto *NewMessageNotificationDTO) error {
+	if dto == nil {
+		return fmt.Errorf("NewMessageNotificationDTO cannot be empty")
+	}
+	if strings.TrimSpace(dto.Recipient.Email) == "" {
+		return fmt.Errorf("recipient email cannot be empty or only whitespace")
+	}
+	if strings.TrimSpace(dto.Sender.Email) == "" {
+		return fmt.Errorf("sender email cannot be empty or only whitespace")
+	}
+	return nil
+}
+
+func (s *emailService) SendNewMessageNotification(ctx context.Context, dto *NewMessageNotificationDTO) error {
+	if err := s.validateNewMessageNotificationDTO(dto); err != nil {
+		s.log.Error("Failed to validate new message notification dto", "error", err.Error())
+		return err
+	}
+	var body bytes.Buffer
+	if err := s.templates.ExecuteTemplate(&body, "new_message_notification.html", map[string]string{
+		"RecipientFirstName": dto.Recipient.FirstName,
+		"SenderFirstName":    dto.Sender.FirstName,
+		"SenderLastName":     dto.Sender.LastName,
+		"Message":            dto.Message,
+		"Link":               fmt.Sprintf("%s/profile", s.config.FrontendURL),
+		"FooterText":         env.GetStringRequired("FOOTER_TEXT"), // TODO: move to the config
+	}); err != nil {
+		s.log.Error("Failed to execute template of the new message notification email", "error", err.Error())
+		return err
+	}
+	return s.Send(ctx, []string{dto.Recipient.Email}, fmt.Sprintf("LTS: новое сообщение по объявлению «%s»", dto.Post.Name), body.String())
 }

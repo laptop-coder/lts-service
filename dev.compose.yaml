@@ -80,10 +80,23 @@ services:
         # condition: service_healthy
       - valkey
         # condition: service_healthy
+      - mailhog
     develop:
       watch:
         - action: rebuild
           path: ./backend
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: lts-mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_HTTP_PORT:-8025}:8025"
+    env_file:
+      - .env
+    networks:
+      - lts_network
 
   frontend:
     build:

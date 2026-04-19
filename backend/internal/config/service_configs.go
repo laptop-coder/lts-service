@@ -19,7 +19,7 @@ func NewServiceConfigs(sharedConfig SharedConfig, appConfig AppConfig) ServiceCo
 		Post:   newPostServiceConfig(sharedConfig),
 		Auth:   newAuthServiceConfig(sharedConfig),
 		Invite: newInviteServiceConfig(sharedConfig, appConfig),
-		Email:  newEmailServiceConfig(),
+		Email:  newEmailServiceConfig(appConfig),
 	}
 }
 
@@ -59,12 +59,14 @@ func newInviteServiceConfig(sharedConfig SharedConfig, appConfig AppConfig) serv
 	}
 }
 
-func newEmailServiceConfig() service.EmailServiceConfig {
+func newEmailServiceConfig(appConfig AppConfig) service.EmailServiceConfig {
 	return service.EmailServiceConfig{
-		Host:     env.GetStringRequired("EMAIL_HOST"),
-		Port:     env.GetIntRequired("EMAIL_PORT"),
-		Username: env.GetStringRequired("EMAIL_USERNAME"),
-		Password: env.GetStringRequired("EMAIL_PASSWORD"),
-		From:     env.GetStringRequired("EMAIL_USERNAME"),
+		Host:        env.GetStringRequired("EMAIL_HOST"),
+		Port:        env.GetIntRequired("EMAIL_PORT"),
+		Username:    env.GetStringRequired("EMAIL_USERNAME"),
+		Password:    env.GetStringRequired("EMAIL_PASSWORD"),
+		From:        env.GetStringRequired("EMAIL_USERNAME"),
+		FrontendURL: appConfig.FrontendURL,
+		AppMode:     appConfig.AppMode,
 	}
 }

@@ -25,6 +25,10 @@ import (
 	"time"
 )
 
+var (
+	ErrPostNotFound = errors.New("post not found")
+)
+
 type PostService interface {
 	CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error)
 	UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePostDTO) (*PostResponseDTO, error)
@@ -515,39 +519,10 @@ func (s *postService) ReturnToOwner(ctx context.Context, id uuid.UUID) (*PostRes
 }
 
 func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
-	// if dto.Email == "" {
-	// 	return fmt.Errorf("email is required")
-	// }
-	// if len(dto.Password) < 8 {
-	// 	return fmt.Errorf("password must be at least 8 characters")
-	// }
-	// if len(dto.FirstName) < 2 {
-	// 	return fmt.Errorf("first name must be at least 2 characters")
-	// }
-	// if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
-	// 	return fmt.Errorf("middle name must be at least 2 characters or null")
-	// }
-	// if len(dto.LastName) < 2 {
-	// 	return fmt.Errorf("last name must be at least 2 characters")
-	// }
-	// if len(dto.RoleIDs) > 0 {
-	// 	// TODO: check if all reoles exist in DB
-	// }
 	return nil
 }
 
 func (s *postService) validateUpdatePostDTO(dto *UpdatePostDTO) error {
-	//	if dto.FirstName != nil && len(*dto.FirstName) < 2 {
-	//		return fmt.Errorf("first name must be at least 2 characters or null")
-	//	}
-	//
-	//	if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
-	//		return fmt.Errorf("middle name must be at least 2 characters or null")
-	//	}
-	//
-	//	if dto.LastName != nil && len(*dto.LastName) < 2 {
-	//		return fmt.Errorf("last name must be at least 2 characters or null")
-	//	}
 	return nil
 }
 

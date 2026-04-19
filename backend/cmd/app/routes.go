@@ -18,6 +18,7 @@ func SetupRoutes(
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
 	postHandler *handler.PostHandler,
+	conversationHandler *handler.ConversationHandler,
 	studentGroupHandler *handler.StudentGroupHandler,
 	roomHandler *handler.RoomHandler,
 	subjectHandler *handler.SubjectHandler,
@@ -157,6 +158,12 @@ func SetupRoutes(
 	// Roles
 	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
 	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))
+	// Post conversation
+	mux.Handle("POST /api/v1/posts/{postId}/contact", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationCreate)(http.HandlerFunc(conversationHandler.CreateConversation))))
+	mux.Handle("GET /api/v1/conversations", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationReadOwn)(http.HandlerFunc(conversationHandler.GetMyConversations))))
+	mux.Handle("GET /api/v1/conversations/{conversationId}", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationReadOwn)(http.HandlerFunc(conversationHandler.GetConversation))))
+	mux.Handle("POST /api/v1/conversations/{conversationId}/messages", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationMessageSend)(http.HandlerFunc(conversationHandler.SendMessage))))
+	mux.Handle("PATCH /api/v1/conversations/{conversationId}/messages/read", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationMessageMarkAsRead)(http.HandlerFunc(conversationHandler.MarkAsRead))))
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
