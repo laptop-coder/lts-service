@@ -1,7 +1,8 @@
-import { type Component, type JSX } from "solid-js";
+import { type Component, type JSX, Show, onMount } from "solid-js";
 import { useNavigate, A } from "@solidjs/router";
 import { useAuth } from "../lib/auth";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
+import { unreadMessagesCount, refreshUnreadMessagesCount } from "../lib/store";
 
 interface Props {
   children?: JSX.Element;
@@ -10,6 +11,10 @@ interface Props {
 export const PublicRoute: Component<Props> = (props) => {
   const auth = useAuth();
   const { hasPermission, hasRole, hasAnyRole } = usePermissions();
+
+  onMount(async () => {
+    await refreshUnreadMessagesCount();
+  });
 
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col">
@@ -31,9 +36,14 @@ export const PublicRoute: Component<Props> = (props) => {
               <>
                 <A
                   href="/conversations"
-                  class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                  class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition relative"
                 >
                   <span>💬</span>
+                  <Show when={unreadMessagesCount() > 0}>
+                    <div class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full absolute -top-1 -right-1">
+                      {unreadMessagesCount()}
+                    </div>
+                  </Show>
                 </A>
                 {hasAnyRole(ROLES.ADMIN, ROLES.SUPERADMIN) && (
                   <A

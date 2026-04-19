@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "@solidjs/router";
 import { conversationApi } from "../lib/api";
 import { Conversation, Message } from "../lib/types";
 import { useAuth } from "../lib/auth";
+import { refreshUnreadMessagesCount } from "../lib/store";
 
 const ConversationView = () => {
   const params = useParams();
@@ -42,6 +43,7 @@ const ConversationView = () => {
     await loadConversation();
     scrollToBottom();
     await conversationApi.markAsRead(params.id);
+    await refreshUnreadMessagesCount()
   });
 
   const sendMessage = async (e: Event) => {

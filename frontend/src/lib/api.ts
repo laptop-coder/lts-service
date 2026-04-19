@@ -81,6 +81,8 @@ export const conversationApi = {
     api.get<{ conversations: ConversationListItem[] }>("/conversations"),
   getById: (id: string) =>
     api.get<{ conversation: Conversation }>(`/conversations/${id}`),
+  getTotalUnreadCount: () =>
+    api.get<{ unreadCount: number }>(`/conversations/unread_count`),
   create: (postId: string, message: string) =>
     api.post<{ conversationId: string }>(`/posts/${postId}/contact`, {
       message,
