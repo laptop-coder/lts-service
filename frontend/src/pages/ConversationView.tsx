@@ -43,7 +43,7 @@ const ConversationView = () => {
     await loadConversation();
     scrollToBottom();
     await conversationApi.markAsRead(params.id);
-    await refreshUnreadMessagesCount()
+    await refreshUnreadMessagesCount();
   });
 
   const sendMessage = async (e: Event) => {

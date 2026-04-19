@@ -88,7 +88,7 @@ const Register = () => {
       setRoleIds(rolesData.roles.map((role) => role.id));
       setRoleNames(rolesData.roles.map((role) => role.name));
 
-      await loadDataForSelect()
+      await loadDataForSelect();
     } catch (err) {
       // TODO
     } finally {
@@ -120,7 +120,6 @@ const Register = () => {
       institutionAdministratorPositionData.institutionAdministratorPositions,
     );
   };
-
 
   const handleAvatarChange = (e: Event) => {
     const input = e.currentTarget as HTMLInputElement;
