@@ -1,4 +1,4 @@
-import { createSignal, onMount, For, Show } from "solid-js";
+import { createSignal, onMount, For, Show, createEffect } from "solid-js";
 import { A } from "@solidjs/router";
 import { useParams, useNavigate } from "@solidjs/router";
 import { conversationApi } from "../lib/api";
@@ -21,6 +21,7 @@ const ConversationView = () => {
   const [error, setError] = createSignal("");
 
   let messagesEndRef: HTMLDivElement | undefined;
+  let messageInputRef: HTMLInputElement | undefined;
 
   const loadConversation = async () => {
     try {
@@ -46,6 +47,16 @@ const ConversationView = () => {
     await refreshUnreadMessagesCount();
   });
 
+  const focusMessageInput = () => {
+    if (messageInputRef) {
+      messageInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusMessageInput();
+  });
+
   const sendMessage = async (e: Event) => {
     e.preventDefault();
     if (!newMessage().trim()) return;
@@ -60,6 +71,7 @@ const ConversationView = () => {
       setError("Ошибка отправки сообщения");
     } finally {
       setSending(false);
+      focusMessageInput();
     }
   };
 
@@ -142,6 +154,7 @@ const ConversationView = () => {
         class="border-t border-gray-200 p-4 flex gap-2"
       >
         <input
+          ref={messageInputRef}
           type="text"
           value={newMessage()}
           onInput={(e) => setNewMessage(e.currentTarget.value)}

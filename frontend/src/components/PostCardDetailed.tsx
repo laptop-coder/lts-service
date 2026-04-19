@@ -1,4 +1,4 @@
-import { Show, createSignal, onMount, onCleanup } from "solid-js";
+import { Show, createSignal, onMount, onCleanup, createEffect } from "solid-js";
 import type { Post } from "../lib/types";
 import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import { api, conversationApi } from "../lib/api";
@@ -23,6 +23,7 @@ const PostCardDetailed = (props: Props) => {
 
   const openModal = async () => {
     setShowModal(true);
+    focusMessageInput();
   };
 
   const closeModal = () => {
@@ -107,6 +108,18 @@ const PostCardDetailed = (props: Props) => {
       }
     }
   };
+
+  let messageInputRef: HTMLInputElement | undefined;
+
+  const focusMessageInput = () => {
+    if (messageInputRef) {
+      messageInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusMessageInput();
+  });
 
   return (
     <div
@@ -294,6 +307,7 @@ const PostCardDetailed = (props: Props) => {
                 </div>
               </Show>
               <input
+                ref={messageInputRef}
                 disabled={contactLoading()}
                 type="text"
                 value={contactMessage()}
@@ -301,6 +315,13 @@ const PostCardDetailed = (props: Props) => {
                   setContactLoading(false);
                   setError("");
                   setContactMessage(e.target.value);
+                }}
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    if (contactLoading()) return
+                    await contactAuthor()
+                  }
                 }}
                 placeholder="Введите сообщение..."
                 class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
