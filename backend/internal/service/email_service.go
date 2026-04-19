@@ -9,6 +9,7 @@ import (
 	"crypto/tls"
 	"embed"
 	"fmt"
+	"github.com/google/uuid"
 	"html/template"
 	"net/smtp"
 	"strings"
@@ -121,10 +122,11 @@ func (s *emailService) SendInviteLink(ctx context.Context, to *string, link stri
 }
 
 type NewMessageNotificationDTO struct {
-	Post      model.Post `json:"post"`
-	Recipient model.User `json:"recipient"`
-	Sender    model.User `json:"sender"`
-	Message   string     `json:"message"`
+	Post           model.Post `json:"post"`
+	Recipient      model.User `json:"recipient"`
+	Sender         model.User `json:"sender"`
+	Message        string     `json:"message"`
+	ConversationID uuid.UUID  `json:"conversationId"`
 }
 
 func (s *emailService) validateNewMessageNotificationDTO(dto *NewMessageNotificationDTO) error {
@@ -151,7 +153,7 @@ func (s *emailService) SendNewMessageNotification(ctx context.Context, dto *NewM
 		"SenderFirstName":    dto.Sender.FirstName,
 		"SenderLastName":     dto.Sender.LastName,
 		"Message":            dto.Message,
-		"Link":               fmt.Sprintf("%s/profile", s.config.FrontendURL),
+		"Link":               fmt.Sprintf("%s/conversations/%s", s.config.FrontendURL, dto.ConversationID.String()),
 		"FooterText":         env.GetStringRequired("FOOTER_TEXT"), // TODO: move to the config
 	}); err != nil {
 		s.log.Error("Failed to execute template of the new message notification email", "error", err.Error())

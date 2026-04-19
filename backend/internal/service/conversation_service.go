@@ -317,10 +317,11 @@ func (s *conversationService) notifyParticipant(ctx context.Context, conv *model
 	}
 
 	dto := NewMessageNotificationDTO{
-		Post:      conv.Post,
-		Recipient: *recipient,
-		Sender:    *sender,
-		Message:   *content,
+		Post:           conv.Post,
+		Recipient:      *recipient,
+		Sender:         *sender,
+		Message:        *content,
+		ConversationID: conv.ID,
 	}
 
 	return s.emailService.SendNewMessageNotification(ctx, &dto)
