@@ -1,10 +1,10 @@
-import { Show, createSignal } from "solid-js";
+import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import type { Post } from "../lib/types";
 import { usePermissions, PERMISSIONS } from "../lib/permissions";
-import { api } from "../lib/api";
+import { api, conversationApi } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { formatDate } from "../lib/utils";
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 
 interface Props {
   post: Post;
@@ -16,6 +16,50 @@ const PostCardDetailed = (props: Props) => {
   const { hasPermission } = usePermissions();
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
+  const [contactLoading, setContactLoading] = createSignal(false);
+  const [contactMessage, setContactMessage] = createSignal("");
+  const [showModal, setShowModal] = createSignal(false);
+  const navigate = useNavigate();
+
+  const openModal = async () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setContactMessage("");
+    setError("");
+    setContactLoading(false);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && showModal()) {
+      closeModal();
+    }
+  };
+
+  onMount(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    onCleanup(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+    });
+  });
+
+  const contactAuthor = async () => {
+    try {
+      if (contactMessage() == "") setError("Введите сообщение");
+      setContactLoading(true);
+      const data = await conversationApi.create(
+        props.post.id,
+        contactMessage(),
+      );
+      navigate(`/conversations/${data.conversationId}`);
+    } catch (err) {
+      setError("Не удалось начать переписку");
+    } finally {
+      setContactLoading(false);
+    }
+  };
 
   const verifyPost = async () => {
     try {
@@ -156,6 +200,15 @@ const PostCardDetailed = (props: Props) => {
                       Удалить
                     </button>
                   )}
+                {auth.user()?.id !== props.post.author.id && (
+                  <button
+                    onClick={openModal}
+                    disabled={contactLoading()}
+                    class="w-full sm:w-auto px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
+                  >
+                    {contactLoading() ? "..." : "Связаться с автором"}
+                  </button>
+                )}
               </div>
               <div class="flex gap-3 flex-nowrap">
                 {hasPermission(PERMISSIONS.POST_VERIFY) &&
@@ -209,6 +262,68 @@ const PostCardDetailed = (props: Props) => {
           </div>
         </div>
       </div>
+
+      <Show when={showModal()}>
+        <div
+          class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={closeModal}
+        >
+          <div
+            class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+              <h2 class="text-xl font-bold text-gray-800">
+                Связаться с автором
+              </h2>
+              <p class="text-sm text-gray-500">
+                {props.post.author.firstName} {props.post.author.lastName} ·{" "}
+                {props.post.name}
+              </p>
+            </div>
+
+            {/* Body */}
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)] space-y-5 flex">
+              <Show when={error()}>
+                <div class="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-sm">
+                  {error()}
+                </div>
+              </Show>
+              <input
+                disabled={contactLoading()}
+                type="text"
+                value={contactMessage()}
+                onInput={(e) => {
+                  setContactLoading(false);
+                  setError("");
+                  setContactMessage(e.target.value);
+                }}
+                placeholder="Введите сообщение..."
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+                required
+              />
+            </div>
+
+            {/* Footer */}
+            <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+              <button
+                onClick={closeModal}
+                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={contactAuthor}
+                disabled={contactLoading()}
+                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {contactLoading() ? "Отправка..." : "Отправить"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
     </div>
   );
 };
