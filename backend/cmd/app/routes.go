@@ -162,6 +162,7 @@ func SetupRoutes(
 	mux.Handle("POST /api/v1/posts/{postId}/contact", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationCreate)(http.HandlerFunc(conversationHandler.CreateConversation))))
 	mux.Handle("GET /api/v1/conversations", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationReadOwn)(http.HandlerFunc(conversationHandler.GetMyConversations))))
 	mux.Handle("GET /api/v1/conversations/{conversationId}", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationReadOwn)(http.HandlerFunc(conversationHandler.GetConversation))))
+	mux.Handle("GET /api/v1/conversations/unread_count", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationReadOwn)(http.HandlerFunc(conversationHandler.GetTotalUnreadCount))))
 	mux.Handle("POST /api/v1/conversations/{conversationId}/messages", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationMessageSend)(http.HandlerFunc(conversationHandler.SendMessage))))
 	mux.Handle("PATCH /api/v1/conversations/{conversationId}/messages/read", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationMessageMarkAsRead)(http.HandlerFunc(conversationHandler.MarkAsRead))))
 }

@@ -14,6 +14,7 @@ type MessageRepository interface {
     MarkAsRead(ctx context.Context, conversationID uuid.UUID, userID uuid.UUID) error
     CountUnread(ctx context.Context, conversationID uuid.UUID, userID uuid.UUID) (int64, error)
     FindLastMessage(ctx context.Context, conversationID uuid.UUID) (*model.Message, error)
+	CountAllUnread(ctx context.Context, userID uuid.UUID) (int64, error)
 }
 
 type messageRepository struct {
@@ -80,4 +81,17 @@ func (r *messageRepository) FindLastMessage(ctx context.Context, conversationID 
         return nil, nil
     }
     return &message, err
+}
+
+func (r *messageRepository) CountAllUnread(ctx context.Context, userID uuid.UUID) (int64, error) {
+	var count int64
+	subQuery := r.db.Model(&model.Conversation{}).
+		Select("id").
+		Where("author_id = ? OR requester_id = ?", userID, userID)
+	err := r.db.WithContext(ctx).
+		Model(&model.Message{}).
+		Where("conversation_id IN (?)", subQuery).
+		Where("sender_id != ? AND is_read = false", userID).
+		Count(&count).Error
+	return count, err
 }

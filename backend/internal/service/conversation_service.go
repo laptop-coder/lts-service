@@ -24,6 +24,7 @@ type ConversationService interface {
 	GetConversation(ctx context.Context, conversationID uuid.UUID, userID uuid.UUID) (*ConversationResponseDTO, error)
 	GetUserConversations(ctx context.Context, userID uuid.UUID, limit, offset int) ([]ConversationListItemDTO, error)
 	MarkAsRead(ctx context.Context, conversationID uuid.UUID, userID uuid.UUID) error
+	GetTotalUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error)
 }
 
 type conversationService struct {
@@ -323,4 +324,8 @@ func (s *conversationService) notifyParticipant(ctx context.Context, conv *model
 	}
 
 	return s.emailService.SendNewMessageNotification(ctx, &dto)
+}
+
+func (s *conversationService) GetTotalUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error) {
+	return s.msgRepo.CountAllUnread(ctx, userID)
 }

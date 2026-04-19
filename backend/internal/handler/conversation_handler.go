@@ -267,3 +267,33 @@ func (h *ConversationHandler) MarkAsRead(w http.ResponseWriter, r *http.Request)
 
 	helpers.JsonResponse(w, map[string]interface{}{}, http.StatusNoContent)
 }
+
+// Get total count of unread messages
+func (h *ConversationHandler) GetTotalUnreadCount(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get userID from the context
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get count
+	count, err := h.conversationService.GetTotalUnreadCount(r.Context(), userID)
+	if err != nil {
+		h.log.Error("Failed to get count of all unread messages",
+			"userId", userID,
+			"error", err.Error())
+
+		helpers.ErrorResponse(h.log, w, "failed to get count of all unread messages", http.StatusInternalServerError)
+		return
+	}
+
+	helpers.SuccessResponse(w, map[string]interface{}{
+		"unreadCount": count,
+	})
+}
