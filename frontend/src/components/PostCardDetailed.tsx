@@ -47,7 +47,10 @@ const PostCardDetailed = (props: Props) => {
 
   const contactAuthor = async () => {
     try {
-      if (contactMessage() == "") setError("Введите сообщение");
+      if (!contactMessage().trim()) {
+        setError("Введите сообщение");
+        return;
+      }
       setContactLoading(true);
       const data = await conversationApi.create(
         props.post.id,
