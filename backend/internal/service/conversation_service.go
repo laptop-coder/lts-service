@@ -219,7 +219,7 @@ func (s *conversationService) SendMessage(ctx context.Context, conversationID uu
 	go func() {
 		errCh <- s.notifyParticipant(ctx, conv, senderID, content)
 	}()
-	if err := <- errCh; err != nil {
+	if err := <-errCh; err != nil {
 		s.log.Error("Email (new message notification) was not sent", "error", err.Error())
 	}
 

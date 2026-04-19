@@ -9,7 +9,7 @@ type Conversation struct {
 	ID        uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	IsActive  bool       `gorm:"default:true"`
+	IsActive  bool      `gorm:"default:true"`
 	Messages  []Message `gorm:"foreignKey:ConversationID;references:ID;constraint:OnDelete:cascade,OnUpdate:restrict"`
 
 	// Post
