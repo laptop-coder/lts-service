@@ -103,6 +103,33 @@ export interface InstitutionAdministratorPosition {
   name: string;
 }
 
+export interface Conversation {
+  id: string;
+  createdAt: string;
+  post: Post;
+  messages: Message[];
+  otherUser: User;
+}
+
+export interface ConversationListItem {
+  id: string;
+  updatedAt: string;
+  postID: string;
+  postName: string;
+  unreadCount: number;
+  lastMessage?: string;
+  otherUser: User;
+}
+
+export interface Message {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  senderID: string;
+  content: string;
+  isRead: boolean;
+}
+
 // Responses
 export interface LoginResponse {
   user: User;

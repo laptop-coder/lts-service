@@ -1,3 +1,5 @@
+import { ConversationListItem, Conversation, Message } from "./types";
+
 const API_BASE =
   import.meta.env.VITE_API_URL || "http://127.0.0.1:37190/api/v1";
 
@@ -71,4 +73,21 @@ export const api = {
     path: string,
     body?: Record<string, string> | FormData | URLSearchParams,
   ) => request<T>(path, { method: "PUT", body }),
+};
+
+// TODO: make for other modules like here
+export const conversationApi = {
+  getListOwn: () =>
+    api.get<{ conversations: ConversationListItem[] }>("/conversations"),
+  getById: (id: string) =>
+    api.get<{ conversation: Conversation }>(`/conversations/${id}`),
+  create: (postId: string, message: string) =>
+    api.post<{ conversationId: string }>(`/posts/${postId}/contact`, {
+      message,
+    }),
+  sendMessage: (convId: string, message: string) =>
+    api.post<{ message: Message }>(`/conversations/${convId}/messages`, {
+      message,
+    }),
+  markAsRead: (convId: string) => api.put(`/conversations/${convId}/read`),
 };
