@@ -6,7 +6,6 @@ import (
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"

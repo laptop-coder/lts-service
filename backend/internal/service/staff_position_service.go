@@ -6,7 +6,6 @@ import (
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
-	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"strings"

@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
