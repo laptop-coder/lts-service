@@ -259,7 +259,9 @@ const Profile = () => {
       // Reload page
       window.location.reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось обновить аватар");
+      setError(
+        err instanceof Error ? err.message : "Не удалось обновить аватар",
+      );
     } finally {
       setUploadingAvatar(false);
     }

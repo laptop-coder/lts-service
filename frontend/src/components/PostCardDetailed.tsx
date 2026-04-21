@@ -59,7 +59,9 @@ const PostCardDetailed = (props: Props) => {
       );
       navigate(`/conversations/${data.conversationId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось начать переписку");
+      setError(
+        err instanceof Error ? err.message : "Не удалось начать переписку",
+      );
     } finally {
       setContactLoading(false);
     }
@@ -87,7 +89,9 @@ const PostCardDetailed = (props: Props) => {
       await api.patch<{ posts: Post[] }>(`/posts/${props.post.id}/return`);
       props.onChange?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось закрыть объявление");
+      setError(
+        err instanceof Error ? err.message : "Не удалось закрыть объявление",
+      );
     } finally {
       setLoading(false);
     }
@@ -318,9 +322,9 @@ const PostCardDetailed = (props: Props) => {
                 }}
                 onKeyDown={async (e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault()
-                    if (contactLoading()) return
-                    await contactAuthor()
+                    e.preventDefault();
+                    if (contactLoading()) return;
+                    await contactAuthor();
                   }
                 }}
                 placeholder="Введите сообщение..."

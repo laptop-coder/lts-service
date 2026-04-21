@@ -21,9 +21,7 @@ const QRCodeButton = (props: Props) => {
       setShowQR(true);
     } catch (err) {
       props.setError(
-        err instanceof Error
-          ? err.message
-          : "Не удалось сгенерировать QR-код",
+        err instanceof Error ? err.message : "Не удалось сгенерировать QR-код",
       );
     }
   };

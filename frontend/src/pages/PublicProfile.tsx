@@ -62,7 +62,11 @@ const PublicProfile = () => {
       const data = await api.get<{ user: User }>(`/users/${params.id}`);
       setUser(data.user);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось загрузить пользователя");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Не удалось загрузить пользователя",
+      );
     } finally {
       setLoading(false);
     }

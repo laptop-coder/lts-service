@@ -72,8 +72,7 @@ const Users = () => {
       setUsers(data.users);
     } catch (err) {
       setError(
-err instanceof Error ? err.message : 
-        "Ошибка загрузки пользователей",
+        err instanceof Error ? err.message : "Ошибка загрузки пользователей",
       );
     } finally {
       setLoading(false);
@@ -383,7 +382,9 @@ err instanceof Error ? err.message :
         ),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка добавления роли админа");
+      setError(
+        err instanceof Error ? err.message : "Ошибка добавления роли админа",
+      );
     } finally {
       setSaving(false);
     }
@@ -406,7 +407,9 @@ err instanceof Error ? err.message :
         ),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка удаления роли админа");
+      setError(
+        err instanceof Error ? err.message : "Ошибка удаления роли админа",
+      );
     } finally {
       setSaving(false);
     }

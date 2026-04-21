@@ -19,7 +19,11 @@ const RequestStudentInvite = () => {
     try {
       await api.post<{}>("/invite/request/student", formData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка запроса пригласительной ссылки");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ошибка запроса пригласительной ссылки",
+      );
     } finally {
       setLoading(false);
       setDone(true);

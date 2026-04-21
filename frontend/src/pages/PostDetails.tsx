@@ -19,7 +19,9 @@ const PostDetails = () => {
       const data = await api.get<{ post: Post }>(`/posts/${params.id}`);
       setPost(data.post);
     } catch (err) {
-        setError(err instanceof Error ? err.message : "Не удалось загрузить объявление");
+      setError(
+        err instanceof Error ? err.message : "Не удалось загрузить объявление",
+      );
     } finally {
       setLoading(false);
     }

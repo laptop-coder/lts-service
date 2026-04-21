@@ -90,7 +90,7 @@ const Register = () => {
 
       await loadDataForSelect();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Возникла ошибка")
+      setError(err instanceof Error ? err.message : "Возникла ошибка");
     } finally {
       setLoading(false);
     }
