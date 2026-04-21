@@ -1,9 +1,9 @@
 package service
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"errors"
@@ -68,6 +68,12 @@ func NewAuthService(
 
 func (s *authService) Login(ctx context.Context, email string, password string) (*TokenResponse, *UserResponseDTO, error) {
 	s.log.Info("Starting user login")
+	defer func(start time.Time) {
+		target := 1 * time.Second
+		if elapsed := time.Since(start); elapsed < target {
+			time.Sleep(target - elapsed)
+		}
+	}(time.Now())
 	// Find user by email
 	user, err := s.userRepo.FindByEmail(ctx, &email)
 	if err != nil {
@@ -92,7 +98,7 @@ func (s *authService) Login(ctx context.Context, email string, password string) 
 	return tokens, UserToDTO(user), nil
 }
 
-//TODO: rename to RefreshTokens?
+// TODO: rename to RefreshTokens?
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error) {
 	s.log.Info("starting tokens refresh...")
 	// Parse (and validate) refresh token

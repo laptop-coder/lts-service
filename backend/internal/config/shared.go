@@ -38,7 +38,7 @@ type StorageConfig struct {
 func LoadSharedConfig() SharedConfig {
 	return SharedConfig{
 		Security: SecurityConfig{
-			BcryptCost:         15, // minimal is 4, maximum is 31, default is 10
+			BcryptCost:         12, // minimal is 4, maximum is 31, default is 10
 			AuthJWTSecret:      []byte(env.GetStringRequired("JWT_SECRET_AUTH")),
 			InviteJWTSecret:    []byte(env.GetStringRequired("JWT_SECRET_INVITE")),
 			AccessTokenExpiry:  time.Duration(time.Minute * 15),
