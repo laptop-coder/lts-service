@@ -76,7 +76,7 @@ func (r *userRepository) FindAll(ctx context.Context, filter *UserFilter) ([]mod
 	// Sort users in the alphabetical order
 	query = query.Order("last_name")
 	// Find users
-	result := query.Preload("Roles").Find(&users)
+	result := query.Preload("Roles").Preload("Roles.Permissions").Find(&users)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch users list: %w", result.Error)
 	}
@@ -104,7 +104,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email *string) (*model
 		return nil, fmt.Errorf("user email cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var user model.User
-	result := r.db.WithContext(ctx).Preload("Roles").Where("email = ?", *email).First(&user)
+	result := r.db.WithContext(ctx).Preload("Roles").Preload("Roles.Permissions").Where("email = ?", *email).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user was not found by email: %s: %w", result.Error.Error(), apperrors.ErrUserNotFound)

@@ -5,7 +5,7 @@ export function usePermissions() {
 
   const hasPermission = (permission: string): boolean => {
     const user = auth.user();
-    if (!user) return false;
+    if (!user?.roles) return false;
     return user.roles.some((role) =>
       role.permissions.some((p) => p.name === permission),
     );
@@ -21,7 +21,7 @@ export function usePermissions() {
 
   const hasRole = (roleName: string): boolean => {
     const user = auth.user();
-    if (!user) return false;
+    if (!user?.roles) return false;
     return user.roles.some((r) => r.name === roleName);
   };
 
