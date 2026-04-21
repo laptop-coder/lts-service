@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"fmt"
 	"backend/internal/model"
-	"backend/pkg/logger"
 	"backend/pkg/apperrors"
+	"backend/pkg/logger"
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

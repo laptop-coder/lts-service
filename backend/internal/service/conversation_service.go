@@ -1,13 +1,13 @@
 package service
 
 import (
-	"fmt"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
@@ -320,7 +320,6 @@ func (s *conversationService) notifyParticipant(ctx context.Context, conv *model
 	}
 	return nil
 }
-
 
 func (s *conversationService) GetTotalUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error) {
 	return s.msgRepo.CountAllUnread(ctx, userID)

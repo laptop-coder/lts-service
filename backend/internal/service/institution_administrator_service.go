@@ -1,9 +1,9 @@
 package service
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"fmt"
@@ -93,7 +93,7 @@ func (s *institutionAdministratorService) AssignPosition(ctx context.Context, us
 		var institutionAdministrator model.InstitutionAdministrator
 		if err := tx.WithContext(ctx).
 			First(&institutionAdministrator, "user_id = ?", userID).Error; err != nil {
-				return fmt.Errorf("institution administrator with user ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrNotFound)
+			return fmt.Errorf("institution administrator with user ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrNotFound)
 		}
 		// Check position existence
 		var count int64

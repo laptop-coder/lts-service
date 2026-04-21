@@ -1,9 +1,9 @@
 package service
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"fmt"
@@ -253,7 +253,7 @@ func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, 
 		var subject model.Subject
 		if err := tx.WithContext(ctx).
 			First(&subject, subjectID).Error; err != nil {
-				return fmt.Errorf("subject not found: %s: %w", err.Error(), apperrors.ErrNotFound)
+			return fmt.Errorf("subject not found: %s: %w", err.Error(), apperrors.ErrNotFound)
 		}
 		// Remove subject from teacher
 		if err := tx.Model(&teacher).Association("Subjects").Delete(&subject); err != nil {

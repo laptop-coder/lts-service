@@ -1,9 +1,9 @@
 package service
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"errors"

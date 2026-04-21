@@ -1,9 +1,9 @@
 package service
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"errors"
@@ -186,7 +186,7 @@ func (s *parentService) UnassignStudent(ctx context.Context, userID uuid.UUID, s
 		if err := tx.WithContext(ctx).
 			Where("user_id = ?", studentID).
 			First(&student).Error; err != nil {
-				return fmt.Errorf("student not found: %s: %w", err.Error(), apperrors.ErrNotFound)
+			return fmt.Errorf("student not found: %s: %w", err.Error(), apperrors.ErrNotFound)
 		}
 		// Remove student from parent
 		if err := tx.Model(&parent).Association("Students").Delete(&student); err != nil {

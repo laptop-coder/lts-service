@@ -1,8 +1,8 @@
 package service
 
 import (
-	"backend/pkg/apperrors"
 	"backend/internal/model"
+	"backend/pkg/apperrors"
 	"backend/pkg/env"
 	"backend/pkg/logger"
 	"bytes"

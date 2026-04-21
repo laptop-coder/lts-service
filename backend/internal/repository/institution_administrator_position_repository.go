@@ -2,8 +2,8 @@ package repository
 
 import (
 	"backend/internal/model"
-	"backend/pkg/logger"
 	"backend/pkg/apperrors"
+	"backend/pkg/logger"
 	"context"
 	"errors"
 	"fmt"
