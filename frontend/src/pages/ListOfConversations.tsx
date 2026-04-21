@@ -16,7 +16,7 @@ const ListOfConversations = () => {
       const data = await conversationApi.getListOwn();
       setConversations(data.conversations);
     } catch (err) {
-      setError("Ошибка загрузки переписок");
+      setError(err instanceof Error ? err.message : "Ошибка загрузки переписок");
     } finally {
       setLoading(false);
     }

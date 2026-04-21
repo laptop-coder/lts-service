@@ -71,7 +71,7 @@ func (s *authService) Login(ctx context.Context, email string, password string) 
 	// Find user by email
 	user, err := s.userRepo.FindByEmail(ctx, &email)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			s.log.Warn("login failed: invalid credentials: user with this email does not exist")
 			return nil, nil, fmt.Errorf("invalid credentials: %w", apperrors.ErrInvalidCredentials)
 		}

@@ -25,13 +25,13 @@ const CreatePost = () => {
 
     try {
       await api.post<{ posts: Post }>("/posts", formData);
+      navigate("/");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Не удалось создать объявление",
       );
     } finally {
       setLoading(false);
-      navigate("/");
     }
   };
 

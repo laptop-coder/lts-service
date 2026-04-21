@@ -123,7 +123,7 @@ const InviteTokens = () => {
         setProgress({ current: i + 1, total: count() });
       } catch (err) {
         setError(
-          `Ошибка при создании токена ${i + 1}: ${err instanceof Error ? err.message : err}`,
+          `Ошибка при создании токена ${i + 1}${err instanceof Error ? ": " + err.message : ""}`,
         );
         break;
       }

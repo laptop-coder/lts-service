@@ -1,24 +1,11 @@
-import { createSignal, onMount, Show, For, Index } from "solid-js";
-import { createStore } from "solid-js/store";
-import { useAuth } from "../lib/auth";
+import { createSignal } from "solid-js";
 import { api } from "../lib/api";
-import { ROLES_TO_DISPLAY, ROLES } from "../lib/permissions";
-import { useNavigate, useSearchParams } from "@solidjs/router";
-import type {
-  Role,
-  Room,
-  Subject,
-  StudentGroup,
-  StaffPosition,
-  InstitutionAdministratorPosition,
-} from "../lib/types";
 
 const RequestStudentInvite = () => {
   const [email, setEmail] = createSignal("");
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
   const [done, setDone] = createSignal(false); // email was sent
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -32,7 +19,7 @@ const RequestStudentInvite = () => {
     try {
       await api.post<{}>("/invite/request/student", formData);
     } catch (err) {
-      setError("Ошибка запроса пригласительной ссылки");
+      setError(err instanceof Error ? err.message : "Ошибка запроса пригласительной ссылки");
     } finally {
       setLoading(false);
       setDone(true);

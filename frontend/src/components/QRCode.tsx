@@ -1,8 +1,9 @@
-import { createSignal, Show, onCleanup, onMount } from "solid-js";
+import { createSignal, Show, onCleanup, onMount, type Setter } from "solid-js";
 import QRCode from "qrcode";
 
 interface Props {
   text: string;
+  setError: Setter<string>;
 }
 
 const QRCodeButton = (props: Props) => {
@@ -19,8 +20,11 @@ const QRCodeButton = (props: Props) => {
       setQrDataUrl(url);
       setShowQR(true);
     } catch (err) {
-      // TODO
-      console.error("Failed to generate QR code");
+      props.setError(
+        err instanceof Error
+          ? err.message
+          : "Не удалось сгенерировать QR-код",
+      );
     }
   };
 

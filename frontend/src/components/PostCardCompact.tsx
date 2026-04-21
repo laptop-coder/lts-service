@@ -39,7 +39,7 @@ const PostCardCompact = (props: Props) => {
       await api.patch<{ posts: Post[] }>(`/posts/${props.post.id}/return`);
       props.onChange?.();
     } catch (err) {
-      setError("Не удалось закрыть объявление");
+      setError(err instanceof Error ? err.message : "Не удалось закрыть объявление");
     } finally {
       setLoading(false);
     }

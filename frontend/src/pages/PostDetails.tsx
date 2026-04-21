@@ -18,12 +18,8 @@ const PostDetails = () => {
     try {
       const data = await api.get<{ post: Post }>(`/posts/${params.id}`);
       setPost(data.post);
-    } catch (err: any) {
-      if (err.status === 403 || err.status === 401) {
-        setError("У Вас нет прав для просмотра этого объявления.");
-      } else {
-        setError("Не удалось загрузить объявление");
-      }
+    } catch (err) {
+        setError(err instanceof Error ? err.message : "Не удалось загрузить объявление");
     } finally {
       setLoading(false);
     }

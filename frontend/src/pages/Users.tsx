@@ -72,7 +72,8 @@ const Users = () => {
       setUsers(data.users);
     } catch (err) {
       setError(
-        "Ошибка загрузки пользователей", // TODO
+err instanceof Error ? err.message : 
+        "Ошибка загрузки пользователей",
       );
     } finally {
       setLoading(false);
@@ -285,7 +286,7 @@ const Users = () => {
       );
       closeModal();
     } catch (err) {
-      setError("Ошибка сохранения ролей");
+      setError(err instanceof Error ? err.message : "Ошибка сохранения ролей");
     } finally {
       setSaving(false);
     }
@@ -339,7 +340,7 @@ const Users = () => {
       await api.delete(`/users/${user.id}`);
       setUsers(users().filter((u) => u.id !== user.id));
     } catch (err) {
-      setError("Ошибка удаления"); // TODO
+      setError(err instanceof Error ? err.message : "Ошибка удаления");
     }
   };
 
@@ -382,7 +383,7 @@ const Users = () => {
         ),
       );
     } catch (err) {
-      setError("Ошибка добавления роли админа");
+      setError(err instanceof Error ? err.message : "Ошибка добавления роли админа");
     } finally {
       setSaving(false);
     }
@@ -405,7 +406,7 @@ const Users = () => {
         ),
       );
     } catch (err) {
-      setError("Ошибка удаления роли админа");
+      setError(err instanceof Error ? err.message : "Ошибка удаления роли админа");
     } finally {
       setSaving(false);
     }

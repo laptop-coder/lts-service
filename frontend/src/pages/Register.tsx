@@ -90,7 +90,7 @@ const Register = () => {
 
       await loadDataForSelect();
     } catch (err) {
-      // TODO
+      setError(err instanceof Error ? err.message : "Возникла ошибка")
     } finally {
       setLoading(false);
     }
@@ -203,11 +203,11 @@ const Register = () => {
 
     try {
       await auth.register(formData);
+      navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка регистрации");
     } finally {
       setLoading(false);
-      navigate("/");
     }
   };
 

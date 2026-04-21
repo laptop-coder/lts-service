@@ -29,7 +29,7 @@ const ConversationView = () => {
       setConversation(data.conversation);
       setMessages(data.conversation.messages);
     } catch (err) {
-      setError("Ошибка загрузки переписки");
+      setError(err instanceof Error ? err.message : "Ошибка загрузки переписки");
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,7 @@ const ConversationView = () => {
       await loadConversation();
       scrollToBottom();
     } catch (err) {
-      setError("Ошибка отправки сообщения");
+      setError(err instanceof Error ? err.message : "Ошибка отправки сообщения");
     } finally {
       setSending(false);
       focusMessageInput();

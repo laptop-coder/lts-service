@@ -20,7 +20,7 @@ const Rooms = () => {
       setRooms(data.rooms);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Ошибка загрузки кабинетов", // TODO: is it safety to print err message?
+        err instanceof Error ? err.message : "Ошибка загрузки кабинетов",
       );
     } finally {
       setLoading(false);

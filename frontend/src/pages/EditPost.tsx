@@ -31,8 +31,7 @@ const EditPost = () => {
         setPhotoPreview(`/storage/storage/post_photos/${data.post.id}.jpeg`);
       }
     } catch (err) {
-      setError("Не удалось загрузить объявление");
-      navigate("/");
+      setError(err instanceof Error ? err.message : "Не удалось загрузить объявление");
     } finally {
       setInitialLoading(false);
     }
@@ -55,7 +54,7 @@ const EditPost = () => {
         setHasPhoto(false);
         setPhotoPreview(null);
       } catch (err) {
-        setError("Не удалось удалить фото");
+        setError(err instanceof Error ? err.message : "Не удалось удалить фото");
       }
     } else {
       setNewPhoto(null);
@@ -87,7 +86,7 @@ const EditPost = () => {
       }
       navigate("/");
     } catch (err) {
-      setError("Не удалось обновить объявление");
+      setError(err instanceof Error ? err.message : "Не удалось обновить объявление");
     } finally {
       setLoading(false);
     }

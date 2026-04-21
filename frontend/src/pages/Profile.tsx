@@ -203,7 +203,7 @@ const Profile = () => {
       const parentStudentsResponses = await Promise.all(parentStudentsPromises);
       setParentStudentsUsers(parentStudentsResponses.map((r) => r.user));
     } catch (err) {
-      setError("Ошибка загрузки учеников");
+      setError(err instanceof Error ? err.message : "Ошибка загрузки учеников");
     } finally {
       setLoading(false);
     }
@@ -259,7 +259,7 @@ const Profile = () => {
       // Reload page
       window.location.reload();
     } catch (err) {
-      setError("Не удалось обновить аватар");
+      setError(err instanceof Error ? err.message : "Не удалось обновить аватар");
     } finally {
       setUploadingAvatar(false);
     }

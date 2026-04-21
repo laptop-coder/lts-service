@@ -1,5 +1,5 @@
 import { createSignal, For, Show, onMount } from "solid-js";
-import { useNavigate, useParams } from "@solidjs/router";
+import { useParams } from "@solidjs/router";
 import {
   usePermissions,
   PERMISSIONS,
@@ -24,7 +24,6 @@ import type {
 
 const PublicProfile = () => {
   const params = useParams();
-  const navigate = useNavigate();
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(true);
   const { hasPermission } = usePermissions();
@@ -63,7 +62,7 @@ const PublicProfile = () => {
       const data = await api.get<{ user: User }>(`/users/${params.id}`);
       setUser(data.user);
     } catch (err) {
-      setError("Не удалось загрузить пользователя");
+      setError(err instanceof Error ? err.message : "Не удалось загрузить пользователя");
     } finally {
       setLoading(false);
     }
@@ -140,7 +139,7 @@ const PublicProfile = () => {
       const parentStudentsResponses = await Promise.all(parentStudentsPromises);
       setParentStudentsUsers(parentStudentsResponses.map((r) => r.user));
     } catch (err) {
-      setError("Ошибка загрузки учеников");
+      setError(err instanceof Error ? err.message : "Ошибка загрузки учеников");
     } finally {
       setLoading(false);
     }
