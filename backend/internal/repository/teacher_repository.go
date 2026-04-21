@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -35,7 +36,7 @@ func NewTeacherRepository(db *gorm.DB, log logger.Logger) TeacherRepository {
 
 func (r *teacherRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*model.Teacher, error) {
 	if userID == nil {
-		return nil, fmt.Errorf("user id cannot be nil")
+		return nil, fmt.Errorf("user id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var teacher model.Teacher
 	result := r.db.WithContext(ctx).
@@ -45,7 +46,7 @@ func (r *teacherRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 		First(&teacher, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("teacher with user id %s was not found: %w", *userID, result.Error)
+			return nil, fmt.Errorf("teacher with user id %s was not found: %s: %w", *userID, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch teacher by user id (%s): %w", *userID, result.Error)
 	}
@@ -54,7 +55,7 @@ func (r *teacherRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 
 func (r *teacherRepository) FindAll(ctx context.Context, filter *TeacherFilter) ([]model.Teacher, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("teachers list filter cannot be nil")
+		return nil, fmt.Errorf("teachers list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var teachers []model.Teacher
 	query := r.db.WithContext(ctx).Model(&model.Teacher{})

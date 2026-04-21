@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -41,7 +42,7 @@ func NewStudentGroupRepository(db *gorm.DB, log logger.Logger) StudentGroupRepos
 
 func (r *studentGroupRepository) Create(ctx context.Context, studentGroup *model.StudentGroup) error {
 	if studentGroup == nil {
-		return fmt.Errorf("student group cannot be nil")
+		return fmt.Errorf("student group cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(studentGroup)
 	if result.Error != nil {
@@ -52,7 +53,7 @@ func (r *studentGroupRepository) Create(ctx context.Context, studentGroup *model
 
 func (r *studentGroupRepository) FindAll(ctx context.Context, filter *StudentGroupFilter) ([]model.StudentGroup, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("student groups list filter cannot be nil")
+		return nil, fmt.Errorf("student groups list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var studentGroups []model.StudentGroup
 	query := r.db.WithContext(ctx).Model(&model.StudentGroup{})
@@ -82,13 +83,13 @@ func (r *studentGroupRepository) FindAll(ctx context.Context, filter *StudentGro
 
 func (r *studentGroupRepository) FindByID(ctx context.Context, id *uint16) (*model.StudentGroup, error) {
 	if id == nil {
-		return nil, fmt.Errorf("student group id cannot be nil")
+		return nil, fmt.Errorf("student group id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var studentGroup model.StudentGroup
 	result := r.db.WithContext(ctx).First(&studentGroup, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student group with id %d was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("student group with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch student group by id (%d): %w", *id, result.Error)
 	}
@@ -97,7 +98,7 @@ func (r *studentGroupRepository) FindByID(ctx context.Context, id *uint16) (*mod
 
 func (r *studentGroupRepository) FindAdvisorByGroupID(ctx context.Context, id *uint16) (*model.User, error) {
 	if id == nil {
-		return nil, fmt.Errorf("student group id cannot be nil")
+		return nil, fmt.Errorf("student group id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var user model.User
 	result := r.db.WithContext(ctx).
@@ -106,7 +107,7 @@ func (r *studentGroupRepository) FindAdvisorByGroupID(ctx context.Context, id *u
 		First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user (student group advisor) was not found by group id (%d): %w", *id, result.Error)
+			return nil, fmt.Errorf("user (student group advisor) was not found by group id (%d): %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch user (student group advisor) by group id (%d): %w", *id, result.Error)
 	}
@@ -115,7 +116,7 @@ func (r *studentGroupRepository) FindAdvisorByGroupID(ctx context.Context, id *u
 
 func (r *studentGroupRepository) Update(ctx context.Context, studentGroup *model.StudentGroup) error {
 	if studentGroup == nil {
-		return fmt.Errorf("student group cannot be nil")
+		return fmt.Errorf("student group cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -126,7 +127,7 @@ func (r *studentGroupRepository) Update(ctx context.Context, studentGroup *model
 		return fmt.Errorf("failed to check student group existence (id %d): %w", studentGroup.ID, err)
 	}
 	if count == 0 {
-		return fmt.Errorf("student group with id %d was not found", studentGroup.ID)
+		return fmt.Errorf("student group with id %d was not found: %w", studentGroup.ID, apperrors.ErrNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(studentGroup)
 	if result.Error != nil {
@@ -141,14 +142,14 @@ func (r *studentGroupRepository) Delete(ctx context.Context, id *uint16) error {
 		return fmt.Errorf("failed to delete student group with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("student group to delete was not found by id: %w", apperrors.ErrNotFound)
 	}
 	return nil
 }
 
 func (r *studentGroupRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
 	if name == nil {
-		return false, fmt.Errorf("name cannot be nil")
+		return false, fmt.Errorf("name cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).

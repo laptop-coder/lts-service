@@ -98,7 +98,6 @@ func main() {
 	parentService := service.NewParentService(parentRepo, userRepo, db, log)
 	staffService := service.NewStaffService(staffRepo, userRepo, db, log)
 	institutionAdministratorService := service.NewInstitutionAdministratorService(institutionAdministratorRepo, userRepo, db, log)
-	roleService := service.NewRoleService(db, log)
 	inviteService := service.NewInviteService(emailService, jwtRepo, userRepo, roleRepo, db, serviceConfigs.Invite, log)
 	institutionAdministratorPositionService := service.NewInstitutionAdministratorPositionService(institutionAdministratorPositionRepo, db, log)
 	staffPositionService := service.NewStaffPositionService(staffPositionRepo, db, log)
@@ -117,7 +116,6 @@ func main() {
 	parentHandler := handler.NewParentHandler(parentService, log)
 	staffHandler := handler.NewStaffHandler(staffService, log)
 	institutionAdministratorHandler := handler.NewInstitutionAdministratorHandler(institutionAdministratorService, log)
-	roleHandler := handler.NewRoleHandler(roleService, log)
 	inviteHandler := handler.NewInviteHandler(inviteService, serviceConfigs.Invite, log)
 	institutionAdministratorPositionHandler := handler.NewInstitutionAdministratorPositionHandler(institutionAdministratorPositionService, log)
 	staffPositionHandler := handler.NewStaffPositionHandler(staffPositionService, log)
@@ -147,7 +145,6 @@ func main() {
 		parentHandler,
 		staffHandler,
 		institutionAdministratorHandler,
-		roleHandler,
 		inviteHandler,
 		staffPositionHandler,
 		institutionAdministratorPositionHandler,

@@ -3,9 +3,9 @@ package service
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
-	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"strings"
@@ -63,7 +63,7 @@ func (s *institutionAdministratorPositionService) CreatePosition(ctx context.Con
 		return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 	}
 	if exists {
-		return nil, fmt.Errorf("institutionAdministratorPosition with name '%s' already exists", dto.Name)
+		return nil, fmt.Errorf("institutionAdministratorPosition with name '%s' already exists: %w", dto.Name, apperrors.ErrInstitutionAdministratorPositionAlreadyExists)
 	}
 	// Creating model object
 	institutionAdministratorPosition := &model.InstitutionAdministratorPosition{
@@ -71,12 +71,12 @@ func (s *institutionAdministratorPositionService) CreatePosition(ctx context.Con
 	}
 	// Create institutionAdministratorPosition
 	if err := s.institutionAdministratorPositionRepo.Create(ctx, institutionAdministratorPosition); err != nil {
-		return nil, fmt.Errorf("failed to create institutionAdministratorPosition: %w", err)
+		return nil, fmt.Errorf("failed to create institution administrator position: %w", err)
 	}
 	// Get created institutionAdministratorPosition for response
 	createdInstitutionAdministratorPosition, err := s.institutionAdministratorPositionRepo.FindByID(ctx, &institutionAdministratorPosition.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch created institutionAdministratorPosition: %w", err)
+		return nil, fmt.Errorf("failed to fetch created institution administrator position: %w", err)
 	}
 	return InstitutionAdministratorPositionToDTO(createdInstitutionAdministratorPosition), nil
 }
@@ -85,7 +85,7 @@ func (s *institutionAdministratorPositionService) GetPositions(ctx context.Conte
 	institutionAdministratorPositions, err := s.institutionAdministratorPositionRepo.FindAll(ctx, &filter)
 	if err != nil {
 		s.log.Error(
-			"failed to get institutionAdministratorPositions from repository",
+			"failed to get institution administrator positions from repository",
 			"limit",
 			filter.Limit,
 			"offset",
@@ -94,7 +94,7 @@ func (s *institutionAdministratorPositionService) GetPositions(ctx context.Conte
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get institutionAdministratorPositions from repository (limit: %d, offset: %d): %w",
+			"failed to get institution administrator positions from repository (limit: %d, offset: %d): %w",
 			filter.Limit,
 			filter.Offset,
 			err,
@@ -104,24 +104,19 @@ func (s *institutionAdministratorPositionService) GetPositions(ctx context.Conte
 	for i, institutionAdministratorPosition := range institutionAdministratorPositions {
 		institutionAdministratorPositionDTOs[i] = *InstitutionAdministratorPositionToDTO(&institutionAdministratorPosition)
 	}
-	s.log.Info("successfully received the list of institutionAdministratorPositions")
+	s.log.Info("successfully received the list of institution administrator positions")
 	return institutionAdministratorPositionDTOs, nil
 }
 
 func (s *institutionAdministratorPositionService) UpdatePosition(ctx context.Context, id uint8, dto UpdateInstitutionAdministratorPositionDTO) (*InstitutionAdministratorPositionResponseDTO, error) {
 	// Input data validation
 	if err := s.validateUpdatePositionDTO(&dto); err != nil {
-		return nil, fmt.Errorf("validation error during institutionAdministratorPosition updating: %w", err)
+		return nil, fmt.Errorf("validation error during institution administrator position updating: %w", err)
 	}
 	// Getting existing institutionAdministratorPosition
 	institutionAdministratorPosition, err := s.institutionAdministratorPositionRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("InstitutionAdministratorPosition for update was not found by id", "institutionAdministratorPosition id", id, "error", err)
-			return nil, fmt.Errorf("institutionAdministratorPosition with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get institutionAdministratorPosition for update", "institutionAdministratorPosition id", id, "error", err)
-		return nil, fmt.Errorf("failed to get institutionAdministratorPosition for update: %w", err)
+		return nil, fmt.Errorf("failed to get institution administrator position for update: %w", err)
 	}
 	// Update field if provided and was changed
 	if dto.Name != nil && *dto.Name != institutionAdministratorPosition.Name {
@@ -131,50 +126,46 @@ func (s *institutionAdministratorPositionService) UpdatePosition(ctx context.Con
 			return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 		}
 		if exists {
-			return nil, fmt.Errorf("institutionAdministratorPosition with name '%s' already exists", dto.Name)
+			return nil, fmt.Errorf("institution administrator position with name '%s' already exists: %w", dto.Name, apperrors.ErrInstitutionAdministratorPositionAlreadyExists)
 		}
 		institutionAdministratorPosition.Name = *dto.Name
 	} else {
 		// No changes to update, return existing institutionAdministratorPosition
-		s.log.Info("No changes to update institutionAdministratorPosition", "institutionAdministratorPosition ID", id)
+		s.log.Info("no changes to update institution administrator position", "position_id", id)
 		return InstitutionAdministratorPositionToDTO(institutionAdministratorPosition), nil
 	}
 	// Update institutionAdministratorPosition in DB
 	if err := s.institutionAdministratorPositionRepo.Update(ctx, institutionAdministratorPosition); err != nil {
-		s.log.Error("Failed to update the institutionAdministratorPosition")
-		return nil, fmt.Errorf("failed to update the institutionAdministratorPosition: %w", err)
+		s.log.Error("failed to update the institution administrator position")
+		return nil, fmt.Errorf("failed to update the institution administrator position: %w", err)
 	}
 	// Get updated institutionAdministratorPosition for response
 	updatedInstitutionAdministratorPosition, err := s.institutionAdministratorPositionRepo.FindByID(ctx, &institutionAdministratorPosition.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch updated institutionAdministratorPosition: %w", err)
+		return nil, fmt.Errorf("failed to fetch updated institution administrator position: %w", err)
 	}
 	return InstitutionAdministratorPositionToDTO(updatedInstitutionAdministratorPosition), nil
 }
 
 func (s *institutionAdministratorPositionService) DeletePosition(ctx context.Context, id uint8) error {
-	s.log.Info("Starting institutionAdministratorPosition deletion...")
+	s.log.Info("starting institution administrator position deletion...")
 	if err := s.institutionAdministratorPositionRepo.Delete(ctx, &id); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("InstitutionAdministratorPosition does not exist", "institutionAdministratorPosition id", id, "error", err)
-			return fmt.Errorf("institutionAdministratorPosition with id %d does not exist: %w", id, err)
-		}
-		s.log.Error("Failed to delete the institutionAdministratorPosition")
-		return fmt.Errorf("failed to delete the institutionAdministratorPosition: %w", err)
+		s.log.Error("failed to delete the institution administrator position")
+		return fmt.Errorf("failed to delete the institution administrator position: %w", err)
 	}
-	s.log.Info("InstitutionAdministratorPosition deleted successfully")
+	s.log.Info("institution administrator position deleted successfully")
 	return nil
 }
 
 func (s *institutionAdministratorPositionService) validateCreatePositionDTO(dto *CreateInstitutionAdministratorPositionDTO) error {
 	if strings.TrimSpace(dto.Name) == "" {
-		return fmt.Errorf("name cannot be empty or only whitespace")
+		return fmt.Errorf("name cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	if len(dto.Name) < 4 {
-		return fmt.Errorf("name must be at least 4 characters")
+		return fmt.Errorf("name must be at least 4 characters: %w", apperrors.ErrValueTooShort)
 	}
 	if len(dto.Name) > 100 {
-		return fmt.Errorf("name must be at most 100 characters")
+		return fmt.Errorf("name must be at most 100 characters: %w", apperrors.ErrValueTooLong)
 	}
 	return nil
 }
@@ -182,13 +173,13 @@ func (s *institutionAdministratorPositionService) validateCreatePositionDTO(dto 
 func (s *institutionAdministratorPositionService) validateUpdatePositionDTO(dto *UpdateInstitutionAdministratorPositionDTO) error {
 	if dto.Name != nil {
 		if strings.TrimSpace(*dto.Name) == "" {
-			return fmt.Errorf("name cannot be only whitespace")
+			return fmt.Errorf("name cannot be only whitespace: %w", apperrors.ErrRequiredField)
 		}
 		if len(*dto.Name) < 4 {
-			return fmt.Errorf("name must be at least 4 characters")
+			return fmt.Errorf("name must be at least 4 characters: %w", apperrors.ErrValueTooShort)
 		}
 		if len(*dto.Name) > 100 {
-			return fmt.Errorf("name must be at most 100 characters")
+			return fmt.Errorf("name must be at most 100 characters: %w", apperrors.ErrValueTooLong)
 		}
 	}
 	return nil

@@ -28,29 +28,33 @@ func NewPostHandler(postService service.PostService, log logger.Logger) *PostHan
 
 func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 15<<20) // 15 MB
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
 	if err := r.ParseMultipartForm(15 << 20); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse multipart/formdata form", http.StatusBadRequest)
+		h.log.Error("failed to parse multipart/formdata form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get name field
 	nameFields := r.PostForm["name"]
 	if len(nameFields) > 1 {
-		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: too much name fields (%d)", len(nameFields)), http.StatusBadRequest)
+		h.log.Error(fmt.Sprintf("failed to parse form: too many name fields (%d)", len(nameFields)))
+		helpers.TooManyFieldsError(h.log, w, "name")
 		return
 	} else if len(nameFields) == 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: name field cannot be empty", http.StatusBadRequest)
+		h.log.Error("failed to parse form: name field cannot be empty")
+		helpers.FieldRequiredError(h.log, w, "name")
 		return
 	}
 	name := nameFields[0]
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Pre-assemble DTO
@@ -62,13 +66,15 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if descriptionFields := r.PostForm["description"]; len(descriptionFields) == 1 {
 		dto.Description = descriptionFields[0]
 	} else if len(descriptionFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much description values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many description values")
+		helpers.TooManyFieldsError(h.log, w, "description")
 		return
 	}
 	// Get post photo (optional field)
 	formFiles := r.MultipartForm.File["photo"]
 	if len(formFiles) > 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much post photo files", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many post photo files")
+		helpers.TooManyFieldsError(h.log, w, "photo")
 		return
 	} else if len(formFiles) == 1 {
 		dto.Photo = formFiles[0]
@@ -88,26 +94,29 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check if user updating his own post
@@ -115,7 +124,8 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 		// Get and convert user ID
 		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 		if !ok {
-			helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+			h.log.Error("failed to get userID from context and convert it to UUID")
+			helpers.InternalError(h.log, w)
 			return
 		}
 		// Get post
@@ -126,7 +136,8 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check if the post belongs to the user
 		if userID != post.Author.ID {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to update this post", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to update this post")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
@@ -135,13 +146,15 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
 		dto.Name = &nameFields[0]
 	} else if len(nameFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much name values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many name values")
+		helpers.TooManyFieldsError(h.log, w, "name")
 		return
 	}
 	if descriptionFields := r.PostForm["description"]; len(descriptionFields) == 1 {
 		dto.Description = &descriptionFields[0]
 	} else if len(descriptionFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much description values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many description values")
+		helpers.TooManyFieldsError(h.log, w, "description")
 		return
 	}
 	// Update post
@@ -159,21 +172,21 @@ func (h *PostHandler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		// TODO: check the whole code, maybe HTTP-401 should be changed to
-		// HTTP-403 in helpers.ErrorResponse
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check if user deleting his own post
@@ -181,7 +194,8 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		// Get and convert user ID
 		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 		if !ok {
-			helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+			h.log.Error("failed to get userID from context and convert it to UUID")
+			helpers.InternalError(h.log, w)
 			return
 		}
 		// Get post
@@ -192,7 +206,8 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check if the post belongs to the user
 		if userID != post.Author.ID {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to delete this post", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to delete this post")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
@@ -208,19 +223,21 @@ func (h *PostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check if user deleting photo of his own post
@@ -228,7 +245,8 @@ func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 		// Get and convert user ID
 		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 		if !ok {
-			helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+			h.log.Error("failed to get userID from context and convert it to UUID")
+			helpers.InternalError(h.log, w)
 			return
 		}
 		// Get post
@@ -239,7 +257,8 @@ func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check if the post belongs to the user
 		if userID != post.Author.ID {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to delete photo of this post", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to delete photo of this post")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
@@ -255,7 +274,7 @@ func (h *PostHandler) RemovePhoto(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) UpdatePhoto(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
@@ -263,19 +282,22 @@ func (h *PostHandler) UpdatePhoto(w http.ResponseWriter, r *http.Request) {
 	// Parse form
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
 	if err := r.ParseMultipartForm(15 << 20); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse multipart/formdata form", http.StatusBadRequest)
+		h.log.Error("failed to parse multipart/formdata form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check if user deleting photo of his own post
@@ -283,7 +305,8 @@ func (h *PostHandler) UpdatePhoto(w http.ResponseWriter, r *http.Request) {
 		// Get and convert user ID
 		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 		if !ok {
-			helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+			h.log.Error("failed to get userID from context and convert it to UUID")
+			helpers.InternalError(h.log, w)
 			return
 		}
 		// Get post
@@ -294,17 +317,20 @@ func (h *PostHandler) UpdatePhoto(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check if the post belongs to the user
 		if userID != post.Author.ID {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to update photo of this post", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to update photo of this post")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
 	// Get photo file from the request
 	formFiles := r.MultipartForm.File["photo"]
 	if len(formFiles) > 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much photo files", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many photo files")
+		helpers.TooManyFieldsError(h.log, w, "photo")
 		return
 	} else if len(formFiles) == 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: post photo cannot be empty", http.StatusBadRequest)
+		h.log.Error("failed to parse form: post photo cannot be empty")
+		helpers.FieldRequiredError(h.log, w, "photo")
 		return
 	}
 	// Update post photo
@@ -319,7 +345,7 @@ func (h *PostHandler) UpdatePhoto(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Parse query parameters (for filter)
@@ -338,7 +364,8 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		// Convert to UUID
 		authorID, err := uuid.Parse(authorIDString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert author id (i.e. user id) to uuid", http.StatusBadRequest)
+			h.log.Error("cannot convert author id (i.e. user id) to uuid")
+			helpers.BadRequestFieldError(h.log, w, "authorId")
 			return
 		}
 		// Add to filter
@@ -348,7 +375,8 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	if verifiedString != "" {
 		verified, err := strconv.ParseBool(verifiedString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert verification status from string to boolean", http.StatusBadRequest)
+			h.log.Error("cannot convert verification status from string to boolean")
+			helpers.BadRequestFieldError(h.log, w, "verified")
 			return
 		}
 		filter.Verified = &verified
@@ -357,7 +385,8 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	if thingReturnedToOwnerString != "" {
 		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+			h.log.Error("cannot convert thing returning to owner status from string to boolean")
+			helpers.BadRequestFieldError(h.log, w, "thingReturnedToOwner")
 			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
@@ -372,7 +401,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 			filter.Limit = limit
 		} else {
 			h.log.Error("invalid limit")
-			helpers.ErrorResponse(h.log, w, "invalid limit", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "limit")
 			return
 		}
 	}
@@ -382,7 +411,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 			filter.Offset = offset
 		} else {
 			h.log.Error("invalid offset")
-			helpers.ErrorResponse(h.log, w, "invalid offset", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "offset")
 			return
 		}
 	}
@@ -401,14 +430,14 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		h.log.Error("Cannot convert post id to uuid")
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get post
@@ -421,15 +450,15 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		h.log.Error("Cannot get user permissions")
-		helpers.ErrorResponse(h.log, w, "cannot get user permissions", http.StatusUnauthorized) // TODO: for permissions getting use message like here in the whole code (change in the other places from "unauthorized" message)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get ID of the authorized user
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		h.log.Error("Cannot convert user id to uuid")
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Return post in three cases:
@@ -442,13 +471,14 @@ func (h *PostHandler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to view this post", http.StatusForbidden)
+	h.log.Error("forbidden: you do not have permission to view this post")
+	helpers.ForbiddenError(h.log, w)
 }
 
 func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Parse query parameters (for filter)
@@ -466,7 +496,8 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 		// Convert to UUID
 		authorID, err := uuid.Parse(authorIDString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert author id (i.e. user id) to uuid", http.StatusBadRequest)
+			h.log.Error("cannot convert author id (i.e. user id) to uuid")
+			helpers.BadRequestFieldError(h.log, w, "authorId")
 			return
 		}
 		// Add to filter
@@ -479,7 +510,8 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	if thingReturnedToOwnerString != "" {
 		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+			h.log.Error("cannot convert thing returning to owner status from string to boolean")
+			helpers.BadRequestFieldError(h.log, w, "thingReturnedToOwner")
 			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
@@ -493,7 +525,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 			filter.Limit = limit
 		} else {
 			h.log.Error("invalid limit")
-			helpers.ErrorResponse(h.log, w, "invalid limit", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "limit")
 			return
 		}
 	}
@@ -503,7 +535,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 			filter.Offset = offset
 		} else {
 			h.log.Error("invalid offset")
-			helpers.ErrorResponse(h.log, w, "invalid offset", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "offset")
 			return
 		}
 	}
@@ -522,7 +554,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Parse query parameters (for filter)
@@ -538,7 +570,8 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Set author ID to user ID
@@ -547,7 +580,8 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	if verifiedString != "" {
 		verified, err := strconv.ParseBool(verifiedString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert verification status from string to boolean", http.StatusBadRequest)
+			h.log.Error("cannot convert verification status from string to boolean")
+			helpers.BadRequestFieldError(h.log, w, "verified")
 			return
 		}
 		filter.Verified = &verified
@@ -556,7 +590,8 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 	if thingReturnedToOwnerString != "" {
 		thingReturnedToOwner, err := strconv.ParseBool(thingReturnedToOwnerString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert thing returning to owner status from string to boolean", http.StatusBadRequest)
+			h.log.Error("cannot convert thing returning to owner status from string to boolean")
+			helpers.BadRequestFieldError(h.log, w, "thingReturnedToOwner")
 			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
@@ -570,7 +605,7 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 			filter.Limit = limit
 		} else {
 			h.log.Error("invalid limit")
-			helpers.ErrorResponse(h.log, w, "invalid limit", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "limit")
 			return
 		}
 	}
@@ -580,7 +615,7 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 			filter.Offset = offset
 		} else {
 			h.log.Error("invalid offset")
-			helpers.ErrorResponse(h.log, w, "invalid offset", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "offset")
 			return
 		}
 	}
@@ -599,7 +634,7 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
@@ -607,13 +642,15 @@ func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Verify post
@@ -631,26 +668,29 @@ func (h *PostHandler) Verify(w http.ResponseWriter, r *http.Request) {
 func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert post ID
 	postID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert post id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert post id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check if user updating his own post
@@ -658,7 +698,8 @@ func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
 		// Get and convert user ID
 		userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 		if !ok {
-			helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+			h.log.Error("failed to get userID from context and convert it to UUID")
+			helpers.InternalError(h.log, w)
 			return
 		}
 		// Get post
@@ -669,7 +710,8 @@ func (h *PostHandler) ReturnToOwner(w http.ResponseWriter, r *http.Request) {
 		}
 		// Check if the post belongs to the user
 		if userID != post.Author.ID {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to change status of this post", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to change status of this post")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}

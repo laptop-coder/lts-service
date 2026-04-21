@@ -35,14 +35,15 @@ func NewAuthHandler(authService service.AuthService, userService service.UserSer
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // 10 MB
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
 	// TODO: check if r.MultipartForm == nil and r.PostForm == nil (in all handlers)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse multipart/formdata form", http.StatusBadRequest)
+		h.log.Error("failed to parse multipart/formdata form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get fields data
@@ -50,15 +51,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	for _, s := range []string{"password", "firstName", "lastName", "inviteToken"} {
 		formFields := r.PostForm[s]
 		if len(formFields) > 1 {
-			helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: too much %s fields", s), http.StatusBadRequest)
+			h.log.Error(fmt.Sprintf("failed to parse form: too much %s fields", s))
+			helpers.TooManyFieldsError(h.log, w, s)
 			return
 		} else if len(formFields) == 0 {
-			helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: %s field cannot be empty", s), http.StatusBadRequest)
+			h.log.Error(fmt.Sprintf("failed to parse form: %s field cannot be empty", s))
+			helpers.FieldRequiredError(h.log, w, s)
 			return
 		}
 		trimmed := strings.TrimSpace(formFields[0]) // TODO: add checks like here in the whole code
 		if trimmed == "" {
-			helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse form: %s field cannot be empty or only whitespace", s), http.StatusBadRequest)
+			h.log.Error(fmt.Sprintf("failed to parse form: %s field cannot be empty or only whitespace", s))
+			helpers.FieldRequiredError(h.log, w, s)
 			return
 		}
 		fieldsData[s] = trimmed
@@ -74,18 +78,21 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		// Get email from the form
 		emailFields := r.PostForm["email"]
 		if len(emailFields) != 1 {
-			helpers.ErrorResponse(h.log, w, "email must be specified exactly once in the form", http.StatusBadRequest)
+			h.log.Error("email must be specified exactly once in the form")
+			helpers.FieldExactlyOneError(h.log, w, "email")
 			return
 		}
 		trimmedEmail := strings.TrimSpace(emailFields[0])
 		if trimmedEmail == "" {
-			helpers.ErrorResponse(h.log, w, "email cannot be empty or only whitespace", http.StatusBadRequest)
+			h.log.Error("email cannot be empty or only whitespace")
+			helpers.FieldRequiredError(h.log, w, "email")
 			return
 		}
 		email = &trimmedEmail
 	}
 	if email == nil {
-		helpers.ErrorResponse(h.log, w, "error getting email", http.StatusInternalServerError)
+		h.log.Error("error getting email")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get roles from invite token
@@ -95,9 +102,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if roles == nil || len(roles) == 0 { // TODO: check if roles == nil in the whole code
-		helpers.ErrorResponse(h.log, w, "list of the roles cannot be empty", http.StatusInternalServerError) // HTTP 500 because the token was signed by the server
+		h.log.Error("list of the roles cannot be empty")
+		helpers.InternalError(h.log, w) // HTTP 500 because the token was signed by the server
 		return
 	}
+
 	userExtensionsDTO := service.UserExtensionsDTO{}
 	roleIDs := make([]uint8, len(roles))
 	for i, role := range roles {
@@ -115,7 +124,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
 		createUserDTO.MiddleName = &middleNameFields[0]
 	} else if len(middleNameFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much middleName values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many middleName values")
+		helpers.TooManyFieldsError(h.log, w, "middleName")
 		return
 	}
 	// TeacherClassroomID (special)
@@ -123,20 +133,23 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher classroom ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
 		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many teacher classroom id values")
+		helpers.TooManyFieldsError(h.log, w, "teacherClassroomId")
 		return
 	}
 	// TeacherSubjectIDs (special)
 	if teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]; len(teacherSubjectIDsFields) == 0 {
 		// Check if creating user with the teacher role
 		if slices.Contains(roleIDs, 5) { // TODO: make smth like enum for roles constants
-			helpers.ErrorResponse(h.log, w, "failed to parse form: at least one teacherSubjectId value must be specified", http.StatusBadRequest)
+			h.log.Error("failed to parse form: at least one teacherSubjectId value must be specified")
+			helpers.AtLeastOneFieldError(h.log, w, "teacherSubjectId")
 			return
 		}
 	} else {
@@ -144,7 +157,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		for i, subjectIDString := range teacherSubjectIDsFields {
 			subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+				h.log.Error("cannot convert teacher subject ID from string to uint64")
+				helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
 				return
 			}
 			subjectID8 := uint8(subjectID64)
@@ -158,7 +172,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		for i, groupIDString := range teacherStudentGroupIDsFields {
 			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				h.log.Error("cannot convert teacher student group ID from string to uint64")
+				helpers.BadRequestFieldError(h.log, w, "teacherStudentGroupId")
 				return
 			}
 			groupID16 := uint16(groupID64)
@@ -171,7 +186,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint16
 		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert student group ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "studentGroupId")
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
@@ -179,11 +195,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	} else if len(studentGroupIDFields) == 0 {
 		// Check if creating user with the student role
 		if slices.Contains(roleIDs, 7) {
-			helpers.ErrorResponse(h.log, w, "failed to parse form: studentGroupId field must be provided exactly once", http.StatusBadRequest)
+			h.log.Error("failed to parse form: studentGroupId field must be provided exactly once")
+			helpers.FieldExactlyOneError(h.log, w, "studentGroupId")
 			return
 		}
 	} else {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many student group id values")
+		helpers.TooManyFieldsError(h.log, w, "studentGroupId")
 		return
 	}
 	// StaffPositionID (special)
@@ -191,7 +209,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert staff position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
@@ -199,11 +218,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	} else if len(staffPositionIDFields) == 0 {
 		// Check if creating user with the staff role
 		if slices.Contains(roleIDs, 4) {
-			helpers.ErrorResponse(h.log, w, "failed to parse form: staffPositionId field must be provided exactly once", http.StatusBadRequest)
+			h.log.Error("failed to parse form: staffPositionId field must be provided exactly once")
+			helpers.FieldExactlyOneError(h.log, w, "staffPositionId")
 			return
 		}
 	} else {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many staff position id values")
+		helpers.TooManyFieldsError(h.log, w, "staffPositionId")
 		return
 	}
 	// InstitutionAdministratorPositionID (special)
@@ -211,7 +232,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert institution administrator position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
@@ -219,11 +241,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	} else if len(institutionAdministratorPositionIDFields) == 0 {
 		// Check if creating user with the institution administrator role
 		if slices.Contains(roleIDs, 3) {
-			helpers.ErrorResponse(h.log, w, "failed to parse form: institutionAdministratorPositionId field must be provided exactly once", http.StatusBadRequest)
+			h.log.Error("failed to parse form: institutionAdministratorPositionId field must be provided exactly once")
+			helpers.FieldExactlyOneError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
 	} else {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many institution administrator position id values")
+		helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 		return
 	}
 	// ParentStudentIDs (special)
@@ -232,7 +256,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		for i, parentStudentIDString := range parentStudentIDsFields {
 			parentStudentID, err := uuid.Parse(parentStudentIDString)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+				h.log.Error("cannot convert parent student id to uuid")
+				helpers.BadRequestFieldError(h.log, w, "parentStudentId")
 				return
 			}
 			parentStudentIDs[i] = parentStudentID
@@ -242,7 +267,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// Avatar (optional)
 	formFiles := r.MultipartForm.File["avatar"]
 	if len(formFiles) > 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much avatar files", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many avatar files")
+		helpers.TooManyFieldsError(h.log, w, "avatar")
 		return
 	} else if len(formFiles) == 1 {
 		createUserDTO.Avatar = formFiles[0]
@@ -261,12 +287,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// Parse created tokens
 	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
 	if err != nil || parsedAccessToken == nil {
-		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse access token: %s", err.Error()), http.StatusInternalServerError)
+		h.log.Error(fmt.Sprintf("failed to parse access token: %s", err.Error()))
+		helpers.InternalError(h.log, w)
 		return
 	}
 	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
 	if err != nil || parsedRefreshToken == nil {
-		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
+		h.log.Error(fmt.Sprintf("failed to parse refresh token: %s", err.Error()))
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// TODO: in the whole code check if parsedAccessToken.RegisteredClaims.ExpiresAt == nil. The same for refresh
@@ -316,31 +344,36 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get credentials
 	email := r.PostForm["email"]
 	if len(email) == 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: email field is required", http.StatusBadRequest)
+		h.log.Error("failed to parse form: email field is required")
+		helpers.FieldRequiredError(h.log, w, "email")
 		return
 	} else if len(email) > 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much email values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many email values")
+		helpers.TooManyFieldsError(h.log, w, "email")
 		return
 	}
 	password := r.PostForm["password"]
 	if len(password) == 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: password field is required", http.StatusBadRequest)
+		h.log.Error("failed to parse form: password field is required")
+		helpers.FieldRequiredError(h.log, w, "password")
 		return
 	} else if len(password) > 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much password values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many password values")
+		helpers.TooManyFieldsError(h.log, w, "password")
 		return
 	}
 	// Log in
@@ -352,12 +385,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Parse created tokens
 	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
 	if err != nil || parsedAccessToken == nil {
-		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse access token: %s", err.Error()), http.StatusInternalServerError)
+		h.log.Error(fmt.Sprintf("failed to parse access token: %s", err.Error()))
+		helpers.InternalError(h.log, w)
 		return
 	}
 	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
 	if err != nil || parsedRefreshToken == nil {
-		helpers.ErrorResponse(h.log, w, fmt.Sprintf("failed to parse refresh token: %s", err.Error()), http.StatusInternalServerError)
+		h.log.Error(fmt.Sprintf("failed to parse refresh token: %s", err.Error()))
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Set cookies
@@ -402,7 +437,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
@@ -411,10 +446,12 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := helpers.GetCookie("jwt_refresh", r)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
-			helpers.ErrorResponse(h.log, w, "not authorized", http.StatusUnauthorized)
+			h.log.Warn("logout attempt without refresh token")
+			helpers.UnauthorizedError(h.log, w)
 			return
 		}
-		helpers.ErrorResponse(h.log, w, fmt.Sprintf("error reading refresh token cookie: %s", err.Error()), http.StatusInternalServerError)
+		h.log.Error(fmt.Sprintf("error reading refresh token cookie: %s", err.Error()))
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Revoke JWT refresh
@@ -453,24 +490,27 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get roles of user to delete
 	roles, err := h.userService.GetUserRoles(r.Context(), userID)
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to get user roles (user ID: %s): %w", userID, err))
+		return
 	}
 	// Get auth user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check if auth user has permission to delete this user
@@ -481,7 +521,8 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		if role.Name == "admin" {
 			hasAdminRole = true
 		} else if role.Name == "superadmin" {
-			helpers.ErrorResponse(h.log, w, "forbidden: you cannot delete user with superadmin role", http.StatusForbidden)
+			h.log.Error("forbidden: you cannot delete user with superadmin role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		} else {
 			hasUserRole = true
@@ -489,13 +530,15 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	if hasAdminRole {
 		if !slices.Contains(userPermissions, permissions.UserDeleteAnyAdmin) {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to delete user with admin role", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to delete user with admin role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
 	if hasUserRole {
 		if !slices.Contains(userPermissions, permissions.UserDeleteAnyUser) {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to delete user with non-admin role", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to delete user with non-admin role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
@@ -511,13 +554,14 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) DeleteOwnAccount(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Delete user

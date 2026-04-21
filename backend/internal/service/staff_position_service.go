@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -63,7 +64,7 @@ func (s *staffPositionService) CreatePosition(ctx context.Context, dto CreateSta
 		return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 	}
 	if exists {
-		return nil, fmt.Errorf("staffPosition with name '%s' already exists", dto.Name)
+		return nil, fmt.Errorf("staff position with name '%s' already exists: %w", dto.Name, apperrors.ErrStaffPositionAlreadyExists)
 	}
 	// Creating model object
 	staffPosition := &model.StaffPosition{
@@ -71,12 +72,12 @@ func (s *staffPositionService) CreatePosition(ctx context.Context, dto CreateSta
 	}
 	// Create staffPosition
 	if err := s.staffPositionRepo.Create(ctx, staffPosition); err != nil {
-		return nil, fmt.Errorf("failed to create staffPosition: %w", err)
+		return nil, fmt.Errorf("failed to create staff position: %w", err)
 	}
 	// Get created staffPosition for response
 	createdStaffPosition, err := s.staffPositionRepo.FindByID(ctx, &staffPosition.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch created staffPosition: %w", err)
+		return nil, fmt.Errorf("failed to fetch created staff position: %w", err)
 	}
 	return StaffPositionToDTO(createdStaffPosition), nil
 }
@@ -85,7 +86,7 @@ func (s *staffPositionService) GetPositions(ctx context.Context, filter reposito
 	staffPositions, err := s.staffPositionRepo.FindAll(ctx, &filter)
 	if err != nil {
 		s.log.Error(
-			"failed to get staffPositions from repository",
+			"failed to get staff positions from repository",
 			"limit",
 			filter.Limit,
 			"offset",
@@ -94,7 +95,7 @@ func (s *staffPositionService) GetPositions(ctx context.Context, filter reposito
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get staffPositions from repository (limit: %d, offset: %d): %w",
+			"failed to get staff positions from repository (limit: %d, offset: %d): %w",
 			filter.Limit,
 			filter.Offset,
 			err,
@@ -104,24 +105,19 @@ func (s *staffPositionService) GetPositions(ctx context.Context, filter reposito
 	for i, staffPosition := range staffPositions {
 		staffPositionDTOs[i] = *StaffPositionToDTO(&staffPosition)
 	}
-	s.log.Info("successfully received the list of staffPositions")
+	s.log.Info("successfully received the list of staff positions")
 	return staffPositionDTOs, nil
 }
 
 func (s *staffPositionService) UpdatePosition(ctx context.Context, id uint8, dto UpdateStaffPositionDTO) (*StaffPositionResponseDTO, error) {
 	// Input data validation
 	if err := s.validateUpdatePositionDTO(&dto); err != nil {
-		return nil, fmt.Errorf("validation error during staffPosition updating: %w", err)
+		return nil, fmt.Errorf("validation error during staff position updating: %w", err)
 	}
-	// Getting existing staffPosition
+	// Getting existing staff position
 	staffPosition, err := s.staffPositionRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("StaffPosition for update was not found by id", "staffPosition id", id, "error", err)
-			return nil, fmt.Errorf("staffPosition with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get staffPosition for update", "staffPosition id", id, "error", err)
-		return nil, fmt.Errorf("failed to get staffPosition for update: %w", err)
+		return nil, fmt.Errorf("failed to get staff position for update: %w", err)
 	}
 	// Update field if provided and was changed
 	if dto.Name != nil && *dto.Name != staffPosition.Name {
@@ -131,50 +127,45 @@ func (s *staffPositionService) UpdatePosition(ctx context.Context, id uint8, dto
 			return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 		}
 		if exists {
-			return nil, fmt.Errorf("staffPosition with name '%s' already exists", dto.Name)
+			return nil, fmt.Errorf("staff position with name '%s' already exists: %w", dto.Name, apperrors.ErrStaffPositionAlreadyExists)
 		}
 		staffPosition.Name = *dto.Name
 	} else {
 		// No changes to update, return existing staffPosition
-		s.log.Info("No changes to update staffPosition", "staffPosition ID", id)
+		s.log.Info("no changes to update staff position", "staff_position_id", id)
 		return StaffPositionToDTO(staffPosition), nil
 	}
 	// Update staffPosition in DB
 	if err := s.staffPositionRepo.Update(ctx, staffPosition); err != nil {
-		s.log.Error("Failed to update the staffPosition")
-		return nil, fmt.Errorf("failed to update the staffPosition: %w", err)
+		s.log.Error("failed to update the staff position")
+		return nil, fmt.Errorf("failed to update the staff position: %w", err)
 	}
 	// Get updated staffPosition for response
 	updatedStaffPosition, err := s.staffPositionRepo.FindByID(ctx, &staffPosition.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch updated staffPosition: %w", err)
+		return nil, fmt.Errorf("failed to fetch updated staff position: %w", err)
 	}
 	return StaffPositionToDTO(updatedStaffPosition), nil
 }
 
 func (s *staffPositionService) DeletePosition(ctx context.Context, id uint8) error {
-	s.log.Info("Starting staffPosition deletion...")
+	s.log.Info("starting staff position deletion...")
 	if err := s.staffPositionRepo.Delete(ctx, &id); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("StaffPosition does not exist", "staffPosition id", id, "error", err)
-			return fmt.Errorf("staffPosition with id %d does not exist: %w", id, err)
-		}
-		s.log.Error("Failed to delete the staffPosition")
-		return fmt.Errorf("failed to delete the staffPosition: %w", err)
+		return fmt.Errorf("failed to delete the staff position: %w", err)
 	}
-	s.log.Info("StaffPosition deleted successfully")
+	s.log.Info("staff position deleted successfully")
 	return nil
 }
 
 func (s *staffPositionService) validateCreatePositionDTO(dto *CreateStaffPositionDTO) error {
 	if strings.TrimSpace(dto.Name) == "" {
-		return fmt.Errorf("name cannot be empty or only whitespace")
+		return fmt.Errorf("name cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	if len(dto.Name) < 4 {
-		return fmt.Errorf("name must be at least 4 characters")
+		return fmt.Errorf("name must be at least 4 characters: %w", apperrors.ErrValueTooShort)
 	}
 	if len(dto.Name) > 100 {
-		return fmt.Errorf("name must be at most 100 characters")
+		return fmt.Errorf("name must be at most 100 characters: %w", apperrors.ErrValueTooLong)
 	}
 	return nil
 }
@@ -182,13 +173,13 @@ func (s *staffPositionService) validateCreatePositionDTO(dto *CreateStaffPositio
 func (s *staffPositionService) validateUpdatePositionDTO(dto *UpdateStaffPositionDTO) error {
 	if dto.Name != nil {
 		if strings.TrimSpace(*dto.Name) == "" {
-			return fmt.Errorf("name cannot be only whitespace")
+			return fmt.Errorf("name cannot be only whitespace: %w", apperrors.ErrRequiredField)
 		}
 		if len(*dto.Name) < 4 {
-			return fmt.Errorf("name must be at least 4 characters")
+			return fmt.Errorf("name must be at least 4 characters: %w", apperrors.ErrValueTooShort)
 		}
 		if len(*dto.Name) > 100 {
-			return fmt.Errorf("name must be at most 100 characters")
+			return fmt.Errorf("name must be at most 100 characters: %w", apperrors.ErrValueTooLong)
 		}
 	}
 	return nil

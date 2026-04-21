@@ -25,13 +25,14 @@ func NewStudentHandler(studentService service.StudentService, log logger.Logger)
 func (h *StudentHandler) GetStudentByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert student ID
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert student id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get student
@@ -49,13 +50,14 @@ func (h *StudentHandler) GetStudentByID(w http.ResponseWriter, r *http.Request) 
 func (h *StudentHandler) GetOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID (i.e. student ID)
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get student
@@ -73,13 +75,14 @@ func (h *StudentHandler) GetOwn(w http.ResponseWriter, r *http.Request) {
 func (h *StudentHandler) GetClassroom(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert student ID
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert student id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get student classroom
@@ -97,13 +100,14 @@ func (h *StudentHandler) GetClassroom(w http.ResponseWriter, r *http.Request) {
 func (h *StudentHandler) GetClassroomOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID (i.e. student ID)
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get student classroom
@@ -121,13 +125,14 @@ func (h *StudentHandler) GetClassroomOwn(w http.ResponseWriter, r *http.Request)
 func (h *StudentHandler) GetAdvisor(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert student ID
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert student id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get student advisor
@@ -145,13 +150,14 @@ func (h *StudentHandler) GetAdvisor(w http.ResponseWriter, r *http.Request) {
 func (h *StudentHandler) GetAdvisorOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID (i.e. student ID)
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get student advisor
@@ -169,13 +175,14 @@ func (h *StudentHandler) GetAdvisorOwn(w http.ResponseWriter, r *http.Request) {
 func (h *StudentHandler) GetParents(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert student ID
 	studentID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert student id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get student parents
@@ -193,13 +200,14 @@ func (h *StudentHandler) GetParents(w http.ResponseWriter, r *http.Request) {
 func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID (i.e. student ID)
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get student parents
@@ -217,13 +225,14 @@ func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 func (h *StudentHandler) GetStudentGroupOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID (i.e. student ID)
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get student

@@ -3,6 +3,7 @@ package repository
 import (
 	"backend/internal/model"
 	"backend/pkg/logger"
+	"backend/pkg/apperrors"
 	"context"
 	"errors"
 	"fmt"
@@ -38,7 +39,7 @@ func NewInstitutionAdministratorPositionRepository(db *gorm.DB, log logger.Logge
 
 func (r *institutionAdministratorPositionRepository) Create(ctx context.Context, institutionAdministratorPosition *model.InstitutionAdministratorPosition) error {
 	if institutionAdministratorPosition == nil {
-		return fmt.Errorf("institutionAdministratorPosition cannot be nil")
+		return fmt.Errorf("institutionAdministratorPosition cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(institutionAdministratorPosition)
 	if result.Error != nil {
@@ -49,7 +50,7 @@ func (r *institutionAdministratorPositionRepository) Create(ctx context.Context,
 
 func (r *institutionAdministratorPositionRepository) FindAll(ctx context.Context, filter *InstitutionAdministratorPositionFilter) ([]model.InstitutionAdministratorPosition, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("institutionAdministratorPositions list filter cannot be nil")
+		return nil, fmt.Errorf("institutionAdministratorPositions list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var institutionAdministratorPositions []model.InstitutionAdministratorPosition
 	query := r.db.WithContext(ctx).Model(&model.InstitutionAdministratorPosition{})
@@ -74,13 +75,13 @@ func (r *institutionAdministratorPositionRepository) FindAll(ctx context.Context
 
 func (r *institutionAdministratorPositionRepository) FindByID(ctx context.Context, id *uint8) (*model.InstitutionAdministratorPosition, error) {
 	if id == nil {
-		return nil, fmt.Errorf("institutionAdministratorPosition id cannot be nil")
+		return nil, fmt.Errorf("institutionAdministratorPosition id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var institutionAdministratorPosition model.InstitutionAdministratorPosition
 	result := r.db.WithContext(ctx).First(&institutionAdministratorPosition, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("institutionAdministratorPosition with id %d was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("institutionAdministratorPosition with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch institutionAdministratorPosition by id (%d): %w", *id, result.Error)
 	}
@@ -89,7 +90,7 @@ func (r *institutionAdministratorPositionRepository) FindByID(ctx context.Contex
 
 func (r *institutionAdministratorPositionRepository) Update(ctx context.Context, institutionAdministratorPosition *model.InstitutionAdministratorPosition) error {
 	if institutionAdministratorPosition == nil {
-		return fmt.Errorf("institutionAdministratorPosition cannot be nil")
+		return fmt.Errorf("institutionAdministratorPosition cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -100,7 +101,7 @@ func (r *institutionAdministratorPositionRepository) Update(ctx context.Context,
 		return fmt.Errorf("failed to check institutionAdministratorPosition existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("institutionAdministratorPosition with id %d was not found", institutionAdministratorPosition.ID)
+		return fmt.Errorf("institutionAdministratorPosition with id %d was not found: %w", institutionAdministratorPosition.ID, apperrors.ErrNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(institutionAdministratorPosition)
 	if result.Error != nil {
@@ -115,14 +116,14 @@ func (r *institutionAdministratorPositionRepository) Delete(ctx context.Context,
 		return fmt.Errorf("failed to delete institutionAdministratorPosition with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("institution administrator position not found by id: %w", apperrors.ErrNotFound)
 	}
 	return nil
 }
 
 func (r *institutionAdministratorPositionRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
 	if name == nil {
-		return false, fmt.Errorf("name cannot be nil")
+		return false, fmt.Errorf("name cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).

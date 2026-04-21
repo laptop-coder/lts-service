@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -63,17 +64,17 @@ func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8, email 
 	s.log.Info("Starting create invite token")
 	token, err := s.generateToken(ctx, roleIDs, email)
 	if err != nil || token == nil {
-		s.log.Error("Failed to create invite token", "error", err.Error())
+		s.log.Error("failed to create invite token", "error", err.Error())
 		return nil, fmt.Errorf("failed to generate invite token: %w", err)
 	}
-	s.log.Info("Invite token created successfully")
+	s.log.Info("invite token created successfully")
 	return token, nil
 }
 
 func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error) {
 	// Block attempt to generate token with superadmin role
 	if slices.Contains(roleIDs, 1) {
-		return nil, fmt.Errorf("forbidden: you cannot generate invite token with superadmin role")
+		return nil, fmt.Errorf("you cannot generate invite token with superadmin role: %w", apperrors.ErrForbidden)
 	}
 	// Check roles existence
 	var count int64
@@ -84,7 +85,7 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8, emai
 		return nil, fmt.Errorf("failed to check roles existence: %w", err)
 	}
 	if int(count) != len(roleIDs) {
-		return nil, fmt.Errorf("some roles were not found by IDs")
+		return nil, fmt.Errorf("some roles were not found by IDs: %w", apperrors.ErrNotFound)
 	}
 	// Convert role IDs from uint8 to int
 	roleIDsInt := make([]int, len(roleIDs))
@@ -106,9 +107,9 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8, emai
 		// Check email uniqueness
 		existingUser, err := s.userRepo.FindByEmail(ctx, email)
 		if err == nil && existingUser != nil {
-			return nil, fmt.Errorf("user with this email already exists")
+			return nil, fmt.Errorf("user with this email already exists: %w", apperrors.ErrUserWithThisEmailAlreadyExists)
 		}
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && !errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, fmt.Errorf("failed to check email uniqueness: %w", err)
 		}
 		claims.Email = email
@@ -127,21 +128,21 @@ func (s *inviteService) ParseToken(tokenString string) (*InviteTokenClaims, erro
 	token, err := jwt.ParseWithClaims(tokenString, &InviteTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Check signing algorithm
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v: %w", token.Header["alg"], apperrors.ErrInvalidToken)
 		}
 		return s.config.JWTSecret, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %w", err)
+		return nil, fmt.Errorf("failed to parse token: %s: %w", err.Error(), apperrors.ErrInvalidToken)
 	}
 	if claims, ok := token.Claims.(*InviteTokenClaims); ok && token.Valid {
 		// Check token issuer
 		if claims.Issuer != s.config.TokenIssuer {
-			return nil, fmt.Errorf("invalid invite token issuer")
+			return nil, fmt.Errorf("invalid invite token issuer: %w", apperrors.ErrInvalidToken)
 		}
 		return claims, nil
 	}
-	return nil, fmt.Errorf("invalid invite token (failed to parse token)")
+	return nil, fmt.Errorf("invalid invite token (failed to parse token): %w", apperrors.ErrInvalidToken)
 }
 
 func (s *inviteService) GetRoles(ctx context.Context, tokenString string) ([]RoleResponseDTO, error) {
@@ -151,17 +152,17 @@ func (s *inviteService) GetRoles(ctx context.Context, tokenString string) ([]Rol
 		return nil, fmt.Errorf("failed to check if invite token was revoked")
 	}
 	if revoked {
-		return nil, fmt.Errorf("invite token was revoked")
+		return nil, fmt.Errorf("invite token was revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
 	claims, err := s.ParseToken(tokenString)
 	if err != nil || claims == nil {
-		return nil, fmt.Errorf("failed to parse invite token")
+		return nil, fmt.Errorf("failed to parse invite token: %w", err)
 	}
 	// Get roleIDs
 	roleIDsInt := claims.RoleIDs
 	if len(roleIDsInt) == 0 {
-		return nil, fmt.Errorf("list of the role IDs cannot be empty")
+		return nil, fmt.Errorf("list of the role IDs cannot be empty: %w", apperrors.ErrInvalidToken)
 	}
 	// Convert role IDs from int to uint8
 	roleIDs := make([]uint8, len(roleIDsInt))
@@ -188,12 +189,12 @@ func (s *inviteService) GetEmail(ctx context.Context, tokenString string) (*stri
 		return nil, fmt.Errorf("failed to check if invite token was revoked")
 	}
 	if revoked {
-		return nil, fmt.Errorf("invite token was revoked")
+		return nil, fmt.Errorf("invite token was revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
 	claims, err := s.ParseToken(tokenString)
 	if err != nil || claims == nil {
-		return nil, fmt.Errorf("failed to parse invite token")
+		return nil, fmt.Errorf("failed to parse invite token: %w", err)
 	}
 	return claims.Email, nil
 }
@@ -206,7 +207,7 @@ func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) err
 		return fmt.Errorf("failed to check if invite token was already revoked")
 	}
 	if revoked {
-		return fmt.Errorf("invite token was already revoked")
+		return fmt.Errorf("invite token was already revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
 	parsedToken, err := s.ParseToken(tokenString)
@@ -215,13 +216,13 @@ func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) err
 	}
 	// Check if token already expired
 	if parsedToken.ExpiresAt.Time.Before(time.Now()) {
-		return fmt.Errorf("invite token already expired")
+		return fmt.Errorf("invite token already expired: %w", apperrors.ErrTokenExpired)
 	}
 	// Revoke token
 	if err := s.jwtRepo.Revoke(ctx, tokenString, time.Until(parsedToken.RegisteredClaims.ExpiresAt.Time)); err != nil {
 		return fmt.Errorf("failed to revoke invite token: %w", err)
 	}
-	s.log.Info("Invite token revoked successfully")
+	s.log.Info("invite token revoked successfully")
 	return nil
 }
 

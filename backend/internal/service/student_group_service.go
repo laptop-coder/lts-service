@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -83,15 +84,13 @@ func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto Create
 		return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 	}
 	if exists {
-		return nil, fmt.Errorf("student group with name %s already exists", dto.Name)
+		return nil, fmt.Errorf("student group with name %s already exists: %w", dto.Name, apperrors.ErrStudentGroupAlreadyExists)
 	}
 	// Check if advisor exists and has the teacher role (if provided)
 	if dto.GroupAdvisorID != nil {
 		user, err := s.userRepo.FindByID(ctx, dto.GroupAdvisorID)
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, fmt.Errorf("user with ID %s was not found", dto.GroupAdvisorID)
-			}
+			return nil, fmt.Errorf("user with ID %s was not found: %w", dto.GroupAdvisorID, err)
 		}
 		isTeacher := false
 		for _, role := range user.Roles {
@@ -101,7 +100,7 @@ func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto Create
 			}
 		}
 		if !isTeacher {
-			return nil, fmt.Errorf("user with ID %s is not a teacher and cannot be student group advisor", dto.GroupAdvisorID)
+			return nil, fmt.Errorf("user with ID %s is not a teacher and cannot be student group advisor: %w", dto.GroupAdvisorID, apperrors.ErrForbidden)
 		}
 	}
 	// Create student group
@@ -117,7 +116,7 @@ func (s *studentGroupService) CreateStudentGroup(ctx context.Context, dto Create
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch create student group: %w", err)
 	}
-	s.log.Info("Student group was created successfully", "group ID", createdGroup.ID, "group name", createdGroup.Name)
+	s.log.Info("student group was created successfully", "group ID", createdGroup.ID, "group name", createdGroup.Name)
 	return StudentGroupToDTO(createdGroup), nil
 }
 
@@ -129,9 +128,6 @@ func (s *studentGroupService) UpdateStudentGroup(ctx context.Context, id uint16,
 	// Get existing group
 	group, err := s.studentGroupRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student group with ID %s was not found", id)
-		}
 		return nil, fmt.Errorf("failed to get student group with ID %s: %w", id, err)
 	}
 	// Track updated fields
@@ -144,7 +140,7 @@ func (s *studentGroupService) UpdateStudentGroup(ctx context.Context, id uint16,
 			return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 		}
 		if exists {
-			return nil, fmt.Errorf("student group with name %s already exists", dto.Name)
+			return nil, fmt.Errorf("student group with name %s already exists: %w", dto.Name, apperrors.ErrStudentGroupAlreadyExists)
 		}
 		group.Name = *dto.Name
 		updatedFields = append(updatedFields, "name")
@@ -155,9 +151,7 @@ func (s *studentGroupService) UpdateStudentGroup(ctx context.Context, id uint16,
 		// Check if advisor exists and has the teacher role
 		user, err := s.userRepo.FindByID(ctx, dto.GroupAdvisorID)
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, fmt.Errorf("user with ID %s was not found", dto.GroupAdvisorID)
-			}
+			return nil, err
 		}
 		isTeacher := false
 		for _, role := range user.Roles {
@@ -167,7 +161,7 @@ func (s *studentGroupService) UpdateStudentGroup(ctx context.Context, id uint16,
 			}
 		}
 		if !isTeacher {
-			return nil, fmt.Errorf("user with ID %s is not a teacher and cannot be student group advisor", dto.GroupAdvisorID)
+			return nil, fmt.Errorf("user with ID %s is not a teacher and cannot be student group advisor: %w", dto.GroupAdvisorID, apperrors.ErrForbidden)
 		}
 		group.GroupAdvisorID = dto.GroupAdvisorID
 		updatedFields = append(updatedFields, "advisor ID")
@@ -186,19 +180,19 @@ func (s *studentGroupService) UpdateStudentGroup(ctx context.Context, id uint16,
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch updated student group: %w", err)
 	}
-	s.log.Info("Student group was updated successfully", "group ID", id, "updated fields", updatedFields)
+	s.log.Info("student group was updated successfully", "group ID", id, "updated fields", updatedFields)
 	return StudentGroupToDTO(updatedGroup), nil
 }
 
 func (s *studentGroupService) validateCreateStudentGroupDTO(dto *CreateStudentGroupDTO) error {
 	if strings.TrimSpace(dto.Name) == "" {
-		return fmt.Errorf("name cannot be empty or only whitespace")
+		return fmt.Errorf("name cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	if len(dto.Name) < 1 {
-		return fmt.Errorf("name must be at least 1 character")
+		return fmt.Errorf("name must be at least 1 character: %w", apperrors.ErrValueTooShort)
 	}
 	if len(dto.Name) > 20 {
-		return fmt.Errorf("name must be at most 20 characters")
+		return fmt.Errorf("name must be at most 20 characters: %w", apperrors.ErrValueTooLong)
 	}
 	return nil
 }
@@ -206,13 +200,13 @@ func (s *studentGroupService) validateCreateStudentGroupDTO(dto *CreateStudentGr
 func (s *studentGroupService) validateUpdateStudentGroupDTO(dto *UpdateStudentGroupDTO) error {
 	if dto.Name != nil {
 		if strings.TrimSpace(*dto.Name) == "" {
-			return fmt.Errorf("name cannot be empty or only whitespace")
+			return fmt.Errorf("name cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 		}
 		if len(*dto.Name) < 1 {
-			return fmt.Errorf("name must be at least 1 character")
+			return fmt.Errorf("name must be at least 1 character: %w", apperrors.ErrValueTooShort)
 		}
 		if len(*dto.Name) > 20 {
-			return fmt.Errorf("name must be at most 20 characters")
+			return fmt.Errorf("name must be at most 20 characters: %w", apperrors.ErrValueTooLong)
 		}
 	}
 	return nil
@@ -221,9 +215,6 @@ func (s *studentGroupService) validateUpdateStudentGroupDTO(dto *UpdateStudentGr
 func (s *studentGroupService) GetStudentGroupByID(ctx context.Context, id uint16) (*StudentGroupResponseDTO, error) {
 	group, err := s.studentGroupRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student group with id %d was not found: %w", id, err)
-		}
 		return nil, fmt.Errorf("failed to get student group: %w", err)
 	}
 	return StudentGroupToDTO(group), nil
@@ -280,14 +271,9 @@ func (s *studentGroupService) GetStudentGroups(ctx context.Context, filter repos
 func (s *studentGroupService) DeleteStudentGroup(ctx context.Context, id uint16) error {
 	s.log.Info("Starting student group deletion...")
 	if err := s.studentGroupRepo.Delete(ctx, &id); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Student group does not exist", "group id", id, "error", err)
-			return fmt.Errorf("student group with id %d does not exist: %w", id, err)
-		}
-		s.log.Error("Failed to delete the student group")
 		return fmt.Errorf("failed to delete the student group: %w", err)
 	}
-	s.log.Info("Student group deleted successfully")
+	s.log.Info("student group deleted successfully")
 	return nil
 }
 
@@ -295,9 +281,6 @@ func (s *studentGroupService) AssignAdvisor(ctx context.Context, groupID uint16,
 	// Get user
 	user, err := s.userRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("user with ID %s was not found", userID)
-		}
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 	// Get group
@@ -306,14 +289,11 @@ func (s *studentGroupService) AssignAdvisor(ctx context.Context, groupID uint16,
 	// /backend/internal/model import in services/handlers)
 	group, err := s.studentGroupRepo.FindByID(ctx, &groupID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("student group with ID %d was not found", groupID)
-		}
 		return fmt.Errorf("failed to find student group: %w", err)
 	}
 	// Check if group already has an advisor
 	if group.GroupAdvisorID != nil {
-		return fmt.Errorf("conflict: student group already has an advisor")
+		return fmt.Errorf("student group already has an advisor: %w", apperrors.ErrStudentGroupAlreadyHasAdvisor)
 	}
 	// Check if user has a teacher role
 	isTeacher := false
@@ -324,14 +304,14 @@ func (s *studentGroupService) AssignAdvisor(ctx context.Context, groupID uint16,
 		}
 	}
 	if !isTeacher {
-		return fmt.Errorf("forbidden: to be student group advisor the teacher role is required")
+		return fmt.Errorf("to be student group advisor the teacher role is required: %w", apperrors.ErrForbidden)
 	}
 	// Update group advisor
 	group.GroupAdvisorID = &userID
 	if err := s.studentGroupRepo.Update(ctx, group); err != nil {
 		return fmt.Errorf("failed to update student group advisor: %w", err)
 	}
-	s.log.Info("Advisor was successfully assigned to student group", "group ID", groupID, "user ID", userID)
+	s.log.Info("advisor was successfully assigned to student group", "group ID", groupID, "user ID", userID)
 	return nil
 }
 
@@ -339,9 +319,6 @@ func (s *studentGroupService) UnassignAdvisor(ctx context.Context, groupID uint1
 	// Get group
 	group, err := s.studentGroupRepo.FindByID(ctx, &groupID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("student group with ID %d was not found", groupID)
-		}
 		return fmt.Errorf("failed to find student group: %w", err)
 	}
 	// Unassign group advisor
@@ -349,6 +326,6 @@ func (s *studentGroupService) UnassignAdvisor(ctx context.Context, groupID uint1
 	if err := s.studentGroupRepo.Update(ctx, group); err != nil {
 		return fmt.Errorf("failed to unassign student group advisor: %w", err)
 	}
-	s.log.Info("Advisor was successfully unassigned from student group", "group ID", groupID)
+	s.log.Info("advisor was successfully unassigned from student group", "group ID", groupID)
 	return nil
 }

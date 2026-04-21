@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -38,7 +39,7 @@ func NewStaffPositionRepository(db *gorm.DB, log logger.Logger) StaffPositionRep
 
 func (r *staffPositionRepository) Create(ctx context.Context, staffPosition *model.StaffPosition) error {
 	if staffPosition == nil {
-		return fmt.Errorf("staffPosition cannot be nil")
+		return fmt.Errorf("staffPosition cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(staffPosition)
 	if result.Error != nil {
@@ -49,7 +50,7 @@ func (r *staffPositionRepository) Create(ctx context.Context, staffPosition *mod
 
 func (r *staffPositionRepository) FindAll(ctx context.Context, filter *StaffPositionFilter) ([]model.StaffPosition, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("staffPositions list filter cannot be nil")
+		return nil, fmt.Errorf("staffPositions list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var staffPositions []model.StaffPosition
 	query := r.db.WithContext(ctx).Model(&model.StaffPosition{})
@@ -74,13 +75,13 @@ func (r *staffPositionRepository) FindAll(ctx context.Context, filter *StaffPosi
 
 func (r *staffPositionRepository) FindByID(ctx context.Context, id *uint8) (*model.StaffPosition, error) {
 	if id == nil {
-		return nil, fmt.Errorf("staffPosition id cannot be nil")
+		return nil, fmt.Errorf("staffPosition id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var staffPosition model.StaffPosition
 	result := r.db.WithContext(ctx).First(&staffPosition, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("staffPosition with id %d was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("staffPosition with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch staffPosition by id (%d): %w", *id, result.Error)
 	}
@@ -89,7 +90,7 @@ func (r *staffPositionRepository) FindByID(ctx context.Context, id *uint8) (*mod
 
 func (r *staffPositionRepository) Update(ctx context.Context, staffPosition *model.StaffPosition) error {
 	if staffPosition == nil {
-		return fmt.Errorf("staffPosition cannot be nil")
+		return fmt.Errorf("staffPosition cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -100,7 +101,7 @@ func (r *staffPositionRepository) Update(ctx context.Context, staffPosition *mod
 		return fmt.Errorf("failed to check staffPosition existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("staffPosition with id %d was not found", staffPosition.ID)
+		return fmt.Errorf("staffPosition with id %d was not found: %w", staffPosition.ID, apperrors.ErrNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(staffPosition)
 	if result.Error != nil {
@@ -115,14 +116,14 @@ func (r *staffPositionRepository) Delete(ctx context.Context, id *uint8) error {
 		return fmt.Errorf("failed to delete staffPosition with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("staff position not found by id: %w", apperrors.ErrNotFound)
 	}
 	return nil
 }
 
 func (r *staffPositionRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
 	if name == nil {
-		return false, fmt.Errorf("name cannot be nil")
+		return false, fmt.Errorf("name cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).

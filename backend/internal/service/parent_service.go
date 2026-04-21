@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -49,9 +50,6 @@ func NewParentService(
 func (s *parentService) GetParentByID(ctx context.Context, id uuid.UUID) (*ParentResponseDTO, error) {
 	parent, err := s.parentRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("parent with id %s was not found: %w", id, err)
-		}
 		return nil, fmt.Errorf("failed to get parent: %w", err)
 	}
 	return ParentToDTO(parent), nil
@@ -88,9 +86,6 @@ func (s *parentService) GetParentStudents(ctx context.Context, userID uuid.UUID)
 	// Find parent by ID
 	parent, err := s.parentRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("parent with id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get parent: %w", err)
 	}
 	// Check if there are connected students
@@ -145,10 +140,7 @@ func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, stude
 			Preload("Students").
 			Where("user_id = ?", userID).
 			First(&parent).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("parent with ID %s was not found", userID)
-			}
-			return fmt.Errorf("failed to found parent: %w", err)
+			return fmt.Errorf("failed to find parent: %w", err)
 		}
 		// Get students by IDs
 		var students []model.Student
@@ -159,7 +151,7 @@ func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, stude
 		}
 		// Check if all students were found
 		if len(students) != len(studentIDs) {
-			return fmt.Errorf("some students not found")
+			return fmt.Errorf("some students not found: %w", apperrors.ErrNotFound)
 		}
 		// Init "Students" field if empty
 		if parent.Students == nil {
@@ -170,7 +162,7 @@ func (s *parentService) AddStudents(ctx context.Context, userID uuid.UUID, stude
 			return fmt.Errorf("failed to add students: %w", err)
 		}
 		// Return response
-		s.log.Info("Students was successfully added to parent", "parent ID", userID, "student IDs", studentIDs)
+		s.log.Info("students was successfully added to parent", "parent_id", userID, "student_ids", studentIDs)
 		return nil
 	})
 }
@@ -179,28 +171,29 @@ func (s *parentService) UnassignStudent(ctx context.Context, userID uuid.UUID, s
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check parent existence
 		var parent model.Parent
+		// TODO: move all code like here to repositories
 		if err := tx.WithContext(ctx).
 			Preload("Students").
 			Where("user_id = ?", userID).
 			First(&parent).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("parent with ID %s was not found", userID)
+				return fmt.Errorf("parent with ID %s was not found: %w", userID, apperrors.ErrNotFound)
 			}
-			return fmt.Errorf("failed to found parent: %w", err)
+			return fmt.Errorf("failed to find parent: %w", err)
 		}
 		// Get student by ID
 		var student model.Student
 		if err := tx.WithContext(ctx).
 			Where("user_id = ?", studentID).
 			First(&student).Error; err != nil {
-			return fmt.Errorf("student not found: %w", err)
+				return fmt.Errorf("student not found: %s: %w", err.Error(), apperrors.ErrNotFound)
 		}
 		// Remove student from parent
 		if err := tx.Model(&parent).Association("Students").Delete(&student); err != nil {
 			return fmt.Errorf("failed to remove student: %w", err)
 		}
 		// Return response
-		s.log.Info("Student was successfully unassigned from parent", "parent ID", userID, "student ID", studentID)
+		s.log.Info("student was successfully unassigned from parent", "parent_id", userID, "student_id", studentID)
 		return nil
 	})
 }

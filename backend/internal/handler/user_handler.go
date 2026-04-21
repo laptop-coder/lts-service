@@ -29,20 +29,22 @@ func NewUserHandler(userService service.UserService, log logger.Logger) *UserHan
 func (h *UserHandler) UpdateOwnProfile(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// DTO (all fields are optional)
@@ -50,19 +52,22 @@ func (h *UserHandler) UpdateOwnProfile(w http.ResponseWriter, r *http.Request) {
 	if firstNameFields := r.PostForm["firstName"]; len(firstNameFields) == 1 {
 		dto.FirstName = &firstNameFields[0]
 	} else if len(firstNameFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much firstName values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many firstName values")
+		helpers.TooManyFieldsError(h.log, w, "firstName")
 		return
 	}
 	if middleNameFields := r.PostForm["middleName"]; len(middleNameFields) == 1 {
 		dto.MiddleName = &middleNameFields[0]
 	} else if len(middleNameFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much middleName values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many middleName values")
+		helpers.TooManyFieldsError(h.log, w, "middleName")
 		return
 	}
 	if lastNameFields := r.PostForm["lastName"]; len(lastNameFields) == 1 {
 		dto.LastName = &lastNameFields[0]
 	} else if len(lastNameFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much lastName values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many lastName values")
+		helpers.TooManyFieldsError(h.log, w, "lastName")
 		return
 	}
 	// Update user
@@ -80,13 +85,14 @@ func (h *UserHandler) UpdateOwnProfile(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) RemoveOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Remove user avatar file
@@ -101,7 +107,7 @@ func (h *UserHandler) RemoveOwnAvatar(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) UpdateOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
@@ -109,22 +115,26 @@ func (h *UserHandler) UpdateOwnAvatar(w http.ResponseWriter, r *http.Request) {
 	// Parse form
 	// TODO: add cleaning of temporary data (ParseMultipartForm, r.MultipartForm, etc)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse multipart/formdata form", http.StatusBadRequest)
+		h.log.Error("failed to parse multipart/formdata form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get avatar file from the request
 	formFiles := r.MultipartForm.File["avatar"]
 	if len(formFiles) > 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much avatar files", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many avatar files")
+		helpers.TooManyFieldsError(h.log, w, "avatar")
 		return
 	} else if len(formFiles) == 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: avatar cannot be empty", http.StatusBadRequest)
+		h.log.Error("failed to parse form: avatar cannot be empty")
+		helpers.FieldRequiredError(h.log, w, "avatar")
 		return
 	}
 	// Update avatar file
@@ -139,13 +149,14 @@ func (h *UserHandler) UpdateOwnAvatar(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get user
@@ -163,7 +174,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Parse query parameters (for filter)
@@ -181,7 +192,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 		roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert role ID from string to uint64")
-			helpers.ErrorResponse(h.log, w, "cannot convert role ID from string to uint64", http.StatusInternalServerError)
+			helpers.BadRequestFieldError(h.log, w, "roleId")
 			return
 		}
 		// and to uint8
@@ -198,7 +209,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 			filter.Limit = limit
 		} else {
 			h.log.Error("invalid limit")
-			helpers.ErrorResponse(h.log, w, "invalid limit", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "limit")
 			return
 		}
 	}
@@ -208,7 +219,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 			filter.Offset = offset
 		} else {
 			h.log.Error("invalid offset")
-			helpers.ErrorResponse(h.log, w, "invalid offset", http.StatusBadRequest)
+			helpers.BadRequestFieldError(h.log, w, "offset")
 			return
 		}
 	}
@@ -227,13 +238,14 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetOwnUser(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert own user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get user
@@ -251,19 +263,20 @@ func (h *UserHandler) GetOwnUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get roles
 	roles, err := h.userService.GetUserRoles(r.Context(), userID)
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, err.Error(), http.StatusInternalServerError)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Return response
@@ -276,19 +289,20 @@ func (h *UserHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetOwnRoles(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get roles
 	roles, err := h.userService.GetUserRoles(r.Context(), userID)
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, err.Error(), http.StatusInternalServerError)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Return response
@@ -302,27 +316,29 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodPut {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get role IDs
 	roleIDsFields := r.PostForm["roleId"]
 	if len(roleIDsFields) == 0 {
 		h.log.Error("the list of roles cannot be empty")
-		helpers.ErrorResponse(h.log, w, "the list of roles cannot be empty", http.StatusBadRequest)
+		helpers.AtLeastOneFieldError(h.log, w, "roleId")
 		return
 	}
 	roleIDs := make([]uint8, len(roleIDsFields))
@@ -330,7 +346,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		val, err := strconv.ParseUint(s, 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert IDs of roles from string to uint64")
-			helpers.ErrorResponse(h.log, w, "cannot convert IDs of roles from string to uint64", http.StatusInternalServerError)
+			helpers.BadRequestFieldError(h.log, w, "roleId")
 			return
 		}
 		roleIDs[i] = uint8(val)
@@ -338,7 +354,8 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Depending on whether assigning admin role (2) or user roles (3-7) require
@@ -346,7 +363,8 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	// admin:
 	if slices.Contains(roleIDs, 2) {
 		if !slices.Contains(userPermissions, permissions.RoleAdminAssign) {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to assign admin role", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to assign admin role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
@@ -354,7 +372,8 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	for _, roleID := range roleIDs {
 		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
 			if !slices.Contains(userPermissions, permissions.RoleUserAssign) {
-				helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to assign user role", http.StatusForbidden)
+				h.log.Error("forbidden: you do not have permission to assign user role")
+				helpers.ForbiddenError(h.log, w)
 				return
 			}
 			break
@@ -367,13 +386,15 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher classroom ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
 		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many teacher classroom id values")
+		helpers.TooManyFieldsError(h.log, w, "teacherClassroomId")
 		return
 	}
 	// TeacherSubjectIDs (special)
@@ -382,7 +403,8 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher subject ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
 			return
 		}
 		subjectID8 := uint8(subjectID64)
@@ -395,7 +417,8 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		for i, groupIDString := range teacherStudentGroupIDsFields {
 			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				h.log.Error("cannot convert teacher student group ID from string to uint64")
+				helpers.BadRequestFieldError(h.log, w, "teacherStudentGroupId")
 				return
 			}
 			groupID16 := uint16(groupID64)
@@ -408,13 +431,15 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint16
 		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert student group ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "studentGroupId")
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
 		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many student group id values")
+		helpers.TooManyFieldsError(h.log, w, "studentGroupId")
 		return
 	}
 	// StaffPositionID (special)
@@ -422,13 +447,15 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert staff position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
 		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many staff position id values")
+		helpers.TooManyFieldsError(h.log, w, "staffPositionId")
 		return
 	}
 	// InstitutionAdministratorPositionID (special)
@@ -436,13 +463,15 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert institution administrator position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
 		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many institution administrator position id values")
+		helpers.TooManyFieldsError(h.log, w, "institutionAdministratorPositionId")
 		return
 	}
 	// ParentStudentIDs (special)
@@ -451,7 +480,8 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+			h.log.Error("cannot convert student id to uuid")
+			helpers.BadRequestFieldError(h.log, w, "parentStudentId")
 			return
 		}
 		parentStudentIDs[i] = parentStudentID
@@ -480,20 +510,22 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get fields (for user-extension tables)
@@ -503,13 +535,15 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 		// Convert to uint8
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher classroom ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
 		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many teacher classroom id values")
+		helpers.TooManyFieldsError(h.log, w, "teacherClassroomId")
 		return
 	}
 	// TODO: read only required fields (depending on roles)
@@ -519,7 +553,8 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher subject ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
 			return
 		}
 		subjectID8 := uint8(subjectID64)
@@ -532,7 +567,8 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 		for i, groupIDString := range teacherStudentGroupIDsFields {
 			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				h.log.Error("cannot convert teacher student group ID from string to uint64")
+				helpers.BadRequestFieldError(h.log, w, "teacherStudentGroupId")
 				return
 			}
 			groupID16 := uint16(groupID64)
@@ -545,13 +581,15 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 		// Convert to uint16
 		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert student group ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "studentGroupId")
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
 		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many student group id values")
+		helpers.TooManyFieldsError(h.log, w, "studentGroupId")
 		return
 	}
 	// StaffPositionID
@@ -559,13 +597,15 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 		// Convert to uint8
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert staff position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
 		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many staff position id values")
+		helpers.TooManyFieldsError(h.log, w, "staffPositionId")
 		return
 	}
 	// InstitutionAdministratorPositionID
@@ -573,13 +613,15 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 		// Convert to uint8
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert institution administrator position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
 		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many institution administrator position id values")
+		helpers.TooManyFieldsError(h.log, w, "institutionAdministratorPositionId")
 		return
 	}
 	// ParentStudentIDs
@@ -588,7 +630,8 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+			h.log.Error("cannot convert student id to uuid")
+			helpers.BadRequestFieldError(h.log, w, "parentStudentId")
 			return
 		}
 		parentStudentIDs[i] = parentStudentID
@@ -606,27 +649,29 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodPut {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get role IDs
 	roleIDsFields := r.PostForm["roleId"]
 	if len(roleIDsFields) == 0 {
 		h.log.Error("the list of roles cannot be empty")
-		helpers.ErrorResponse(h.log, w, "the list of roles cannot be empty", http.StatusBadRequest)
+		helpers.AtLeastOneFieldError(h.log, w, "roleId")
 		return
 	}
 	roleIDs := make([]uint8, len(roleIDsFields))
@@ -634,7 +679,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		val, err := strconv.ParseUint(s, 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert IDs of roles from string to uint64")
-			helpers.ErrorResponse(h.log, w, "cannot convert IDs of roles from string to uint64", http.StatusInternalServerError)
+			helpers.BadRequestFieldError(h.log, w, "roleId")
 			return
 		}
 		roleIDs[i] = uint8(val)
@@ -642,12 +687,14 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Check permissions
 	if !slices.Contains(userPermissions, permissions.RoleUserAssign) {
-		helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to assign user role", http.StatusForbidden)
+		h.log.Error("forbidden: you do not have permission to assign user role")
+		helpers.ForbiddenError(h.log, w)
 		return
 	}
 	// Get special fields (for user-extension tables)
@@ -657,13 +704,15 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		// Convert to uint8
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher classroom ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
 		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many teacher classroom id values")
+		helpers.TooManyFieldsError(h.log, w, "teacherClassroomId")
 		return
 	}
 	// TeacherSubjectIDs (special)
@@ -672,7 +721,8 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher subject ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
 			return
 		}
 		subjectID8 := uint8(subjectID64)
@@ -685,7 +735,8 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		for i, groupIDString := range teacherStudentGroupIDsFields {
 			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				h.log.Error("cannot convert teacher student group ID from string to uint64")
+				helpers.BadRequestFieldError(h.log, w, "teacherStudentGroupId")
 				return
 			}
 			groupID16 := uint16(groupID64)
@@ -698,13 +749,15 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		// Convert to uint16
 		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert student group ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "studentGroupId")
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
 		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many student group id values")
+		helpers.TooManyFieldsError(h.log, w, "studentGroupId")
 		return
 	}
 	// StaffPositionID (special)
@@ -712,13 +765,15 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		// Convert to uint8
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert staff position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
 		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many staff position id values")
+		helpers.TooManyFieldsError(h.log, w, "staffPositionId")
 		return
 	}
 	// InstitutionAdministratorPositionID (special)
@@ -726,13 +781,15 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 		// Convert to uint8
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert institution administrator position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
 		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many institution administrator position id values")
+		helpers.TooManyFieldsError(h.log, w, "institutionAdministratorPositionId")
 		return
 	}
 	// ParentStudentIDs (special)
@@ -741,7 +798,8 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+			h.log.Error("cannot convert parent student id to uuid")
+			helpers.BadRequestFieldError(h.log, w, "parentStudentId")
 			return
 		}
 		parentStudentIDs[i] = parentStudentID
@@ -770,27 +828,29 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get role IDs
 	roleIDsFields := r.PostForm["roleId"]
 	if len(roleIDsFields) == 0 {
 		h.log.Error("the list of roles cannot be empty")
-		helpers.ErrorResponse(h.log, w, "the list of roles cannot be empty", http.StatusBadRequest)
+		helpers.AtLeastOneFieldError(h.log, w, "roleId")
 		return
 	}
 	roleIDs := make([]uint8, len(roleIDsFields))
@@ -798,7 +858,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		val, err := strconv.ParseUint(s, 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert IDs of roles from string to uint64")
-			helpers.ErrorResponse(h.log, w, "cannot convert IDs of roles from string to uint64", http.StatusInternalServerError)
+			helpers.BadRequestFieldError(h.log, w, "roleId")
 			return
 		}
 		roleIDs[i] = uint8(val)
@@ -806,7 +866,8 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Depending on whether adding admin role (2) or user roles (3-7) require
@@ -814,7 +875,8 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	// admin:
 	if slices.Contains(roleIDs, 2) {
 		if !slices.Contains(userPermissions, permissions.RoleAdminAdd) {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to add admin role", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to add admin role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
@@ -822,7 +884,8 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	for _, roleID := range roleIDs {
 		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
 			if !slices.Contains(userPermissions, permissions.RoleUserAdd) {
-				helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to add user role", http.StatusForbidden)
+				h.log.Error("forbidden: you do not have permission to add user role")
+				helpers.ForbiddenError(h.log, w)
 				return
 			}
 			break
@@ -835,13 +898,15 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher classroom ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher classroom ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
 			return
 		}
 		teacherClassroomID := uint8(teacherClassroomID64)
 		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much teacher classroom id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many teacher classroom id values")
+		helpers.TooManyFieldsError(h.log, w, "teacherClassroomId")
 		return
 	}
 	// TeacherSubjectIDs (special)
@@ -850,7 +915,8 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	for i, subjectIDString := range teacherSubjectIDsFields {
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert teacher subject ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert teacher subject ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
 			return
 		}
 		subjectID8 := uint8(subjectID64)
@@ -863,7 +929,8 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		for i, groupIDString := range teacherStudentGroupIDsFields {
 			groupID64, err := strconv.ParseUint(groupIDString, 10, 16)
 			if err != nil {
-				helpers.ErrorResponse(h.log, w, "cannot convert teacher student group ID from string to uint64", http.StatusBadRequest)
+				h.log.Error("cannot convert teacher student group ID from string to uint64")
+				helpers.BadRequestFieldError(h.log, w, "teacherStudentGroupId")
 				return
 			}
 			groupID16 := uint16(groupID64)
@@ -876,13 +943,15 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint16
 		studentGroupID64, err := strconv.ParseUint(studentGroupIDFields[0], 10, 16)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student group ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert student group ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "studentGroupId")
 			return
 		}
 		studentGroupID := uint16(studentGroupID64)
 		userExtensionsDTO.StudentGroupID = &studentGroupID
 	} else if len(studentGroupIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much student group id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many student group id values")
+		helpers.TooManyFieldsError(h.log, w, "studentGroupId")
 		return
 	}
 	// StaffPositionID (special)
@@ -890,13 +959,15 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert staff position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert staff position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
 			return
 		}
 		staffPositionID := uint8(staffPositionID64)
 		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much staff position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many staff position id values")
+		helpers.TooManyFieldsError(h.log, w, "staffPositionId")
 		return
 	}
 	// InstitutionAdministratorPositionID (special)
@@ -904,13 +975,15 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 		// Convert to uint8
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert institution administrator position ID from string to uint64", http.StatusInternalServerError)
+			h.log.Error("cannot convert institution administrator position ID from string to uint64")
+			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
 		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
 		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) != 0 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: to much institution administrator position id values", http.StatusBadRequest)
+		h.log.Error("failed to parse form: too many institution administrator position id values")
+		helpers.TooManyFieldsError(h.log, w, "institutionAdministratorPositionId")
 		return
 	}
 	// ParentStudentIDs (special)
@@ -919,7 +992,8 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	for i, parentStudentIDString := range parentStudentIDsFields {
 		parentStudentID, err := uuid.Parse(parentStudentIDString)
 		if err != nil {
-			helpers.ErrorResponse(h.log, w, "cannot convert student id to uuid", http.StatusBadRequest)
+			h.log.Error("cannot convert parent student id to uuid")
+			helpers.BadRequestFieldError(h.log, w, "parentStudentId")
 			return
 		}
 		parentStudentIDs[i] = parentStudentID
@@ -948,13 +1022,14 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodDelete {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID
 	userID, err := uuid.Parse(r.PathValue("userId"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert user id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "userId")
 		return
 	}
 	// Get and convert role ID
@@ -962,14 +1037,15 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 	roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
 	if err != nil {
 		h.log.Error("cannot convert role ID from string to uint64")
-		helpers.ErrorResponse(h.log, w, "cannot convert role ID from string to uint64", http.StatusInternalServerError)
+		helpers.BadRequestFieldError(h.log, w, "roleId")
 		return
 	}
 	roleID := uint8(roleID64)
 	// Get user permissions
 	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Depending on whether adding admin role (2) or user roles (3-7) require
@@ -977,14 +1053,16 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 	// admin:
 	if roleID == 2 {
 		if !slices.Contains(userPermissions, permissions.RoleAdminUnassign) {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to unassign admin role", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to unassign admin role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}
 	// user:
 	if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
 		if !slices.Contains(userPermissions, permissions.RoleUserUnassign) {
-			helpers.ErrorResponse(h.log, w, "forbidden: you do not have permission to unassign user role", http.StatusForbidden)
+			h.log.Error("forbidden: you do not have permission to unassign user role")
+			helpers.ForbiddenError(h.log, w)
 			return
 		}
 	}

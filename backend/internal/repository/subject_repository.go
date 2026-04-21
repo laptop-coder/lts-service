@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -38,7 +39,7 @@ func NewSubjectRepository(db *gorm.DB, log logger.Logger) SubjectRepository {
 
 func (r *subjectRepository) Create(ctx context.Context, subject *model.Subject) error {
 	if subject == nil {
-		return fmt.Errorf("subject cannot be nil")
+		return fmt.Errorf("subject cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(subject)
 	if result.Error != nil {
@@ -49,7 +50,7 @@ func (r *subjectRepository) Create(ctx context.Context, subject *model.Subject) 
 
 func (r *subjectRepository) FindAll(ctx context.Context, filter *SubjectFilter) ([]model.Subject, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("subjects list filter cannot be nil")
+		return nil, fmt.Errorf("subjects list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var subjects []model.Subject
 	query := r.db.WithContext(ctx).Model(&model.Subject{})
@@ -75,13 +76,13 @@ func (r *subjectRepository) FindAll(ctx context.Context, filter *SubjectFilter) 
 
 func (r *subjectRepository) FindByID(ctx context.Context, id *uint8) (*model.Subject, error) {
 	if id == nil {
-		return nil, fmt.Errorf("subject id cannot be nil")
+		return nil, fmt.Errorf("subject id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var subject model.Subject
 	result := r.db.WithContext(ctx).First(&subject, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("subject with id %d was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("subject with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch subject by id (%d): %w", *id, result.Error)
 	}
@@ -90,7 +91,7 @@ func (r *subjectRepository) FindByID(ctx context.Context, id *uint8) (*model.Sub
 
 func (r *subjectRepository) Update(ctx context.Context, subject *model.Subject) error {
 	if subject == nil {
-		return fmt.Errorf("subject cannot be nil")
+		return fmt.Errorf("subject cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -101,7 +102,7 @@ func (r *subjectRepository) Update(ctx context.Context, subject *model.Subject) 
 		return fmt.Errorf("failed to check subject existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("subject with id %d was not found", subject.ID)
+		return fmt.Errorf("subject with id %d was not found: %w", subject.ID, apperrors.ErrNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(subject)
 	if result.Error != nil {
@@ -116,14 +117,14 @@ func (r *subjectRepository) Delete(ctx context.Context, id *uint8) error {
 		return fmt.Errorf("failed to delete subject with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("subject to delete was not found by id: %w", apperrors.ErrNotFound)
 	}
 	return nil
 }
 
 func (r *subjectRepository) ExistsByName(ctx context.Context, name *string) (bool, error) {
 	if name == nil {
-		return false, fmt.Errorf("name cannot be nil")
+		return false, fmt.Errorf("name cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).

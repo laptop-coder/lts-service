@@ -2,6 +2,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -42,7 +43,7 @@ func NewUserRepository(db *gorm.DB, log logger.Logger) UserRepository {
 
 func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 	if user == nil {
-		return fmt.Errorf("user cannot be nil")
+		return fmt.Errorf("user cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(user)
 	if result.Error != nil {
@@ -53,7 +54,7 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 
 func (r *userRepository) FindAll(ctx context.Context, filter *UserFilter) ([]model.User, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("users list filter cannot be nil")
+		return nil, fmt.Errorf("users list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var users []model.User
 	query := r.db.WithContext(ctx).Model(&model.User{})
@@ -85,13 +86,13 @@ func (r *userRepository) FindAll(ctx context.Context, filter *UserFilter) ([]mod
 
 func (r *userRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.User, error) {
 	if id == nil {
-		return nil, fmt.Errorf("user id cannot be nil")
+		return nil, fmt.Errorf("user id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var user model.User
 	result := r.db.WithContext(ctx).Preload("Roles").Preload("Roles.Permissions").First(&user, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user with id %s was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("user with id %s was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrUserNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch user by id (%s): %w", *id, result.Error)
 	}
@@ -100,13 +101,13 @@ func (r *userRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Us
 
 func (r *userRepository) FindByEmail(ctx context.Context, email *string) (*model.User, error) {
 	if email == nil {
-		return nil, fmt.Errorf("user email cannot be nil")
+		return nil, fmt.Errorf("user email cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var user model.User
 	result := r.db.WithContext(ctx).Preload("Roles").Where("email = ?", *email).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user was not found by email: %w", result.Error)
+			return nil, fmt.Errorf("user was not found by email: %s: %w", result.Error.Error(), apperrors.ErrUserNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch user by email: %w", result.Error)
 	}
@@ -115,7 +116,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email *string) (*model
 
 func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 	if user == nil {
-		return fmt.Errorf("user cannot be nil")
+		return fmt.Errorf("user cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -126,7 +127,7 @@ func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 		return fmt.Errorf("failed to check user existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("user with id %s was not found", user.ID)
+		return fmt.Errorf("user with id %s was not found: %w", user.ID, apperrors.ErrUserNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(user)
 	if result.Error != nil {
@@ -141,7 +142,7 @@ func (r *userRepository) Delete(ctx context.Context, id *uuid.UUID) error {
 		return fmt.Errorf("failed to delete user with id %s: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("user to delete was not found by id: %w", apperrors.ErrUserNotFound)
 	}
 	return nil
 }

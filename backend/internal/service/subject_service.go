@@ -1,11 +1,11 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
-	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"strings"
@@ -63,7 +63,7 @@ func (s *subjectService) CreateSubject(ctx context.Context, dto CreateSubjectDTO
 		return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 	}
 	if exists {
-		return nil, fmt.Errorf("subject with name '%s' already exists", dto.Name)
+		return nil, fmt.Errorf("subject with name '%s' already exists: %w", dto.Name, apperrors.ErrSubjectAlreadyExists) // TODO: maybe remove quotation marks from errors (are they safety?)
 	}
 	// Creating model object
 	subject := &model.Subject{
@@ -116,11 +116,6 @@ func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto Update
 	// Getting existing subject
 	subject, err := s.subjectRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Subject for update was not found by id", "subject id", id, "error", err)
-			return nil, fmt.Errorf("subject with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get subject for update", "subject id", id, "error", err)
 		return nil, fmt.Errorf("failed to get subject for update: %w", err)
 	}
 	// Update field if provided and was changed
@@ -131,17 +126,17 @@ func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto Update
 			return nil, fmt.Errorf("failed to check name uniqueness: %w", err)
 		}
 		if exists {
-			return nil, fmt.Errorf("subject with name '%s' already exists", dto.Name)
+			return nil, fmt.Errorf("subject with name '%s' already exists: %w", dto.Name, apperrors.ErrSubjectAlreadyExists)
 		}
 		subject.Name = *dto.Name
 	} else {
 		// No changes to update, return existing subject
-		s.log.Info("No changes to update subject", "subject ID", id)
+		s.log.Info("no changes to update subject", "subject_id", id)
 		return SubjectToDTO(subject), nil
 	}
 	// Update subject in DB
 	if err := s.subjectRepo.Update(ctx, subject); err != nil {
-		s.log.Error("Failed to update the subject")
+		s.log.Error("failed to update the subject")
 		return nil, fmt.Errorf("failed to update the subject: %w", err)
 	}
 	// Get updated subject for response
@@ -153,29 +148,24 @@ func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto Update
 }
 
 func (s *subjectService) DeleteSubject(ctx context.Context, id uint8) error {
-	s.log.Info("Starting subject deletion...")
+	s.log.Info("starting subject deletion...")
 	if err := s.subjectRepo.Delete(ctx, &id); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Subject does not exist", "subject id", id, "error", err)
-			return fmt.Errorf("subject with id %d does not exist: %w", id, err)
-		}
-		s.log.Error("Failed to delete the subject")
 		return fmt.Errorf("failed to delete the subject: %w", err)
 	}
-	s.log.Info("Subject deleted successfully")
+	s.log.Info("subject deleted successfully")
 	return nil
 }
 
 func (s *subjectService) validateCreateSubjectDTO(dto *CreateSubjectDTO) error {
 	// TODO: check if teacher with this ID exists in DB
 	if strings.TrimSpace(dto.Name) == "" {
-		return fmt.Errorf("name cannot be empty or only whitespace")
+		return fmt.Errorf("name cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	if len(dto.Name) < 3 {
-		return fmt.Errorf("name must be at least 3 characters")
+		return fmt.Errorf("name must be at least 3 characters: %w", apperrors.ErrValueTooShort)
 	}
 	if len(dto.Name) > 100 {
-		return fmt.Errorf("name must be at most 100 characters")
+		return fmt.Errorf("name must be at most 100 characters: %w", apperrors.ErrValueTooLong)
 	}
 	return nil
 }
@@ -184,13 +174,13 @@ func (s *subjectService) validateUpdateSubjectDTO(dto *UpdateSubjectDTO) error {
 	// TODO: check if teacher with this ID exists in DB
 	if dto.Name != nil {
 		if strings.TrimSpace(*dto.Name) == "" {
-			return fmt.Errorf("name cannot be only whitespace")
+			return fmt.Errorf("name cannot be only whitespace: %w", apperrors.ErrRequiredField)
 		}
 		if len(*dto.Name) < 3 {
-			return fmt.Errorf("name must be at least 3 characters")
+			return fmt.Errorf("name must be at least 3 characters: %w", apperrors.ErrValueTooShort)
 		}
 		if len(*dto.Name) > 100 {
-			return fmt.Errorf("name must be at most 100 characters")
+			return fmt.Errorf("name must be at most 100 characters: %w", apperrors.ErrValueTooLong)
 		}
 	}
 	return nil

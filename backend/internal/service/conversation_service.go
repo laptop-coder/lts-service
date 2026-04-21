@@ -1,21 +1,16 @@
 package service
 
 import (
+	"fmt"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
-)
-
-var (
-	ErrCannotContactOwnPost = errors.New("cannot contact your own post")
-	ErrNotParticipant       = errors.New("user is not a participant of this conversation")
-	ErrConversationNotFound = errors.New("conversation not found")
-	ErrEmptyMessage         = errors.New("message cannot be empty")
 )
 
 type ConversationService interface {
@@ -129,26 +124,23 @@ func (s *conversationService) CreateOrGet(ctx context.Context, postID uuid.UUID,
 	// Get post
 	post, err := s.postRepo.FindByID(ctx, &postID)
 	if err != nil || post == nil {
-		return nil, err
-	}
-	if post == nil {
-		return nil, ErrPostNotFound
+		return nil, fmt.Errorf("failed to get post by id: %w", err)
 	}
 
 	// Check if author is the requester
 	if post.AuthorID == requesterID {
-		return nil, ErrCannotContactOwnPost
+		return nil, fmt.Errorf("author of the post cannot be the requester: %w", apperrors.ErrCannotContactOwnPost)
 	}
 
 	// Get other user
 	otherUser, err := s.userRepo.FindByID(ctx, &post.AuthorID)
 	if err != nil || otherUser == nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get other user: %w", err)
 	}
 
 	// Find existing conversation
 	existingConv, err := s.convRepo.FindByPostAndUsers(ctx, postID, post.AuthorID, requesterID)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, apperrors.ErrConversationNotFound) {
 		return nil, err
 	}
 
@@ -159,7 +151,7 @@ func (s *conversationService) CreateOrGet(ctx context.Context, postID uuid.UUID,
 	// Get own user (i.e. requester)
 	requester, err := s.userRepo.FindByID(ctx, &requesterID)
 	if err != nil || requester == nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get own user (requester): %w", err)
 	}
 
 	// Create new conversation
@@ -174,7 +166,7 @@ func (s *conversationService) CreateOrGet(ctx context.Context, postID uuid.UUID,
 	}
 
 	if err := s.convRepo.Create(ctx, conv); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create conversation: %w", err)
 	}
 
 	return ConversationToDTO(conv, otherUser), nil
@@ -182,21 +174,18 @@ func (s *conversationService) CreateOrGet(ctx context.Context, postID uuid.UUID,
 
 func (s *conversationService) SendMessage(ctx context.Context, conversationID uuid.UUID, senderID uuid.UUID, content *string) (*MessageResponseDTO, error) {
 	if content == nil {
-		return nil, ErrEmptyMessage
+		return nil, fmt.Errorf("content cannot be empty: %w", apperrors.ErrEmptyMessage)
 	}
 
 	// Get conversation
 	conv, err := s.convRepo.FindByID(ctx, conversationID)
 	if err != nil {
-		return nil, err
-	}
-	if conv == nil {
-		return nil, ErrConversationNotFound
+		return nil, fmt.Errorf("failed to find conversation by id: %w", err)
 	}
 
 	// Check if sender is a conversation participant
 	if conv.AuthorID != senderID && conv.RequesterID != senderID {
-		return nil, ErrNotParticipant
+		return nil, fmt.Errorf("the user is not the conversation participant: %w", apperrors.ErrNotConversationParticipant)
 	}
 
 	// Create message
@@ -208,7 +197,7 @@ func (s *conversationService) SendMessage(ctx context.Context, conversationID uu
 	}
 
 	if err := s.msgRepo.Create(ctx, msg); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create message: %w", err)
 	}
 
 	// Update UpdatedAt field
@@ -230,15 +219,12 @@ func (s *conversationService) GetConversation(ctx context.Context, conversationI
 	// Get conversation
 	conv, err := s.convRepo.FindByID(ctx, conversationID)
 	if err != nil {
-		return nil, err
-	}
-	if conv == nil {
-		return nil, ErrConversationNotFound
+		return nil, fmt.Errorf("failed to find conversation by id: %w", err)
 	}
 
 	// Check if the user is the conversation participant
 	if conv.AuthorID != userID && conv.RequesterID != userID {
-		return nil, ErrNotParticipant
+		return nil, fmt.Errorf("the user is not the conversation participant: %w", apperrors.ErrNotConversationParticipant)
 	}
 
 	// Identify second conversation participant
@@ -255,7 +241,7 @@ func (s *conversationService) GetConversation(ctx context.Context, conversationI
 func (s *conversationService) GetUserConversations(ctx context.Context, userID uuid.UUID, limit, offset int) ([]ConversationListItemDTO, error) {
 	conversations, err := s.convRepo.FindByUserID(ctx, userID, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get conversations by user id: %w", err)
 	}
 
 	items := make([]ConversationListItemDTO, len(conversations))
@@ -272,13 +258,13 @@ func (s *conversationService) GetUserConversations(ctx context.Context, userID u
 		// Last message
 		lastMsg, err := s.msgRepo.FindLastMessage(ctx, conv.ID)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to find last message: %w", err)
 		}
 
 		// Count of unread messages
 		unreadCount, err := s.msgRepo.CountUnread(ctx, conv.ID, userID)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to count unread messages: %w", err)
 		}
 
 		items[i] = *ConversationToListItemDTO(&conv, &otherUser, unreadCount, lastMsg.Content)
@@ -288,12 +274,16 @@ func (s *conversationService) GetUserConversations(ctx context.Context, userID u
 }
 
 func (s *conversationService) MarkAsRead(ctx context.Context, conversationID uuid.UUID, userID uuid.UUID) error {
-	return s.msgRepo.MarkAsRead(ctx, conversationID, userID)
+	err := s.msgRepo.MarkAsRead(ctx, conversationID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to mark all messages in conversation as read: %w", err)
+	}
+	return nil
 }
 
 func (s *conversationService) notifyParticipant(ctx context.Context, conv *model.Conversation, senderID uuid.UUID, content *string) error {
 	if content == nil {
-		return ErrEmptyMessage
+		return fmt.Errorf("content cannot be empty: %w", apperrors.ErrEmptyMessage)
 	}
 
 	// Identify recipient
@@ -307,13 +297,13 @@ func (s *conversationService) notifyParticipant(ctx context.Context, conv *model
 	// Get recipient email
 	recipient, err := s.userRepo.FindByID(ctx, &recipientID)
 	if err != nil || recipient == nil {
-		return err
+		return fmt.Errorf("failed to get recipient: %w", err)
 	}
 
 	// Get sender
 	sender, err := s.userRepo.FindByID(ctx, &senderID)
 	if err != nil || sender == nil {
-		return err
+		return fmt.Errorf("failed to get sender: %w", err)
 	}
 
 	dto := NewMessageNotificationDTO{
@@ -324,8 +314,13 @@ func (s *conversationService) notifyParticipant(ctx context.Context, conv *model
 		ConversationID: conv.ID,
 	}
 
-	return s.emailService.SendNewMessageNotification(ctx, &dto)
+	err = s.emailService.SendNewMessageNotification(ctx, &dto)
+	if err != nil {
+		return fmt.Errorf("failed to send notification about new message: %w", err)
+	}
+	return nil
 }
+
 
 func (s *conversationService) GetTotalUnreadCount(ctx context.Context, userID uuid.UUID) (int64, error) {
 	return s.msgRepo.CountAllUnread(ctx, userID)

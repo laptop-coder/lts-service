@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -41,7 +42,7 @@ func NewPostRepository(db *gorm.DB, log logger.Logger) PostRepository {
 
 func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]model.Post, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("posts list filter cannot be nil")
+		return nil, fmt.Errorf("posts list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var posts []model.Post
 	query := r.db.WithContext(ctx).Model(&model.Post{})
@@ -82,13 +83,13 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 
 func (r *postRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Post, error) {
 	if id == nil {
-		return nil, fmt.Errorf("post id cannot be nil")
+		return nil, fmt.Errorf("post id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var post model.Post
 	result := r.db.WithContext(ctx).Preload("Author").Preload("Author.Roles").First(&post, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("post with id %s was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("post with id %s was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrPostNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch post by id (%s): %w", *id, result.Error)
 	}
@@ -97,7 +98,7 @@ func (r *postRepository) FindByID(ctx context.Context, id *uuid.UUID) (*model.Po
 
 func (r *postRepository) Create(ctx context.Context, post *model.Post) error {
 	if post == nil {
-		return fmt.Errorf("post cannot be nil")
+		return fmt.Errorf("post cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(post)
 	if result.Error != nil {
@@ -108,7 +109,7 @@ func (r *postRepository) Create(ctx context.Context, post *model.Post) error {
 
 func (r *postRepository) Update(ctx context.Context, post *model.Post) error {
 	if post == nil {
-		return fmt.Errorf("post cannot be nil")
+		return fmt.Errorf("post cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -119,7 +120,7 @@ func (r *postRepository) Update(ctx context.Context, post *model.Post) error {
 		return fmt.Errorf("failed to check post existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("post with id %d was not found", post.ID)
+		return fmt.Errorf("post with id %d was not found: %w", post.ID, apperrors.ErrPostNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(post)
 	if result.Error != nil {
@@ -134,7 +135,7 @@ func (r *postRepository) Delete(ctx context.Context, id *uuid.UUID) error {
 		return fmt.Errorf("failed to delete post with id %s: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("post to delete was not found by id: %w", apperrors.ErrPostNotFound)
 	}
 	return nil
 }

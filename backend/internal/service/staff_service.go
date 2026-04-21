@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -48,9 +49,6 @@ func NewStaffService(
 func (s *staffService) GetStaffByID(ctx context.Context, id uuid.UUID) (*StaffResponseDTO, error) {
 	staff, err := s.staffRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("staff with id %s was not found: %w", id, err)
-		}
 		return nil, fmt.Errorf("failed to get staff: %w", err)
 	}
 	return StaffToDTO(staff), nil
@@ -89,7 +87,7 @@ func (s *staffService) AssignPosition(ctx context.Context, userID uuid.UUID, pos
 		var staff model.Staff
 		if err := tx.WithContext(ctx).
 			First(&staff, "user_id = ?", userID).Error; err != nil {
-			return fmt.Errorf("staff with user ID %s was not found: %w", userID, err)
+				return fmt.Errorf("staff with user ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrNotFound)
 		}
 		// Check position existence
 		var count int64
@@ -100,13 +98,13 @@ func (s *staffService) AssignPosition(ctx context.Context, userID uuid.UUID, pos
 			return err
 		}
 		if count == 0 {
-			return fmt.Errorf("position with ID %d was not found", positionID)
+			return fmt.Errorf("position with ID %d was not found: %w", positionID, apperrors.ErrNotFound)
 		}
 		staff.PositionID = positionID
 		if err := tx.WithContext(ctx).Save(&staff).Error; err != nil {
 			return fmt.Errorf("failed to assign position to staff: %w", err)
 		}
-		s.log.Info("Position was successfully assigned to the staff")
+		s.log.Info("position was successfully assigned to the staff")
 		return nil
 	})
 }
@@ -114,9 +112,6 @@ func (s *staffService) AssignPosition(ctx context.Context, userID uuid.UUID, pos
 func (s *staffService) GetPosition(ctx context.Context, userID uuid.UUID) (*StaffPositionResponseDTO, error) {
 	staff, err := s.staffRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("staff with user id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get staff: %w", err)
 	}
 	if staff.Position.ID == 0 {

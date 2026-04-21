@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -35,7 +36,7 @@ func NewStaffRepository(db *gorm.DB, log logger.Logger) StaffRepository {
 
 func (r *staffRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*model.Staff, error) {
 	if userID == nil {
-		return nil, fmt.Errorf("user id cannot be nil")
+		return nil, fmt.Errorf("user id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var staff model.Staff
 	result := r.db.WithContext(ctx).
@@ -43,7 +44,7 @@ func (r *staffRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mod
 		First(&staff, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("staff with user id %s was not found: %w", *userID, result.Error)
+			return nil, fmt.Errorf("staff with user id %s was not found: %s: %w", *userID, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch staff by user id (%s): %w", *userID, result.Error)
 	}
@@ -52,7 +53,7 @@ func (r *staffRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mod
 
 func (r *staffRepository) FindAll(ctx context.Context, filter *StaffFilter) ([]model.Staff, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("staff list filter cannot be nil")
+		return nil, fmt.Errorf("staff list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var staffList []model.Staff
 	query := r.db.WithContext(ctx).Model(&model.Staff{})

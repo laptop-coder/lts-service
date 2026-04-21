@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -36,7 +37,7 @@ func NewStudentRepository(db *gorm.DB, log logger.Logger) StudentRepository {
 
 func (r *studentRepository) FindByGroupID(ctx context.Context, id *uint16) ([]model.Student, error) {
 	if id == nil {
-		return nil, fmt.Errorf("student group id cannot be nil")
+		return nil, fmt.Errorf("student group id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var students []model.Student
 	result := r.db.WithContext(ctx).
@@ -53,7 +54,7 @@ func (r *studentRepository) FindByGroupID(ctx context.Context, id *uint16) ([]mo
 
 func (r *studentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*model.Student, error) {
 	if userID == nil {
-		return nil, fmt.Errorf("user id cannot be nil")
+		return nil, fmt.Errorf("user id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var student model.Student
 	result := r.db.WithContext(ctx).
@@ -63,7 +64,7 @@ func (r *studentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 		First(&student, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student with user id %s was not found: %w", *userID, result.Error)
+			return nil, fmt.Errorf("student with user id %s was not found: %s: %w", *userID, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch student by user id (%s): %w", *userID, result.Error)
 	}
@@ -72,7 +73,7 @@ func (r *studentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 
 func (r *studentRepository) FindAll(ctx context.Context, filter *StudentFilter) ([]model.Student, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("students list filter cannot be nil")
+		return nil, fmt.Errorf("students list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var students []model.Student
 	query := r.db.WithContext(ctx).Model(&model.Student{})

@@ -4,6 +4,7 @@ package service
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
 	"errors"
@@ -44,6 +45,22 @@ type UserService interface {
 	RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error
 	RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, roleID uint8) error
 	AssignExtensionsToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO) error
+}
+
+type PermissionResponseDTO struct {
+	ID        uint8  `json:"id"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+	Name      string `json:"name"`
+}
+
+func PermissionToDTO(permission *model.Permission) *PermissionResponseDTO {
+	return &PermissionResponseDTO{
+		ID:        permission.ID,
+		CreatedAt: permission.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: permission.UpdatedAt.Format(time.RFC3339),
+		Name:      permission.Name,
+	}
 }
 
 type CreateUserDTO struct {
@@ -123,22 +140,21 @@ func NewUserService(
 func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDTO, userExtensionsDTO UserExtensionsDTO) (*UserResponseDTO, error) {
 	// Input data validation
 	if err := s.validateCreateUserDTO(&createUserDTO); err != nil {
-		s.log.Error("Validation error during user creation", "error", err.Error())
 		return nil, fmt.Errorf("validation error during user creation: %w", err)
 	}
 	// Check email uniqueness
 	existingUser, err := s.userRepo.FindByEmail(ctx, &createUserDTO.Email)
 	if err == nil && existingUser != nil {
-		s.log.Error("User with this email already exists")
-		return nil, fmt.Errorf("user with this email already exists")
+		s.log.Error("user with this email already exists")
+		return nil, fmt.Errorf("user with this email already exists: %w", apperrors.ErrUserWithThisEmailAlreadyExists)
 	}
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, apperrors.ErrUserNotFound) {
 		return nil, fmt.Errorf("failed to check email uniqueness: %w", err)
 	}
 	// Password hashing
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(createUserDTO.Password), s.config.BcryptCost)
 	if err != nil {
-		s.log.Error("Failed to hash password", "error", err.Error())
+		s.log.Error("failed to hash password", "error", err.Error())
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 	// Generating ID for user
@@ -148,12 +164,12 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 	if createUserDTO.Avatar != nil {
 		// Validating
 		if err := s.validateAvatarFile(createUserDTO.Avatar); err != nil {
-			s.log.Error("Avatar validation failed", "error", err.Error())
+			s.log.Error("avatar validation failed", "error", err.Error())
 			return nil, fmt.Errorf("avatar validation failed: %w", err)
 		}
 		// Saving to storage
 		if err := s.saveAvatarFile(userID, createUserDTO.Avatar); err != nil {
-			s.log.Error("Failed to save avatar to storage", "error", err.Error())
+			s.log.Error("failed to save avatar to storage", "error", err.Error())
 			return nil, fmt.Errorf("failed to save avatar to storage: %w", err)
 		}
 		hasAvatar = true
@@ -176,13 +192,13 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 			if hasAvatar {
 				s.removeAvatarFile(userID)
 			}
-			s.log.Error("Failed to create user", "error", err.Error())
+			s.log.Error("failed to create user", "error", err.Error())
 			return fmt.Errorf("failed to create user: %w", err)
 		}
 		return nil
 	})
 	if err != nil {
-		s.log.Error("Transaction failed", "error", err.Error())
+		s.log.Error("transaction failed", "error", err.Error())
 		return nil, fmt.Errorf("transaction failed: %w", err)
 	}
 	// TODO: add transaction for roles assigning. If user was created, but roles
@@ -190,13 +206,13 @@ func (s *userService) CreateUser(ctx context.Context, createUserDTO CreateUserDT
 	// must be deleted
 	// Assign roles to user
 	if err := s.assignRolesToUser(ctx, userID, userExtensionsDTO, createUserDTO.RoleIDs); err != nil {
-		s.log.Error("Failed to assign roles to user", "error", err.Error())
+		s.log.Error("failed to assign roles to user", "error", err.Error())
 		return nil, fmt.Errorf("failed to assign roles to user: %w", err)
 	}
 	// Get created user for response
 	createdUser, err := s.userRepo.FindByID(ctx, &user.ID)
 	if err != nil {
-		s.log.Error("Failed to fetch created user", "error", err.Error())
+		s.log.Error("failed to fetch created user", "error", err.Error())
 		return nil, fmt.Errorf("failed to fetch created user: %w", err)
 	}
 	return UserToDTO(createdUser), nil
@@ -210,11 +226,7 @@ func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUs
 	// Getting existing user
 	user, err := s.userRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("User for update was not found by id", "user id", id, "error", err)
-			return nil, fmt.Errorf("user with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get user for update", "user id", id, "error", err)
+		s.log.Error("failed to get user for update", "user_id", id, "error", err)
 		return nil, fmt.Errorf("failed to get user for update: %w", err)
 	}
 	// Updating fields
@@ -233,7 +245,7 @@ func (s *userService) UpdateUser(ctx context.Context, id uuid.UUID, dto UpdateUs
 	}
 	// Updating user in DB
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		s.log.Error("Failed to update the user")
+		s.log.Error("failed to update the user")
 		return nil, fmt.Errorf("failed to update the user: %w", err)
 	}
 	// Get updated user for response
@@ -249,11 +261,6 @@ func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// Getting existing user
 	user, err := s.userRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("User for delete was not found by id", "user id", id, "error", err)
-			return fmt.Errorf("user with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get user for delete", "user id", id, "error", err)
 		return fmt.Errorf("failed to get user for delete: %w", err)
 	}
 	// Transaction for user deletion
@@ -264,10 +271,10 @@ func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 			s.removeAvatarFile(id)
 		}
 		if err := txRepo.Delete(ctx, &id); err != nil {
-			s.log.Error("Failed to delete the user")
+			s.log.Error("failed to delete the user")
 			return fmt.Errorf("failed to delete the user: %w", err)
 		}
-		s.log.Info("User deleted successfully")
+		s.log.Info("user deleted successfully")
 		return nil
 	})
 	if err != nil {
@@ -279,9 +286,6 @@ func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponseDTO, error) {
 	user, err := s.userRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user with id %s was not found: %w", id, err)
-		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 	return UserToDTO(user), nil
@@ -290,9 +294,6 @@ func (s *userService) GetUserByID(ctx context.Context, id uuid.UUID) (*UserRespo
 func (s *userService) GetUserByEmail(ctx context.Context, email string) (*UserResponseDTO, error) {
 	user, err := s.userRepo.FindByEmail(ctx, &email)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user was not found by email: %w", err)
-		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 	return UserToDTO(user), nil
@@ -339,7 +340,7 @@ func (s *userService) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]Rol
 		Preload("Roles").
 		Preload("Roles.Permissions").
 		First(&user, userID).Error; err != nil {
-		return nil, fmt.Errorf("user not found: %w", err)
+		return nil, fmt.Errorf("user not found: %s: %w", err.Error(), apperrors.ErrUserNotFound)
 	}
 	// Get user's roles, convert them to DTO
 	dtos := make([]RoleResponseDTO, len(user.Roles))
@@ -353,22 +354,23 @@ func (s *userService) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]Rol
 func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
+		// TODO: move to validation function
 		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
-			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
-			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 5) && (len(dto.TeacherSubjectIDs) == 0) {
-			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
-			return fmt.Errorf("bad request: required special fields for the student role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the student role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		// Get user by ID
 		var user model.User
 		if err := tx.First(&user, userID).Error; err != nil {
-			return fmt.Errorf("user not found: %w", err)
+			return fmt.Errorf("user not found: %s: %w", err.Error(), apperrors.ErrUserNotFound)
 		}
 		// Get roles by IDs
 		var roles []model.Role
@@ -377,7 +379,7 @@ func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, d
 				return fmt.Errorf("failed to fetch roles: %w", err)
 			}
 			if len(roles) != len(roleIDs) {
-				return fmt.Errorf("some roles not found")
+				return fmt.Errorf("some roles not found: %w", apperrors.ErrNotFound)
 			}
 		}
 		// Return response
@@ -395,23 +397,24 @@ func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid
 			}
 		}
 		roleIDs = filteredIDs
+		// TODO: move to the validation function
 		// Check if required fields in DTO are filled in
 		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
-			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
-			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 5) && (len(dto.TeacherSubjectIDs) == 0) {
-			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
-			return fmt.Errorf("bad request: required special fields for the student role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the student role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		// Get user by ID
 		var user model.User
 		if err := tx.Preload("Roles").First(&user, userID).Error; err != nil {
-			return fmt.Errorf("user not found: %w", err)
+			return fmt.Errorf("user not found: %s: %w", err.Error(), apperrors.ErrUserNotFound)
 		}
 		// Get roles by IDs
 		var roles []model.Role
@@ -420,7 +423,7 @@ func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid
 				return fmt.Errorf("failed to fetch roles: %w", err)
 			}
 			if len(roles) != len(roleIDs) {
-				return fmt.Errorf("some roles not found")
+				return fmt.Errorf("some roles not found: %w", apperrors.ErrNotFound)
 			}
 		}
 		// Save superadmin/admin roles if user has them
@@ -442,16 +445,16 @@ func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
 		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
-			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the institution administrator role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 4) && (dto.StaffPositionID == nil) {
-			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the staff role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 5) && (len(dto.TeacherSubjectIDs) == 0) {
-			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the teacher role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleIDs, 7) && (dto.StudentGroupID == nil) {
-			return fmt.Errorf("bad request: required special fields for the student role cannot be empty")
+			return fmt.Errorf("bad request: required special fields for the student role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		// Get roles by IDs
 		var roles []model.Role
@@ -526,7 +529,7 @@ func RoleToDTO(role *model.Role) *RoleResponseDTO {
 func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error {
 	// Check file size
 	if fileHeader.Size > s.config.AvatarMaxSize {
-		return fmt.Errorf("file size exceeds limit of %d bytes", s.config.AvatarMaxSize)
+		return fmt.Errorf("file size exceeds limit of %d bytes: %w", s.config.AvatarMaxSize, apperrors.ErrFileTooLarge)
 	}
 	// read info
 	file, err := fileHeader.Open()
@@ -545,7 +548,7 @@ func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error
 	}
 	mimeType := http.DetectContentType(buffer)
 	if !slices.Contains(s.config.AvatarAllowedMIMETypes, mimeType) {
-		return fmt.Errorf("unsupported file type: %s. Allowed: %v", mimeType, s.config.AvatarAllowedMIMETypes)
+		return fmt.Errorf("unsupported file type: %s (allowed: %v): %w", mimeType, s.config.AvatarAllowedMIMETypes, apperrors.ErrInvalidFileType)
 	}
 	return nil
 }
@@ -553,20 +556,20 @@ func (s *userService) validateAvatarFile(fileHeader *multipart.FileHeader) error
 func (s *userService) saveAvatarFile(userID uuid.UUID, fileHeader *multipart.FileHeader) error {
 	// Creating directory (if not exists)
 	if err := os.MkdirAll(s.config.AvatarUploadPath, 0755); err != nil {
-		s.log.Error("Failed to create upload directory for avatars", "error", err.Error())
+		s.log.Error("failed to create upload directory for avatars", "error", err.Error())
 		return fmt.Errorf("failed to create upload directory for avatars: %w", err)
 	}
 	// Opening source file
 	srcFile, err := fileHeader.Open()
 	if err != nil {
-		s.log.Error("Failed to open uploaded file", "error", err.Error())
+		s.log.Error("failed to open uploaded file", "error", err.Error())
 		return fmt.Errorf("failed to open uploaded file: %w", err)
 	}
 	defer srcFile.Close()
 	// Decode image
 	img, format, err := image.Decode(srcFile)
 	if err != nil {
-		s.log.Error("Failed to decode image", "format", format, "error", err.Error())
+		s.log.Error("failed to decode image", "format", format, "error", err.Error())
 		return fmt.Errorf("failed to decode image (format: %s): %w", format, err)
 	}
 	s.log.Info("Decoded image (avatar)", "format", format)
@@ -610,7 +613,7 @@ func (s *userService) removeAvatarFile(userID uuid.UUID) {
 func (s *userService) UpdateAvatar(ctx context.Context, userID uuid.UUID, avatar *multipart.FileHeader) error {
 	user, err := s.userRepo.FindByID(ctx, &userID)
 	if err != nil {
-		return fmt.Errorf("user not found: %w", err)
+		return fmt.Errorf("user not found: %s: %w", err.Error(), apperrors.ErrUserNotFound)
 	}
 	// Validating the file
 	if err := s.validateAvatarFile(avatar); err != nil {
@@ -634,7 +637,7 @@ func (s *userService) RemoveAvatar(ctx context.Context, userID uuid.UUID) error 
 	// Getting user
 	user, err := s.userRepo.FindByID(ctx, &userID)
 	if err != nil {
-		return fmt.Errorf("user not found: %w", err)
+		return fmt.Errorf("user not found: %s: %w", err.Error(), apperrors.ErrUserNotFound)
 	}
 	// Transaction
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
@@ -644,32 +647,36 @@ func (s *userService) RemoveAvatar(ctx context.Context, userID uuid.UUID) error 
 			if err := s.userRepo.Update(ctx, user); err != nil {
 				return fmt.Errorf("failed to delete user avatar: %w", err)
 			}
-			s.log.Info("Removing user avatar file...")
+			s.log.Info("removing user avatar file...")
 			s.removeAvatarFile(userID)
 		}
 		return nil
 	}); err != nil {
 		return fmt.Errorf("transaction failed: %w", err)
 	}
-	s.log.Info("User avatar file was successfully removed")
+	s.log.Info("user avatar file was successfully removed")
 	return nil
 }
 
 func (s *userService) validateCreateUserDTO(dto *CreateUserDTO) error {
 	if dto.Email == "" {
-		return fmt.Errorf("email is required")
+		return fmt.Errorf("email is required: %w", apperrors.ErrEmptyEmail)
 	}
 	if len(dto.Password) < 8 {
-		return fmt.Errorf("password must be at least 8 characters")
+		return fmt.Errorf("password must be at least 8 characters: %w", apperrors.ErrPasswordTooShort)
+	}
+	if len(dto.Password) > 72 {
+		// TODO: add this restriction on 72 characters in other places
+		return fmt.Errorf("password must be not more than 72 characters: %w", apperrors.ErrPasswordTooLong)
 	}
 	if len(dto.FirstName) < 2 {
-		return fmt.Errorf("first name must be at least 2 characters")
+		return fmt.Errorf("first name must be at least 2 characters: %w", apperrors.ErrValueTooShort)
 	}
 	if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
-		return fmt.Errorf("middle name must be at least 2 characters or null")
+		return fmt.Errorf("middle name must be at least 2 characters or null: %w", apperrors.ErrValueTooShort)
 	}
 	if len(dto.LastName) < 2 {
-		return fmt.Errorf("last name must be at least 2 characters")
+		return fmt.Errorf("last name must be at least 2 characters: %w", apperrors.ErrValueTooShort)
 	}
 	if len(dto.RoleIDs) > 0 {
 		// TODO: check if all reoles exist in DB
@@ -679,13 +686,13 @@ func (s *userService) validateCreateUserDTO(dto *CreateUserDTO) error {
 
 func (s *userService) validateUpdateUserDTO(dto *UpdateUserDTO) error {
 	if dto.FirstName != nil && len(*dto.FirstName) < 2 {
-		return fmt.Errorf("first name must be at least 2 characters or null")
+		return fmt.Errorf("first name must be at least 2 characters or null: %w", apperrors.ErrValueTooShort)
 	}
 	if dto.MiddleName != nil && len(*dto.MiddleName) < 2 {
-		return fmt.Errorf("middle name must be at least 2 characters or null")
+		return fmt.Errorf("middle name must be at least 2 characters or null: %w", apperrors.ErrValueTooShort)
 	}
 	if dto.LastName != nil && len(*dto.LastName) < 2 {
-		return fmt.Errorf("last name must be at least 2 characters or null")
+		return fmt.Errorf("last name must be at least 2 characters or null: %w", apperrors.ErrValueTooShort)
 	}
 	return nil
 }
@@ -714,14 +721,14 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, d
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Block attempt to assign superadmin role
 		if slices.Contains(roleIDs, 1) {
-			return fmt.Errorf("forbidden: you cannot assign superadmin role to user")
+			return fmt.Errorf("you cannot assign superadmin role to user: %w", apperrors.ErrForbidden)
 		}
 		// Get user
 		var user model.User
 		if err := tx.WithContext(ctx).
 			Preload("Roles").
 			First(&user, "id = ?", userID).Error; err != nil {
-			return fmt.Errorf("user with ID %s was not found: %w", userID, err)
+			return fmt.Errorf("user with ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrUserNotFound)
 		}
 		// Get roles to assign
 		var roles []model.Role
@@ -732,7 +739,7 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, d
 		}
 		// Check if all roles were found
 		if len(roles) != len(roleIDs) {
-			return fmt.Errorf("%d role(-s) was(were) not found", len(roleIDs)-len(roles))
+			return fmt.Errorf("%d role(-s) was(were) not found: %w", len(roleIDs)-len(roles), apperrors.ErrNotFound)
 		}
 		// Remove user from old tables-extensions ("teachers" for users with the
 		// teacher role, e.g.; this tables contains specific information for
@@ -763,14 +770,14 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Block attempt to add superadmin role
 		if slices.Contains(roleIDs, 1) {
-			return fmt.Errorf("forbidden: you cannot add superadmin role to user")
+			return fmt.Errorf("you cannot add superadmin role to user: %w", apperrors.ErrForbidden)
 		}
 		// Get user
 		var user model.User
 		if err := tx.WithContext(ctx).
 			Preload("Roles").
 			First(&user, "id = ?", userID).Error; err != nil {
-			return fmt.Errorf("user with ID %s was not found: %w", userID, err)
+			return fmt.Errorf("user with ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrUserNotFound)
 		}
 		// Get roles to assign
 		var roles []model.Role
@@ -781,7 +788,7 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 		}
 		// Check if all roles were found
 		if len(roles) != len(roleIDs) {
-			return fmt.Errorf("%d role(-s) was(were) not found", len(roleIDs)-len(roles))
+			return fmt.Errorf("%d role(-s) was(were) not found: %w", len(roleIDs)-len(roles), apperrors.ErrNotFound)
 		}
 		// Add user to new extention tables
 		for _, role := range roles {
@@ -803,7 +810,7 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, userID uuid.UUID, dto UserExtensionsDTO, roleID uint8) error {
 	switch roleID {
 	case 1: // superadmin
-		return fmt.Errorf("forbidden: you cannot add superadmin to extension table")
+		return fmt.Errorf("you cannot add superadmin to extension table: %w", apperrors.ErrForbidden)
 	case 2: // admin (there are no extension tables)
 		return nil
 	case 3: // institution_administrator
@@ -847,7 +854,7 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 				return fmt.Errorf("failed to find students: %w", err)
 			}
 			if len(students) != len(dto.ParentStudentIDs) {
-				return fmt.Errorf("some students not found")
+				return fmt.Errorf("some students not found: %w", apperrors.ErrNotFound)
 			}
 			parent.Students = &students
 		}
@@ -855,7 +862,7 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 	case 7: // student
 		return tx.Create(&model.Student{UserID: userID, StudentGroupID: *dto.StudentGroupID}).Error
 	}
-	return fmt.Errorf("role with id %d does not exist", roleID)
+	return fmt.Errorf("role with id %d does not exist: %w", roleID, apperrors.ErrNotFound)
 }
 
 func (s *userService) removeUserFromExtensionTable(tx *gorm.DB, userID uuid.UUID, roleID uint8) error {
@@ -873,7 +880,7 @@ func (s *userService) removeUserFromExtensionTable(tx *gorm.DB, userID uuid.UUID
 	case 7: // student
 		return tx.Where("user_id = ?", userID).Delete(&model.Student{}).Error
 	}
-	return fmt.Errorf("role with id %d does not exist", roleID)
+	return fmt.Errorf("role with id %d does not exist: %w", roleID, apperrors.ErrNotFound)
 }
 
 func (s *userService) AssignExtensionsToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO) error {
@@ -881,7 +888,7 @@ func (s *userService) AssignExtensionsToUser(ctx context.Context, userID uuid.UU
 		// Get user by ID
 		var user model.User
 		if err := tx.First(&user, userID).Error; err != nil {
-			return fmt.Errorf("user not found: %w", err)
+			return fmt.Errorf("user not found: %s: %w", err.Error(), apperrors.ErrUserNotFound)
 		}
 		// Get role names
 		roleNames := make([]string, len(user.Roles))
@@ -890,16 +897,16 @@ func (s *userService) AssignExtensionsToUser(ctx context.Context, userID uuid.UU
 		}
 		// Check if required fields in DTO are filled in
 		if slices.Contains(roleNames, "institution_administrator") && (dto.InstitutionAdministratorPositionID == nil) {
-			return fmt.Errorf("bad request: required extensions for the institution administrator role cannot be empty")
+			return fmt.Errorf("bad request: required extensions for the institution administrator role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleNames, "staff") && (dto.StaffPositionID == nil) {
-			return fmt.Errorf("bad request: required extensions for the staff role cannot be empty")
+			return fmt.Errorf("bad request: required extensions for the staff role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleNames, "teacher") && (len(dto.TeacherSubjectIDs) == 0) {
-			return fmt.Errorf("bad request: required extensions for the teacher role cannot be empty")
+			return fmt.Errorf("bad request: required extensions for the teacher role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		if slices.Contains(roleNames, "student") && (dto.StudentGroupID == nil) {
-			return fmt.Errorf("bad request: required extensions for the student role cannot be empty")
+			return fmt.Errorf("bad request: required extensions for the student role cannot be empty: %w", apperrors.ErrRequiredField)
 		}
 		// Return response
 		return s.assignExtensionsToUser(ctx, userID, dto)
@@ -913,7 +920,7 @@ func (s *userService) assignExtensionsToUser(ctx context.Context, userID uuid.UU
 		if err := tx.WithContext(ctx).
 			Preload("Roles").
 			First(&user, "id = ?", userID).Error; err != nil {
-			return fmt.Errorf("user with ID %s was not found: %w", userID, err)
+			return fmt.Errorf("user with ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrUserNotFound)
 		}
 		// Remove user from old tables-extensions
 		for _, role := range user.Roles {

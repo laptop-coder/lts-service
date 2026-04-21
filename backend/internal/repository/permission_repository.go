@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -32,7 +33,7 @@ func NewPermissionRepository(db *gorm.DB, log logger.Logger) PermissionRepositor
 
 func (r *permissionRepository) Create(ctx context.Context, permission *model.Permission) error {
 	if permission == nil {
-		return fmt.Errorf("permission cannot be nil")
+		return fmt.Errorf("permission cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(permission)
 	if result.Error != nil {
@@ -55,13 +56,13 @@ func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission,
 
 func (r *permissionRepository) FindByID(ctx context.Context, id *uint8) (*model.Permission, error) {
 	if id == nil {
-		return nil, fmt.Errorf("permission id cannot be nil")
+		return nil, fmt.Errorf("permission id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var permission model.Permission
 	result := r.db.WithContext(ctx).First(&permission, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("permission with id %d was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("permission with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch permission by id (%d): %w", *id, result.Error)
 	}
@@ -70,7 +71,7 @@ func (r *permissionRepository) FindByID(ctx context.Context, id *uint8) (*model.
 
 func (r *permissionRepository) Update(ctx context.Context, permission *model.Permission) error {
 	if permission == nil {
-		return fmt.Errorf("permission cannot be nil")
+		return fmt.Errorf("permission cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -81,7 +82,7 @@ func (r *permissionRepository) Update(ctx context.Context, permission *model.Per
 		return fmt.Errorf("failed to check permission existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("permission with id %d was not found", permission.ID)
+		return fmt.Errorf("permission with id %d was not found: %w", permission.ID, apperrors.ErrNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(permission)
 	if result.Error != nil {
@@ -96,7 +97,7 @@ func (r *permissionRepository) Delete(ctx context.Context, id *uint8) error {
 		return fmt.Errorf("failed to delete permission with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("permission to delete was not found by id: %w", apperrors.ErrNotFound)
 	}
 	return nil
 }

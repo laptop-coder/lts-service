@@ -27,7 +27,6 @@ func SetupRoutes(
 	parentHandler *handler.ParentHandler,
 	staffHandler *handler.StaffHandler,
 	institutionAdministratorHandler *handler.InstitutionAdministratorHandler,
-	roleHandler *handler.RoleHandler,
 	inviteHandler *handler.InviteHandler,
 	staffPositionHandler *handler.StaffPositionHandler,
 	institutionAdministratorPositionHandler *handler.InstitutionAdministratorPositionHandler,
@@ -155,9 +154,6 @@ func SetupRoutes(
 	mux.HandleFunc("GET /api/v1/staff/positions", staffPositionHandler.GetAll)
 	mux.Handle("PATCH /api/v1/staff/positions/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.PositionStaffUpdate)(http.HandlerFunc(staffPositionHandler.Update))))
 	mux.Handle("DELETE /api/v1/staff/positions/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.PositionStaffDelete)(http.HandlerFunc(staffPositionHandler.Delete))))
-	// Roles
-	// mux.Handle("GET /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.GetPermissions)))
-	// mux.Handle("PUT /api/v1/roles/{id}/permissions", authMiddleware(http.HandlerFunc(roleHandler.AssignPermissions)))
 	// Post conversation
 	mux.Handle("POST /api/v1/posts/{postId}/contact", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationCreate)(http.HandlerFunc(conversationHandler.CreateConversation))))
 	mux.Handle("GET /api/v1/conversations", authMiddleware(false)(requirePermissions(log, false, permissions.ConversationReadOwn)(http.HandlerFunc(conversationHandler.GetMyConversations))))

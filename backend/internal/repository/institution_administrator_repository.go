@@ -3,6 +3,7 @@ package repository
 import (
 	"backend/internal/model"
 	"backend/pkg/logger"
+	"backend/pkg/apperrors"
 	"context"
 	"errors"
 	"fmt"
@@ -35,7 +36,7 @@ func NewInstitutionAdministratorRepository(db *gorm.DB, log logger.Logger) Insti
 
 func (r *institutionAdministratorRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*model.InstitutionAdministrator, error) {
 	if userID == nil {
-		return nil, fmt.Errorf("user id cannot be nil")
+		return nil, fmt.Errorf("user id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var institutionAdministrator model.InstitutionAdministrator
 	result := r.db.WithContext(ctx).
@@ -43,7 +44,7 @@ func (r *institutionAdministratorRepository) FindByID(ctx context.Context, userI
 		First(&institutionAdministrator, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("institutionAdministrator with user id %s was not found: %w", *userID, result.Error)
+			return nil, fmt.Errorf("institutionAdministrator with user id %s was not found: %s: %w", *userID, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch institutionAdministrator by user id (%s): %w", *userID, result.Error)
 	}
@@ -52,7 +53,7 @@ func (r *institutionAdministratorRepository) FindByID(ctx context.Context, userI
 
 func (r *institutionAdministratorRepository) FindAll(ctx context.Context, filter *InstitutionAdministratorFilter) ([]model.InstitutionAdministrator, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("institutionAdministrators list filter cannot be nil")
+		return nil, fmt.Errorf("institutionAdministrators list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var institutionAdministrators []model.InstitutionAdministrator
 	query := r.db.WithContext(ctx).Model(&model.InstitutionAdministrator{})

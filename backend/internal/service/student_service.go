@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -55,9 +56,6 @@ func NewStudentService(
 func (s *studentService) GetStudentByID(ctx context.Context, id uuid.UUID) (*StudentResponseDTO, error) {
 	student, err := s.studentRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student with id %s was not found: %w", id, err)
-		}
 		return nil, fmt.Errorf("failed to get student: %w", err)
 	}
 	return StudentToDTO(student), nil
@@ -67,9 +65,6 @@ func (s *studentService) GetStudentClassroom(ctx context.Context, userID uuid.UU
 	// Find student by ID
 	student, err := s.studentRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student with id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get student: %w", err)
 	}
 	// Find group by ID
@@ -96,9 +91,6 @@ func (s *studentService) GetStudentAdvisor(ctx context.Context, userID uuid.UUID
 	// Find student by ID
 	student, err := s.studentRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student with id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get student: %w", err)
 	}
 	// Find group by ID
@@ -122,9 +114,6 @@ func (s *studentService) GetStudentParents(ctx context.Context, userID uuid.UUID
 	// Find student by ID
 	student, err := s.studentRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("student with id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get student: %w", err)
 	}
 	// Check if there are connected parents

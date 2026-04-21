@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -37,7 +38,7 @@ func NewRoomRepository(db *gorm.DB, log logger.Logger) RoomRepository {
 
 func (r *roomRepository) Create(ctx context.Context, room *model.Room) error {
 	if room == nil {
-		return fmt.Errorf("room cannot be nil")
+		return fmt.Errorf("room cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	result := r.db.WithContext(ctx).Create(room)
 	if result.Error != nil {
@@ -48,7 +49,7 @@ func (r *roomRepository) Create(ctx context.Context, room *model.Room) error {
 
 func (r *roomRepository) FindAll(ctx context.Context, filter *RoomFilter) ([]model.Room, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("rooms list filter cannot be nil")
+		return nil, fmt.Errorf("rooms list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var rooms []model.Room
 	query := r.db.WithContext(ctx).Model(&model.Room{})
@@ -74,13 +75,13 @@ func (r *roomRepository) FindAll(ctx context.Context, filter *RoomFilter) ([]mod
 
 func (r *roomRepository) FindByID(ctx context.Context, id *uint8) (*model.Room, error) {
 	if id == nil {
-		return nil, fmt.Errorf("room id cannot be nil")
+		return nil, fmt.Errorf("room id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var room model.Room
 	result := r.db.WithContext(ctx).First(&room, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("room with id %d was not found: %w", *id, result.Error)
+			return nil, fmt.Errorf("room with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch room by id (%d): %w", *id, result.Error)
 	}
@@ -89,7 +90,7 @@ func (r *roomRepository) FindByID(ctx context.Context, id *uint8) (*model.Room, 
 
 func (r *roomRepository) Update(ctx context.Context, room *model.Room) error {
 	if room == nil {
-		return fmt.Errorf("room cannot be nil")
+		return fmt.Errorf("room cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -100,7 +101,7 @@ func (r *roomRepository) Update(ctx context.Context, room *model.Room) error {
 		return fmt.Errorf("failed to check room existence: %w", err)
 	}
 	if count == 0 {
-		return fmt.Errorf("room with id %d was not found", room.ID)
+		return fmt.Errorf("room with id %d was not found: %w", room.ID, apperrors.ErrNotFound)
 	}
 	result := r.db.WithContext(ctx).Save(room)
 	if result.Error != nil {
@@ -115,7 +116,7 @@ func (r *roomRepository) Delete(ctx context.Context, id *uint8) error {
 		return fmt.Errorf("failed to delete room with id %d: %w", *id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return fmt.Errorf("room to delete was not found by id: %w", apperrors.ErrNotFound)
 	}
 	return nil
 }

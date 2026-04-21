@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -81,9 +82,6 @@ func NewTeacherService(
 func (s *teacherService) GetTeacherByID(ctx context.Context, id uuid.UUID) (*TeacherResponseDTO, error) {
 	teacher, err := s.teacherRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("teacher with id %s was not found: %w", id, err)
-		}
 		return nil, fmt.Errorf("failed to get teacher: %w", err)
 	}
 	return TeacherToDTO(teacher), nil
@@ -120,9 +118,6 @@ func (s *teacherService) GetTeacherClassroom(ctx context.Context, userID uuid.UU
 	// Find teacher by ID
 	teacher, err := s.teacherRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("teacher with id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get teacher: %w", err)
 	}
 	// Return response
@@ -136,14 +131,11 @@ func (s *teacherService) GetTeacherSubjects(ctx context.Context, userID uuid.UUI
 	// Find teacher by ID
 	teacher, err := s.teacherRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("teacher with id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get teacher: %w", err)
 	}
 	// Check if there are subjects
 	if len(teacher.Subjects) == 0 {
-		return nil, fmt.Errorf("teacher must have at least one subject") // TODO: should it return the error?
+		return nil, fmt.Errorf("teacher must have at least one subject")
 	}
 	// Collect subjects, convert to DTO
 	var subjects []SubjectResponseDTO
@@ -161,9 +153,6 @@ func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, 
 		if err := tx.WithContext(ctx).
 			Where("user_id = ?", userID).
 			First(&teacher).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("teacher with user ID %s was not found", userID)
-			}
 			return fmt.Errorf("failed to find teacher by ID (%s)", userID)
 		}
 		// Check room existence
@@ -171,14 +160,11 @@ func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, 
 		if err := tx.WithContext(ctx).
 			Where("id = ?", classroomID).
 			First(&classroom).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("room with ID %d was not found", classroomID)
-			}
 			return fmt.Errorf("failed to find room by ID (%d)", classroomID)
 		}
 		// Error if the room already has another teacher
 		if classroom.TeacherID != nil && *classroom.TeacherID != userID {
-			return fmt.Errorf("the room with id %d already has another teacher with id %s", classroomID, userID)
+			return fmt.Errorf("the room with id %d already has another teacher with id %s: %w", classroomID, userID, apperrors.ErrRoomAlreadyHasTeacherAssignedToIt)
 		}
 		// Unassign if the teacher already has another room
 		if teacher.Classroom != nil && teacher.Classroom.ID != classroomID {
@@ -195,7 +181,7 @@ func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, 
 			Update("teacher_id", userID).Error; err != nil {
 			return fmt.Errorf("failed to assign teacher (ID %s) to the new classroom (ID %d): %w", userID, classroomID, err)
 		}
-		s.log.Info("Classroom assigned to teacher successfully", "teacher ID", userID, "classroom ID", classroomID)
+		s.log.Info("classroom assigned to teacher successfully", "teacher ID", userID, "classroom ID", classroomID)
 		return nil
 	})
 }
@@ -207,14 +193,11 @@ func (s *teacherService) UnassignClassroom(ctx context.Context, userID uuid.UUID
 		if err := tx.WithContext(ctx).
 			Where("user_id = ?", userID).
 			First(&teacher).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("teacher with user ID %s was not found", userID)
-			}
 			return fmt.Errorf("failed to find teacher by ID (%s)", userID)
 		}
 		// Unassign if the teacher has room
 		if teacher.Classroom == nil {
-			return fmt.Errorf("teacher has not classroom to unassign")
+			return nil // idempotence
 		}
 		classroomID := teacher.Classroom.ID
 		if err := tx.Model(&model.Room{}).
@@ -222,7 +205,7 @@ func (s *teacherService) UnassignClassroom(ctx context.Context, userID uuid.UUID
 			Update("teacher_id", nil).Error; err != nil {
 			return fmt.Errorf("failed to unassign teacher (ID %s) from the classroom (ID %d): %w", userID, classroomID, err)
 		}
-		s.log.Info("Classroom unassigned from teacher successfully", "teacher ID", userID)
+		s.log.Info("classroom unassigned from teacher successfully", "teacher ID", userID)
 		return nil
 	})
 }
@@ -235,10 +218,7 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 			Preload("Subjects").
 			Where("user_id = ?", userID).
 			First(&teacher).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("teacher with ID %s was not found", userID)
-			}
-			return fmt.Errorf("failed to found teacher: %w", err)
+			return fmt.Errorf("failed to find teacher: %w", err)
 		}
 		// Get subjects by IDs
 		var subjects []model.Subject
@@ -249,14 +229,14 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 		}
 		// Check if all subjects were found
 		if len(subjects) != len(subjectIDs) {
-			return fmt.Errorf("some subjects not found")
+			return fmt.Errorf("some subjects not found: %w", apperrors.ErrNotFound)
 		}
 		// Add subjects
 		if err := tx.Model(&teacher).Association("Subjects").Append(&subjects); err != nil {
 			return fmt.Errorf("failed to add subjects: %w", err)
 		}
 		// Return response
-		s.log.Info("Subjects was successfully added to teacher", "teacher ID", userID, "subject IDs", subjectIDs)
+		s.log.Info("subjects was successfully added to teacher", "teacher ID", userID, "subject IDs", subjectIDs)
 		return nil
 	})
 }
@@ -268,23 +248,20 @@ func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, 
 		if err := tx.WithContext(ctx).
 			Where("user_id = ?", userID).
 			First(&teacher).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("teacher with ID %s was not found", userID)
-			}
-			return fmt.Errorf("failed to found teacher: %w", err)
+			return fmt.Errorf("failed to find teacher: %w", err)
 		}
 		// Get subject by ID
 		var subject model.Subject
 		if err := tx.WithContext(ctx).
 			First(&subject, subjectID).Error; err != nil {
-			return fmt.Errorf("subject not found: %w", err)
+				return fmt.Errorf("subject not found: %s: %w", err.Error(), apperrors.ErrNotFound)
 		}
 		// Remove subject from teacher
 		if err := tx.Model(&teacher).Association("Subjects").Delete(&subject); err != nil {
 			return fmt.Errorf("failed to remove subject: %w", err)
 		}
 		// Return response
-		s.log.Info("Subject was successfully removed from teacher", "teacher ID", userID, "subject ID", subjectID)
+		s.log.Info("subject was successfully removed from teacher", "teacher ID", userID, "subject ID", subjectID)
 		return nil
 	})
 }
@@ -296,10 +273,7 @@ func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, s
 		if err := tx.WithContext(ctx).
 			Where("user_id = ?", userID).
 			First(&teacher).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("teacher with ID %s was not found", userID)
-			}
-			return fmt.Errorf("failed to found teacher: %w", err)
+			return fmt.Errorf("failed to find teacher: %w", err)
 		}
 		// Get subjects by IDs
 		var subjects []model.Subject
@@ -310,14 +284,14 @@ func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, s
 		}
 		// Check if all subjects were found
 		if len(subjects) != len(subjectIDs) {
-			return fmt.Errorf("some subjects not found")
+			return fmt.Errorf("some subjects not found: %w", apperrors.ErrNotFound)
 		}
 		// Replace subjects
 		if err := tx.Model(&teacher).Association("Subjects").Replace(&subjects); err != nil {
 			return fmt.Errorf("failed to replace subjects: %w", err)
 		}
 		// Return response
-		s.log.Info("Subjects was successfully assigned to teacher (old subjects were replaced by new ones)", "teacher ID", userID, "subject IDs", subjectIDs)
+		s.log.Info("subjects was successfully assigned to teacher (old subjects were replaced by new ones)", "teacher ID", userID, "subject IDs", subjectIDs)
 		return nil
 	})
 }

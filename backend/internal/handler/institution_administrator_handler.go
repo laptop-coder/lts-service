@@ -26,13 +26,14 @@ func NewInstitutionAdministratorHandler(institutionAdministratorService service.
 func (h *InstitutionAdministratorHandler) GetInstitutionAdministratorByID(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert institutionAdministrator ID
 	institutionAdministratorID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert institutionAdministrator id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert institutionAdministrator id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get institutionAdministrator
@@ -50,13 +51,14 @@ func (h *InstitutionAdministratorHandler) GetInstitutionAdministratorByID(w http
 func (h *InstitutionAdministratorHandler) GetOwn(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert user ID (i.e. institutionAdministrator ID)
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "cannot convert user id to uuid", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 	// Get institutionAdministrator
@@ -74,33 +76,36 @@ func (h *InstitutionAdministratorHandler) GetOwn(w http.ResponseWriter, r *http.
 func (h *InstitutionAdministratorHandler) AssignPosition(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodPut {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Restrictions
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 	// Get and convert institution administrator ID (user ID)
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert institution administrator id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert institution administrator id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get and convert institution administrator position ID:
 	positionIDFields := r.PostForm["positionId"]
 	if len(positionIDFields) != 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: positionId must be provided exactly once", http.StatusBadRequest)
+		h.log.Error("failed to parse form: positionId must be provided exactly once")
+		helpers.FieldExactlyOneError(h.log, w, "positionId")
 		return
 	}
 	// convert to uint64
 	positionID64, err := strconv.ParseUint(positionIDFields[0], 10, 8)
 	if err != nil {
 		h.log.Error("cannot convert position ID from string to uint64")
-		helpers.ErrorResponse(h.log, w, "cannot convert position ID from string to uint64", http.StatusInternalServerError)
+		helpers.BadRequestFieldError(h.log, w, "positionId")
 		return
 	}
 	// and to uint8
@@ -125,13 +130,14 @@ func (h *InstitutionAdministratorHandler) AssignPosition(w http.ResponseWriter, 
 func (h *InstitutionAdministratorHandler) GetPosition(w http.ResponseWriter, r *http.Request) {
 	// Check method
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 	// Get and convert institution administrator ID (user ID)
 	userID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		helpers.ErrorResponse(h.log, w, "cannot convert institution administrator id to uuid", http.StatusBadRequest)
+		h.log.Error("cannot convert institution administrator id to uuid")
+		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
 	// Get institution administrator position

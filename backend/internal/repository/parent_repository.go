@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/logger"
 	"context"
@@ -35,7 +36,7 @@ func NewParentRepository(db *gorm.DB, log logger.Logger) ParentRepository {
 
 func (r *parentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*model.Parent, error) {
 	if userID == nil {
-		return nil, fmt.Errorf("user id cannot be nil")
+		return nil, fmt.Errorf("user id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var parent model.Parent
 	result := r.db.WithContext(ctx).
@@ -45,7 +46,7 @@ func (r *parentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mo
 		First(&parent, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("parent with user id %s was not found: %w", *userID, result.Error)
+			return nil, fmt.Errorf("parent with user id %s was not found: %s: %w", *userID, result.Error.Error(), apperrors.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to fetch parent by user id (%s): %w", *userID, result.Error)
 	}
@@ -54,7 +55,7 @@ func (r *parentRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*mo
 
 func (r *parentRepository) FindAll(ctx context.Context, filter *ParentFilter) ([]model.Parent, error) {
 	if filter == nil {
-		return nil, fmt.Errorf("parents list filter cannot be nil")
+		return nil, fmt.Errorf("parents list filter cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var parents []model.Parent
 	query := r.db.WithContext(ctx).Model(&model.Parent{})

@@ -3,9 +3,9 @@ package service
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/pkg/apperrors"
 	"backend/pkg/logger"
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/image/draw"
@@ -23,10 +23,6 @@ import (
 	"slices"
 	"strconv"
 	"time"
-)
-
-var (
-	ErrPostNotFound = errors.New("post not found")
 )
 
 type PostService interface {
@@ -147,11 +143,6 @@ func (s *postService) UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePo
 	// Getting existing post
 	post, err := s.postRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Post for update was not found by id", "post id", id, "error", err)
-			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get post for update", "post id", id, "error", err)
 		return nil, fmt.Errorf("failed to get post for update: %w", err)
 	}
 	// Updating fields
@@ -166,7 +157,7 @@ func (s *postService) UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePo
 	}
 	// Updating post in DB
 	if err := s.postRepo.Update(ctx, post); err != nil {
-		s.log.Error("Failed to update the post")
+		s.log.Error("failed to update the post")
 		return nil, fmt.Errorf("failed to update the post: %w", err)
 	}
 	// Get updated post for response
@@ -178,29 +169,24 @@ func (s *postService) UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePo
 }
 
 func (s *postService) DeletePost(ctx context.Context, id uuid.UUID) error {
-	s.log.Info("Starting post deletion...")
+	s.log.Info("starting post deletion...")
 	// Getting existing post
 	post, err := s.postRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Post for delete was not found by id", "post id", id, "error", err)
-			return fmt.Errorf("post with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get post for delete", "post id", id, "error", err)
 		return fmt.Errorf("failed to get post for delete: %w", err)
 	}
 	// Transaction for post deletion
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		txRepo := repository.NewPostRepository(tx, s.log)
 		if post.HasPhoto {
-			s.log.Info("Removing post photo file...")
+			s.log.Info("removing post photo file...")
 			s.removePostPhoto(id)
 		}
 		if err := txRepo.Delete(ctx, &id); err != nil {
-			s.log.Error("Failed to delete the post")
+			s.log.Error("failed to delete the post")
 			return fmt.Errorf("failed to delete the post: %w", err)
 		}
-		s.log.Info("Post deleted successfully")
+		s.log.Info("post deleted successfully")
 		return nil
 	})
 	if err != nil {
@@ -213,7 +199,7 @@ func (s *postService) RemovePhoto(ctx context.Context, postID uuid.UUID) error {
 	// Getting post
 	post, err := s.postRepo.FindByID(ctx, &postID)
 	if err != nil {
-		return fmt.Errorf("post not found: %w", err)
+		return fmt.Errorf("post not found: %s: %w", err.Error(), apperrors.ErrPostNotFound)
 	}
 	// Transaction
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
@@ -223,31 +209,31 @@ func (s *postService) RemovePhoto(ctx context.Context, postID uuid.UUID) error {
 			if err := s.postRepo.Update(ctx, post); err != nil {
 				return fmt.Errorf("failed to delete post photo: %w", err)
 			}
-			s.log.Info("Removing post photo file...")
+			s.log.Info("removing post photo file...")
 			s.removePostPhoto(postID)
 		}
 		return nil
 	}); err != nil {
 		return fmt.Errorf("transaction failed: %w", err)
 	}
-	s.log.Info("Post photo file was successfully removed")
+	s.log.Info("post photo file was successfully removed")
 	return nil
 }
 
 func (s *postService) UpdatePhoto(ctx context.Context, postID uuid.UUID, photo *multipart.FileHeader) error {
 	post, err := s.postRepo.FindByID(ctx, &postID)
 	if err != nil {
-		s.log.Error("Post not found", "error", err.Error())
-		return fmt.Errorf("post not found: %w", err)
+		s.log.Error("post not found", "error", err.Error())
+		return fmt.Errorf("post not found: %s: %w", err.Error(), apperrors.ErrPostNotFound)
 	}
 	// Validating the file
 	if err := s.validatePostPhoto(photo); err != nil {
-		s.log.Error("Failed to validate the file", "error", err.Error())
+		s.log.Error("failed to validate the file", "error", err.Error())
 		return err
 	}
 	// Saving new photo
 	if err := s.savePostPhoto(postID, photo); err != nil {
-		s.log.Error("Failed to save new photo", "error", err.Error())
+		s.log.Error("failed to save new photo", "error", err.Error())
 		return err
 	}
 	// Mark existence of the photo in the database
@@ -255,7 +241,7 @@ func (s *postService) UpdatePhoto(ctx context.Context, postID uuid.UUID, photo *
 	if err := s.postRepo.Update(ctx, post); err != nil {
 		// Rollback file saving in the case of error
 		s.removePostPhoto(postID)
-		s.log.Error("Failed to update post photo", "error", err.Error())
+		s.log.Error("failed to update post photo", "error", err.Error())
 		return fmt.Errorf("failed to update post photo: %w", err)
 	}
 	return nil
@@ -264,7 +250,7 @@ func (s *postService) UpdatePhoto(ctx context.Context, postID uuid.UUID, photo *
 func (s *postService) validatePostPhoto(fileHeader *multipart.FileHeader) error {
 	// Check file size
 	if fileHeader.Size > s.config.PhotoMaxSize {
-		return fmt.Errorf("file size exceeds limit of %d bytes", s.config.PhotoMaxSize)
+		return fmt.Errorf("file size exceeds limit of %d bytes: %w", s.config.PhotoMaxSize, apperrors.ErrFileTooLarge)
 	}
 	// read info
 	file, err := fileHeader.Open()
@@ -283,7 +269,7 @@ func (s *postService) validatePostPhoto(fileHeader *multipart.FileHeader) error 
 	}
 	mimeType := http.DetectContentType(buffer)
 	if !slices.Contains(s.config.PhotoAllowedMIMETypes, mimeType) {
-		return fmt.Errorf("unsupported file type: %s. Allowed: %v", mimeType, s.config.PhotoAllowedMIMETypes)
+		return fmt.Errorf("unsupported file type: %s (allowed: %v): %w", mimeType, s.config.PhotoAllowedMIMETypes, apperrors.ErrInvalidFileType)
 	}
 	return nil
 }
@@ -302,10 +288,10 @@ func (s *postService) savePostPhoto(postID uuid.UUID, fileHeader *multipart.File
 	// Decode image
 	img, format, err := image.Decode(srcFile)
 	if err != nil {
-		s.log.Error("Failed to decode image", "format", format, "error", err.Error())
+		s.log.Error("failed to decode image", "format", format, "error", err.Error())
 		return fmt.Errorf("failed to decode image (format: %s): %w", format, err)
 	}
-	s.log.Info("Decoded image (post photo)", "format", format)
+	s.log.Info("decoded image (post photo)", "format", format)
 	// Convert to RGBA
 	bounds := img.Bounds()
 	rgba := image.NewRGBA(bounds)
@@ -353,7 +339,7 @@ func (s *postService) removePostPhoto(postID uuid.UUID) {
 func (s *postService) UpdatePostPhoto(ctx context.Context, postID uuid.UUID, postPhoto *multipart.FileHeader) error {
 	post, err := s.postRepo.FindByID(ctx, &postID)
 	if err != nil {
-		return fmt.Errorf("post not found: %w", err)
+		return fmt.Errorf("post not found: %s: %w", err.Error(), apperrors.ErrPostNotFound)
 	}
 	// Validating the file
 	if err := s.validatePostPhoto(postPhoto); err != nil {
@@ -377,7 +363,7 @@ func (s *postService) RemovePostPhoto(ctx context.Context, postID uuid.UUID) err
 	// Getting post
 	post, err := s.postRepo.FindByID(ctx, &postID)
 	if err != nil {
-		return fmt.Errorf("post not found: %w", err)
+		return fmt.Errorf("post not found: %s: %w", err.Error(), apperrors.ErrPostNotFound)
 	}
 	// Transaction
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
@@ -387,25 +373,20 @@ func (s *postService) RemovePostPhoto(ctx context.Context, postID uuid.UUID) err
 			if err := s.postRepo.Update(ctx, post); err != nil {
 				return fmt.Errorf("failed to delete post photo: %w", err)
 			}
-			s.log.Info("Removing post photos...")
+			s.log.Info("removing post photos...")
 			s.removePostPhoto(postID)
 		}
 		return nil
 	}); err != nil {
 		return fmt.Errorf("transaction failed: %w", err)
 	}
-	s.log.Info("Post photo was successfully removed")
+	s.log.Info("post photo was successfully removed")
 	return nil
 }
 
 func (s *postService) GetPostByID(ctx context.Context, id uuid.UUID) (*PostResponseDTO, error) {
 	post, err := s.postRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Post with id %s was not found", "error", err.Error())
-			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get post", "error", err.Error())
 		return nil, fmt.Errorf("failed to get post: %w", err)
 	}
 	return PostToDTO(post), nil
@@ -463,18 +444,13 @@ func (s *postService) VerifyPost(ctx context.Context, id uuid.UUID) (*PostRespon
 	// Getting existing post
 	post, err := s.postRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Post for verification was not found by id", "post id", id, "error", err)
-			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get post for verification", "post id", id, "error", err)
 		return nil, fmt.Errorf("failed to get post for verification: %w", err)
 	}
 	// Updating field
 	post.Verified = true
 	// Updating post in DB
 	if err := s.postRepo.Update(ctx, post); err != nil {
-		s.log.Error("Failed to change post verification status")
+		s.log.Error("failed to change post verification status")
 		return nil, fmt.Errorf("failed to change post verification status: %w", err)
 	}
 	// Get verified post for response
@@ -491,23 +467,18 @@ func (s *postService) ReturnToOwner(ctx context.Context, id uuid.UUID) (*PostRes
 	// Getting existing post
 	post, err := s.postRepo.FindByID(ctx, &id)
 	if err != nil || post == nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Post for changing thing returning status was not found by id", "post id", id, "error", err)
-			return nil, fmt.Errorf("post with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get post for changing thing returning status", "post id", id, "error", err)
 		return nil, fmt.Errorf("failed to get post for changing thing returning status: %w", err)
 	}
 	// Check if the post verified
 	if post.Verified != true {
-		s.log.Error("Failed to mark thing as returned to owner for not verified post", "post id", id)
-		return nil, fmt.Errorf("forbidden: failed to mark thing as returned to owner for not verified post")
+		s.log.Error("failed to mark thing as returned to owner for not verified post", "post id", id)
+		return nil, fmt.Errorf("failed to mark thing as returned to owner for not verified post: %w", apperrors.ErrForbidden)
 	}
 	// Updating field
 	post.ThingReturnedToOwner = true
 	// Updating post in DB
 	if err := s.postRepo.Update(ctx, post); err != nil {
-		s.log.Error("Failed to change thing returning status")
+		s.log.Error("failed to change thing returning status")
 		return nil, fmt.Errorf("failed to change thing returning status: %w", err)
 	}
 	// Get updated post for response
@@ -519,10 +490,12 @@ func (s *postService) ReturnToOwner(ctx context.Context, id uuid.UUID) (*PostRes
 }
 
 func (s *postService) validateCreatePostDTO(dto *CreatePostDTO) error {
+	//TODO
 	return nil
 }
 
 func (s *postService) validateUpdatePostDTO(dto *UpdatePostDTO) error {
+	//TODO
 	return nil
 }
 

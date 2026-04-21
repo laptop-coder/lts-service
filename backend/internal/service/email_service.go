@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/pkg/env"
 	"backend/pkg/logger"
@@ -107,9 +108,9 @@ func (s *emailService) Send(ctx context.Context, to []string, subject, body stri
 
 func (s *emailService) SendInviteLink(ctx context.Context, to *string, link string) error {
 	if to == nil {
-		return fmt.Errorf("email cannot be nil")
+		return fmt.Errorf("email cannot be nil: %w", apperrors.ErrRequiredField)
 	} else if strings.TrimSpace(*to) == "" {
-		return fmt.Errorf("email cannot be empty or only whitespace")
+		return fmt.Errorf("email cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	var body bytes.Buffer
 	if err := s.templates.ExecuteTemplate(&body, "invite_link.html", map[string]string{
@@ -131,21 +132,20 @@ type NewMessageNotificationDTO struct {
 
 func (s *emailService) validateNewMessageNotificationDTO(dto *NewMessageNotificationDTO) error {
 	if dto == nil {
-		return fmt.Errorf("NewMessageNotificationDTO cannot be empty")
+		return fmt.Errorf("NewMessageNotificationDTO cannot be empty: %w", apperrors.ErrRequiredField)
 	}
 	if strings.TrimSpace(dto.Recipient.Email) == "" {
-		return fmt.Errorf("recipient email cannot be empty or only whitespace")
+		return fmt.Errorf("recipient email cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	if strings.TrimSpace(dto.Sender.Email) == "" {
-		return fmt.Errorf("sender email cannot be empty or only whitespace")
+		return fmt.Errorf("sender email cannot be empty or only whitespace: %w", apperrors.ErrRequiredField)
 	}
 	return nil
 }
 
 func (s *emailService) SendNewMessageNotification(ctx context.Context, dto *NewMessageNotificationDTO) error {
 	if err := s.validateNewMessageNotificationDTO(dto); err != nil {
-		s.log.Error("Failed to validate new message notification dto", "error", err.Error())
-		return err
+		return fmt.Errorf("failed to validate new message notification dto: %w", err)
 	}
 	var body bytes.Buffer
 	if err := s.templates.ExecuteTemplate(&body, "new_message_notification.html", map[string]string{

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/pkg/apperrors"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
@@ -48,10 +49,7 @@ func NewInstitutionAdministratorService(
 func (s *institutionAdministratorService) GetInstitutionAdministratorByID(ctx context.Context, id uuid.UUID) (*InstitutionAdministratorResponseDTO, error) {
 	institutionAdministrator, err := s.institutionAdministratorRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("institutionAdministrator with id %s was not found: %w", id, err)
-		}
-		return nil, fmt.Errorf("failed to get institutionAdministrator: %w", err)
+		return nil, fmt.Errorf("failed to get institution administrator: %w", err)
 	}
 	return InstitutionAdministratorToDTO(institutionAdministrator), nil
 }
@@ -60,7 +58,7 @@ func (s *institutionAdministratorService) GetInstitutionAdministrator(ctx contex
 	institutionAdministrators, err := s.institutionAdministratorRepo.FindAll(ctx, &filter)
 	if err != nil {
 		s.log.Error(
-			"failed to get institutionAdministrator from repository",
+			"failed to get institution administrator from repository",
 			"limit",
 			filter.Limit,
 			"offset",
@@ -69,7 +67,7 @@ func (s *institutionAdministratorService) GetInstitutionAdministrator(ctx contex
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get institutionAdministrator from repository (limit: %d, offset: %d): %w",
+			"failed to get institution administrator from repository (limit: %d, offset: %d): %w",
 			filter.Limit,
 			filter.Offset,
 			err,
@@ -96,7 +94,7 @@ func (s *institutionAdministratorService) AssignPosition(ctx context.Context, us
 		var institutionAdministrator model.InstitutionAdministrator
 		if err := tx.WithContext(ctx).
 			First(&institutionAdministrator, "user_id = ?", userID).Error; err != nil {
-			return fmt.Errorf("institution administrator with user ID %s was not found: %w", userID, err)
+				return fmt.Errorf("institution administrator with user ID %s was not found: %s: %w", userID, err.Error(), apperrors.ErrNotFound)
 		}
 		// Check position existence
 		var count int64
@@ -107,13 +105,13 @@ func (s *institutionAdministratorService) AssignPosition(ctx context.Context, us
 			return err
 		}
 		if count == 0 {
-			return fmt.Errorf("position with ID %d was not found", positionID)
+			return fmt.Errorf("position with ID %d was not found: %w", positionID, apperrors.ErrNotFound)
 		}
 		institutionAdministrator.PositionID = positionID
 		if err := tx.WithContext(ctx).Save(&institutionAdministrator).Error; err != nil {
 			return fmt.Errorf("failed to assign position to institution administrator: %w", err)
 		}
-		s.log.Info("Position was successfully assigned to the institution administrator")
+		s.log.Info("position was successfully assigned to the institution administrator")
 		return nil
 	})
 }
@@ -121,9 +119,6 @@ func (s *institutionAdministratorService) AssignPosition(ctx context.Context, us
 func (s *institutionAdministratorService) GetPosition(ctx context.Context, userID uuid.UUID) (*InstitutionAdministratorPositionResponseDTO, error) {
 	institutionAdministrator, err := s.institutionAdministratorRepo.FindByID(ctx, &userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("institution administrator with user id %s was not found: %w", userID, err)
-		}
 		return nil, fmt.Errorf("failed to get institution administrator: %w", err)
 	}
 	if institutionAdministrator.Position.ID == 0 {

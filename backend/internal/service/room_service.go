@@ -1,11 +1,11 @@
 package service
 
 import (
+	// "backend/pkg/apperrors" // TODO
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/pkg/logger"
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -60,6 +60,7 @@ func (s *roomService) CreateRoom(ctx context.Context, dto CreateRoomDTO) (*RoomR
 	if err := s.validateCreateRoomDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during room creation: %w", err)
 	}
+	// TODO: check name uniqueness like in subject service
 	// Creating model object
 	room := &model.Room{
 		Name:      dto.Name,
@@ -112,14 +113,10 @@ func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDT
 	// Getting existing room
 	room, err := s.roomRepo.FindByID(ctx, &id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Room for update was not found by id", "room id", id, "error", err)
-			return nil, fmt.Errorf("room with id %s was not found: %w", id, err)
-		}
-		s.log.Error("Failed to get room for update", "room id", id, "error", err)
 		return nil, fmt.Errorf("failed to get room for update: %w", err)
 	}
 	// Updating fields
+	// TODO: add checks like in subject service
 	updatedFieldsCount := 0 // TODO: perhaps this is unnecessary
 	if dto.Name != nil && *dto.Name != room.Name {
 		room.Name = *dto.Name
@@ -131,7 +128,7 @@ func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDT
 	}
 	// Updating room in DB
 	if err := s.roomRepo.Update(ctx, room); err != nil {
-		s.log.Error("Failed to update the room")
+		s.log.Error("failed to update the room")
 		return nil, fmt.Errorf("failed to update the room: %w", err)
 	}
 	// Get updated room for response
@@ -145,14 +142,9 @@ func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDT
 func (s *roomService) DeleteRoom(ctx context.Context, id uint8) error {
 	s.log.Info("Starting room deletion...")
 	if err := s.roomRepo.Delete(ctx, &id); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.log.Error("Room does not exist", "room id", id, "error", err)
-			return fmt.Errorf("room with id %d does not exist: %w", id, err)
-		}
-		s.log.Error("Failed to delete the room")
 		return fmt.Errorf("failed to delete the room: %w", err)
 	}
-	s.log.Info("Room deleted successfully")
+	s.log.Info("room deleted successfully")
 	return nil
 }
 

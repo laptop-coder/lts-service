@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"fmt"
 	"backend/internal/model"
 	"backend/pkg/logger"
+	"backend/pkg/apperrors"
 	"context"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -42,9 +44,12 @@ func (r *conversationRepository) FindByID(ctx context.Context, id uuid.UUID) (*m
 		First(&conversation).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return nil, nil
+		return nil, fmt.Errorf("conversation not found by id: %s: %w", err.Error(), apperrors.ErrConversationNotFound)
 	}
-	return &conversation, err
+	if err != nil {
+		return nil, fmt.Errorf("failed to find conversation by id: %w", err)
+	}
+	return &conversation, nil
 }
 
 func (r *conversationRepository) FindByPostAndUsers(ctx context.Context, postID, authorID, requesterID uuid.UUID) (*model.Conversation, error) {
@@ -60,9 +65,12 @@ func (r *conversationRepository) FindByPostAndUsers(ctx context.Context, postID,
 		First(&conversation).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return nil, nil
+		return nil, fmt.Errorf("conversation not found by post and users: %s: %w", err.Error(), apperrors.ErrConversationNotFound)
 	}
-	return &conversation, err
+	if err != nil {
+		return nil, fmt.Errorf("failed to find conversation by post and users: %w", err)
+	}
+	return &conversation, nil
 }
 
 func (r *conversationRepository) FindByUserID(ctx context.Context, userID uuid.UUID, limit, offset int) ([]model.Conversation, error) {
@@ -86,7 +94,10 @@ func (r *conversationRepository) FindByUserID(ctx context.Context, userID uuid.U
 	}
 
 	err := query.Find(&conversations).Error
-	return conversations, err
+	if err != nil {
+		return nil, fmt.Errorf("failed to find conversations by user id: %w", err)
+	}
+	return conversations, nil
 }
 
 func (r *conversationRepository) Update(ctx context.Context, conversation *model.Conversation) error {

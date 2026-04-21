@@ -25,7 +25,7 @@ func NewConversationHandler(conversationService service.ConversationService, log
 // Create conversation and send first message
 func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 
@@ -33,15 +33,16 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 	postIDStr := r.PathValue("postId")
 	postID, err := uuid.Parse(postIDStr)
 	if err != nil {
-		h.log.Error("Invalid post id", "postId", postIDStr)
-		helpers.ErrorResponse(h.log, w, "invalid post id", http.StatusBadRequest)
+		h.log.Error("invalid post id", "postId", postIDStr)
+		helpers.BadRequestFieldError(h.log, w, "postId")
 		return
 	}
 
 	// Get requesterID from the context
 	requesterID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 
@@ -49,19 +50,22 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 
 	// Get message
 	message := ""
 	if messageFields := r.PostForm["message"]; len(messageFields) != 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: message field must be specified exactly once", http.StatusBadRequest)
+		h.log.Error("failed to parse form: message field must be specified exactly once")
+		helpers.FieldExactlyOneError(h.log, w, "message")
 		return
 	} else {
 		message = messageFields[0]
 		if strings.TrimSpace(message) == "" {
-			helpers.ErrorResponse(h.log, w, "failed to parse form: message cannot be empty or only whitespace", http.StatusBadRequest)
+			h.log.Error("failed to parse form: message cannot be empty or only whitespace")
+			helpers.FieldRequiredError(h.log, w, "message")
 			return
 		}
 	}
@@ -99,7 +103,7 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 // Send message to the existing conversation
 func (h *ConversationHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 
@@ -107,15 +111,16 @@ func (h *ConversationHandler) SendMessage(w http.ResponseWriter, r *http.Request
 	convIDStr := r.PathValue("conversationId")
 	convID, err := uuid.Parse(convIDStr)
 	if err != nil {
-		h.log.Error("Invalid conversation id", "conversationId", convIDStr)
-		helpers.ErrorResponse(h.log, w, "invalid conversation id", http.StatusBadRequest)
+		h.log.Error("invalid conversation id", "conversationId", convIDStr)
+		helpers.BadRequestFieldError(h.log, w, "conversationId")
 		return
 	}
 
 	// Get senderID from the context
 	senderID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 
@@ -123,19 +128,22 @@ func (h *ConversationHandler) SendMessage(w http.ResponseWriter, r *http.Request
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	// Parse form
 	if err := r.ParseForm(); err != nil {
-		helpers.ErrorResponse(h.log, w, "failed to parse x-www-form-urlencoded form", http.StatusBadRequest)
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
 		return
 	}
 
 	// Get message
 	message := ""
 	if messageFields := r.PostForm["message"]; len(messageFields) != 1 {
-		helpers.ErrorResponse(h.log, w, "failed to parse form: message field must be specified exactly once", http.StatusBadRequest)
+		h.log.Error("failed to parse form: message field must be specified exactly once")
+		helpers.FieldExactlyOneError(h.log, w, "message")
 		return
 	} else {
 		message = messageFields[0]
 		if strings.TrimSpace(message) == "" {
-			helpers.ErrorResponse(h.log, w, "failed to parse form: message cannot be empty or only whitespace", http.StatusBadRequest)
+			h.log.Error("failed to parse form: message cannot be empty or only whitespace")
+			helpers.FieldRequiredError(h.log, w, "message")
 			return
 		}
 	}
@@ -159,7 +167,7 @@ func (h *ConversationHandler) SendMessage(w http.ResponseWriter, r *http.Request
 // Get conversation with messages
 func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 
@@ -167,15 +175,16 @@ func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Req
 	convIDStr := r.PathValue("conversationId")
 	convID, err := uuid.Parse(convIDStr)
 	if err != nil {
-		h.log.Error("Invalid conversation id", "conversationId", convIDStr)
-		helpers.ErrorResponse(h.log, w, "invalid conversation id", http.StatusBadRequest)
+		h.log.Error("invalid conversation id", "conversationId", convIDStr)
+		helpers.BadRequestFieldError(h.log, w, "conversationId")
 		return
 	}
 
 	// Get userID from the context
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 
@@ -194,6 +203,7 @@ func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Req
 	// Mark messages as read
 	if err := h.conversationService.MarkAsRead(r.Context(), convID, userID); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
+		return
 	}
 
 	helpers.SuccessResponse(w, map[string]interface{}{
@@ -204,25 +214,22 @@ func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Req
 // Get the list of conversations of the current user
 func (h *ConversationHandler) GetMyConversations(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 
 	// Get userID from the context
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 
 	// Get the list of conversations
 	conversations, err := h.conversationService.GetUserConversations(r.Context(), userID, 0, 0)
 	if err != nil {
-		h.log.Error("Failed to get user conversations",
-			"userId", userID,
-			"error", err.Error())
-
-		helpers.ErrorResponse(h.log, w, "failed to get user conversations", http.StatusInternalServerError)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 
@@ -234,7 +241,7 @@ func (h *ConversationHandler) GetMyConversations(w http.ResponseWriter, r *http.
 // Mark all messages in conversation as read
 func (h *ConversationHandler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 
@@ -242,26 +249,22 @@ func (h *ConversationHandler) MarkAsRead(w http.ResponseWriter, r *http.Request)
 	convIDStr := r.PathValue("conversationId")
 	convID, err := uuid.Parse(convIDStr)
 	if err != nil {
-		h.log.Error("Invalid conversation id", "conversationId", convIDStr)
-		helpers.ErrorResponse(h.log, w, "invalid conversation id", http.StatusBadRequest)
+		h.log.Error("invalid conversation id", "conversationId", convIDStr)
+		helpers.BadRequestFieldError(h.log, w, "conversationId")
 		return
 	}
 
 	// Get userID from the context
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 
 	// Mark as read
 	if err := h.conversationService.MarkAsRead(r.Context(), convID, userID); err != nil {
-		h.log.Error("Failed to mark messages as read",
-			"conversationId", convID,
-			"userId", userID,
-			"error", err.Error())
-
-		helpers.ErrorResponse(h.log, w, "failed to mark messages as read", http.StatusInternalServerError)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 
@@ -271,25 +274,22 @@ func (h *ConversationHandler) MarkAsRead(w http.ResponseWriter, r *http.Request)
 // Get total count of unread messages
 func (h *ConversationHandler) GetTotalUnreadCount(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		helpers.ErrorResponse(h.log, w, "method not allowed", http.StatusMethodNotAllowed)
+		helpers.MethodNotAllowedError(h.log, w)
 		return
 	}
 
 	// Get userID from the context
 	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
-		helpers.ErrorResponse(h.log, w, "unauthorized", http.StatusUnauthorized)
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
 		return
 	}
 
 	// Get count
 	count, err := h.conversationService.GetTotalUnreadCount(r.Context(), userID)
 	if err != nil {
-		h.log.Error("Failed to get count of all unread messages",
-			"userId", userID,
-			"error", err.Error())
-
-		helpers.ErrorResponse(h.log, w, "failed to get count of all unread messages", http.StatusInternalServerError)
+		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 
