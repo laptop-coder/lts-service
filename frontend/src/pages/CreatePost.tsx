@@ -24,8 +24,8 @@ const CreatePost = () => {
     if (photo()) formData.append("photo", photo()!);
 
     try {
-      await api.post<{ posts: Post }>("/posts", formData);
-      navigate("/");
+      const data = await api.post<{ post: Post }>("/posts", formData);
+      navigate(`/posts/${data.post.id}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Не удалось создать объявление",
@@ -57,9 +57,16 @@ const CreatePost = () => {
     <>
       {hasPermission(PERMISSIONS.POST_CREATE) && (
         <div class="max-w-2xl mx-auto">
-          <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">
-            Создать объявление
-          </h1>
+          <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 text-center">
+              Создать объявление
+            </h1>
+            <p class="text-gray-500 mt-1 text-center">
+              {hasPermission(PERMISSIONS.POST_VERIFY)
+                ? "Объявление будет опубликовано сразу после отправки"
+                : "Объявление будет опубликовано после проверки"}
+            </p>
+          </div>
 
           <form
             onSubmit={handleSubmit}

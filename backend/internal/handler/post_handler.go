@@ -79,7 +79,16 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
 	} else if len(formFiles) == 1 {
 		dto.Photo = formFiles[0]
 	}
-	postResponse, err := h.postService.CreatePost(r.Context(), dto)
+	// Check if user can verify posts
+	userPermissions, ok := r.Context().Value(middleware.UserPermissionsKey).([]string)
+	if !ok {
+		h.log.Error("failed to get user permissions from the context")
+		helpers.InternalError(h.log, w)
+		return
+	}
+	canVerifyPost := slices.Contains(userPermissions, permissions.PostVerify)
+	// Create post
+	postResponse, err := h.postService.CreatePost(r.Context(), dto, canVerifyPost)
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to create the post: %w", err))
 		return

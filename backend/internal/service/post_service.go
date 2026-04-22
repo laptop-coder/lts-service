@@ -26,7 +26,7 @@ import (
 )
 
 type PostService interface {
-	CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error)
+	CreatePost(ctx context.Context, dto CreatePostDTO, canVerifyPost bool) (*PostResponseDTO, error)
 	UpdatePost(ctx context.Context, id uuid.UUID, dto UpdatePostDTO) (*PostResponseDTO, error)
 	DeletePost(ctx context.Context, id uuid.UUID) error
 	RemovePhoto(ctx context.Context, postID uuid.UUID) error
@@ -82,7 +82,7 @@ func NewPostService(
 	}
 }
 
-func (s *postService) CreatePost(ctx context.Context, dto CreatePostDTO) (*PostResponseDTO, error) {
+func (s *postService) CreatePost(ctx context.Context, dto CreatePostDTO, canVerifyPost bool) (*PostResponseDTO, error) {
 	// Input data validation
 	if err := s.validateCreatePostDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during post creation: %w", err)
@@ -102,12 +102,17 @@ func (s *postService) CreatePost(ctx context.Context, dto CreatePostDTO) (*PostR
 		}
 		hasPhoto = true
 	}
+	// Automatically verify post if user has permission to verify posts
+	verified := false
+	if canVerifyPost {
+		verified = true
+	}
 	// Creating model object
 	post := &model.Post{
 		ID:                   postID,
 		Name:                 dto.Name,
 		Description:          dto.Description,
-		Verified:             false,
+		Verified:             verified,
 		ThingReturnedToOwner: false,
 		HasPhoto:             hasPhoto,
 		AuthorID:             dto.AuthorID,
