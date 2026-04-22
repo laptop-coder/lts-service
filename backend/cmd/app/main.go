@@ -163,7 +163,7 @@ func main() {
 	go func() {
 		log.Info("Starting server...", "port", strconv.Itoa(appConfig.Port))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Error("Failed to start server", "error", err)
+			log.Error("Failed to start server", "error", err.Error())
 			panic(err)
 		}
 	}()
@@ -176,7 +176,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		log.Error("Server forced to shutdown", "error", err)
+		log.Error("Server forced to shutdown", "error", err.Error())
 	}
 	log.Info("Server exited properly")
 }

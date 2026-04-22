@@ -60,7 +60,7 @@ func main() {
 			&model.Message{},
 		},
 	); err != nil {
-		log.Error("MIGRATION | Cannot make migration", err)
+		log.Error("MIGRATION | Cannot make migration", "error", err.Error())
 		panic(err)
 	}
 
@@ -96,7 +96,7 @@ func main() {
 	}
 	for _, role := range roles {
 		if err := db.FirstOrCreate(&role, model.Role{ID: role.ID}).Error; err != nil {
-			log.Error("MIGRATION | Failed to create roles", err)
+			log.Error("MIGRATION | Failed to create roles", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -206,7 +206,7 @@ func main() {
 	}
 	for _, permission := range permissions {
 		if err := db.FirstOrCreate(&permission, model.Permission{ID: permission.ID}).Error; err != nil {
-			log.Error("MIGRATION | Failed to create permissions", err)
+			log.Error("MIGRATION | Failed to create permissions", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -248,7 +248,7 @@ func main() {
 		SELECT 1, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to superadmin role", err)
+			log.Error("MIGRATION | Failed to assign permissions to superadmin role", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -259,7 +259,7 @@ func main() {
 		SELECT 2, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to admin role", err)
+			log.Error("MIGRATION | Failed to assign permissions to admin role", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -270,7 +270,7 @@ func main() {
 		SELECT 3, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to institution administrator role", err)
+			log.Error("MIGRATION | Failed to assign permissions to institution administrator role", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -281,7 +281,7 @@ func main() {
 		SELECT 4, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to staff role", err)
+			log.Error("MIGRATION | Failed to assign permissions to staff role", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -292,7 +292,7 @@ func main() {
 		SELECT 5, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to teacher role", err)
+			log.Error("MIGRATION | Failed to assign permissions to teacher role", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -303,7 +303,7 @@ func main() {
 		SELECT 6, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to parent role", err)
+			log.Error("MIGRATION | Failed to assign permissions to parent role", "error", err.Error())
 			panic(err)
 		}
 	}
@@ -314,7 +314,7 @@ func main() {
 		SELECT 7, id FROM permissions WHERE name = ?
 		ON CONFLICT DO NOTHING;
 		`, name).Error; err != nil {
-			log.Error("MIGRATION | Failed to assign permissions to student role", err)
+			log.Error("MIGRATION | Failed to assign permissions to student role", "error", err.Error())
 			panic(err)
 		}
 	}
