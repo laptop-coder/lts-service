@@ -18,8 +18,8 @@ type Conversation struct {
 
 	// Participants
 	RequesterID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_conversation_unique"` // user who pressed button "contact"
-	Requester   User      `gorm:"foreignKey:RequesterID"`
+	Requester   User      `gorm:"foreignKey:RequesterID;constraint:OnDelete:cascade"`
 
 	AuthorID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_conversation_unique"` // post author
-	Author   User      `gorm:"foreignKey:AuthorID"`
+	Author   User      `gorm:"foreignKey:AuthorID;constraint:OnDelete:cascade"`
 }
