@@ -73,7 +73,7 @@ func (r *studentGroupRepository) FindAll(ctx context.Context, filter *StudentGro
 	// Sort student groups in the alphabetical order
 	query = query.Order("name")
 	// Find student groups
-	result := query.Find(&studentGroups)
+	result := query.Preload("Students").Find(&studentGroups)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch student groups list: %w", result.Error)
 	}
@@ -86,7 +86,7 @@ func (r *studentGroupRepository) FindByID(ctx context.Context, id *uint16) (*mod
 		return nil, fmt.Errorf("student group id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
 	var studentGroup model.StudentGroup
-	result := r.db.WithContext(ctx).First(&studentGroup, *id)
+	result := r.db.WithContext(ctx).Preload("Students").First(&studentGroup, *id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("student group with id %d was not found: %s: %w", *id, result.Error.Error(), apperrors.ErrNotFound)

@@ -56,19 +56,25 @@ type UpdateStudentGroupDTO struct {
 }
 
 type StudentGroupResponseDTO struct {
-	ID             uint16     `json:"id"`
-	CreatedAt      string     `json:"createdAt"`
-	UpdatedAt      string     `json:"updatedAt"`
-	Name           string     `json:"name"`
-	GroupAdvisorID *uuid.UUID `json:"advisorId,omitempty"`
+	ID             uint16                           `json:"id"`
+	CreatedAt      string                           `json:"createdAt"`
+	UpdatedAt      string                           `json:"updatedAt"`
+	Name           string                           `json:"name"`
+	GroupAdvisorID *uuid.UUID                       `json:"advisorId,omitempty"`
+	Students       []StudentGroupStudentResponseDTO `json:"students"`
 }
 
 func StudentGroupToDTO(studentGroup *model.StudentGroup) *StudentGroupResponseDTO {
+	var students []StudentGroupStudentResponseDTO
+	for _, student := range studentGroup.Students {
+		students = append(students, *StudentGroupStudentToDTO(&student))
+	}
 	return &StudentGroupResponseDTO{
 		CreatedAt: studentGroup.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: studentGroup.UpdatedAt.Format(time.RFC3339),
 		ID:        studentGroup.ID,
 		Name:      studentGroup.Name,
+		Students: students,
 	}
 }
 
@@ -327,4 +333,14 @@ func (s *studentGroupService) UnassignAdvisor(ctx context.Context, groupID uint1
 	}
 	s.log.Info("advisor was successfully unassigned from student group", "group ID", groupID)
 	return nil
+}
+
+type StudentGroupStudentResponseDTO struct {
+	UserID string `json:"userId"`
+}
+
+func StudentGroupStudentToDTO(student *model.Student) *StudentGroupStudentResponseDTO {
+	return &StudentGroupStudentResponseDTO{
+		UserID: student.UserID.String(),
+	}
 }

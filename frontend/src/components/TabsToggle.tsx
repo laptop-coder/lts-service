@@ -5,9 +5,8 @@ import { Motion } from "solid-motionone";
 
 const TabsToggle = (props: {
   tabs: string[];
-  setActiveTab: Setter<any>;
+  setter: Setter<any>;
   tabsHTMLElementId: string;
-  afterChange: () => void;
 }): JSX.Element => {
   const [screenSize, setScreenSize] = createSignal({
     width: window.innerWidth,
@@ -28,49 +27,52 @@ const TabsToggle = (props: {
   }> = createSignal({ left: 0, width: 0 });
   const tabsRefs: HTMLButtonElement[] = [];
 
-  onMount(() => {
-    window.addEventListener("resize", handleResize);
-    createEffect(() => {
-      if (screenSize()) {
-        const rect = tabsRefs[activeTab()].getBoundingClientRect();
-        const tabsHTMLElement = document.getElementById(
-          props.tabsHTMLElementId,
-        );
-        var tabsHTMLElementLeft = 0;
-        if (tabsHTMLElement != null) {
-          tabsHTMLElementLeft = tabsHTMLElement.getBoundingClientRect().left;
-        }
-        setActiveTabInfo({
-          left: rect.left - tabsHTMLElementLeft,
-          width: rect.width,
-        });
+  const update = () => {
+    if (screenSize()) {
+      const rect = tabsRefs[activeTab()].getBoundingClientRect();
+      const tabsHTMLElement = document.getElementById(props.tabsHTMLElementId);
+      var tabsHTMLElementLeft = 0;
+      if (tabsHTMLElement != null) {
+        tabsHTMLElementLeft = tabsHTMLElement.getBoundingClientRect().left;
       }
-    });
+      setActiveTabInfo({
+        left: rect.left - tabsHTMLElementLeft,
+        width: rect.width,
+      });
+    }
+  };
 
+  createEffect(() => {
+    screenSize();
+    update();
+  });
+
+  onMount(() => {
+    setTimeout(update, 100);
+    window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   });
 
-  props.setActiveTab(props.tabs[0]);
+  props.setter(props.tabs[0]);
   return (
-    <div class="relative bg-gray-100 rounded-xl w-full">
+    <div class="relative bg-gray-100 h-[80px] w-full overflow-x-auto rounded-lg">
       <div
-        class="relative z-10 flex justify-evenly"
+        class="flex items-center h-[80px] justify-evenly rounded-lg"
         id={props.tabsHTMLElementId}
       >
         <For each={props.tabs}>
           {(tab, index) => (
             <button
               ref={(el) => (tabsRefs[index()] = el)}
-              onClick={() => {
+              onclick={() => {
                 setActiveTab(index());
-                props.setActiveTab(props.tabs[index()]);
-                props.afterChange();
+                props.setter(props.tabs[index()]);
               }}
-              class="flex-1 py-4 text-sm font-medium transition-colors cursor-pointer text-center"
+              class="border-none bg-none p-[20px] h-full text-sm cursor-pointer flex items-center rounded-lg"
             >
-              {tab}
+              <span class="relative z-2 select-none">{tab}</span>
             </button>
           )}
         </For>
@@ -82,7 +84,7 @@ const TabsToggle = (props: {
           width: String(activeTabInfo().width - 10 + "px"),
         }}
         transition={{ duration: 0.3 }}
-        class="absolute top-1 bottom-1 z-0 bg-white rounded-lg shadow-sm"
+        class="top-[5px] bottom-[5px] rounded-lg absolute bg-white z-1"
       />
     </div>
   );

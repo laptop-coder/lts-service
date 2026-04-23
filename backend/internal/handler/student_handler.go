@@ -93,7 +93,7 @@ func (h *StudentHandler) GetClassroom(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"studentClassroom": response,
+		"classroom": response,
 	})
 }
 
@@ -118,7 +118,7 @@ func (h *StudentHandler) GetClassroomOwn(w http.ResponseWriter, r *http.Request)
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"studentClassroom": response,
+		"classroom": response,
 	})
 }
 
@@ -143,7 +143,7 @@ func (h *StudentHandler) GetAdvisor(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"studentAdvisor": response,
+		"advisor": response,
 	})
 }
 
@@ -168,7 +168,7 @@ func (h *StudentHandler) GetAdvisorOwn(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"studentAdvisor": response,
+		"advisor": response,
 	})
 }
 
@@ -193,7 +193,7 @@ func (h *StudentHandler) GetParents(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"studentParents": response,
+		"parents": response,
 	})
 }
 
@@ -218,7 +218,7 @@ func (h *StudentHandler) GetParentsOwn(w http.ResponseWriter, r *http.Request) {
 	}
 	// Return response
 	helpers.SuccessResponse(w, map[string]interface{}{
-		"studentParents": response,
+		"parents": response,
 	})
 }
 

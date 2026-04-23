@@ -32,6 +32,10 @@ export interface Student {
   studentGroup: StudentGroup;
 }
 
+export interface StudentGroupStudent {
+  userId: string;
+}
+
 export interface Teacher {
   userId: string;
   classroom?: Room;
@@ -87,6 +91,7 @@ export interface StudentGroup {
   updatedAt: string;
   name: string;
   groupAdvisorId: string | null;
+  students: StudentGroupStudent[];
 }
 
 export interface StaffPosition {

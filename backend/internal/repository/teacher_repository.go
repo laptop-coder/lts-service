@@ -43,6 +43,7 @@ func (r *teacherRepository) FindByID(ctx context.Context, userID *uuid.UUID) (*m
 		Preload("Classroom").
 		Preload("Subjects").
 		Preload("StudentGroups").
+		Preload("StudentGroups.Students").
 		First(&teacher, *userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -75,6 +76,7 @@ func (r *teacherRepository) FindAll(ctx context.Context, filter *TeacherFilter) 
 		Preload("Classroom").
 		Preload("Subjects").
 		Preload("StudentGroups").
+		Preload("StudentGroups.Students").
 		Find(&teachers)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to fetch teachers list: %w", result.Error)
