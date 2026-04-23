@@ -3,6 +3,7 @@ import {
   createEffect,
   createMemo,
   onMount,
+  onCleanup,
   For,
   Show,
   on,
@@ -22,15 +23,25 @@ import { useAuth } from "../lib/auth";
 
 const PublicPosts = () => {
   const [allPosts, setAllPosts] = createSignal<Post[]>([]);
-  const [loading, setLoading] = createSignal(true);
+  const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
   const { hasRole } = usePermissions();
   const auth = useAuth();
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
+  let observerRef!: HTMLDivElement;
+  let observer: IntersectionObserver;
 
   const loadPosts = async () => {
     try {
-      const data = await api.get<{ posts: Post[] }>("/posts/public");
-      setAllPosts(data.posts);
+      if (loading() || !hasMore()) return;
+      setLoading(true);
+      const data = await api.get<{ posts: Post[] }>(
+        `/posts/public?limit=10&offset=${page() * 10}`,
+      );
+      setAllPosts([...allPosts(), ...data.posts]);
+      setPage(page() + 1);
+      setHasMore(data.posts.length === 10);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка загрузки объявлений",
@@ -100,9 +111,48 @@ const PublicPosts = () => {
     ),
   );
 
+  const resetAndLoad = async () => {
+    setPage(0);
+    setHasMore(true);
+    try {
+      const data = await api.get<{ posts: Post[] }>(
+        "/posts/public?limit=10&offset=0",
+      );
+      setAllPosts(data.posts);
+      setPage(1);
+      setHasMore(data.posts.length === 10);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ошибка загрузки объявлений",
+      );
+    }
+  };
+
   onMount(async () => {
     await loadPosts();
   });
+
+  const setupObserver = () => {
+    observer?.disconnect();
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore()) {
+          loadPosts();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (observerRef) observer.observe(observerRef);
+  };
+
+  createEffect(() => {
+    hasMore();
+    loading();
+    setupObserver();
+  });
+
+  onCleanup(() => observer.disconnect());
 
   // Status tabs
   const statusTabs = ["Новые", "Закрытые"];
@@ -190,16 +240,18 @@ const PublicPosts = () => {
         <TabsToggle
           tabs={ownerTabs()}
           setter={setOwnerTabsActive}
+          afterChange={resetAndLoad}
           tabsHTMLElementId="owner_tabs_toggle"
         />
         <TabsToggle
           tabs={statusTabs}
           setter={setStatusTabsActive}
+          afterChange={resetAndLoad}
           tabsHTMLElementId="status_tabs_toggle"
         />
       </div>
 
-      <Show when={loading()}>
+      <Show when={loading() && allPosts().length === 0}>
         <div class="text-center py-8">Загрузка...</div>
       </Show>
 
@@ -213,11 +265,18 @@ const PublicPosts = () => {
             {(post) => <PostCardCompact post={post} onChange={loadPosts} />}
           </For>
 
-          <Show when={postsToShow().length === 0}>
-            <div class="text-center text-gray-500 py-8">
-              Пока нет объявлений
-            </div>
-          </Show>
+          <div ref={observerRef} class="h-10">
+            <Show when={postsToShow().length === 0}>
+              <div class="text-center text-gray-500 py-8">
+                Пока нет объявлений
+              </div>
+            </Show>
+            <Show when={!hasMore() && postsToShow().length > 0}>
+              <div class="text-center text-gray-500 py-8">
+                Больше нет объявлений
+              </div>
+            </Show>
+          </div>
         </div>
       </Show>
     </div>
