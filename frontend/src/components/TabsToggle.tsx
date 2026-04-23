@@ -59,7 +59,7 @@ const TabsToggle = (props: {
   return (
     <div class="relative bg-gray-100 h-[80px] w-full overflow-x-auto rounded-lg">
       <div
-        class="flex items-center h-[80px] justify-evenly rounded-lg"
+        class={`flex items-center h-[80px] ${props.tabs.length > 3 ? "justify-between" : "justify-evenly"} rounded-lg`}
         id={props.tabsHTMLElementId}
       >
         <For each={props.tabs}>
