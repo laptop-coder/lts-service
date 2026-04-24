@@ -149,6 +149,7 @@ const PublicPosts = () => {
   createEffect(() => {
     hasMore();
     loading();
+    page()
     setupObserver();
   });
 

@@ -1,4 +1,11 @@
-import { createSignal, onMount, For, Show } from "solid-js";
+import {
+  createSignal,
+  createEffect,
+  onMount,
+  onCleanup,
+  For,
+  Show,
+} from "solid-js";
 import { api } from "../../lib/api";
 import { usePermissions, PERMISSIONS } from "../../lib/permissions";
 import type { Post } from "../../lib/types";
@@ -11,10 +18,21 @@ const PostsToVerify = () => {
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
 
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
+  let observerRef!: HTMLDivElement;
+  let observer: IntersectionObserver;
+
   const loadPosts = async () => {
     try {
-      const data = await api.get<{ posts: Post[] }>("/posts?verified=false");
-      setPosts(data.posts);
+      if (loading() || !hasMore()) return;
+      setLoading(true);
+      const data = await api.get<{ posts: Post[] }>(
+        `/posts?verified=false&limit=10&offset=${page() * 10}`,
+      );
+      setPosts([...posts(), ...data.posts]);
+      setPage(page() + 1);
+      setHasMore(data.posts.length === 10);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка загрузки объявлений",
@@ -24,8 +42,32 @@ const PostsToVerify = () => {
     }
   };
 
-  onMount(() => {
-    loadPosts();
+
+  const setupObserver = () => {
+    observer?.disconnect();
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore()) {
+          loadPosts();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (observerRef) observer.observe(observerRef);
+  };
+
+  createEffect(() => {
+    hasMore();
+    loading();
+    page()
+    setupObserver();
+  });
+
+  onCleanup(() => observer.disconnect());
+
+  onMount(async () => {
+    await loadPosts();
   });
 
   return (
@@ -40,7 +82,7 @@ const PostsToVerify = () => {
           </p>
         </div>
 
-        <Show when={loading()}>
+        <Show when={loading() && posts().length === 0}>
           <div class="flex justify-center items-center py-16">
             <div class="text-gray-500">Загрузка...</div>
           </div>
@@ -58,15 +100,22 @@ const PostsToVerify = () => {
               {(post) => <PostCardCompact post={post} onChange={loadPosts} />}
             </For>
 
-            <Show when={posts().length === 0}>
-              <div class="text-center py-16">
-                <div class="text-5xl mb-3">📭</div>
-                <p class="text-gray-500">Нет объявлений на верификацию</p>
-                <p class="text-gray-400 text-sm mt-1">
-                  Все объявления проверены
-                </p>
-              </div>
-            </Show>
+            <div ref={observerRef} class="h-10">
+              <Show when={posts().length === 0}>
+                <div class="text-center py-16">
+                  <div class="text-5xl mb-3">📭</div>
+                  <p class="text-gray-500">Нет объявлений на верификацию</p>
+                  <p class="text-gray-400 text-sm mt-1">
+                    Все объявления проверены
+                  </p>
+                </div>
+              </Show>
+              <Show when={!hasMore() && posts().length > 0}>
+                <div class="text-center text-gray-500 py-8">
+                  Больше нет объявлений
+                </div>
+              </Show>
+            </div>
           </div>
         </Show>
       </div>
