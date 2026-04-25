@@ -1,4 +1,12 @@
-import { createSignal, Show, For, Index, onMount, onCleanup } from "solid-js";
+import {
+  createSignal,
+  createEffect,
+  Show,
+  For,
+  Index,
+  onMount,
+  onCleanup,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
@@ -22,6 +30,7 @@ import type {
   Staff,
 } from "../lib/types";
 import { A } from "@solidjs/router";
+import Pagination from "../components/Pagination";
 
 const Users = () => {
   const auth = useAuth();
@@ -48,6 +57,13 @@ const Users = () => {
     setInstitutionAdministratorPositionId,
   ] = createSignal<number | null>(null);
   const [parentStudentIds, setParentStudentIds] = createStore<string[]>([]);
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
+
+  createEffect(() => {
+    page()
+    loadUsers()
+  })
 
   // Data for special fields
   // rooms:
@@ -66,10 +82,15 @@ const Users = () => {
 
   const { hasPermission, hasRole } = usePermissions();
 
+  const limit = 20
+
   const loadUsers = async () => {
     try {
-      const data = await api.get<{ users: User[] }>("/users");
-      setUsers(data.users);
+      const data = await api.get<{ users: User[] }>(
+        `/users?limit=${limit}&offset=${page() * limit}`,
+      );
+      setHasMore(data.users.length > limit);
+      setUsers(data.users.slice(0, limit));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка загрузки пользователей",
@@ -87,13 +108,15 @@ const Users = () => {
       staffPositionData,
       institutionAdministratorPositionData,
     ] = await Promise.all([
-      api.get<{ rooms: Room[] }>("/rooms"),
-      api.get<{ subjects: Subject[] }>("/subjects"),
-      api.get<{ studentGroups: StudentGroup[] }>("/student_groups"),
-      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions"),
+      api.get<{ rooms: Room[] }>("/rooms?limit=65535"), // uint16
+      api.get<{ subjects: Subject[] }>("/subjects?limit=65535"),
+      api.get<{ studentGroups: StudentGroup[] }>("/student_groups?limit=65535"),
+      api.get<{ staffPositions: StaffPosition[] }>(
+        "/staff/positions?limit=65535",
+      ),
       api.get<{
         institutionAdministratorPositions: InstitutionAdministratorPosition[];
-      }>("/institution_administrators/positions"),
+      }>("/institution_administrators/positions?limit=65535"),
     ]);
     setRooms(roomsData.rooms);
     setSubjects(subjectsData.subjects);
@@ -338,6 +361,9 @@ const Users = () => {
     try {
       await api.delete(`/users/${user.id}`);
       setUsers(users().filter((u) => u.id !== user.id));
+      if (users().length === 0 && page() > 0) {
+        setPage(prev => prev - 1)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка удаления");
     }
@@ -935,6 +961,12 @@ const Users = () => {
           </div>
         </div>
       </Show>
+      <Pagination
+        page={page()}
+        hasMore={hasMore()}
+        onPrev={() => setPage((prev) => prev - 1)}
+        onNext={() => setPage((prev) => prev + 1)}
+      />
     </div>
   );
 };

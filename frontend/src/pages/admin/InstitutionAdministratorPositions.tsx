@@ -1,8 +1,9 @@
-import { createSignal, onMount, For, Show } from "solid-js";
+import { createSignal, createEffect, onMount, For, Show } from "solid-js";
 import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { InstitutionAdministratorPosition } from "../../lib/types";
+import Pagination from '../../components/Pagination'
 
 const InstitutionAdministratorPositions = () => {
   const [
@@ -17,16 +18,28 @@ const InstitutionAdministratorPositions = () => {
   ] = createSignal("");
   const [creating, setCreating] = createSignal(false);
   const [deletingId, setDeletingId] = createSignal<number | null>(null);
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
 
   const { hasPermission } = usePermissions();
+
+  const limit = 30
+
+  createEffect(() => {
+    page()
+    loadInstitutionAdministratorPositions()
+  })
 
   const loadInstitutionAdministratorPositions = async () => {
     try {
       const data = await api.get<{
         institutionAdministratorPositions: InstitutionAdministratorPosition[];
-      }>("/institution_administrators/positions");
+      }>(
+`/institution_administrators/positions?limit=${limit+1}&offset=${page() * limit}`
+      );
+      setHasMore(data.institutionAdministratorPositions.length > limit);
       setInstitutionAdministratorPositions(
-        data.institutionAdministratorPositions,
+        data.institutionAdministratorPositions.slice(0, limit),
       );
     } catch (err) {
       setError(
@@ -67,6 +80,9 @@ const InstitutionAdministratorPositions = () => {
     try {
       await api.delete(`/institution_administrators/positions/${id}`);
       await loadInstitutionAdministratorPositions();
+      if (institutionAdministratorPositions().length === 0 && page() > 0) {
+        setPage(prev => prev - 1)
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка удаления должности",
@@ -209,6 +225,12 @@ const InstitutionAdministratorPositions = () => {
           </div>
         </div>
       </Show>
+      <Pagination
+        page={page()}
+        hasMore={hasMore()}
+        onPrev={() => setPage((prev) => prev - 1)}
+        onNext={() => setPage((prev) => prev + 1)}
+      />
     </div>
   );
 };

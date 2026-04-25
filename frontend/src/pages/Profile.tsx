@@ -99,13 +99,13 @@ const Profile = () => {
       staffPositionData,
       institutionAdministratorPositionData,
     ] = await Promise.all([
-      api.get<{ rooms: Room[] }>("/rooms"),
-      api.get<{ subjects: Subject[] }>("/subjects"),
-      api.get<{ studentGroups: StudentGroup[] }>("/student_groups"),
-      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions"),
+      api.get<{ rooms: Room[] }>("/rooms?limit=65535"), // uint16
+      api.get<{ subjects: Subject[] }>("/subjects?limit=65535"),
+      api.get<{ studentGroups: StudentGroup[] }>("/student_groups?limit=65535"),
+      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions?limit=65535"),
       api.get<{
         institutionAdministratorPositions: InstitutionAdministratorPosition[];
-      }>("/institution_administrators/positions"),
+      }>("/institution_administrators/positions?limit=65535"),
     ]);
     setRooms(roomsData.rooms);
     setSubjects(subjectsData.subjects);

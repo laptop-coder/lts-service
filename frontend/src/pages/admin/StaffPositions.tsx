@@ -1,8 +1,9 @@
-import { createSignal, onMount, For, Show } from "solid-js";
+import { createSignal, createEffect, onMount, For, Show } from "solid-js";
 import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StaffPosition } from "../../lib/types";
+import Pagination from '../../components/Pagination'
 
 const StaffPositions = () => {
   const [staffPositions, setStaffPositions] = createSignal<StaffPosition[]>([]);
@@ -11,15 +12,25 @@ const StaffPositions = () => {
   const [newStaffPositionName, setNewStaffPositionName] = createSignal("");
   const [creating, setCreating] = createSignal(false);
   const [deletingId, setDeletingId] = createSignal<number | null>(null);
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
 
   const { hasPermission } = usePermissions();
+
+  const limit = 30
+
+  createEffect(() => {
+    page()
+    loadStaffPositions()
+  })
 
   const loadStaffPositions = async () => {
     try {
       const data = await api.get<{ staffPositions: StaffPosition[] }>(
-        "/staff/positions",
+`/staff/positions?limit=${limit+1}&offset=${page() * limit}`
       );
-      setStaffPositions(data.staffPositions);
+      setHasMore(data.staffPositions.length > limit);
+      setStaffPositions(data.staffPositions.slice(0, limit));
     } catch (err) {
       setError(
         err instanceof Error
@@ -59,6 +70,9 @@ const StaffPositions = () => {
     try {
       await api.delete(`/staff/positions/${id}`);
       await loadStaffPositions();
+      if (staffPositions().length === 0 && page() > 0) {
+        setPage(prev => prev - 1)
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка удаления должности",
@@ -180,6 +194,12 @@ const StaffPositions = () => {
           </div>
         </div>
       </Show>
+      <Pagination
+        page={page()}
+        hasMore={hasMore()}
+        onPrev={() => setPage((prev) => prev - 1)}
+        onNext={() => setPage((prev) => prev + 1)}
+      />
     </div>
   );
 };

@@ -1,8 +1,9 @@
-import { createSignal, onMount, For, Show } from "solid-js";
+import { createSignal, createEffect, onMount, For, Show } from "solid-js";
 import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StudentGroup } from "../../lib/types";
+import Pagination from '../../components/Pagination'
 
 const StudentGroups = () => {
   const [studentGroups, setStudentGroups] = createSignal<StudentGroup[]>([]);
@@ -11,15 +12,25 @@ const StudentGroups = () => {
   const [newStudentGroupName, setNewStudentGroupName] = createSignal("");
   const [creating, setCreating] = createSignal(false);
   const [deletingId, setDeletingId] = createSignal<number | null>(null);
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
 
   const { hasPermission } = usePermissions();
+
+  const limit = 30
+
+  createEffect(() => {
+    page()
+    loadStudentGroups()
+  })
 
   const loadStudentGroups = async () => {
     try {
       const data = await api.get<{ studentGroups: StudentGroup[] }>(
-        "/student_groups",
+`/student_groups?limit=${limit+1}&offset=${page() * limit}`
       );
-      setStudentGroups(data.studentGroups);
+      setHasMore(data.studentGroups.length > limit);
+      setStudentGroups(data.studentGroups.slice(0, limit));
     } catch (err) {
       setError(
         err instanceof Error
@@ -64,6 +75,9 @@ const StudentGroups = () => {
     try {
       await api.delete(`/student_groups/${id}`);
       await loadStudentGroups();
+      if (studentGroups().length === 0 && page() > 0) {
+        setPage(prev => prev - 1)
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -185,6 +199,12 @@ const StudentGroups = () => {
           </div>
         </div>
       </Show>
+      <Pagination
+        page={page()}
+        hasMore={hasMore()}
+        onPrev={() => setPage((prev) => prev - 1)}
+        onNext={() => setPage((prev) => prev + 1)}
+      />
     </div>
   );
 };

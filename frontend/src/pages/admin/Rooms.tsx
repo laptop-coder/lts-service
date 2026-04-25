@@ -1,8 +1,9 @@
-import { createSignal, onMount, For, Show } from "solid-js";
+import { createSignal, createEffect, onMount, For, Show } from "solid-js";
 import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { Room } from "../../lib/types";
+import Pagination from "../../components/Pagination";
 
 const Rooms = () => {
   const [rooms, setRooms] = createSignal<Room[]>([]);
@@ -11,13 +12,25 @@ const Rooms = () => {
   const [newRoomName, setNewRoomName] = createSignal("");
   const [creating, setCreating] = createSignal(false);
   const [deletingId, setDeletingId] = createSignal<number | null>(null);
+  const [page, setPage] = createSignal(0);
+  const [hasMore, setHasMore] = createSignal(true);
 
   const { hasPermission } = usePermissions();
 
+  const limit = 30
+
+  createEffect(() => {
+    page();
+    loadRooms();
+  });
+
   const loadRooms = async () => {
     try {
-      const data = await api.get<{ rooms: Room[] }>("/rooms");
-      setRooms(data.rooms);
+      const data = await api.get<{ rooms: Room[] }>(
+        `/rooms?limit=${limit+1}&offset=${page() * limit}`,
+      );
+      setHasMore(data.rooms.length > limit);
+      setRooms(data.rooms.slice(0, limit));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ошибка загрузки кабинетов",
@@ -53,6 +66,9 @@ const Rooms = () => {
     try {
       await api.delete(`/rooms/${id}`);
       await loadRooms();
+      if (rooms().length === 0 && page() > 0) {
+        setPage(prev => prev - 1)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка удаления кабинета");
     } finally {
@@ -166,6 +182,12 @@ const Rooms = () => {
           </div>
         </div>
       </Show>
+      <Pagination
+        page={page()}
+        hasMore={hasMore()}
+        onPrev={() => setPage((prev) => prev - 1)}
+        onNext={() => setPage((prev) => prev + 1)}
+      />
     </div>
   );
 };
