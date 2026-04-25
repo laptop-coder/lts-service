@@ -123,22 +123,19 @@ const PostsToVerify = () => {
               )}
             </For>
           </div>
-          <div ref={observerRef} class="h-10">
-            <Show when={posts().length === 0}>
-              <div class="flex flex-col items-center justify-center gap-1 py-16">
-                <Inbox class="w-15 h-15 mb-3" />
-                <p class="text-gray-500">Нет объявлений на верификацию</p>
-                <p class="text-gray-400 text-sm mt-1">
-                  Все объявления проверены
-                </p>
-              </div>
-            </Show>
-            <Show when={!hasMore() && posts().length > 0}>
-              <div class="text-center text-gray-500 py-8">
-                Больше нет объявлений
-              </div>
-            </Show>
-          </div>
+          <Show when={posts().length === 0}>
+            <div class="flex flex-col items-center justify-center gap-1 py-16">
+              <Inbox class="w-15 h-15 mb-3" />
+              <p class="text-gray-500">Нет объявлений на верификацию</p>
+              <p class="text-gray-400 text-sm mt-1">Все объявления проверены</p>
+            </div>
+          </Show>
+          <Show when={!hasMore() && posts().length > 0}>
+            <div class="text-center text-gray-500 py-8">
+              Больше нет объявлений
+            </div>
+          </Show>
+          <div ref={observerRef} class="h-10" />
         </Show>
       </div>
     )
