@@ -39,16 +39,16 @@ type UserService interface {
 	RemoveAvatar(ctx context.Context, userID uuid.UUID) error
 	// Roles
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]RoleResponseDTO, error)
-	AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error         // replace old roles with new ones
-	AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error // replace old roles with new ones
-	AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error
-	RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error
-	RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, roleID uint8) error
+	AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error         // replace old roles with new ones
+	AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error // replace old roles with new ones
+	AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error
+	RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint16) error
+	RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, roleID uint16) error
 	AssignExtensionsToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO) error
 }
 
 type PermissionResponseDTO struct {
-	ID        uint8  `json:"id"`
+	ID        uint16  `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Name      string `json:"name"`
@@ -72,17 +72,17 @@ type CreateUserDTO struct {
 	FirstName  string                `form:"firstName" validate:"required,min=2"`
 	MiddleName *string               `form:"middleName,omitempty"`
 	LastName   string                `form:"lastName" validate:"required,min=2"`
-	RoleIDs    []uint8               `form:"roleIds,omitempty"`
+	RoleIDs    []uint16               `form:"roleIds,omitempty"`
 	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
 }
 
 type UserExtensionsDTO struct {
-	TeacherClassroomID                 *uint8      `form:"teacherClassroomId,omitempty"`
-	TeacherSubjectIDs                  []uint8     `form:"teacherSubjectIds,omitempty"`
+	TeacherClassroomID                 *uint16      `form:"teacherClassroomId,omitempty"`
+	TeacherSubjectIDs                  []uint16     `form:"teacherSubjectIds,omitempty"`
 	TeacherStudentGroupIDs             []uint16    `form:"teacherStudentGroupIds,omitempty"`
 	StudentGroupID                     *uint16     `form:"studentGroupId,omitempty"`
-	StaffPositionID                    *uint8      `form:"staffPositionId,omitempty"`
-	InstitutionAdministratorPositionID *uint8      `form:"instituionAdministratorPositionId,omitempty"`
+	StaffPositionID                    *uint16      `form:"staffPositionId,omitempty"`
+	InstitutionAdministratorPositionID *uint16      `form:"instituionAdministratorPositionId,omitempty"`
 	ParentStudentIDs                   []uuid.UUID `form:"parentStudentIds,omitempty"`
 }
 
@@ -351,7 +351,7 @@ func (s *userService) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]Rol
 	return dtos, nil
 }
 
-func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error {
+func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
 		// TODO: move to validation function
@@ -387,10 +387,10 @@ func (s *userService) AssignRolesToUser(ctx context.Context, userID uuid.UUID, d
 	})
 }
 
-func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error {
+func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Filter IDs: skip superadmin and admin roles
-		var filteredIDs []uint8
+		var filteredIDs []uint16
 		for _, id := range roleIDs {
 			if id != 1 && id != 2 {
 				filteredIDs = append(filteredIDs, id)
@@ -428,7 +428,7 @@ func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid
 		}
 		// Save superadmin/admin roles if user has them
 		// TODO: maybe it is better to return error if user has superadmin role? Superadmin cannot have any other role.
-		var adminRoleIDs []uint8
+		var adminRoleIDs []uint16
 		for _, role := range user.Roles {
 			if role.ID == 1 || role.ID == 2 {
 				adminRoleIDs = append(adminRoleIDs, role.ID)
@@ -441,7 +441,7 @@ func (s *userService) AssignNonAdminRolesToUser(ctx context.Context, userID uuid
 	})
 }
 
-func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error {
+func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check if required fields in DTO are filled in
 		if slices.Contains(roleIDs, 3) && (dto.InstitutionAdministratorPositionID == nil) {
@@ -466,7 +466,7 @@ func (s *userService) AddRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 	})
 }
 
-func (s *userService) RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint8) error {
+func (s *userService) RemoveRolesFromUser(ctx context.Context, userID uuid.UUID, roleIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Get roles by ID
 		var roles []model.Role
@@ -486,7 +486,7 @@ func (s *userService) RemoveRolesFromUser(ctx context.Context, userID uuid.UUID,
 	})
 }
 
-func (s *userService) RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, roleID uint8) error {
+func (s *userService) RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, roleID uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Get role by ID
 		var role model.Role
@@ -505,7 +505,7 @@ func (s *userService) RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, 
 }
 
 type RoleResponseDTO struct {
-	ID          uint8                   `json:"id"`
+	ID          uint16                   `json:"id"`
 	CreatedAt   string                  `json:"createdAt"`
 	UpdatedAt   string                  `json:"updatedAt"`
 	Name        string                  `json:"name"`
@@ -715,7 +715,7 @@ func UserToDTO(user *model.User) *UserResponseDTO {
 	}
 }
 
-func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error {
+func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error {
 	// TODO: now it is not supposed that length of roleIDs can be 0. So maybe in
 	// this case all roles should be deleted: think about it.
 	return s.db.Transaction(func(tx *gorm.DB) error {
@@ -766,7 +766,7 @@ func (s *userService) assignRolesToUser(ctx context.Context, userID uuid.UUID, d
 	})
 }
 
-func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint8) error {
+func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto UserExtensionsDTO, roleIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Block attempt to add superadmin role
 		if slices.Contains(roleIDs, 1) {
@@ -807,7 +807,7 @@ func (s *userService) addRolesToUser(ctx context.Context, userID uuid.UUID, dto 
 	})
 }
 
-func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, userID uuid.UUID, dto UserExtensionsDTO, roleID uint8) error {
+func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, userID uuid.UUID, dto UserExtensionsDTO, roleID uint16) error {
 	switch roleID {
 	case 1: // superadmin
 		return fmt.Errorf("you cannot add superadmin to extension table: %w", apperrors.ErrForbidden)
@@ -865,7 +865,7 @@ func (s *userService) addUserToExtensionTable(ctx context.Context, tx *gorm.DB, 
 	return fmt.Errorf("role with id %d does not exist: %w", roleID, apperrors.ErrNotFound)
 }
 
-func (s *userService) removeUserFromExtensionTable(tx *gorm.DB, userID uuid.UUID, roleID uint8) error {
+func (s *userService) removeUserFromExtensionTable(tx *gorm.DB, userID uuid.UUID, roleID uint16) error {
 	switch roleID {
 	case 1, 2: // superadmin, admin (there are no extension tables)
 		return nil

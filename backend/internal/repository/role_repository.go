@@ -10,7 +10,7 @@ import (
 
 type RoleRepository interface {
 	FindAll(ctx context.Context) ([]model.Role, error)
-	FindByIDs(ctx context.Context, ids []uint8) ([]model.Role, error)
+	FindByIDs(ctx context.Context, ids []uint16) ([]model.Role, error)
 }
 
 type roleRepository struct {
@@ -40,7 +40,7 @@ func (r *roleRepository) FindAll(ctx context.Context) ([]model.Role, error) {
 	return roles, nil
 }
 
-func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint8) ([]model.Role, error) {
+func (r *roleRepository) FindByIDs(ctx context.Context, ids []uint16) ([]model.Role, error) {
 	var roles []model.Role
 	err := r.db.WithContext(ctx).
 		Where("id IN (?)", ids).

@@ -13,9 +13,9 @@ import (
 type SubjectRepository interface {
 	Create(ctx context.Context, subject *model.Subject) error
 	FindAll(ctx context.Context, filter *SubjectFilter) ([]model.Subject, error)
-	FindByID(ctx context.Context, id *uint8) (*model.Subject, error)
+	FindByID(ctx context.Context, id *uint16) (*model.Subject, error)
 	Update(ctx context.Context, subject *model.Subject) error
-	Delete(ctx context.Context, id *uint8) error
+	Delete(ctx context.Context, id *uint16) error
 	ExistsByName(ctx context.Context, name *string) (bool, error)
 }
 
@@ -74,7 +74,7 @@ func (r *subjectRepository) FindAll(ctx context.Context, filter *SubjectFilter) 
 	return subjects, nil
 }
 
-func (r *subjectRepository) FindByID(ctx context.Context, id *uint8) (*model.Subject, error) {
+func (r *subjectRepository) FindByID(ctx context.Context, id *uint16) (*model.Subject, error) {
 	if id == nil {
 		return nil, fmt.Errorf("subject id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
@@ -111,7 +111,7 @@ func (r *subjectRepository) Update(ctx context.Context, subject *model.Subject) 
 	return nil
 }
 
-func (r *subjectRepository) Delete(ctx context.Context, id *uint8) error {
+func (r *subjectRepository) Delete(ctx context.Context, id *uint16) error {
 	result := r.db.WithContext(ctx).Unscoped().Delete(&model.Subject{}, *id)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete subject with id %d: %w", *id, result.Error)

@@ -15,7 +15,7 @@ type StaffService interface {
 	GetStaffByID(ctx context.Context, id uuid.UUID) (*StaffResponseDTO, error)
 	GetStaff(ctx context.Context, filter repository.StaffFilter) ([]StaffResponseDTO, error)
 	// Position
-	AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint8) error
+	AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint16) error
 	GetPosition(ctx context.Context, userID uuid.UUID) (*StaffPositionResponseDTO, error)
 }
 
@@ -80,7 +80,7 @@ func (s *staffService) GetStaff(ctx context.Context, filter repository.StaffFilt
 	return staffDTOs, nil
 }
 
-func (s *staffService) AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint8) error {
+func (s *staffService) AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Get staff
 		var staff model.Staff

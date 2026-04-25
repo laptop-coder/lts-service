@@ -13,9 +13,9 @@ import (
 type InstitutionAdministratorPositionRepository interface {
 	Create(ctx context.Context, institutionAdministratorPosition *model.InstitutionAdministratorPosition) error
 	FindAll(ctx context.Context, filter *InstitutionAdministratorPositionFilter) ([]model.InstitutionAdministratorPosition, error)
-	FindByID(ctx context.Context, id *uint8) (*model.InstitutionAdministratorPosition, error)
+	FindByID(ctx context.Context, id *uint16) (*model.InstitutionAdministratorPosition, error)
 	Update(ctx context.Context, institutionAdministratorPosition *model.InstitutionAdministratorPosition) error
-	Delete(ctx context.Context, id *uint8) error
+	Delete(ctx context.Context, id *uint16) error
 	ExistsByName(ctx context.Context, name *string) (bool, error)
 }
 
@@ -73,7 +73,7 @@ func (r *institutionAdministratorPositionRepository) FindAll(ctx context.Context
 	return institutionAdministratorPositions, nil
 }
 
-func (r *institutionAdministratorPositionRepository) FindByID(ctx context.Context, id *uint8) (*model.InstitutionAdministratorPosition, error) {
+func (r *institutionAdministratorPositionRepository) FindByID(ctx context.Context, id *uint16) (*model.InstitutionAdministratorPosition, error) {
 	if id == nil {
 		return nil, fmt.Errorf("institutionAdministratorPosition id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
@@ -110,7 +110,7 @@ func (r *institutionAdministratorPositionRepository) Update(ctx context.Context,
 	return nil
 }
 
-func (r *institutionAdministratorPositionRepository) Delete(ctx context.Context, id *uint8) error {
+func (r *institutionAdministratorPositionRepository) Delete(ctx context.Context, id *uint16) error {
 	result := r.db.WithContext(ctx).Unscoped().Delete(&model.InstitutionAdministratorPosition{}, *id)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete institutionAdministratorPosition with id %d: %w", *id, result.Error)

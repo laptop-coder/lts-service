@@ -152,7 +152,7 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	roomID := uint8(roomID64)
+	roomID := uint16(roomID64)
 	// Assemble DTO (all fields are optional)
 	dto := service.UpdateRoomDTO{}
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
@@ -201,7 +201,7 @@ func (h *RoomHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	roomID := uint8(roomID64)
+	roomID := uint16(roomID64)
 	// Delete room
 	if err := h.roomService.DeleteRoom(r.Context(), roomID); err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to delete the room: %w", err))

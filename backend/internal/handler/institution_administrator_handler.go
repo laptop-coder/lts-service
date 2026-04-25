@@ -108,8 +108,8 @@ func (h *InstitutionAdministratorHandler) AssignPosition(w http.ResponseWriter, 
 		helpers.BadRequestFieldError(h.log, w, "positionId")
 		return
 	}
-	// and to uint8
-	positionID := uint8(positionID64)
+	// and to uint16
+	positionID := uint16(positionID64)
 	// Assign position to institution administrator
 	if err := h.institutionAdministratorService.AssignPosition(r.Context(), userID, positionID); err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to assign position to institution administrator: %w", err))

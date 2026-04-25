@@ -13,9 +13,9 @@ import (
 type PermissionRepository interface {
 	Create(ctx context.Context, permission *model.Permission) error
 	FindAll(ctx context.Context) ([]model.Permission, error)
-	FindByID(ctx context.Context, id *uint8) (*model.Permission, error)
+	FindByID(ctx context.Context, id *uint16) (*model.Permission, error)
 	Update(ctx context.Context, permission *model.Permission) error
-	Delete(ctx context.Context, id *uint8) error
+	Delete(ctx context.Context, id *uint16) error
 }
 
 type permissionRepository struct {
@@ -54,7 +54,7 @@ func (r *permissionRepository) FindAll(ctx context.Context) ([]model.Permission,
 	return permissions, nil
 }
 
-func (r *permissionRepository) FindByID(ctx context.Context, id *uint8) (*model.Permission, error) {
+func (r *permissionRepository) FindByID(ctx context.Context, id *uint16) (*model.Permission, error) {
 	if id == nil {
 		return nil, fmt.Errorf("permission id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
@@ -91,7 +91,7 @@ func (r *permissionRepository) Update(ctx context.Context, permission *model.Per
 	return nil
 }
 
-func (r *permissionRepository) Delete(ctx context.Context, id *uint8) error {
+func (r *permissionRepository) Delete(ctx context.Context, id *uint16) error {
 	result := r.db.WithContext(ctx).Unscoped().Delete(&model.Permission{}, *id)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete permission with id %d: %w", *id, result.Error)

@@ -40,14 +40,14 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		helpers.BadRequestError(h.log, w)
 		return
 	}
-	// Get and convert (to uint8) role IDs
+	// Get and convert (to uint16) role IDs
 	roleIDFields := r.PostForm["roleId"]
 	if len(roleIDFields) == 0 {
 		h.log.Error("failed to parse form: at least one roleId value must be provided")
 		helpers.AtLeastOneFieldError(h.log, w, "roleId")
 		return
 	}
-	roleIDs := make([]uint8, len(roleIDFields))
+	roleIDs := make([]uint16, len(roleIDFields))
 	for i, roleIDString := range roleIDFields {
 		roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
 		if err != nil {
@@ -55,7 +55,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 			helpers.BadRequestFieldError(h.log, w, "roleId")
 			return
 		}
-		roleID := uint8(roleID64)
+		roleID := uint16(roleID64)
 		roleIDs[i] = roleID
 	}
 	// Get email
@@ -90,7 +90,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	// user:
 	for _, roleID := range roleIDs {
-		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
+		if slices.Contains([]uint16{3, 4, 5, 6, 7}, roleID) {
 			if !slices.Contains(userPermissions, permissions.TokenInviteUserCreate) {
 				h.log.Error("forbidden: you do not have permission to create invite token for user account registration")
 				helpers.ForbiddenError(h.log, w)
@@ -130,10 +130,10 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 		helpers.InternalError(h.log, w) // HTTP 500 because token was signed by server
 		return
 	}
-	// Convert role IDs from int to uint8
-	roleIDs := make([]uint8, len(roleIDsInt))
+	// Convert role IDs from int to uint16
+	roleIDs := make([]uint16, len(roleIDsInt))
 	for i, roleID := range roleIDsInt {
-		roleIDs[i] = uint8(roleID)
+		roleIDs[i] = uint16(roleID)
 	}
 	// TODO: move this code to service layer (the same for the whole code: move
 	// business logic to the service layer):
@@ -156,7 +156,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	}
 	// user:
 	for _, roleID := range roleIDs {
-		if slices.Contains([]uint8{3, 4, 5, 6, 7}, roleID) {
+		if slices.Contains([]uint16{3, 4, 5, 6, 7}, roleID) {
 			if !slices.Contains(userPermissions, permissions.TokenInviteUserDelete) {
 				h.log.Error("forbidden: you do not have permission to revoke invite token for user account registration")
 				helpers.ForbiddenError(h.log, w)
@@ -245,7 +245,7 @@ func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.
 		return
 	}
 	// Make request
-	err := h.inviteService.MakeInviteRequest(r.Context(), email, []uint8{7}) // TODO: change "7" to the constant
+	err := h.inviteService.MakeInviteRequest(r.Context(), email, []uint16{7}) // TODO: change "7" to the constant
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return

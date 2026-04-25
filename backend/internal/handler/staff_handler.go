@@ -108,8 +108,8 @@ func (h *StaffHandler) AssignPosition(w http.ResponseWriter, r *http.Request) {
 		helpers.BadRequestFieldError(h.log, w, "positionId")
 		return
 	}
-	// and to uint8
-	positionID := uint8(positionID64)
+	// and to uint16
+	positionID := uint16(positionID64)
 	// Assign position to staff
 	if err := h.staffService.AssignPosition(r.Context(), userID, positionID); err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to assign position to staff: %w", err))

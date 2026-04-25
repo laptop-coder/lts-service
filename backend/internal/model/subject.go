@@ -7,7 +7,7 @@ import (
 // Subject provides model of table with list of subjects ("Русский язык",
 // "Литература", etc.)
 type Subject struct {
-	ID        uint8 `gorm:"primaryKey"`
+	ID        uint16 `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string `gorm:"type:varchar(100);unique;check:length(trim(name)) >= 3"`

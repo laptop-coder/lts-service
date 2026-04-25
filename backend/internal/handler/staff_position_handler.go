@@ -134,7 +134,7 @@ func (h *StaffPositionHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	staffPositionID := uint8(staffPositionID64)
+	staffPositionID := uint16(staffPositionID64)
 	// Assemble DTO (all fields are optional)
 	dto := service.UpdateStaffPositionDTO{}
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
@@ -169,7 +169,7 @@ func (h *StaffPositionHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	staffPositionID := uint8(staffPositionID64)
+	staffPositionID := uint16(staffPositionID64)
 	// Delete staffPosition
 	if err := h.staffPositionService.DeletePosition(r.Context(), staffPositionID); err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to delete the staffPosition: %w", err))

@@ -16,11 +16,11 @@ type TeacherService interface {
 	GetTeachers(ctx context.Context, filter repository.TeacherFilter) ([]TeacherResponseDTO, error)
 	GetTeacherClassroom(ctx context.Context, userID uuid.UUID) (*RoomResponseDTO, error)
 	GetTeacherSubjects(ctx context.Context, userID uuid.UUID) ([]SubjectResponseDTO, error)
-	AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint8) error
+	AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint16) error
 	UnassignClassroom(ctx context.Context, userID uuid.UUID) error
-	AddSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error
-	AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error
-	UnassignSubject(ctx context.Context, userID uuid.UUID, subjectID uint8) error
+	AddSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint16) error
+	AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint16) error
+	UnassignSubject(ctx context.Context, userID uuid.UUID, subjectID uint16) error
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
@@ -145,7 +145,7 @@ func (s *teacherService) GetTeacherSubjects(ctx context.Context, userID uuid.UUI
 	return subjects, nil
 }
 
-func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint8) error {
+func (s *teacherService) AssignClassroom(ctx context.Context, userID uuid.UUID, classroomID uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check teacher existence
 		var teacher model.Teacher
@@ -209,7 +209,7 @@ func (s *teacherService) UnassignClassroom(ctx context.Context, userID uuid.UUID
 	})
 }
 
-func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error {
+func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check teacher existence
 		var teacher model.Teacher
@@ -240,7 +240,7 @@ func (s *teacherService) AddSubjects(ctx context.Context, userID uuid.UUID, subj
 	})
 }
 
-func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, subjectID uint8) error {
+func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, subjectID uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check teacher existence
 		var teacher model.Teacher
@@ -265,7 +265,7 @@ func (s *teacherService) UnassignSubject(ctx context.Context, userID uuid.UUID, 
 	})
 }
 
-func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint8) error {
+func (s *teacherService) AssignSubjects(ctx context.Context, userID uuid.UUID, subjectIDs []uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Check teacher existence
 		var teacher model.Teacher

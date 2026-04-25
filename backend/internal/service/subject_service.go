@@ -15,8 +15,8 @@ import (
 type SubjectService interface {
 	CreateSubject(ctx context.Context, dto CreateSubjectDTO) (*SubjectResponseDTO, error)
 	GetSubjects(ctx context.Context, filter repository.SubjectFilter) ([]SubjectResponseDTO, error)
-	UpdateSubject(ctx context.Context, id uint8, dto UpdateSubjectDTO) (*SubjectResponseDTO, error)
-	DeleteSubject(ctx context.Context, id uint8) error
+	UpdateSubject(ctx context.Context, id uint16, dto UpdateSubjectDTO) (*SubjectResponseDTO, error)
+	DeleteSubject(ctx context.Context, id uint16) error
 }
 
 type CreateSubjectDTO struct {
@@ -28,7 +28,7 @@ type UpdateSubjectDTO struct {
 }
 
 type SubjectResponseDTO struct {
-	ID        uint8  `json:"id"`
+	ID        uint16  `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Name      string `json:"name"`
@@ -108,7 +108,7 @@ func (s *subjectService) GetSubjects(ctx context.Context, filter repository.Subj
 	return subjectDTOs, nil
 }
 
-func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto UpdateSubjectDTO) (*SubjectResponseDTO, error) {
+func (s *subjectService) UpdateSubject(ctx context.Context, id uint16, dto UpdateSubjectDTO) (*SubjectResponseDTO, error) {
 	// Input data validation
 	if err := s.validateUpdateSubjectDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during subject updating: %w", err)
@@ -147,7 +147,7 @@ func (s *subjectService) UpdateSubject(ctx context.Context, id uint8, dto Update
 	return SubjectToDTO(updatedSubject), nil
 }
 
-func (s *subjectService) DeleteSubject(ctx context.Context, id uint8) error {
+func (s *subjectService) DeleteSubject(ctx context.Context, id uint16) error {
 	s.log.Info("starting subject deletion...")
 	if err := s.subjectRepo.Delete(ctx, &id); err != nil {
 		return fmt.Errorf("failed to delete the subject: %w", err)

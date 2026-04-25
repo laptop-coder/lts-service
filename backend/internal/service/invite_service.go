@@ -22,12 +22,12 @@ type InviteTokenClaims struct {
 }
 
 type InviteService interface {
-	CreateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error)
+	CreateToken(ctx context.Context, roleIDs []uint16, email *string) (*string, error)
 	GetRoles(ctx context.Context, tokenString string) ([]RoleResponseDTO, error)
 	GetEmail(ctx context.Context, tokenString string) (*string, error)
 	RevokeToken(ctx context.Context, tokenString string) error
 	ParseToken(tokenString string) (*InviteTokenClaims, error) // TODO: add context to parameters of all services
-	MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint8) error
+	MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint16) error
 }
 
 type inviteService struct {
@@ -60,7 +60,7 @@ func NewInviteService(
 	}
 }
 
-func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error) {
+func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint16, email *string) (*string, error) {
 	s.log.Info("Starting create invite token")
 	token, err := s.generateToken(ctx, roleIDs, email)
 	if err != nil || token == nil {
@@ -71,7 +71,7 @@ func (s *inviteService) CreateToken(ctx context.Context, roleIDs []uint8, email 
 	return token, nil
 }
 
-func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8, email *string) (*string, error) {
+func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint16, email *string) (*string, error) {
 	// Block attempt to generate token with superadmin role
 	if slices.Contains(roleIDs, 1) {
 		return nil, fmt.Errorf("you cannot generate invite token with superadmin role: %w", apperrors.ErrForbidden)
@@ -87,7 +87,7 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint8, emai
 	if int(count) != len(roleIDs) {
 		return nil, fmt.Errorf("some roles were not found by IDs: %w", apperrors.ErrNotFound)
 	}
-	// Convert role IDs from uint8 to int
+	// Convert role IDs from uint16 to int
 	roleIDsInt := make([]int, len(roleIDs))
 	for i, roleID := range roleIDs {
 		roleIDsInt[i] = int(roleID)
@@ -164,10 +164,10 @@ func (s *inviteService) GetRoles(ctx context.Context, tokenString string) ([]Rol
 	if len(roleIDsInt) == 0 {
 		return nil, fmt.Errorf("list of the role IDs cannot be empty: %w", apperrors.ErrInvalidToken)
 	}
-	// Convert role IDs from int to uint8
-	roleIDs := make([]uint8, len(roleIDsInt))
+	// Convert role IDs from int to uint16
+	roleIDs := make([]uint16, len(roleIDsInt))
 	for i, roleID := range roleIDsInt {
-		roleIDs[i] = uint8(roleID)
+		roleIDs[i] = uint16(roleID)
 	}
 	// Fetch roles
 	roles, err := s.roleRepo.FindByIDs(ctx, roleIDs)
@@ -226,7 +226,7 @@ func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) err
 	return nil
 }
 
-func (s *inviteService) MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint8) error {
+func (s *inviteService) MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint16) error {
 	// Generate invite token
 	token, err := s.CreateToken(ctx, roleIDs, email)
 	if err != nil || token == nil {

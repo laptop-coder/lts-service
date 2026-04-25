@@ -28,7 +28,7 @@ type userRepository struct {
 }
 
 type UserFilter struct {
-	RoleID *uint8
+	RoleID *uint16
 	Limit  int
 	Offset int
 }

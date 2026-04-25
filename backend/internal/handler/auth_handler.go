@@ -108,7 +108,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userExtensionsDTO := service.UserExtensionsDTO{}
-	roleIDs := make([]uint8, len(roles))
+	roleIDs := make([]uint16, len(roles))
 	for i, role := range roles {
 		roleIDs[i] = role.ID
 	}
@@ -130,14 +130,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
-		// Convert to uint8
+		// Convert to uint16
 		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert teacher classroom ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
 			return
 		}
-		teacherClassroomID := uint8(teacherClassroomID64)
+		teacherClassroomID := uint16(teacherClassroomID64)
 		userExtensionsDTO.TeacherClassroomID = &teacherClassroomID
 	} else if len(teacherClassroomIDFields) != 0 {
 		h.log.Error("failed to parse form: too many teacher classroom id values")
@@ -153,7 +153,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		var teacherSubjectIDs = make([]uint8, len(teacherSubjectIDsFields))
+		var teacherSubjectIDs = make([]uint16, len(teacherSubjectIDsFields))
 		for i, subjectIDString := range teacherSubjectIDsFields {
 			subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
 			if err != nil {
@@ -161,7 +161,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 				helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
 				return
 			}
-			subjectID8 := uint8(subjectID64)
+			subjectID8 := uint16(subjectID64)
 			teacherSubjectIDs[i] = subjectID8
 		}
 		userExtensionsDTO.TeacherSubjectIDs = teacherSubjectIDs
@@ -206,14 +206,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	// StaffPositionID (special)
 	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
-		// Convert to uint8
+		// Convert to uint16
 		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert staff position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
 			return
 		}
-		staffPositionID := uint8(staffPositionID64)
+		staffPositionID := uint16(staffPositionID64)
 		userExtensionsDTO.StaffPositionID = &staffPositionID
 	} else if len(staffPositionIDFields) == 0 {
 		// Check if creating user with the staff role
@@ -229,14 +229,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	// InstitutionAdministratorPositionID (special)
 	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
-		// Convert to uint8
+		// Convert to uint16
 		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
 		if err != nil {
 			h.log.Error("cannot convert institution administrator position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
 			return
 		}
-		institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
+		institutionAdministratorPositionID := uint16(institutionAdministratorPositionID64)
 		userExtensionsDTO.InstitutionAdministratorPositionID = &institutionAdministratorPositionID
 	} else if len(institutionAdministratorPositionIDFields) == 0 {
 		// Check if creating user with the institution administrator role

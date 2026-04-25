@@ -15,8 +15,8 @@ import (
 type RoomService interface {
 	CreateRoom(ctx context.Context, dto CreateRoomDTO) (*RoomResponseDTO, error)
 	GetRooms(ctx context.Context, filter repository.RoomFilter) ([]RoomResponseDTO, error)
-	UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDTO) (*RoomResponseDTO, error)
-	DeleteRoom(ctx context.Context, id uint8) error
+	UpdateRoom(ctx context.Context, id uint16, dto UpdateRoomDTO) (*RoomResponseDTO, error)
+	DeleteRoom(ctx context.Context, id uint16) error
 }
 
 type CreateRoomDTO struct {
@@ -30,7 +30,7 @@ type UpdateRoomDTO struct {
 }
 
 type RoomResponseDTO struct {
-	ID        uint8      `json:"id"`
+	ID        uint16      `json:"id"`
 	CreatedAt string     `json:"createdAt"`
 	UpdatedAt string     `json:"updatedAt"`
 	Name      string     `json:"name"`
@@ -105,7 +105,7 @@ func (s *roomService) GetRooms(ctx context.Context, filter repository.RoomFilter
 	return roomDTOs, nil
 }
 
-func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDTO) (*RoomResponseDTO, error) {
+func (s *roomService) UpdateRoom(ctx context.Context, id uint16, dto UpdateRoomDTO) (*RoomResponseDTO, error) {
 	// Input data validation
 	if err := s.validateUpdateRoomDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during room updating: %w", err)
@@ -139,7 +139,7 @@ func (s *roomService) UpdateRoom(ctx context.Context, id uint8, dto UpdateRoomDT
 	return RoomToDTO(updatedRoom), nil
 }
 
-func (s *roomService) DeleteRoom(ctx context.Context, id uint8) error {
+func (s *roomService) DeleteRoom(ctx context.Context, id uint16) error {
 	s.log.Info("Starting room deletion...")
 	if err := s.roomRepo.Delete(ctx, &id); err != nil {
 		return fmt.Errorf("failed to delete the room: %w", err)

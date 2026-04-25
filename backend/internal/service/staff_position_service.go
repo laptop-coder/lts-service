@@ -15,8 +15,8 @@ import (
 type StaffPositionService interface {
 	CreatePosition(ctx context.Context, dto CreateStaffPositionDTO) (*StaffPositionResponseDTO, error)
 	GetPositions(ctx context.Context, filter repository.StaffPositionFilter) ([]StaffPositionResponseDTO, error)
-	UpdatePosition(ctx context.Context, id uint8, dto UpdateStaffPositionDTO) (*StaffPositionResponseDTO, error)
-	DeletePosition(ctx context.Context, id uint8) error
+	UpdatePosition(ctx context.Context, id uint16, dto UpdateStaffPositionDTO) (*StaffPositionResponseDTO, error)
+	DeletePosition(ctx context.Context, id uint16) error
 }
 
 type CreateStaffPositionDTO struct {
@@ -28,7 +28,7 @@ type UpdateStaffPositionDTO struct {
 }
 
 type StaffPositionResponseDTO struct {
-	ID        uint8  `json:"id"`
+	ID        uint16  `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Name      string `json:"name"`
@@ -108,7 +108,7 @@ func (s *staffPositionService) GetPositions(ctx context.Context, filter reposito
 	return staffPositionDTOs, nil
 }
 
-func (s *staffPositionService) UpdatePosition(ctx context.Context, id uint8, dto UpdateStaffPositionDTO) (*StaffPositionResponseDTO, error) {
+func (s *staffPositionService) UpdatePosition(ctx context.Context, id uint16, dto UpdateStaffPositionDTO) (*StaffPositionResponseDTO, error) {
 	// Input data validation
 	if err := s.validateUpdatePositionDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during staff position updating: %w", err)
@@ -147,7 +147,7 @@ func (s *staffPositionService) UpdatePosition(ctx context.Context, id uint8, dto
 	return StaffPositionToDTO(updatedStaffPosition), nil
 }
 
-func (s *staffPositionService) DeletePosition(ctx context.Context, id uint8) error {
+func (s *staffPositionService) DeletePosition(ctx context.Context, id uint16) error {
 	s.log.Info("starting staff position deletion...")
 	if err := s.staffPositionRepo.Delete(ctx, &id); err != nil {
 		return fmt.Errorf("failed to delete the staff position: %w", err)

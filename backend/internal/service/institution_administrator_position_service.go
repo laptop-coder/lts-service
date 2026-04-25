@@ -15,8 +15,8 @@ import (
 type InstitutionAdministratorPositionService interface {
 	CreatePosition(ctx context.Context, dto CreateInstitutionAdministratorPositionDTO) (*InstitutionAdministratorPositionResponseDTO, error)
 	GetPositions(ctx context.Context, filter repository.InstitutionAdministratorPositionFilter) ([]InstitutionAdministratorPositionResponseDTO, error)
-	UpdatePosition(ctx context.Context, id uint8, dto UpdateInstitutionAdministratorPositionDTO) (*InstitutionAdministratorPositionResponseDTO, error)
-	DeletePosition(ctx context.Context, id uint8) error
+	UpdatePosition(ctx context.Context, id uint16, dto UpdateInstitutionAdministratorPositionDTO) (*InstitutionAdministratorPositionResponseDTO, error)
+	DeletePosition(ctx context.Context, id uint16) error
 }
 
 type CreateInstitutionAdministratorPositionDTO struct {
@@ -28,7 +28,7 @@ type UpdateInstitutionAdministratorPositionDTO struct {
 }
 
 type InstitutionAdministratorPositionResponseDTO struct {
-	ID        uint8  `json:"id"`
+	ID        uint16  `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Name      string `json:"name"`
@@ -108,7 +108,7 @@ func (s *institutionAdministratorPositionService) GetPositions(ctx context.Conte
 	return institutionAdministratorPositionDTOs, nil
 }
 
-func (s *institutionAdministratorPositionService) UpdatePosition(ctx context.Context, id uint8, dto UpdateInstitutionAdministratorPositionDTO) (*InstitutionAdministratorPositionResponseDTO, error) {
+func (s *institutionAdministratorPositionService) UpdatePosition(ctx context.Context, id uint16, dto UpdateInstitutionAdministratorPositionDTO) (*InstitutionAdministratorPositionResponseDTO, error) {
 	// Input data validation
 	if err := s.validateUpdatePositionDTO(&dto); err != nil {
 		return nil, fmt.Errorf("validation error during institution administrator position updating: %w", err)
@@ -147,7 +147,7 @@ func (s *institutionAdministratorPositionService) UpdatePosition(ctx context.Con
 	return InstitutionAdministratorPositionToDTO(updatedInstitutionAdministratorPosition), nil
 }
 
-func (s *institutionAdministratorPositionService) DeletePosition(ctx context.Context, id uint8) error {
+func (s *institutionAdministratorPositionService) DeletePosition(ctx context.Context, id uint16) error {
 	s.log.Info("starting institution administrator position deletion...")
 	if err := s.institutionAdministratorPositionRepo.Delete(ctx, &id); err != nil {
 		s.log.Error("failed to delete the institution administrator position")

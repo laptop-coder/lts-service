@@ -133,7 +133,7 @@ func (h *InstitutionAdministratorPositionHandler) Update(w http.ResponseWriter, 
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
+	institutionAdministratorPositionID := uint16(institutionAdministratorPositionID64)
 	// Assemble DTO (all fields are optional)
 	dto := service.UpdateInstitutionAdministratorPositionDTO{}
 	if nameFields := r.PostForm["name"]; len(nameFields) == 1 {
@@ -168,7 +168,7 @@ func (h *InstitutionAdministratorPositionHandler) Delete(w http.ResponseWriter, 
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	institutionAdministratorPositionID := uint8(institutionAdministratorPositionID64)
+	institutionAdministratorPositionID := uint16(institutionAdministratorPositionID64)
 	// Delete institutionAdministratorPosition
 	if err := h.institutionAdministratorPositionService.DeletePosition(r.Context(), institutionAdministratorPositionID); err != nil {
 		helpers.HandleServiceError(h.log, w, fmt.Errorf("failed to delete the institutionAdministratorPosition: %w", err))

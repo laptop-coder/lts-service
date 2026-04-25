@@ -15,7 +15,7 @@ type InstitutionAdministratorService interface {
 	GetInstitutionAdministratorByID(ctx context.Context, id uuid.UUID) (*InstitutionAdministratorResponseDTO, error)
 	GetInstitutionAdministrator(ctx context.Context, filter repository.InstitutionAdministratorFilter) ([]InstitutionAdministratorResponseDTO, error)
 	// Position
-	AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint8) error
+	AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint16) error
 	GetPosition(ctx context.Context, userID uuid.UUID) (*InstitutionAdministratorPositionResponseDTO, error)
 }
 
@@ -87,7 +87,7 @@ func InstitutionAdministratorToDTO(institutionAdministrator *model.InstitutionAd
 	}
 }
 
-func (s *institutionAdministratorService) AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint8) error {
+func (s *institutionAdministratorService) AssignPosition(ctx context.Context, userID uuid.UUID, positionID uint16) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Get institution administrator
 		var institutionAdministrator model.InstitutionAdministrator

@@ -208,8 +208,8 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 		helpers.BadRequestFieldError(h.log, w, "classroomId")
 		return
 	}
-	// and to uint8
-	classroomID := uint8(classroomID64)
+	// and to uint16
+	classroomID := uint16(classroomID64)
 	// Assign room
 	if err := h.teacherService.AssignClassroom(r.Context(), teacherID, classroomID); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
@@ -263,8 +263,8 @@ func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Reque
 		helpers.BadRequestFieldError(h.log, w, "classroomId")
 		return
 	}
-	// and to uint8
-	classroomID := uint8(classroomID64)
+	// and to uint16
+	classroomID := uint16(classroomID64)
 	// Assign room
 	if err := h.teacherService.AssignClassroom(r.Context(), userID, classroomID); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
@@ -355,7 +355,7 @@ func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) 
 		helpers.AtLeastOneFieldError(h.log, w, "subjectId")
 		return
 	}
-	subjectIDs := make([]uint8, len(subjectIDFields))
+	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
@@ -364,8 +364,8 @@ func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) 
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
 			return
 		}
-		// and to uint8
-		subjectID := uint8(subjectID64)
+		// and to uint16
+		subjectID := uint16(subjectID64)
 		subjectIDs[i] = subjectID
 	}
 	// Assign subjects
@@ -414,7 +414,7 @@ func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Reques
 		helpers.AtLeastOneFieldError(h.log, w, "subjectId")
 		return
 	}
-	subjectIDs := make([]uint8, len(subjectIDFields))
+	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
@@ -423,8 +423,8 @@ func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Reques
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
 			return
 		}
-		// and to uint8
-		subjectID := uint8(subjectID64)
+		// and to uint16
+		subjectID := uint16(subjectID64)
 		subjectIDs[i] = subjectID
 	}
 	// Assign subjects
@@ -473,7 +473,7 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 		helpers.AtLeastOneFieldError(h.log, w, "subjectId")
 		return
 	}
-	subjectIDs := make([]uint8, len(subjectIDFields))
+	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
@@ -482,8 +482,8 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
 			return
 		}
-		// and to uint8
-		subjectID := uint8(subjectID64)
+		// and to uint16
+		subjectID := uint16(subjectID64)
 		subjectIDs[i] = subjectID
 	}
 	// Add subjects
@@ -532,7 +532,7 @@ func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) 
 		helpers.AtLeastOneFieldError(h.log, w, "subjectId")
 		return
 	}
-	subjectIDs := make([]uint8, len(subjectIDFields))
+	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
 		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
@@ -541,8 +541,8 @@ func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) 
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
 			return
 		}
-		// and to uint8
-		subjectID := uint8(subjectID64)
+		// and to uint16
+		subjectID := uint16(subjectID64)
 		subjectIDs[i] = subjectID
 	}
 	// Assign subjects
@@ -585,8 +585,8 @@ func (h *TeacherHandler) UnassignSubject(w http.ResponseWriter, r *http.Request)
 		helpers.BadRequestFieldError(h.log, w, "subjectId")
 		return
 	}
-	// and to uint8
-	subjectID := uint8(subjectID64)
+	// and to uint16
+	subjectID := uint16(subjectID64)
 	// Unassign subject
 	if err := h.teacherService.UnassignSubject(r.Context(), teacherID, subjectID); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
@@ -618,8 +618,8 @@ func (h *TeacherHandler) UnassignSubjectOwn(w http.ResponseWriter, r *http.Reque
 		helpers.BadRequestFieldError(h.log, w, "id")
 		return
 	}
-	// and to uint8
-	subjectID := uint8(subjectID64)
+	// and to uint16
+	subjectID := uint16(subjectID64)
 	// Unassign subject
 	if err := h.teacherService.UnassignSubject(r.Context(), userID, subjectID); err != nil {
 		helpers.HandleServiceError(h.log, w, err)

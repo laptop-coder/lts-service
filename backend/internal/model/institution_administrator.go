@@ -15,6 +15,6 @@ type InstitutionAdministrator struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	PositionID uint8
+	PositionID uint16
 	Position   InstitutionAdministratorPosition `gorm:"foreignKey:PositionID;references:ID"`
 }

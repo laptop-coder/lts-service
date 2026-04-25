@@ -13,9 +13,9 @@ import (
 type RoomRepository interface {
 	Create(ctx context.Context, room *model.Room) error
 	FindAll(ctx context.Context, filter *RoomFilter) ([]model.Room, error)
-	FindByID(ctx context.Context, id *uint8) (*model.Room, error)
+	FindByID(ctx context.Context, id *uint16) (*model.Room, error)
 	Update(ctx context.Context, room *model.Room) error
-	Delete(ctx context.Context, id *uint8) error
+	Delete(ctx context.Context, id *uint16) error
 }
 
 type roomRepository struct {
@@ -73,7 +73,7 @@ func (r *roomRepository) FindAll(ctx context.Context, filter *RoomFilter) ([]mod
 	return rooms, nil
 }
 
-func (r *roomRepository) FindByID(ctx context.Context, id *uint8) (*model.Room, error) {
+func (r *roomRepository) FindByID(ctx context.Context, id *uint16) (*model.Room, error) {
 	if id == nil {
 		return nil, fmt.Errorf("room id cannot be nil: %w", apperrors.ErrRequiredField)
 	}
@@ -110,7 +110,7 @@ func (r *roomRepository) Update(ctx context.Context, room *model.Room) error {
 	return nil
 }
 
-func (r *roomRepository) Delete(ctx context.Context, id *uint8) error {
+func (r *roomRepository) Delete(ctx context.Context, id *uint16) error {
 	result := r.db.WithContext(ctx).Unscoped().Delete(&model.Room{}, *id)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete room with id %d: %w", *id, result.Error)
