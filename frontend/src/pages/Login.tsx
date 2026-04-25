@@ -95,13 +95,13 @@ const Login = () => {
             </button>
           </div>
 
-          <p class="text-center text-sm text-gray-500 mt-4">
-            Нет аккаунта?{" "}
+          <p class="text-sm text-gray-500 mt-4">
+            Ученик или родитель?{" "}
             <a
               href="/register"
               class="text-blue-600 hover:text-blue-700 hover:underline"
             >
-              Запросить пригласительную ссылку ученика {/*TODO*/}
+              Запросить пригласительную ссылку
             </a>
           </p>
         </form>

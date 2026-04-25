@@ -19,7 +19,7 @@ import type {
   StaffPosition,
   InstitutionAdministratorPosition,
 } from "../lib/types";
-import RequestStudentInvite from "./RequestStudentInvite";
+import RequestStudentOrParentInvite from "./RequestStudentOrParentInvite";
 import { User, X } from "lucide-solid";
 
 const Register = () => {
@@ -71,7 +71,7 @@ const Register = () => {
 
   const inviteToken = searchParams.inviteToken;
   if (typeof inviteToken !== "string") {
-    return <RequestStudentInvite />;
+    return <RequestStudentOrParentInvite />;
   }
   // Roles
   const [roleIds, setRoleIds] = createSignal<number[]>([]);

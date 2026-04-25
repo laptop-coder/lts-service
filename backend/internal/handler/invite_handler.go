@@ -254,3 +254,44 @@ func (h *InviteHandler) MakeStudentInviteRequest(w http.ResponseWriter, r *http.
 		"message": "the email with the registration link has been sent",
 	}, http.StatusAccepted)
 }
+
+func (h *InviteHandler) MakeParentInviteRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		helpers.MethodNotAllowedError(h.log, w)
+		return
+	}
+	// Restrictions
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+	// Parse form
+	if err := r.ParseForm(); err != nil {
+		h.log.Error("failed to parse x-www-form-urlencoded form")
+		helpers.BadRequestError(h.log, w)
+		return
+	}
+	// Get email
+	emailFields := r.PostForm["email"]
+	var email *string
+	if len(emailFields) == 1 {
+		trimmed := strings.TrimSpace(emailFields[0])
+		if trimmed != "" {
+			email = &trimmed
+		} else {
+			h.log.Error("email cannot be empty or only whitespace")
+			helpers.FieldRequiredError(h.log, w, "email")
+			return
+		}
+	} else if len(emailFields) != 1 {
+		h.log.Error("email must be provided exactly once")
+		helpers.FieldExactlyOneError(h.log, w, "email")
+		return
+	}
+	// Make request
+	err := h.inviteService.MakeInviteRequest(r.Context(), email, []uint16{6}) // TODO: change "6" to the constant
+	if err != nil {
+		helpers.HandleServiceError(h.log, w, err)
+		return
+	}
+	helpers.JsonResponse(w, map[string]interface{}{
+		"message": "the email with the registration link has been sent",
+	}, http.StatusAccepted)
+}

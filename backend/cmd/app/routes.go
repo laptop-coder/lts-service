@@ -40,6 +40,7 @@ func SetupRoutes(
 	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/roles", inviteHandler.GetRoles)
 	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/email", inviteHandler.GetEmail)
 	mux.HandleFunc("POST /api/v1/invite/request/student", inviteHandler.MakeStudentInviteRequest)
+	mux.HandleFunc("POST /api/v1/invite/request/parent", inviteHandler.MakeParentInviteRequest)
 
 	// Secure routes (auth required)
 
