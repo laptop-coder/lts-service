@@ -3,6 +3,7 @@ import { useNavigate, A } from "@solidjs/router";
 import { useAuth } from "../lib/auth";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
 import { unreadMessagesCount, refreshUnreadMessagesCount } from "../lib/store";
+import { MessageSquareText, Settings2, Plus } from "lucide-solid";
 
 interface Props {
   children?: JSX.Element;
@@ -34,34 +35,35 @@ export const PublicRoute: Component<Props> = (props) => {
           <div class="flex items-center gap-3">
             {auth.user() ? (
               <>
-                <A
-                  href="/conversations"
-                  class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition relative"
-                >
-                  <span>💬</span>
-                  <Show when={unreadMessagesCount() > 0}>
-                    <div class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full absolute -top-1 -right-1">
-                      {unreadMessagesCount()}
-                    </div>
-                  </Show>
-                </A>
                 {hasAnyRole(ROLES.ADMIN, ROLES.SUPERADMIN) && (
                   <A
                     href="/admin"
-                    class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                    class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10"
                   >
-                    Админка
+                    <Settings2 />
                   </A>
                 )}
 
                 {hasPermission(PERMISSIONS.POST_CREATE) && (
                   <A
                     href="/posts/new"
-                    class="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                    class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10"
                   >
-                    <span class="text-xl font-bold">+</span>
+                    <Plus />
                   </A>
                 )}
+
+                <A
+                  href="/conversations"
+                  class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10"
+                >
+                  <MessageSquareText />
+                  <Show when={unreadMessagesCount() > 0}>
+                    <div class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full absolute -top-1 -right-1">
+                      {unreadMessagesCount()}
+                    </div>
+                  </Show>
+                </A>
 
                 <A
                   href="/profile"

@@ -23,6 +23,7 @@ import type {
   StaffPosition,
   InstitutionAdministratorPosition,
 } from "../lib/types";
+import { Pencil } from "lucide-solid";
 
 const Profile = () => {
   const auth = useAuth();
@@ -344,19 +345,7 @@ const Profile = () => {
                     alt="Фото профиля"
                   />
                   <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                    <svg
-                      class="w-8 h-8 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                      />
-                    </svg>
+                    <Pencil class="text-white" />
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/gif"

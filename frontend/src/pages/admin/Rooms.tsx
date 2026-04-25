@@ -4,6 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { Room } from "../../lib/types";
 import Pagination from "../../components/Pagination";
+import { DoorOpen } from "lucide-solid";
 
 const Rooms = () => {
   const [rooms, setRooms] = createSignal<Room[]>([]);
@@ -141,8 +142,8 @@ const Rooms = () => {
       </Show>
 
       <Show when={!loading() && rooms().length === 0}>
-        <div class="text-center py-16">
-          <div class="text-5xl mb-3">🚪</div>
+        <div class="flex flex-col items-center justify-center gap-1 py-16">
+          <DoorOpen class="w-15 h-15 mb-3" />
           <p class="text-gray-500">Нет кабинетов</p>
           <p class="text-gray-400 text-sm mt-1">Создайте первый</p>
         </div>

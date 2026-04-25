@@ -31,6 +31,7 @@ import type {
 } from "../lib/types";
 import { A } from "@solidjs/router";
 import Pagination from "../components/Pagination";
+import { Users as UsersIcon } from "lucide-solid";
 
 const Users = () => {
   const auth = useAuth();
@@ -473,8 +474,8 @@ const Users = () => {
       </Show>
 
       <Show when={!loading() && users().length === 0}>
-        <div class="text-center py-16">
-          <div class="text-5xl mb-3">👥</div>
+        <div class="flex flex-col items-center justify-center gap-1 py-16">
+          <UsersIcon class="w-15 h-15 mb-3" />
           <p class="text-gray-500">Нет пользователей</p>
         </div>
       </Show>

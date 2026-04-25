@@ -4,6 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StaffPosition } from "../../lib/types";
 import Pagination from "../../components/Pagination";
+import { Briefcase } from "lucide-solid";
 
 const StaffPositions = () => {
   const [staffPositions, setStaffPositions] = createSignal<StaffPosition[]>([]);
@@ -149,8 +150,8 @@ const StaffPositions = () => {
       </Show>
 
       <Show when={!loading() && staffPositions().length === 0}>
-        <div class="text-center py-16">
-          <div class="text-5xl mb-3">🧑‍💼</div>
+        <div class="flex flex-col items-center justify-center gap-1 py-16">
+          <Briefcase class="w-15 h-15 mb-3" />
           <p class="text-gray-500">Нет должностей</p>
           <p class="text-gray-400 text-sm mt-1">Создайте первую</p>
         </div>

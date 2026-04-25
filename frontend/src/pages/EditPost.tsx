@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { useNavigate, useParams } from "@solidjs/router";
 import type { Post } from "../lib/types";
+import { X, Image } from "lucide-solid";
 
 const EditPost = () => {
   const params = useParams();
@@ -153,19 +154,7 @@ const EditPost = () => {
                       postAuthorId() === auth.user()?.id)) && (
                     <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 transition">
                       <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg
-                          class="w-8 h-8 text-gray-400 mb-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          ></path>
-                        </svg>
+                        <Image />
                         <p class="text-sm text-gray-500">
                           Нажмите для загрузки фото
                         </p>
@@ -198,19 +187,7 @@ const EditPost = () => {
                         onClick={removePhoto}
                         class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition cursor-pointer disabled:cursor-not-allowed"
                       >
-                        <svg
-                          class="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          ></path>
-                        </svg>
+                        <X />
                       </button>
                     )}
                   </div>

@@ -4,6 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { Subject } from "../../lib/types";
 import Pagination from "../../components/Pagination";
+import { BookOpen } from "lucide-solid";
 
 const Subjects = () => {
   const [subjects, setSubjects] = createSignal<Subject[]>([]);
@@ -141,8 +142,8 @@ const Subjects = () => {
       </Show>
 
       <Show when={!loading() && subjects().length === 0}>
-        <div class="text-center py-16">
-          <div class="text-5xl mb-3">📚</div>
+        <div class="flex flex-col items-center justify-center gap-1 py-16">
+          <BookOpen class="w-15 h-15 mb-3" />
           <p class="text-gray-500">Нет предметов</p>
           <p class="text-gray-400 text-sm mt-1">Создайте первый</p>
         </div>

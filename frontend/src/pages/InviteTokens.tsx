@@ -2,6 +2,7 @@ import { createSignal, createEffect, Show, For } from "solid-js";
 import { api } from "../lib/api";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
 import QRCodeButton from "../components/QRCode";
+import { Download, Copy, Check } from "lucide-solid";
 
 const InviteTokens = () => {
   const [count, setCount] = createSignal(1);
@@ -246,9 +247,9 @@ const InviteTokens = () => {
             </h2>
             <button
               onClick={downloadTokensFile}
-              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition cursor-pointer font-medium"
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition cursor-pointer font-medium flex flex-row flex-nowrap gap-2"
             >
-              📥 Скачать Markdown
+              <Download /> Скачать Markdown
             </button>
           </div>
 
@@ -268,11 +269,17 @@ const InviteTokens = () => {
                             index(),
                           )
                         }
-                        class="w-28 px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium"
+                        class="w-36 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium gap-2 flex items-center justify-center"
                       >
-                        {buttonCopiedIndex() === index()
-                          ? "✓ Скопировано"
-                          : "📋 Копировать"}
+                        {buttonCopiedIndex() === index() ? (
+                          <>
+                            <Check /> Скопировано
+                          </>
+                        ) : (
+                          <>
+                            <Copy /> Копировать
+                          </>
+                        )}
                       </button>
                       <QRCodeButton
                         text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`}

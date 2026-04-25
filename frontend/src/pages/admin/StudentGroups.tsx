@@ -4,6 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StudentGroup } from "../../lib/types";
 import Pagination from "../../components/Pagination";
+import { GraduationCap } from "lucide-solid";
 
 const StudentGroups = () => {
   const [studentGroups, setStudentGroups] = createSignal<StudentGroup[]>([]);
@@ -156,8 +157,8 @@ const StudentGroups = () => {
       </Show>
 
       <Show when={!loading() && studentGroups().length === 0}>
-        <div class="text-center py-16">
-          <div class="text-5xl mb-3">🎓</div>
+        <div class="flex flex-col items-center justify-center gap-1 py-16">
+          <GraduationCap class="w-15 h-15 mb-3" />
           <p class="text-gray-500">Нет учебных групп</p>
           <p class="text-gray-400 text-sm mt-1">Создайте первую</p>
         </div>

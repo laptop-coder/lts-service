@@ -10,6 +10,7 @@ import { api } from "../../lib/api";
 import { usePermissions, PERMISSIONS } from "../../lib/permissions";
 import type { Post } from "../../lib/types";
 import PostCardCompact from "../../components/PostCardCompact";
+import { Inbox } from "lucide-solid";
 
 const PostsToVerify = () => {
   const { hasPermission } = usePermissions();
@@ -124,8 +125,8 @@ const PostsToVerify = () => {
           </div>
           <div ref={observerRef} class="h-10">
             <Show when={posts().length === 0}>
-              <div class="text-center py-16">
-                <div class="text-5xl mb-3">📭</div>
+              <div class="flex flex-col items-center justify-center gap-1 py-16">
+                <Inbox class="w-15 h-15 mb-3" />
                 <p class="text-gray-500">Нет объявлений на верификацию</p>
                 <p class="text-gray-400 text-sm mt-1">
                   Все объявления проверены

@@ -1,5 +1,6 @@
 import { createSignal, createEffect } from "solid-js";
 import { api } from "../lib/api";
+import { Mail } from "lucide-solid";
 
 const RequestStudentInvite = () => {
   const [email, setEmail] = createSignal("");
@@ -55,19 +56,7 @@ const RequestStudentInvite = () => {
           <div class="text-center py-12 text-gray-500">Загрузка...</div>
         ) : done() ? (
           <div class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-xl flex items-center gap-3">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              ></path>
-            </svg>
+            <Mail />
             <span>
               Письмо отправлено на{" "}
               <span class="font-semibold underline">{email()}</span>! Перейдите

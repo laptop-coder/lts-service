@@ -1,5 +1,6 @@
 import { createSignal, Show, onCleanup, onMount, type Setter } from "solid-js";
 import QRCode from "qrcode";
+import { QrCode } from "lucide-solid";
 
 interface Props {
   text: string;
@@ -45,10 +46,10 @@ const QRCodeButton = (props: Props) => {
     <>
       <button
         onClick={generateQR}
-        class="ml-2 px-3 py-1 text-sm bg-green-700 text-white rounded hover:bg-green-800 transition cursor-pointer"
+        class="w-10 h-10 ml-2 text-sm bg-green-700 text-white rounded hover:bg-green-800 transition cursor-pointer flex items-center justify-center"
         title="Показать QR-код"
       >
-        QR
+        <QrCode />
       </button>
 
       <Show when={showQR()}>
