@@ -5,6 +5,7 @@ import { conversationApi } from "../lib/api";
 import { Conversation, Message } from "../lib/types";
 import { useAuth } from "../lib/auth";
 import { refreshUnreadMessagesCount } from "../lib/store";
+import { ChevronLeft } from "lucide-solid";
 
 const ConversationView = () => {
   const params = useParams();
@@ -88,9 +89,10 @@ const ConversationView = () => {
       <div class="border-b border-gray-200 p-4 flex items-center gap-3">
         <button
           onClick={() => navigate("/conversations")}
-          class="text-gray-500 hover:text-gray-700 cursor-pointer"
+          type='button'
+          class="text-gray-500 hover:text-gray-700 cursor-pointer flex flex-row"
         >
-          ← Назад
+          <ChevronLeft /> Назад
         </button>
         <Show when={otherUser()}>
           <A

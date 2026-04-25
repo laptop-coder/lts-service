@@ -5,6 +5,7 @@ import { api, conversationApi } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { formatDate } from "../lib/utils";
 import { A, useNavigate } from "@solidjs/router";
+import { ChevronLeft } from "lucide-solid";
 
 interface Props {
   post: Post;
@@ -203,6 +204,7 @@ const PostCardDetailed = (props: Props) => {
                       onClick={() =>
                         (window.location.href = `/posts/${props.post.id}/edit`)
                       }
+                      type="button"
                       class="w-full sm:w-auto px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
                     >
                       Редактировать
@@ -215,6 +217,7 @@ const PostCardDetailed = (props: Props) => {
                     <button
                       onClick={deletePost}
                       disabled={loading()}
+                      type="button"
                       class="w-full sm:w-auto px-3 py-1.5 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition font-medium cursor-pointer"
                     >
                       Удалить
@@ -224,6 +227,7 @@ const PostCardDetailed = (props: Props) => {
                   <button
                     onClick={openModal}
                     disabled={contactLoading()}
+                    type="button"
                     class="w-full sm:w-auto px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
                   >
                     {contactLoading() ? "..." : "Связаться с автором"}
@@ -236,6 +240,7 @@ const PostCardDetailed = (props: Props) => {
                     <button
                       onClick={verifyPost}
                       disabled={loading()}
+                      type="button"
                       class="w-full sm:w-auto px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
                     >
                       Верифицировать
@@ -249,6 +254,7 @@ const PostCardDetailed = (props: Props) => {
                     <button
                       onClick={markReturned}
                       disabled={loading()}
+                      type="button"
                       class="w-full sm:w-auto px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
                     >
                       Найдено
@@ -256,22 +262,10 @@ const PostCardDetailed = (props: Props) => {
                   )}
                 <button
                   onClick={() => history.back()}
-                  class="w-full sm:w-auto px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium cursor-pointer flex items-center gap-1"
+                  type="button"
+                  class="w-full sm:w-auto px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium cursor-pointer flex flex-row items-center"
                 >
-                  Назад
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
+                  <ChevronLeft /> Назад
                 </button>
               </div>
             </div>
