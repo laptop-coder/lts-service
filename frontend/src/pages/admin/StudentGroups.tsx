@@ -17,6 +17,17 @@ const StudentGroups = () => {
 
   const { hasPermission } = usePermissions();
 
+  let inputRef: HTMLInputElement | undefined;
+  const focusInput = () => {
+    if (inputRef) {
+      inputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusInput();
+  });
+
   const limit = 30
 
   createEffect(() => {
@@ -62,6 +73,7 @@ const StudentGroups = () => {
       );
     } finally {
       setCreating(false);
+      focusInput();
     }
   };
 
@@ -86,6 +98,7 @@ const StudentGroups = () => {
       );
     } finally {
       setDeletingId(null);
+      focusInput();
     }
   };
 
@@ -116,6 +129,7 @@ const StudentGroups = () => {
           </h2>
           <form onSubmit={createStudentGroup} class="flex gap-3">
             <input
+              ref={inputRef}
               type="text"
               value={newStudentGroupName()}
               onInput={(e) => setNewStudentGroupName(e.currentTarget.value)}

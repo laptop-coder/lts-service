@@ -17,6 +17,17 @@ const Subjects = () => {
 
   const { hasPermission } = usePermissions();
 
+  let inputRef: HTMLInputElement | undefined;
+  const focusInput = () => {
+    if (inputRef) {
+      inputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusInput();
+  });
+
   const limit = 30
 
   createEffect(() => {
@@ -54,6 +65,7 @@ const Subjects = () => {
       setError(err instanceof Error ? err.message : "Ошибка создания предмета");
     } finally {
       setCreating(false);
+      focusInput();
     }
   };
 
@@ -71,6 +83,7 @@ const Subjects = () => {
       setError(err instanceof Error ? err.message : "Ошибка удаления предмета");
     } finally {
       setDeletingId(null);
+      focusInput();
     }
   };
 
@@ -99,6 +112,7 @@ const Subjects = () => {
           </h2>
           <form onSubmit={createSubject} class="flex gap-3">
             <input
+              ref={inputRef}
               type="text"
               value={newSubjectName()}
               onInput={(e) => setNewSubjectName(e.currentTarget.value)}

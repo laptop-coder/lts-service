@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { InstitutionAdministratorPosition } from "../../lib/types";
-import Pagination from '../../components/Pagination'
+import Pagination from "../../components/Pagination";
 
 const InstitutionAdministratorPositions = () => {
   const [
@@ -23,19 +23,30 @@ const InstitutionAdministratorPositions = () => {
 
   const { hasPermission } = usePermissions();
 
-  const limit = 30
+  let inputRef: HTMLInputElement | undefined;
+  const focusInput = () => {
+    if (inputRef) {
+      inputRef.focus();
+    }
+  };
 
   createEffect(() => {
-    page()
-    loadInstitutionAdministratorPositions()
-  })
+    focusInput();
+  });
+
+  const limit = 30;
+
+  createEffect(() => {
+    page();
+    loadInstitutionAdministratorPositions();
+  });
 
   const loadInstitutionAdministratorPositions = async () => {
     try {
       const data = await api.get<{
         institutionAdministratorPositions: InstitutionAdministratorPosition[];
       }>(
-`/institution_administrators/positions?limit=${limit+1}&offset=${page() * limit}`
+        `/institution_administrators/positions?limit=${limit + 1}&offset=${page() * limit}`,
       );
       setHasMore(data.institutionAdministratorPositions.length > limit);
       setInstitutionAdministratorPositions(
@@ -70,6 +81,7 @@ const InstitutionAdministratorPositions = () => {
       );
     } finally {
       setCreating(false);
+      focusInput();
     }
   };
 
@@ -81,7 +93,7 @@ const InstitutionAdministratorPositions = () => {
       await api.delete(`/institution_administrators/positions/${id}`);
       await loadInstitutionAdministratorPositions();
       if (institutionAdministratorPositions().length === 0 && page() > 0) {
-        setPage(prev => prev - 1)
+        setPage((prev) => prev - 1);
       }
     } catch (err) {
       setError(
@@ -89,6 +101,7 @@ const InstitutionAdministratorPositions = () => {
       );
     } finally {
       setDeletingId(null);
+      focusInput();
     }
   };
 
@@ -128,6 +141,7 @@ const InstitutionAdministratorPositions = () => {
             class="flex gap-3"
           >
             <input
+              ref={inputRef}
               type="text"
               value={newInstitutionAdministratorPositionName()}
               onInput={(e) =>

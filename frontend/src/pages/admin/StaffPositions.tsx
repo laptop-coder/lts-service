@@ -17,6 +17,17 @@ const StaffPositions = () => {
 
   const { hasPermission } = usePermissions();
 
+  let inputRef: HTMLInputElement | undefined;
+  const focusInput = () => {
+    if (inputRef) {
+      inputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusInput();
+  });
+
   const limit = 30
 
   createEffect(() => {
@@ -60,6 +71,7 @@ const StaffPositions = () => {
       );
     } finally {
       setCreating(false);
+      focusInput();
     }
   };
 
@@ -79,6 +91,7 @@ const StaffPositions = () => {
       );
     } finally {
       setDeletingId(null);
+      focusInput();
     }
   };
 
@@ -109,6 +122,7 @@ const StaffPositions = () => {
           </h2>
           <form onSubmit={createStaffPosition} class="flex gap-3">
             <input
+              ref={inputRef}
               type="text"
               value={newStaffPositionName()}
               onInput={(e) => setNewStaffPositionName(e.currentTarget.value)}

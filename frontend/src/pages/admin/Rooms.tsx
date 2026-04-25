@@ -17,6 +17,17 @@ const Rooms = () => {
 
   const { hasPermission } = usePermissions();
 
+  let inputRef: HTMLInputElement | undefined;
+  const focusInput = () => {
+    if (inputRef) {
+      inputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusInput();
+  });
+
   const limit = 30
 
   createEffect(() => {
@@ -56,6 +67,7 @@ const Rooms = () => {
       setError(err instanceof Error ? err.message : "Ошибка создания кабинета");
     } finally {
       setCreating(false);
+      focusInput();
     }
   };
 
@@ -73,6 +85,7 @@ const Rooms = () => {
       setError(err instanceof Error ? err.message : "Ошибка удаления кабинета");
     } finally {
       setDeletingId(null);
+      focusInput();
     }
   };
 
@@ -101,6 +114,7 @@ const Rooms = () => {
           </h2>
           <form onSubmit={createRoom} class="flex gap-3">
             <input
+              ref={inputRef}
               type="text"
               value={newRoomName()}
               onInput={(e) => setNewRoomName(e.currentTarget.value)}

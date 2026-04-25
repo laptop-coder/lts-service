@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, createEffect } from "solid-js";
 import { api } from "../lib/api";
 
 const RequestStudentInvite = () => {
@@ -6,6 +6,18 @@ const RequestStudentInvite = () => {
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
   const [done, setDone] = createSignal(false); // email was sent
+
+
+  let emailInputRef: HTMLInputElement | undefined;
+  const focusEmailInput = () => {
+    if (emailInputRef) {
+      emailInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusEmailInput();
+  });
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -73,6 +85,7 @@ const RequestStudentInvite = () => {
                 Email *
               </label>
               <input
+              ref={emailInputRef}
                 type="email"
                 value={email()}
                 placeholder="email@example.ru"

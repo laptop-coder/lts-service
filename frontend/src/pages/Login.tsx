@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, createEffect } from "solid-js";
 import { useAuth } from "../lib/auth";
 import { useNavigate } from "@solidjs/router";
 
@@ -9,6 +9,17 @@ const Login = () => {
   const [loading, setLoading] = createSignal(false);
   const auth = useAuth();
   const navigate = useNavigate();
+
+  let emailInputRef: HTMLInputElement | undefined;
+  const focusEmailInput = () => {
+    if (emailInputRef) {
+      emailInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusEmailInput();
+  });
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -44,6 +55,7 @@ const Login = () => {
               Email
             </label>
             <input
+              ref={emailInputRef}
               type="email"
               value={email()}
               onInput={(e) => setEmail(e.currentTarget.value)}

@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, createEffect, Show } from "solid-js";
 import { usePermissions, PERMISSIONS } from "../lib/permissions";
 import { api } from "../lib/api";
 import { useNavigate } from "@solidjs/router";
@@ -13,6 +13,17 @@ const CreatePost = () => {
   const [loading, setLoading] = createSignal(false);
   const { hasPermission } = usePermissions();
   const navigate = useNavigate();
+
+  let nameInputRef: HTMLInputElement | undefined;
+  const focusNameInput = () => {
+    if (nameInputRef) {
+      nameInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusNameInput();
+  });
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -77,6 +88,7 @@ const CreatePost = () => {
                 Название *
               </label>
               <input
+                ref={nameInputRef}
                 type="text"
                 value={name()}
                 onInput={(e) => setName(e.currentTarget.value)}

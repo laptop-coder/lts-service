@@ -1,4 +1,4 @@
-import { createSignal, Show, For } from "solid-js";
+import { createSignal, createEffect, Show, For } from "solid-js";
 import { api } from "../lib/api";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
 import QRCodeButton from "../components/QRCode";
@@ -17,6 +17,17 @@ const InviteTokens = () => {
   );
 
   const { hasPermission, hasRole } = usePermissions();
+
+  let countInputRef: HTMLInputElement | undefined;
+  const focusCountInput = () => {
+    if (countInputRef) {
+      countInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusCountInput();
+  });
 
   const downloadTokensFile = () => {
     if (tokens().length === 0 || selectedRoles().length === 0) return;
@@ -166,6 +177,7 @@ const InviteTokens = () => {
               Количество токенов
             </label>
             <input
+              ref={countInputRef}
               type="number"
               min="1"
               max="500"
@@ -264,6 +276,7 @@ const InviteTokens = () => {
                       </button>
                       <QRCodeButton
                         text={`${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`}
+                        setError={setError}
                       />
                     </div>
                   </div>

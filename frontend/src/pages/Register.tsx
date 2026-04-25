@@ -1,4 +1,4 @@
-import { createSignal, onMount, Show, For, Index } from "solid-js";
+import { createSignal, createEffect, onMount, Show, For, Index } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useAuth } from "../lib/auth";
 import { api } from "../lib/api";
@@ -49,6 +49,19 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   const auth = useAuth();
   const navigate = useNavigate();
+
+
+  let lastNameInputRef: HTMLInputElement | undefined;
+  const focusLastNameInput = () => {
+    if (lastNameInputRef) {
+      lastNameInputRef.focus();
+    }
+  };
+
+  createEffect(() => {
+    focusLastNameInput();
+  });
+
 
   const inviteToken = searchParams.inviteToken;
   if (typeof inviteToken !== "string") {
@@ -339,6 +352,7 @@ const Register = () => {
                   Фамилия *
                 </label>
                 <input
+              ref={lastNameInputRef}
                   type="text"
                   value={lastName()}
                   placeholder="Иванов"
