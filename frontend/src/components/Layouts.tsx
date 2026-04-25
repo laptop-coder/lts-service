@@ -1,5 +1,5 @@
-import { type Component, type JSX, Show, onMount } from "solid-js";
-import { useNavigate, A } from "@solidjs/router";
+import { type Component, type JSX, Show, createEffect } from "solid-js";
+import { useNavigate, useLocation, A } from "@solidjs/router";
 import { useAuth } from "../lib/auth";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
 import { unreadMessagesCount, refreshUnreadMessagesCount } from "../lib/store";
@@ -11,10 +11,13 @@ interface Props {
 
 export const PublicRoute: Component<Props> = (props) => {
   const auth = useAuth();
+  const location = useLocation();
   const { hasPermission, hasRole, hasAnyRole } = usePermissions();
 
-  onMount(async () => {
-    await refreshUnreadMessagesCount();
+  createEffect(async () => {
+    if (auth.user()) {
+      await refreshUnreadMessagesCount();
+    }
   });
 
   return (
@@ -55,7 +58,7 @@ export const PublicRoute: Component<Props> = (props) => {
 
                 <A
                   href="/conversations"
-                  class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10"
+                  class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10 relative"
                 >
                   <MessageSquareText />
                   <Show when={unreadMessagesCount() > 0}>
@@ -77,12 +80,14 @@ export const PublicRoute: Component<Props> = (props) => {
                 </A>
               </>
             ) : (
-              <A
-                href="/login"
-                class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Войти
-              </A>
+              <Show when={location.pathname !== "/login"}>
+                <A
+                  href="/login"
+                  class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  Войти
+                </A>
+              </Show>
             )}
           </div>
         </div>
