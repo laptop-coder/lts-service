@@ -126,28 +126,44 @@ const ConversationView = () => {
         </Show>
 
         <For each={messages()}>
-          {(msg) => {
+          {(msg, index) => {
             const isOwn = msg.senderId === auth.user()?.id;
+
+            // Date
+            const prev = index() > 0 ? messages()[index() - 1] : null;
+            const prevDate = prev
+              ? new Date(prev.createdAt).toLocaleDateString("ru")
+              : null;
+            const curDate = new Date(msg.createdAt).toLocaleDateString("ru");
+            const showDate = prevDate !== curDate;
+
             return (
-              <div class={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
-                <div class={`max-w-[70%] ${isOwn ? "order-2" : ""}`}>
-                  <div
-                    class={`rounded-2xl px-4 py-2 ${
-                      isOwn
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    <p class="text-sm">{msg.content}</p>
+              <>
+                <Show when={showDate}>
+                  <div class="text-center text-xs text-gray-400 py-2">
+                    {curDate}
                   </div>
-                  <p class="text-xs text-gray-400 mt-1">
-                    {new Date(msg.createdAt).toLocaleTimeString("ru", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+                </Show>
+                <div class={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
+                  <div class={`max-w-[70%] ${isOwn ? "order-2" : ""}`}>
+                    <div
+                      class={`rounded-2xl px-4 py-2 ${
+                        isOwn
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      <p class="text-sm">{msg.content}</p>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">
+                      {new Date(msg.createdAt).toLocaleTimeString("ru", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </>
             );
           }}
         </For>
