@@ -102,7 +102,9 @@ const Profile = () => {
       api.get<{ rooms: Room[] }>("/rooms?limit=65535"), // uint16
       api.get<{ subjects: Subject[] }>("/subjects?limit=65535"),
       api.get<{ studentGroups: StudentGroup[] }>("/student_groups?limit=65535"),
-      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions?limit=65535"),
+      api.get<{ staffPositions: StaffPosition[] }>(
+        "/staff/positions?limit=65535",
+      ),
       api.get<{
         institutionAdministratorPositions: InstitutionAdministratorPosition[];
       }>("/institution_administrators/positions?limit=65535"),

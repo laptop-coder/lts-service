@@ -28,7 +28,7 @@ const Rooms = () => {
     focusInput();
   });
 
-  const limit = 30
+  const limit = 30;
 
   createEffect(() => {
     page();
@@ -38,7 +38,7 @@ const Rooms = () => {
   const loadRooms = async () => {
     try {
       const data = await api.get<{ rooms: Room[] }>(
-        `/rooms?limit=${limit+1}&offset=${page() * limit}`,
+        `/rooms?limit=${limit + 1}&offset=${page() * limit}`,
       );
       setHasMore(data.rooms.length > limit);
       setRooms(data.rooms.slice(0, limit));
@@ -79,7 +79,7 @@ const Rooms = () => {
       await api.delete(`/rooms/${id}`);
       await loadRooms();
       if (rooms().length === 0 && page() > 0) {
-        setPage(prev => prev - 1)
+        setPage((prev) => prev - 1);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка удаления кабинета");

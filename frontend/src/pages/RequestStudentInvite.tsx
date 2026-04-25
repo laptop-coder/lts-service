@@ -7,7 +7,6 @@ const RequestStudentInvite = () => {
   const [loading, setLoading] = createSignal(false);
   const [done, setDone] = createSignal(false); // email was sent
 
-
   let emailInputRef: HTMLInputElement | undefined;
   const focusEmailInput = () => {
     if (emailInputRef) {
@@ -85,7 +84,7 @@ const RequestStudentInvite = () => {
                 Email *
               </label>
               <input
-              ref={emailInputRef}
+                ref={emailInputRef}
                 type="email"
                 value={email()}
                 placeholder="email@example.ru"

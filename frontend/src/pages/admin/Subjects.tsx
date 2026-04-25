@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { Subject } from "../../lib/types";
-import Pagination from '../../components/Pagination'
+import Pagination from "../../components/Pagination";
 
 const Subjects = () => {
   const [subjects, setSubjects] = createSignal<Subject[]>([]);
@@ -28,16 +28,18 @@ const Subjects = () => {
     focusInput();
   });
 
-  const limit = 30
+  const limit = 30;
 
   createEffect(() => {
-    page()
-    loadSubjects()
-  })
+    page();
+    loadSubjects();
+  });
 
   const loadSubjects = async () => {
     try {
-      const data = await api.get<{ subjects: Subject[] }>(`/subjects?limit=${limit + 1}&offset=${page() * limit}`);
+      const data = await api.get<{ subjects: Subject[] }>(
+        `/subjects?limit=${limit + 1}&offset=${page() * limit}`,
+      );
       setHasMore(data.subjects.length > limit);
       setSubjects(data.subjects.slice(0, limit));
     } catch (err) {
@@ -77,7 +79,7 @@ const Subjects = () => {
       await api.delete(`/subjects/${id}`);
       await loadSubjects();
       if (subjects().length === 0 && page() > 0) {
-        setPage(prev => prev - 1)
+        setPage((prev) => prev - 1);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка удаления предмета");

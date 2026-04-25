@@ -61,9 +61,9 @@ const Users = () => {
   const [hasMore, setHasMore] = createSignal(true);
 
   createEffect(() => {
-    page()
-    loadUsers()
-  })
+    page();
+    loadUsers();
+  });
 
   // Data for special fields
   // rooms:
@@ -82,7 +82,7 @@ const Users = () => {
 
   const { hasPermission, hasRole } = usePermissions();
 
-  const limit = 20
+  const limit = 20;
 
   const loadUsers = async () => {
     try {
@@ -362,7 +362,7 @@ const Users = () => {
       await api.delete(`/users/${user.id}`);
       setUsers(users().filter((u) => u.id !== user.id));
       if (users().length === 0 && page() > 0) {
-        setPage(prev => prev - 1)
+        setPage((prev) => prev - 1);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка удаления");

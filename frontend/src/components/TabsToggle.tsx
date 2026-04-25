@@ -5,7 +5,7 @@ import { Motion } from "solid-motionone";
 
 const TabsToggle = (props: {
   tabs: { label: string; query: string }[];
-  onChange: (tab: {label: string; query: string}) => void;
+  onChange: (tab: { label: string; query: string }) => void;
   tabsHTMLElementId: string;
 }): JSX.Element => {
   const [screenSize, setScreenSize] = createSignal({

@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StudentGroup } from "../../lib/types";
-import Pagination from '../../components/Pagination'
+import Pagination from "../../components/Pagination";
 
 const StudentGroups = () => {
   const [studentGroups, setStudentGroups] = createSignal<StudentGroup[]>([]);
@@ -28,17 +28,17 @@ const StudentGroups = () => {
     focusInput();
   });
 
-  const limit = 30
+  const limit = 30;
 
   createEffect(() => {
-    page()
-    loadStudentGroups()
-  })
+    page();
+    loadStudentGroups();
+  });
 
   const loadStudentGroups = async () => {
     try {
       const data = await api.get<{ studentGroups: StudentGroup[] }>(
-`/student_groups?limit=${limit+1}&offset=${page() * limit}`
+        `/student_groups?limit=${limit + 1}&offset=${page() * limit}`,
       );
       setHasMore(data.studentGroups.length > limit);
       setStudentGroups(data.studentGroups.slice(0, limit));
@@ -88,7 +88,7 @@ const StudentGroups = () => {
       await api.delete(`/student_groups/${id}`);
       await loadStudentGroups();
       if (studentGroups().length === 0 && page() > 0) {
-        setPage(prev => prev - 1)
+        setPage((prev) => prev - 1);
       }
     } catch (err) {
       setError(

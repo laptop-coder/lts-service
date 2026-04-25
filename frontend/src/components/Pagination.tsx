@@ -27,4 +27,4 @@ const Pagination = (props: PaginationProps) => {
   );
 };
 
-export default Pagination
+export default Pagination;

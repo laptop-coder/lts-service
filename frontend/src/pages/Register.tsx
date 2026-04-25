@@ -1,4 +1,11 @@
-import { createSignal, createEffect, onMount, Show, For, Index } from "solid-js";
+import {
+  createSignal,
+  createEffect,
+  onMount,
+  Show,
+  For,
+  Index,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 import { useAuth } from "../lib/auth";
 import { api } from "../lib/api";
@@ -50,7 +57,6 @@ const Register = () => {
   const auth = useAuth();
   const navigate = useNavigate();
 
-
   let lastNameInputRef: HTMLInputElement | undefined;
   const focusLastNameInput = () => {
     if (lastNameInputRef) {
@@ -61,7 +67,6 @@ const Register = () => {
   createEffect(() => {
     focusLastNameInput();
   });
-
 
   const inviteToken = searchParams.inviteToken;
   if (typeof inviteToken !== "string") {
@@ -120,7 +125,9 @@ const Register = () => {
       api.get<{ rooms: Room[] }>("/rooms?limit=65535"), // uint16
       api.get<{ subjects: Subject[] }>("/subjects?limit=65535"),
       api.get<{ studentGroups: StudentGroup[] }>("/student_groups?limit=65535"),
-      api.get<{ staffPositions: StaffPosition[] }>("/staff/positions?limit=65535"),
+      api.get<{ staffPositions: StaffPosition[] }>(
+        "/staff/positions?limit=65535",
+      ),
       api.get<{
         institutionAdministratorPositions: InstitutionAdministratorPosition[];
       }>("/institution_administrators/positions?limit=65535"),
@@ -352,7 +359,7 @@ const Register = () => {
                   Фамилия *
                 </label>
                 <input
-              ref={lastNameInputRef}
+                  ref={lastNameInputRef}
                   type="text"
                   value={lastName()}
                   placeholder="Иванов"

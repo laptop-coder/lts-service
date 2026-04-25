@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StaffPosition } from "../../lib/types";
-import Pagination from '../../components/Pagination'
+import Pagination from "../../components/Pagination";
 
 const StaffPositions = () => {
   const [staffPositions, setStaffPositions] = createSignal<StaffPosition[]>([]);
@@ -28,17 +28,17 @@ const StaffPositions = () => {
     focusInput();
   });
 
-  const limit = 30
+  const limit = 30;
 
   createEffect(() => {
-    page()
-    loadStaffPositions()
-  })
+    page();
+    loadStaffPositions();
+  });
 
   const loadStaffPositions = async () => {
     try {
       const data = await api.get<{ staffPositions: StaffPosition[] }>(
-`/staff/positions?limit=${limit+1}&offset=${page() * limit}`
+        `/staff/positions?limit=${limit + 1}&offset=${page() * limit}`,
       );
       setHasMore(data.staffPositions.length > limit);
       setStaffPositions(data.staffPositions.slice(0, limit));
@@ -83,7 +83,7 @@ const StaffPositions = () => {
       await api.delete(`/staff/positions/${id}`);
       await loadStaffPositions();
       if (staffPositions().length === 0 && page() > 0) {
-        setPage(prev => prev - 1)
+        setPage((prev) => prev - 1);
       }
     } catch (err) {
       setError(
