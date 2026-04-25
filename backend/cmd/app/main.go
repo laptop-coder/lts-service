@@ -106,7 +106,7 @@ func main() {
 	log.Info("Initializing handlers...")
 	authHandler := handler.NewAuthHandler(authService, userService, inviteService, serviceConfigs.Auth, log)
 	userHandler := handler.NewUserHandler(userService, log)
-	postHandler := handler.NewPostHandler(postService, log)
+	postHandler := handler.NewPostHandler(postService, teacherService, parentService, studentGroupService, studentService, log)
 	conversationHandler := handler.NewConversationHandler(conversationService, log)
 	studentGroupHandler := handler.NewStudentGroupHandler(teacherService, studentGroupService, log)
 	roomHandler := handler.NewRoomHandler(roomService, log)

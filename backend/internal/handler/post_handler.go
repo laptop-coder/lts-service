@@ -15,14 +15,22 @@ import (
 )
 
 type PostHandler struct {
-	postService service.PostService
-	log         logger.Logger
+	postService         service.PostService
+	teacherService      service.TeacherService
+	parentService       service.ParentService
+	studentGroupService service.StudentGroupService
+	studentService      service.StudentService
+	log                 logger.Logger
 }
 
-func NewPostHandler(postService service.PostService, log logger.Logger) *PostHandler {
+func NewPostHandler(postService service.PostService, teacherService service.TeacherService, parentService service.ParentService, studentGroupService service.StudentGroupService, studentService service.StudentService, log logger.Logger) *PostHandler {
 	return &PostHandler{
-		postService: postService,
-		log:         log,
+		postService:         postService,
+		teacherService:      teacherService,
+		parentService:       parentService,
+		studentGroupService: studentGroupService,
+		studentService:      studentService,
+		log:                 log,
 	}
 }
 
@@ -378,7 +386,7 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Add to filter
-		filter.AuthorID = &authorID
+		filter.AuthorIDs = []uuid.UUID{authorID}
 	}
 	// Parse verification status if passed
 	if verifiedString != "" {
@@ -493,6 +501,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters (for filter)
 	authorIDString := r.URL.Query().Get("authorId")
 	thingReturnedToOwnerString := r.URL.Query().Get("thingReturnedToOwner")
+	authorString := r.URL.Query().Get("author") // filter posts by owners
 	limitString := r.URL.Query().Get("limit")
 	offsetString := r.URL.Query().Get("offset")
 	// Pre-assemble filter (fill with default values)
@@ -510,7 +519,7 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Add to filter
-		filter.AuthorID = &authorID
+		filter.AuthorIDs = []uuid.UUID{authorID}
 	}
 	// Show only verified posts
 	verified := true
@@ -524,6 +533,93 @@ func (h *PostHandler) GetPostsPublic(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		filter.ThingReturnedToOwner = &thingReturnedToOwner
+	}
+	// Get and convert user ID
+	userID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
+	if !ok {
+		h.log.Error("failed to get userID from context and convert it to UUID")
+		helpers.InternalError(h.log, w)
+		return
+	}
+	// Parse author if passed
+	if authorString != "" {
+		switch authorString {
+		case "all":
+		case "me":
+			filter.AuthorIDs = []uuid.UUID{userID}
+		case "students": // my students (for teacher role)
+			teacher, err := h.teacherService.GetTeacherByID(r.Context(), userID)
+			if err != nil {
+				helpers.HandleServiceError(h.log, w, err)
+				return
+			}
+			studentIDs := []uuid.UUID{}
+			for _, group := range teacher.StudentGroups {
+				for _, student := range group.Students {
+					studentIDs = append(studentIDs, student.UserID)
+				}
+			}
+			filter.AuthorIDs = studentIDs
+		case "children": // my children (for parent role)
+			parent, err := h.parentService.GetParentByID(r.Context(), userID)
+			if err != nil {
+				helpers.HandleServiceError(h.log, w, err)
+				return
+			}
+			studentIDs := []uuid.UUID{}
+			for _, student := range parent.Students {
+				studentIDs = append(studentIDs, student.UserID)
+			}
+			filter.AuthorIDs = studentIDs
+		case "children_groups": // my children student groups (for parent role)
+			parent, err := h.parentService.GetParentByID(r.Context(), userID)
+			if err != nil {
+				helpers.HandleServiceError(h.log, w, err)
+				return
+			}
+			studentIDs := []uuid.UUID{}
+			usedGroupIDs := []uint16{}
+			for _, student := range parent.Students {
+				if !slices.Contains(usedGroupIDs, student.StudentGroup.ID) {
+					group, err := h.studentGroupService.GetStudentGroupByID(r.Context(), student.StudentGroup.ID)
+					if err != nil {
+						helpers.HandleServiceError(h.log, w, err)
+						return
+					}
+					for _, student := range group.Students {
+						studentIDs = append(studentIDs, student.UserID)
+					}
+					usedGroupIDs = append(usedGroupIDs, group.ID)
+				}
+			}
+			filter.AuthorIDs = studentIDs
+		case "parents": // my parents (for student role)
+			student, err := h.studentService.GetStudentByID(r.Context(), userID)
+			if err != nil {
+				helpers.HandleServiceError(h.log, w, err)
+				return
+			}
+			parentIDs := []uuid.UUID{}
+			for _, parent := range student.Parents {
+				parentIDs = append(parentIDs, parent.UserID)
+			}
+			filter.AuthorIDs = parentIDs
+		case "classmates": // my student group, i.e. my classmates (for student role)
+			student, err := h.studentService.GetStudentByID(r.Context(), userID)
+			if err != nil {
+				helpers.HandleServiceError(h.log, w, err)
+				return
+			}
+			classmateIDs := []uuid.UUID{}
+			for _, classmate := range student.StudentGroup.Students {
+				classmateIDs = append(classmateIDs, classmate.UserID)
+			}
+			filter.AuthorIDs = classmateIDs
+		default:
+			h.log.Error("failed to parse author query parameter")
+			helpers.BadRequestFieldError(h.log, w, "author")
+			return
+		}
 	}
 	// Parse limit if passed
 	if limitString != "" {
@@ -584,7 +680,7 @@ func (h *PostHandler) GetOwnPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Set author ID to user ID
-	filter.AuthorID = &userID
+	filter.AuthorIDs = []uuid.UUID{userID}
 	// Parse verification status if passed
 	if verifiedString != "" {
 		verified, err := strconv.ParseBool(verifiedString)

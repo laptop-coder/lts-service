@@ -23,9 +23,10 @@ const PostsToVerify = () => {
   let observerRef!: HTMLDivElement;
   let observer: IntersectionObserver;
 
+  // for infinite scroll
   const loadPosts = async () => {
     try {
-      if (loading() || !hasMore()) return;
+      if (loading() || !hasMore() || page() === 0) return;
       setLoading(true);
       const data = await api.get<{ posts: Post[] }>(
         `/posts?verified=false&limit=10&offset=${page() * 10}`,
@@ -42,16 +43,36 @@ const PostsToVerify = () => {
     }
   };
 
+  // for first loading and refresh after actions
+  const refreshPosts = async () => {
+    setPage(0);
+    setHasMore(true);
+    setLoading(true);
+    try {
+      const data = await api.get<{ posts: Post[] }>(
+        "/posts?verified=false&limit=10&offset=0",
+      );
+      setPosts(data.posts);
+      setPage(1);
+      setHasMore(data.posts.length === 10);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ошибка загрузки объявлений",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const setupObserver = () => {
     observer?.disconnect();
     observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore()) {
+        if (entries[0].isIntersecting && hasMore() && !loading()) {
           loadPosts();
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1, rootMargin: "50px" },
     );
 
     if (observerRef) observer.observe(observerRef);
@@ -60,14 +81,13 @@ const PostsToVerify = () => {
   createEffect(() => {
     hasMore();
     loading();
-    page()
     setupObserver();
   });
 
   onCleanup(() => observer.disconnect());
 
   onMount(async () => {
-    await loadPosts();
+    await refreshPosts();
   });
 
   return (
@@ -97,25 +117,26 @@ const PostsToVerify = () => {
         <Show when={!loading() && !error()}>
           <div class="space-y-4">
             <For each={posts()}>
-              {(post) => <PostCardCompact post={post} onChange={loadPosts} />}
+              {(post) => (
+                <PostCardCompact post={post} onChange={refreshPosts} />
+              )}
             </For>
-
-            <div ref={observerRef} class="h-10">
-              <Show when={posts().length === 0}>
-                <div class="text-center py-16">
-                  <div class="text-5xl mb-3">📭</div>
-                  <p class="text-gray-500">Нет объявлений на верификацию</p>
-                  <p class="text-gray-400 text-sm mt-1">
-                    Все объявления проверены
-                  </p>
-                </div>
-              </Show>
-              <Show when={!hasMore() && posts().length > 0}>
-                <div class="text-center text-gray-500 py-8">
-                  Больше нет объявлений
-                </div>
-              </Show>
-            </div>
+          </div>
+          <div ref={observerRef} class="h-10">
+            <Show when={posts().length === 0}>
+              <div class="text-center py-16">
+                <div class="text-5xl mb-3">📭</div>
+                <p class="text-gray-500">Нет объявлений на верификацию</p>
+                <p class="text-gray-400 text-sm mt-1">
+                  Все объявления проверены
+                </p>
+              </div>
+            </Show>
+            <Show when={!hasMore() && posts().length > 0}>
+              <div class="text-center text-gray-500 py-8">
+                Больше нет объявлений
+              </div>
+            </Show>
           </div>
         </Show>
       </div>

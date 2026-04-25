@@ -336,11 +336,11 @@ func (s *studentGroupService) UnassignAdvisor(ctx context.Context, groupID uint1
 }
 
 type StudentGroupStudentResponseDTO struct {
-	UserID string `json:"userId"`
+	UserID uuid.UUID `json:"userId"`
 }
 
 func StudentGroupStudentToDTO(student *model.Student) *StudentGroupStudentResponseDTO {
 	return &StudentGroupStudentResponseDTO{
-		UserID: student.UserID.String(),
+		UserID: student.UserID,
 	}
 }

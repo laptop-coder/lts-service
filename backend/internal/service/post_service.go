@@ -400,9 +400,11 @@ func (s *postService) GetPostByID(ctx context.Context, id uuid.UUID) (*PostRespo
 func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter) ([]PostResponseDTO, error) {
 	posts, err := s.postRepo.FindAll(ctx, &filter)
 	if err != nil {
-		authorID := ""
-		if filter.AuthorID != nil {
-			authorID = (*filter.AuthorID).String()
+		authorIDs := []string{}
+		if len(filter.AuthorIDs) > 0 {
+			for _, id := range filter.AuthorIDs {
+				authorIDs = append(authorIDs, id.String())
+			}
 		}
 		verified := ""
 		if filter.Verified != nil {
@@ -414,8 +416,8 @@ func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter
 		}
 		s.log.Error(
 			"failed to get posts from repository",
-			"author id",
-			authorID,
+			"author ids",
+			authorIDs,
 			"verified",
 			verified,
 			"thing returned to owner",
@@ -428,8 +430,8 @@ func (s *postService) GetPosts(ctx context.Context, filter repository.PostFilter
 			err,
 		)
 		return nil, fmt.Errorf(
-			"failed to get posts from repository (author id: %s, verified: %s, thing returned to owner: %s, limit: %d, offset: %d): %w",
-			authorID,
+			"failed to get posts from repository (author ids: %v, verified: %s, thing returned to owner: %s, limit: %d, offset: %d): %w",
+			authorIDs,
 			verified,
 			thingReturnedToOwner,
 			filter.Limit,

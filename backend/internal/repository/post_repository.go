@@ -25,7 +25,7 @@ type postRepository struct {
 }
 
 type PostFilter struct {
-	AuthorID             *uuid.UUID
+	AuthorIDs             []uuid.UUID
 	Verified             *bool
 	ThingReturnedToOwner *bool
 	Limit                int
@@ -48,9 +48,9 @@ func (r *postRepository) FindAll(ctx context.Context, filter *PostFilter) ([]mod
 	query := r.db.WithContext(ctx).Model(&model.Post{})
 	// Filters
 	// by post's author:
-	if filter.AuthorID != nil {
+	if len(filter.AuthorIDs) > 0 {
 		query = query.
-			Where("posts.author_id = ?", *filter.AuthorID)
+			Where("posts.author_id IN (?)", filter.AuthorIDs)
 	}
 	// by verification status:
 	if filter.Verified != nil {

@@ -1,12 +1,11 @@
 import { JSX, createSignal, onMount, For, createEffect } from "solid-js";
-import type { Signal, Setter } from "solid-js";
+import type { Signal } from "solid-js";
 
 import { Motion } from "solid-motionone";
 
 const TabsToggle = (props: {
-  tabs: string[];
-  setter: Setter<any>;
-  afterChange?: () => void
+  tabs: { label: string; query: string }[];
+  onChange: (tab: {label: string; query: string}) => void;
   tabsHTMLElementId: string;
 }): JSX.Element => {
   const [screenSize, setScreenSize] = createSignal({
@@ -56,11 +55,10 @@ const TabsToggle = (props: {
     };
   });
 
-  props.setter(props.tabs[0]);
   return (
     <div class="relative bg-gray-100 h-[80px] w-full overflow-x-auto rounded-lg">
       <div
-        class={`flex items-center h-[80px] ${props.tabs.length > 3 ? "justify-between" : "justify-evenly"} rounded-lg`}
+        class={`flex items-center h-[80px] ${props.tabs.length > 5 ? "justify-between" : "justify-evenly"} rounded-lg`}
         id={props.tabsHTMLElementId}
       >
         <For each={props.tabs}>
@@ -69,12 +67,11 @@ const TabsToggle = (props: {
               ref={(el) => (tabsRefs[index()] = el)}
               onclick={() => {
                 setActiveTab(index());
-                props.setter(props.tabs[index()]);
-                props.afterChange?.()
+                props.onChange(props.tabs[index()]);
               }}
               class="border-none bg-none p-[20px] h-full text-sm cursor-pointer flex items-center rounded-lg"
             >
-              <span class="relative z-2 select-none">{tab}</span>
+              <span class="relative z-2 select-none">{tab.label}</span>
             </button>
           )}
         </For>

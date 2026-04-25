@@ -36,7 +36,6 @@ func SetupRoutes(
 	// TODO: use authMiddleware with allowUnauthorized = true
 	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
 	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
-	mux.HandleFunc("GET /api/v1/posts/public", postHandler.GetPostsPublic)
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/roles", inviteHandler.GetRoles)
 	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/email", inviteHandler.GetEmail)
@@ -73,6 +72,7 @@ func SetupRoutes(
 	mux.Handle("DELETE /api/v1/users/me", authMiddleware(false)(requirePermissions(log, false, permissions.UserDeleteOwn)(http.HandlerFunc(authHandler.DeleteOwnAccount))))
 	mux.Handle("POST /api/v1/auth/logout", authMiddleware(false)(http.HandlerFunc(authHandler.Logout)))
 	// Posts
+	mux.Handle("GET /api/v1/posts/public", authMiddleware(true)(http.HandlerFunc(postHandler.GetPostsPublic)))
 	mux.Handle("POST /api/v1/posts", authMiddleware(false)(requirePermissions(log, false, permissions.PostCreate)(http.HandlerFunc(postHandler.Create))))
 	mux.Handle("DELETE /api/v1/posts/{id}", authMiddleware(false)(requirePermissions(log, false, permissions.PostDeleteAny, permissions.PostDeleteOwn)(http.HandlerFunc(postHandler.Delete))))
 	mux.Handle("DELETE /api/v1/posts/{id}/photo", authMiddleware(false)(requirePermissions(log, false, permissions.PostPhotoDeleteAny, permissions.PostPhotoDeleteOwn)(http.HandlerFunc(postHandler.RemovePhoto))))
