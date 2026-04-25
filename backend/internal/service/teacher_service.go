@@ -51,7 +51,7 @@ func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
 }
 
 type TeacherResponseDTO struct {
-	UserID        uuid.UUID                    `json:"userId"`
+	UserID        uuid.UUID                 `json:"userId"`
 	Subjects      []SubjectResponseDTO      `json:"subjects"`
 	Classroom     *RoomResponseDTO          `json:"classroom,omitempty"`
 	StudentGroups []StudentGroupResponseDTO `json:"studentGroups,omitempty"`

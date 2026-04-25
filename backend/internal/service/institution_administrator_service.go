@@ -20,7 +20,7 @@ type InstitutionAdministratorService interface {
 }
 
 type InstitutionAdministratorResponseDTO struct {
-	UserID   uuid.UUID                                      `json:"userId"`
+	UserID   uuid.UUID                                   `json:"userId"`
 	Position InstitutionAdministratorPositionResponseDTO `json:"position"`
 }
 

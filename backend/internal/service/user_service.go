@@ -48,7 +48,7 @@ type UserService interface {
 }
 
 type PermissionResponseDTO struct {
-	ID        uint16  `json:"id"`
+	ID        uint16 `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Name      string `json:"name"`
@@ -72,17 +72,17 @@ type CreateUserDTO struct {
 	FirstName  string                `form:"firstName" validate:"required,min=2"`
 	MiddleName *string               `form:"middleName,omitempty"`
 	LastName   string                `form:"lastName" validate:"required,min=2"`
-	RoleIDs    []uint16               `form:"roleIds,omitempty"`
+	RoleIDs    []uint16              `form:"roleIds,omitempty"`
 	Avatar     *multipart.FileHeader `form:"avatar,omitempty"` // avatar file
 }
 
 type UserExtensionsDTO struct {
-	TeacherClassroomID                 *uint16      `form:"teacherClassroomId,omitempty"`
-	TeacherSubjectIDs                  []uint16     `form:"teacherSubjectIds,omitempty"`
+	TeacherClassroomID                 *uint16     `form:"teacherClassroomId,omitempty"`
+	TeacherSubjectIDs                  []uint16    `form:"teacherSubjectIds,omitempty"`
 	TeacherStudentGroupIDs             []uint16    `form:"teacherStudentGroupIds,omitempty"`
 	StudentGroupID                     *uint16     `form:"studentGroupId,omitempty"`
-	StaffPositionID                    *uint16      `form:"staffPositionId,omitempty"`
-	InstitutionAdministratorPositionID *uint16      `form:"instituionAdministratorPositionId,omitempty"`
+	StaffPositionID                    *uint16     `form:"staffPositionId,omitempty"`
+	InstitutionAdministratorPositionID *uint16     `form:"instituionAdministratorPositionId,omitempty"`
 	ParentStudentIDs                   []uuid.UUID `form:"parentStudentIds,omitempty"`
 }
 
@@ -505,7 +505,7 @@ func (s *userService) RemoveRoleFromUser(ctx context.Context, userID uuid.UUID, 
 }
 
 type RoleResponseDTO struct {
-	ID          uint16                   `json:"id"`
+	ID          uint16                  `json:"id"`
 	CreatedAt   string                  `json:"createdAt"`
 	UpdatedAt   string                  `json:"updatedAt"`
 	Name        string                  `json:"name"`

@@ -20,7 +20,7 @@ type StaffService interface {
 }
 
 type StaffResponseDTO struct {
-	UserID   uuid.UUID                   `json:"userId"`
+	UserID   uuid.UUID                `json:"userId"`
 	Position StaffPositionResponseDTO `json:"position"`
 }
 

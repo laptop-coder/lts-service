@@ -28,7 +28,7 @@ type UpdateInstitutionAdministratorPositionDTO struct {
 }
 
 type InstitutionAdministratorPositionResponseDTO struct {
-	ID        uint16  `json:"id"`
+	ID        uint16 `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Name      string `json:"name"`

@@ -74,7 +74,7 @@ func StudentGroupToDTO(studentGroup *model.StudentGroup) *StudentGroupResponseDT
 		UpdatedAt: studentGroup.UpdatedAt.Format(time.RFC3339),
 		ID:        studentGroup.ID,
 		Name:      studentGroup.Name,
-		Students: students,
+		Students:  students,
 	}
 }
 

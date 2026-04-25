@@ -25,7 +25,7 @@ type postRepository struct {
 }
 
 type PostFilter struct {
-	AuthorIDs             []uuid.UUID
+	AuthorIDs            []uuid.UUID
 	Verified             *bool
 	ThingReturnedToOwner *bool
 	Limit                int

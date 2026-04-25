@@ -19,7 +19,7 @@ type StudentService interface {
 }
 
 type StudentResponseDTO struct {
-	UserID       uuid.UUID                  `json:"userId"`
+	UserID       uuid.UUID               `json:"userId"`
 	StudentGroup StudentGroupResponseDTO `json:"studentGroup"`
 	Parents      []ParentResponseDTO     `json:"parents"`
 }
