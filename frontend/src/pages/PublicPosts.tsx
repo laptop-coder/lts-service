@@ -137,14 +137,16 @@ const PublicPosts = () => {
       <h1 class="text-2xl font-bold text-center">Объявления</h1>
 
       <div class="flex flex-col gap-3">
-        <TabsToggle
-          tabs={ownerTabs()}
-          onChange={(tab) => {
-            setOwnerTabsActive(tab);
-            refreshPosts();
-          }}
-          tabsHTMLElementId="owner_tabs_toggle"
-        />
+        <Show when={auth.user()}>
+          <TabsToggle
+            tabs={ownerTabs()}
+            onChange={(tab) => {
+              setOwnerTabsActive(tab);
+              refreshPosts();
+            }}
+            tabsHTMLElementId="owner_tabs_toggle"
+          />
+        </Show>
         <TabsToggle
           tabs={statusTabs}
           onChange={(tab) => {

@@ -223,7 +223,7 @@ const PostCardDetailed = (props: Props) => {
                       Удалить
                     </button>
                   )}
-                {auth.user()?.id !== props.post.author.id && (
+                {auth.user() && auth.user()?.id !== props.post.author.id && (
                   <button
                     onClick={openModal}
                     disabled={contactLoading()}
@@ -298,7 +298,7 @@ const PostCardDetailed = (props: Props) => {
             </div>
 
             {/* Body */}
-            <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)] space-y-5 flex">
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)] space-y-5 flex flex-col">
               <Show when={error()}>
                 <div class="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-sm">
                   {error()}
