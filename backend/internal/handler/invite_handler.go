@@ -49,7 +49,7 @@ func (h *InviteHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	roleIDs := make([]uint16, len(roleIDFields))
 	for i, roleIDString := range roleIDFields {
-		roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
+		roleID64, err := strconv.ParseUint(roleIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert role ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "roleId")

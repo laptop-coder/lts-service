@@ -189,7 +189,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	// Parse role ID if passed
 	if roleIDString != "" {
 		// convert to uint64
-		roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
+		roleID64, err := strconv.ParseUint(roleIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert role ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "roleId")
@@ -343,7 +343,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	}
 	roleIDs := make([]uint16, len(roleIDsFields))
 	for i, s := range roleIDsFields {
-		val, err := strconv.ParseUint(s, 10, 8)
+		val, err := strconv.ParseUint(s, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert IDs of roles from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "roleId")
@@ -384,7 +384,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint16
-		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher classroom ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
@@ -401,7 +401,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
 	var teacherSubjectIDs = make([]uint16, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
@@ -445,7 +445,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	// StaffPositionID (special)
 	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
 		// Convert to uint16
-		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert staff position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
@@ -461,7 +461,7 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	// InstitutionAdministratorPositionID (special)
 	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
 		// Convert to uint16
-		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert institution administrator position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
@@ -533,7 +533,7 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 	// TeacherClassroomID
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint16
-		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher classroom ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
@@ -551,7 +551,7 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
 	var teacherSubjectIDs = make([]uint16, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
@@ -595,7 +595,7 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 	// StaffPositionID
 	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
 		// Convert to uint16
-		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert staff position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
@@ -611,7 +611,7 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 	// InstitutionAdministratorPositionID
 	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
 		// Convert to uint16
-		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert institution administrator position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
@@ -676,7 +676,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	}
 	roleIDs := make([]uint16, len(roleIDsFields))
 	for i, s := range roleIDsFields {
-		val, err := strconv.ParseUint(s, 10, 8)
+		val, err := strconv.ParseUint(s, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert IDs of roles from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "roleId")
@@ -702,7 +702,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint16
-		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher classroom ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
@@ -719,7 +719,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
 	var teacherSubjectIDs = make([]uint16, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
@@ -763,7 +763,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	// StaffPositionID (special)
 	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
 		// Convert to uint16
-		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert staff position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
@@ -779,7 +779,7 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	// InstitutionAdministratorPositionID (special)
 	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
 		// Convert to uint16
-		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert institution administrator position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
@@ -855,7 +855,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	}
 	roleIDs := make([]uint16, len(roleIDsFields))
 	for i, s := range roleIDsFields {
-		val, err := strconv.ParseUint(s, 10, 8)
+		val, err := strconv.ParseUint(s, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert IDs of roles from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "roleId")
@@ -896,7 +896,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint16
-		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher classroom ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
@@ -913,7 +913,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	teacherSubjectIDsFields := r.PostForm["teacherSubjectId"]
 	var teacherSubjectIDs = make([]uint16, len(teacherSubjectIDsFields))
 	for i, subjectIDString := range teacherSubjectIDsFields {
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
@@ -957,7 +957,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	// StaffPositionID (special)
 	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
 		// Convert to uint16
-		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert staff position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
@@ -973,7 +973,7 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	// InstitutionAdministratorPositionID (special)
 	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
 		// Convert to uint16
-		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert institution administrator position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")
@@ -1034,7 +1034,7 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get and convert role ID
 	roleIDString := r.PathValue("roleId")
-	roleID64, err := strconv.ParseUint(roleIDString, 10, 8)
+	roleID64, err := strconv.ParseUint(roleIDString, 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert role ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "roleId")

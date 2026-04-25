@@ -202,7 +202,7 @@ func (h *TeacherHandler) AssignClassroom(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	// convert to uint64
-	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 8)
+	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert classroom ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "classroomId")
@@ -257,7 +257,7 @@ func (h *TeacherHandler) AssignClassroomOwn(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// convert to uint64
-	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 8)
+	classroomID64, err := strconv.ParseUint(classroomIDFields[0], 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert classroom ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "classroomId")
@@ -358,7 +358,7 @@ func (h *TeacherHandler) AssignSubjects(w http.ResponseWriter, r *http.Request) 
 	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
@@ -417,7 +417,7 @@ func (h *TeacherHandler) AssignSubjectsOwn(w http.ResponseWriter, r *http.Reques
 	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
@@ -476,7 +476,7 @@ func (h *TeacherHandler) AddSubjects(w http.ResponseWriter, r *http.Request) {
 	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
@@ -535,7 +535,7 @@ func (h *TeacherHandler) AddSubjectsOwn(w http.ResponseWriter, r *http.Request) 
 	subjectIDs := make([]uint16, len(subjectIDFields))
 	for i, subjectIDString := range subjectIDFields {
 		// convert to uint64
-		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+		subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert subject ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "subjectId")
@@ -579,7 +579,7 @@ func (h *TeacherHandler) UnassignSubject(w http.ResponseWriter, r *http.Request)
 	// Get and convert subject ID:
 	subjectIDString := r.PathValue("subjectId")
 	// convert to uint64
-	subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+	subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert subject ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "subjectId")
@@ -612,7 +612,7 @@ func (h *TeacherHandler) UnassignSubjectOwn(w http.ResponseWriter, r *http.Reque
 	// Get and convert subject ID:
 	subjectIDString := r.PathValue("id")
 	// convert to uint64
-	subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+	subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert subject ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")

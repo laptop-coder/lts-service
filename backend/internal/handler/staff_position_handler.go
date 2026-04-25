@@ -128,7 +128,7 @@ func (h *StaffPositionHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert staffPosition ID
-	staffPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	staffPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert staffPosition ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")
@@ -163,7 +163,7 @@ func (h *StaffPositionHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert staffPosition ID
-	staffPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	staffPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert staffPosition ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")

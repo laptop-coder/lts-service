@@ -131,7 +131,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// TeacherClassroomID (special)
 	if teacherClassroomIDFields := r.PostForm["teacherClassroomId"]; len(teacherClassroomIDFields) == 1 {
 		// Convert to uint16
-		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 8)
+		teacherClassroomID64, err := strconv.ParseUint(teacherClassroomIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert teacher classroom ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "teacherClassroomId")
@@ -155,7 +155,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	} else {
 		var teacherSubjectIDs = make([]uint16, len(teacherSubjectIDsFields))
 		for i, subjectIDString := range teacherSubjectIDsFields {
-			subjectID64, err := strconv.ParseUint(subjectIDString, 10, 8)
+			subjectID64, err := strconv.ParseUint(subjectIDString, 10, 16)
 			if err != nil {
 				h.log.Error("cannot convert teacher subject ID from string to uint64")
 				helpers.BadRequestFieldError(h.log, w, "teacherSubjectId")
@@ -207,7 +207,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// StaffPositionID (special)
 	if staffPositionIDFields := r.PostForm["staffPositionId"]; len(staffPositionIDFields) == 1 {
 		// Convert to uint16
-		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 8)
+		staffPositionID64, err := strconv.ParseUint(staffPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert staff position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "staffPositionId")
@@ -230,7 +230,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// InstitutionAdministratorPositionID (special)
 	if institutionAdministratorPositionIDFields := r.PostForm["institutionAdministratorPositionId"]; len(institutionAdministratorPositionIDFields) == 1 {
 		// Convert to uint16
-		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 8)
+		institutionAdministratorPositionID64, err := strconv.ParseUint(institutionAdministratorPositionIDFields[0], 10, 16)
 		if err != nil {
 			h.log.Error("cannot convert institution administrator position ID from string to uint64")
 			helpers.BadRequestFieldError(h.log, w, "institutionAdministratorPositionId")

@@ -102,7 +102,7 @@ func (h *StaffHandler) AssignPosition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// convert to uint64
-	positionID64, err := strconv.ParseUint(positionIDFields[0], 10, 8)
+	positionID64, err := strconv.ParseUint(positionIDFields[0], 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert position ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "positionId")

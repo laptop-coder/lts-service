@@ -146,7 +146,7 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert room ID
-	roomID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	roomID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert room ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")
@@ -195,7 +195,7 @@ func (h *RoomHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert room ID
-	roomID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	roomID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert room ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")

@@ -127,7 +127,7 @@ func (h *InstitutionAdministratorPositionHandler) Update(w http.ResponseWriter, 
 		return
 	}
 	// Get and convert institutionAdministratorPosition ID
-	institutionAdministratorPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	institutionAdministratorPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert institutionAdministratorPosition ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")
@@ -162,7 +162,7 @@ func (h *InstitutionAdministratorPositionHandler) Delete(w http.ResponseWriter, 
 		return
 	}
 	// Get and convert institutionAdministratorPosition ID
-	institutionAdministratorPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	institutionAdministratorPositionID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert institutionAdministratorPosition ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")

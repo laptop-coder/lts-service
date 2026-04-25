@@ -128,7 +128,7 @@ func (h *SubjectHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert subject ID
-	subjectID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	subjectID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert subject ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")
@@ -163,7 +163,7 @@ func (h *SubjectHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get and convert subject ID
-	subjectID64, err := strconv.ParseUint(r.PathValue("id"), 10, 8)
+	subjectID64, err := strconv.ParseUint(r.PathValue("id"), 10, 16)
 	if err != nil {
 		h.log.Error("cannot convert subject ID from string to uint64")
 		helpers.BadRequestFieldError(h.log, w, "id")
