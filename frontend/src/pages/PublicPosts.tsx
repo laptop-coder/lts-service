@@ -25,6 +25,7 @@ const PublicPosts = () => {
   let observerRef!: HTMLDivElement;
   let observer: IntersectionObserver;
 
+  // for infinite scroll
   const loadPosts = async () => {
     try {
       if (loading() || !hasMore() || page() === 0) return;
@@ -53,7 +54,7 @@ const PublicPosts = () => {
     }
   };
 
-  // for first loading and refresh after actions
+  // for first loading, for refresh after actions and for refresh when filter changes
   const refreshPosts = async () => {
     setPage(0);
     setHasMore(true);
@@ -140,7 +141,7 @@ const PublicPosts = () => {
           tabs={ownerTabs()}
           onChange={(tab) => {
             setOwnerTabsActive(tab);
-            loadPosts();
+            refreshPosts();
           }}
           tabsHTMLElementId="owner_tabs_toggle"
         />
@@ -148,7 +149,7 @@ const PublicPosts = () => {
           tabs={statusTabs}
           onChange={(tab) => {
             setStatusTabsActive(tab);
-            loadPosts();
+            refreshPosts();
           }}
           tabsHTMLElementId="status_tabs_toggle"
         />
