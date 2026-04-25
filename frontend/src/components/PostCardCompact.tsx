@@ -106,18 +106,18 @@ const PostCardCompact = (props: Props) => {
             </div>
 
             <Show when={props.post.hasPhoto}>
-              <div class="mt-3">
+              <div class="mt-7 mb-5 flex justify-center">
                 <img
                   src={`/storage/storage/post_photos/${props.post.id}.jpeg`}
                   alt="Фото объявления"
-                  class={`w-full h-48 object-cover rounded-xl ${props.post.thingReturnedToOwner ? "grayscale opacity-50" : ""}`}
+                  class={`max-h-100 object-contain rounded-xl ${props.post.thingReturnedToOwner ? "grayscale opacity-50" : ""}`}
                 />
               </div>
             </Show>
 
             <Show when={props.post.description}>
               <p
-                class={`mt-3 text-sm line-clamp-2 ${props.post.thingReturnedToOwner ? "text-gray-400" : "text-gray-600"}`}
+                class={`mt-2 text-sm line-clamp-2 ${props.post.thingReturnedToOwner ? "text-gray-400" : "text-gray-600"}`}
               >
                 {props.post.description}
               </p>

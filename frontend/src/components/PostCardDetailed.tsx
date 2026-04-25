@@ -178,17 +178,17 @@ const PostCardDetailed = (props: Props) => {
             </div>
 
             <Show when={props.post.hasPhoto}>
-              <div class="mt-3">
+              <div class="mt-7 mb-5 flex justify-center">
                 <img
                   src={`/storage/storage/post_photos/${props.post.id}.jpeg`}
                   alt="Фото объявления"
-                  class={"w-full h-48 object-cover rounded-xl"}
+                  class={"max-h-100 object-contain rounded-xl"}
                 />
               </div>
             </Show>
 
             <Show when={props.post.description}>
-              <p class={"mt-3 text-sm line-clamp-2 text-gray-600"}>
+              <p class={"mt-2 text-sm line-clamp-2 text-gray-600"}>
                 {props.post.description}
               </p>
             </Show>
