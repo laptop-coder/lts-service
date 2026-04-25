@@ -97,7 +97,7 @@ const CreatePost = () => {
                 required
               />
               <p class="text-xs text-gray-500 mt-1">
-                Коротко опишите, что потеряли
+                Коротко опишите, что потеряли или нашли
               </p>
             </div>
 
@@ -108,7 +108,7 @@ const CreatePost = () => {
               <textarea
                 value={description()}
                 onInput={(e) => setDescription(e.currentTarget.value)}
-                placeholder="Где и когда потеряли, особые приметы..."
+                placeholder="Где и когда, особые приметы..."
                 rows={5}
                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition min-h-[140px] max-h-[600px]"
               />
