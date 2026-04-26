@@ -216,7 +216,7 @@ const PublicProfile = () => {
                     <For each={parentStudentsUsers()}>
                       {(user) => (
                         <div class="border rounded-xl p-4 hover:shadow-md transition relative">
-                          <div class="flex items-center gap-3">
+                          <div class="flex flex-col md:flex-row items-center gap-3">
                             <img
                               class="w-12 h-12 rounded-full object-cover"
                               src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}

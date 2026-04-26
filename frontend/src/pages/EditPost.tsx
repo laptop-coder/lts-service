@@ -207,16 +207,16 @@ const EditPost = () => {
                 <button
                   type="button"
                   onClick={() => navigate("/")}
-                  class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+                  class="flex-1 px-4 h-40 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
                 >
                   Отмена
                 </button>
                 <button
                   type="submit"
                   disabled={loading()}
-                  class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  class="flex-1 px-4 h-40 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  {loading() ? "Сохранение..." : "Сохранить"}
+                  Сохранить
                 </button>
               </div>
             </form>

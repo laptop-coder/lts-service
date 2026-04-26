@@ -32,6 +32,7 @@ import type {
 import { A } from "@solidjs/router";
 import Pagination from "../components/Pagination";
 import { Users as UsersIcon } from "lucide-solid";
+import { Trash, Plus } from "lucide-solid";
 
 const Users = () => {
   const auth = useAuth();
@@ -617,7 +618,8 @@ const Users = () => {
                         >
                           <button
                             onClick={() => deleteUser(user)}
-                            class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed"
+                            class="text-red-600 hover:text-red-800 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed
+"
                           >
                             Удалить
                           </button>
@@ -856,9 +858,10 @@ const Users = () => {
                           <button
                             type="button"
                             onClick={() => removeTeacherStudentGroupId(index)}
-                            class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition cursor-pointer"
+                            class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            Удалить
+                            <span class="hidden md:flex">Удалить</span>
+                            <Trash class="flex md:hidden" />
                           </button>
                         </div>
                       )}
@@ -867,9 +870,9 @@ const Users = () => {
                     <button
                       type="button"
                       onClick={addTeacherStudentGroupId}
-                      class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+                      class="w-full py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-row flex-nowrap items-center justify-center gap-2"
                     >
-                      + Добавить группу
+                      <Plus /> Добавить группу
                     </button>
                   </div>
                 </div>
@@ -899,9 +902,10 @@ const Users = () => {
                           disabled={saving()}
                           type="button"
                           onClick={() => removeStudentId(index)}
-                          class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          Удалить
+                              class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              <span class="hidden md:flex">Удалить</span>
+                              <Trash class="flex md:hidden" />
                         </button>
                       </div>
                     )}
@@ -911,9 +915,9 @@ const Users = () => {
                     disabled={saving()}
                     type="button"
                     onClick={addStudentId}
-                    class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    + Добавить ученика
+                        class="w-full py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-row flex-nowrap items-center justify-center gap-2"
+                      >
+                        <Plus /> Добавить ученика
                   </button>
                 </div>
               </Show>
@@ -947,16 +951,16 @@ const Users = () => {
             <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
               <button
                 onClick={closeModal}
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+                class="w-40 h-10 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
               >
                 Отмена
               </button>
               <button
                 onClick={saveRoles}
                 disabled={saving()}
-                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                class="w-40 h-10 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
-                {saving() ? "Сохранение..." : "Сохранить"}
+                Сохранить
               </button>
             </div>
           </div>

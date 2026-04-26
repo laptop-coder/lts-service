@@ -93,7 +93,7 @@ const CreatePost = () => {
                 type="text"
                 value={name()}
                 onInput={(e) => setName(e.currentTarget.value)}
-                placeholder="Например: синяя шапка, чёрный рюкзак"
+                placeholder="Например: синяя шапка"
                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 required
               />

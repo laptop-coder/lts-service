@@ -5,7 +5,7 @@ import { conversationApi } from "../lib/api";
 import { Conversation, Message } from "../lib/types";
 import { useAuth } from "../lib/auth";
 import { refreshUnreadMessagesCount } from "../lib/store";
-import { ChevronLeft, ChevronRight } from "lucide-solid";
+import { ChevronLeft, ChevronRight, NotepadText, Send } from "lucide-solid";
 
 const ConversationView = () => {
   const params = useParams();
@@ -51,7 +51,7 @@ const ConversationView = () => {
   });
 
   const focusMessageInput = () => {
-    if (messageInputRef) {
+    if (messageInputRef && window.innerWidth >= 768) {
       messageInputRef.focus();
     }
   };
@@ -62,13 +62,22 @@ const ConversationView = () => {
 
   const sendMessage = async (e: Event) => {
     e.preventDefault();
-    if (!newMessage().trim()) return;
+    if (!newMessage().trim() || !auth.user()) return;
 
     setSending(true);
     try {
-      await conversationApi.sendMessage(params.id!, newMessage().trim());
+      const sentMessage = await conversationApi.sendMessage(
+        params.id!,
+        newMessage().trim(),
+      );
       setNewMessage("");
-      await loadConversation();
+      setMessages([
+        ...messages(),
+        {
+          ...sentMessage.message,
+          senderId: auth.user()!.id,
+        },
+      ]);
       scrollToBottom();
     } catch (err) {
       setError(
@@ -84,7 +93,7 @@ const ConversationView = () => {
   const post = () => conversation()?.post;
 
   return (
-    <div class="max-w-4xl mx-auto h-[calc(100vh-120px)] flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="max-w-4xl mx-auto h-full md:h-[calc(100vh-120px)] flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden">
       {/* Header */}
       <div class="border-b border-gray-200 p-4 flex items-center gap-3">
         <button
@@ -92,7 +101,7 @@ const ConversationView = () => {
           type="button"
           class="text-gray-500 hover:text-gray-700 cursor-pointer flex flex-row"
         >
-          <ChevronLeft /> Назад
+          <ChevronLeft /> <span class="hidden md:block">Назад</span>
         </button>
         <Show when={otherUser()}>
           <A
@@ -119,13 +128,16 @@ const ConversationView = () => {
             type="button"
             class="text-gray-500 hover:text-gray-700 cursor-pointer flex flex-row"
           >
-            Перейти к объявлению <ChevronRight />
+            <span class="hidden md:flex">
+              Перейти к объявлению <ChevronRight />
+            </span>
+            <NotepadText class="flex md:hidden" />
           </button>
         </Show>
       </div>
 
       {/* Messages */}
-      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+      <div class="flex-1 overflow-y-auto p-4 flex flex-col justify-end">
         <Show when={loading()}>
           <div class="text-center py-8 text-gray-500">Загрузка...</div>
         </Show>
@@ -134,49 +146,53 @@ const ConversationView = () => {
           <div class="bg-red-50 text-red-600 p-3 rounded-xl">{error()}</div>
         </Show>
 
-        <For each={messages()}>
-          {(msg, index) => {
-            const isOwn = msg.senderId === auth.user()?.id;
+        <div class="space-y-3">
+          <For each={messages()}>
+            {(msg, index) => {
+              const isOwn = msg.senderId === auth.user()?.id;
 
-            // Date
-            const prev = index() > 0 ? messages()[index() - 1] : null;
-            const prevDate = prev
-              ? new Date(prev.createdAt).toLocaleDateString("ru")
-              : null;
-            const curDate = new Date(msg.createdAt).toLocaleDateString("ru");
-            const showDate = prevDate !== curDate;
+              // Date
+              const prev = index() > 0 ? messages()[index() - 1] : null;
+              const prevDate = prev
+                ? new Date(prev.createdAt).toLocaleDateString("ru")
+                : null;
+              const curDate = new Date(msg.createdAt).toLocaleDateString("ru");
+              const showDate = prevDate !== curDate;
 
-            return (
-              <>
-                <Show when={showDate}>
-                  <div class="text-center text-xs text-gray-400 py-2">
-                    {curDate}
-                  </div>
-                </Show>
-                <div class={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
-                  <div class={`max-w-[70%] ${isOwn ? "order-2" : ""}`}>
-                    <div
-                      class={`rounded-2xl px-4 py-2 ${
-                        isOwn
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      <p class="text-sm">{msg.content}</p>
+              return (
+                <>
+                  <Show when={showDate}>
+                    <div class="text-center text-xs text-gray-400 py-2">
+                      {curDate}
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">
-                      {new Date(msg.createdAt).toLocaleTimeString("ru", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                  </Show>
+                  <div
+                    class={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                  >
+                    <div class={`max-w-[70%] ${isOwn ? "order-2" : ""}`}>
+                      <div
+                        class={`rounded-2xl px-4 py-2 ${
+                          isOwn
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        <p class="text-sm">{msg.content}</p>
+                      </div>
+                      <p class="text-xs text-gray-400 mt-1">
+                        {new Date(msg.createdAt).toLocaleTimeString("ru", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </>
-            );
-          }}
-        </For>
-        <div ref={messagesEndRef} />
+                </>
+              );
+            }}
+          </For>
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input */}
@@ -191,14 +207,15 @@ const ConversationView = () => {
           onInput={(e) => setNewMessage(e.currentTarget.value)}
           placeholder="Сообщение..."
           disabled={sending()}
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:opacity-50"
+          class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={sending() || !newMessage().trim()}
-          class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition font-medium cursor-pointer disabled:cursor-not-allowed"
+          class="max-md:aspect-square flex items-center justify-center md:px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition font-medium cursor-pointer disabled:cursor-not-allowed"
         >
-          {sending() ? "..." : "Отправить"}
+          <span class="hidden md:block">Отправить</span>
+          <Send class="block md:hidden" />
         </button>
       </form>
     </div>

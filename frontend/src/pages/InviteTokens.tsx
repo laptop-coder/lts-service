@@ -21,7 +21,7 @@ const InviteTokens = () => {
 
   let countInputRef: HTMLInputElement | undefined;
   const focusCountInput = () => {
-    if (countInputRef) {
+    if (countInputRef && window.innerWidth >= 768) {
       countInputRef.focus();
     }
   };
@@ -242,14 +242,14 @@ const InviteTokens = () => {
       <Show when={tokens().length > 0}>
         <div class="space-y-4">
           <div class="flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-800">
+            <h2 class="text-xl font-semibold text-gray-800 text-center">
               Созданные токены
             </h2>
             <button
               onClick={downloadTokensFile}
-              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition cursor-pointer font-medium flex flex-row flex-nowrap gap-2"
+              class="px-4 h-10 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition cursor-pointer font-medium flex flex-row flex-nowrap gap-2 items-center justify-center"
             >
-              <Download /> Скачать Markdown
+              <Download /> <span class="hidden text-nowrap md:flex">Скачать Markdown</span> <span class="flex md:hidden">Скачать</span>
             </button>
           </div>
 
@@ -269,7 +269,7 @@ const InviteTokens = () => {
                             index(),
                           )
                         }
-                        class="w-36 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium gap-2 flex items-center justify-center"
+                        class="w-full md:w-36 h-10 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium gap-2 flex items-center justify-center"
                       >
                         {buttonCopiedIndex() === index() ? (
                           <>

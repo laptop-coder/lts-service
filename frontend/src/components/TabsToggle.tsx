@@ -71,7 +71,7 @@ const TabsToggle = (props: {
               }}
               class="border-none bg-none p-[20px] h-full text-sm cursor-pointer flex items-center rounded-lg"
             >
-              <span class="relative z-2 select-none">{tab.label}</span>
+              <span class="relative z-2 select-none flex items-center justify-center">{tab.label}</span>
             </button>
           )}
         </For>

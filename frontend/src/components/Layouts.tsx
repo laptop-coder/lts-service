@@ -1,4 +1,4 @@
-import { type Component, type JSX, Show, createEffect } from "solid-js";
+import { type Component, type JSX, Show, createEffect, createSignal, onMount, onCleanup } from "solid-js";
 import { useNavigate, useLocation, A } from "@solidjs/router";
 import { useAuth } from "../lib/auth";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
@@ -20,10 +20,24 @@ export const PublicRoute: Component<Props> = (props) => {
     }
   });
 
+  const [isMobile, setIsMobile]= createSignal(window.innerWidth < 768)
+
+  onMount(() => {
+    const mq = window.matchMedia("(max-width: 767px)")
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener("change", handler)
+    onCleanup(() => mq.removeEventListener("change", handler))
+  })
+
+  // /conversations/<any_string>
+  const isMobileConversationViewPage = () =>
+    /^\/conversations\/[^/]+$/.test(location.pathname) &&
+    isMobile();
+
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col">
-      <header class="bg-white border-b border-gray-200 shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
+        <div class="container mx-auto px-4 h-16 flex justify-between items-center">
           <A href="/" class="flex items-center gap-3">
             <img
               class="w-10 h-10 rounded-full object-cover"
@@ -31,7 +45,8 @@ export const PublicRoute: Component<Props> = (props) => {
               alt="Логотип"
             />
             <span class="text-xl font-bold text-gray-800">
-              LostThingsSearch
+              <span class="hidden md:block">LostThingsSearch</span>
+              <span class="block md:hidden">LTS</span>
             </span>
           </A>
 
@@ -93,28 +108,35 @@ export const PublicRoute: Component<Props> = (props) => {
         </div>
       </header>
 
-      <main class="container mx-auto px-4 py-8" flex-1>
-        {props?.children}
-      </main>
+      {/*Mobile chat page*/}
+      <Show when={isMobileConversationViewPage()}>
+        <div class="fixed inset-0 top-0 pt-16 z-10">{props?.children}</div>
+      </Show>
 
-      <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="container mx-auto px-4 py-6">
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-sm text-gray-500">
-              © {new Date().getFullYear()} LostThingsSearch.
-            </div>
+      <Show when={!isMobileConversationViewPage()}>
+        <main class="container mx-auto px-4 py-8" flex-1>
+          {props?.children}
+        </main>
 
-            <div class="flex gap-6">
-              <a
-                href="/about"
-                class="text-sm text-gray-500 hover:text-gray-700 transition"
-              >
-                О проекте
-              </a>
+        <footer class="bg-white border-t border-gray-200 mt-auto">
+          <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div class="text-sm text-gray-500">
+                © {new Date().getFullYear()} LostThingsSearch.
+              </div>
+
+              <div class="flex gap-6">
+                <a
+                  href="/about"
+                  class="text-sm text-gray-500 hover:text-gray-700 transition"
+                >
+                  О проекте
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </Show>
     </div>
   );
 };

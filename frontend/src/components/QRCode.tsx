@@ -46,7 +46,7 @@ const QRCodeButton = (props: Props) => {
     <>
       <button
         onClick={generateQR}
-        class="w-10 h-10 ml-2 text-sm bg-green-700 text-white rounded hover:bg-green-800 transition cursor-pointer flex items-center justify-center"
+        class="aspect-square w-10 h-10 ml-2 text-sm bg-green-700 text-white rounded-lg hover:bg-green-800 transition cursor-pointer flex items-center justify-center"
         title="Показать QR-код"
       >
         <QrCode />
@@ -58,14 +58,14 @@ const QRCodeButton = (props: Props) => {
           onClick={closeQR}
         >
           <div
-            class="bg-white p-6 rounded-lg shadow-xl"
+            class="bg-white p-6 rounded-2xl shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <img src={qrDataUrl()} alt="QR Code" class="w-64 h-64" />
             <div class="mt-4 text-center">
               <button
                 onClick={closeQR}
-                class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition cursor-pointer"
+                class="px-4 h-10 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition cursor-pointer"
               >
                 Закрыть
               </button>

@@ -4,7 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StudentGroup } from "../../lib/types";
 import Pagination from "../../components/Pagination";
-import { GraduationCap } from "lucide-solid";
+import { GraduationCap, Plus } from "lucide-solid";
 
 const StudentGroups = () => {
   const [studentGroups, setStudentGroups] = createSignal<StudentGroup[]>([]);
@@ -20,7 +20,7 @@ const StudentGroups = () => {
 
   let inputRef: HTMLInputElement | undefined;
   const focusInput = () => {
-    if (inputRef) {
+    if (inputRef && window.innerWidth >= 768) {
       inputRef.focus();
     }
   };
@@ -135,15 +135,16 @@ const StudentGroups = () => {
               value={newStudentGroupName()}
               onInput={(e) => setNewStudentGroupName(e.currentTarget.value)}
               placeholder="Название группы (например, 11А)"
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
+              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
               disabled={creating()}
             />
             <button
               type="submit"
               disabled={creating() || !newStudentGroupName().trim()}
-              class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
+              class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-blue-700 text-white rounded-xl hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {creating() ? "Создание..." : "Создать"}
+              <span class="hidden md:flex">Создать</span>
+              <Plus class="flex md:hidden" />
             </button>
           </form>
         </div>

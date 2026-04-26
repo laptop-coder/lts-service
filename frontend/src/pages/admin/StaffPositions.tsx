@@ -4,7 +4,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 import { usePermissions } from "../../lib/permissions";
 import type { StaffPosition } from "../../lib/types";
 import Pagination from "../../components/Pagination";
-import { Briefcase } from "lucide-solid";
+import { Briefcase, Plus } from "lucide-solid";
 
 const StaffPositions = () => {
   const [staffPositions, setStaffPositions] = createSignal<StaffPosition[]>([]);
@@ -20,7 +20,7 @@ const StaffPositions = () => {
 
   let inputRef: HTMLInputElement | undefined;
   const focusInput = () => {
-    if (inputRef) {
+    if (inputRef && window.innerWidth >= 768) {
       inputRef.focus();
     }
   };
@@ -128,15 +128,16 @@ const StaffPositions = () => {
               value={newStaffPositionName()}
               onInput={(e) => setNewStaffPositionName(e.currentTarget.value)}
               placeholder="Название должности"
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
+              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50"
               disabled={creating()}
             />
             <button
               type="submit"
               disabled={creating() || !newStaffPositionName().trim()}
-              class="px-5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer disabled:cursor-not-allowed font-medium"
+              class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-blue-700 text-white rounded-xl hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {creating() ? "Создание..." : "Создать"}
+              <span class="hidden md:flex">Создать</span>
+              <Plus class="flex md:hidden" />
             </button>
           </form>
         </div>

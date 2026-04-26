@@ -132,8 +132,8 @@ const PostCardDetailed = (props: Props) => {
         "rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden bg-white w-full"
       }
     >
-      <div class="p-5">
-        <div class="flex items-start gap-4">
+      <div class="p-5 relative">
+        <div class="flex flex-col md:flex-row items-center md:items-start gap-4">
           <A
             href={`/users/${props.post.author.id}`}
             class="w-10 h-10 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
@@ -146,10 +146,10 @@ const PostCardDetailed = (props: Props) => {
           </A>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between flex-wrap gap-2">
-              <h3 class={"text-lg font-semibold truncate text-gray-800"}>
+              <h3 class="text-lg font-semibold truncate text-gray-800 text-wrap">
                 {props.post.name}
               </h3>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 max-md:absolute max-md:right-4 max-md:top-4">
                 {props.post.verified ? (
                   props.post.thingReturnedToOwner ? (
                     <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -168,11 +168,11 @@ const PostCardDetailed = (props: Props) => {
               </div>
             </div>
 
-            <div class="flex items-center gap-3 mt-1 text-sm text-gray-500">
+            <div class="flex flex-col md:flex-row items-start md:items-center md:gap-3 mt-1 text-sm text-gray-500">
               <span>
                 {props.post.author.firstName} {props.post.author.lastName}
               </span>
-              <span>•</span>
+              <span class="hidden md:flex">•</span>
               <span>
                 Последнее изменение: {formatDate(props.post.updatedAt)}
               </span>
@@ -195,7 +195,7 @@ const PostCardDetailed = (props: Props) => {
             </Show>
 
             <div class="mt-4 flex flex-col sm:flex-row justify-between gap-3">
-              <div class="flex gap-3 flex-nowrap">
+              <div class="flex gap-3 flex-wrap">
                 {(hasPermission(PERMISSIONS.POST_UPDATE_ANY) ||
                   (hasPermission(PERMISSIONS.POST_UPDATE_OWN) &&
                     props.post.author.id === auth.user()?.id)) &&
@@ -205,7 +205,7 @@ const PostCardDetailed = (props: Props) => {
                         (window.location.href = `/posts/${props.post.id}/edit`)
                       }
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
                     >
                       Редактировать
                     </button>
@@ -218,7 +218,7 @@ const PostCardDetailed = (props: Props) => {
                       onClick={deletePost}
                       disabled={loading()}
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition font-medium cursor-pointer"
                     >
                       Удалить
                     </button>
@@ -228,20 +228,20 @@ const PostCardDetailed = (props: Props) => {
                     onClick={openModal}
                     disabled={contactLoading()}
                     type="button"
-                    class="w-full sm:w-auto px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
+                    class="w-full sm:w-auto px-3 h-10 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
                   >
-                    {contactLoading() ? "..." : "Связаться с автором"}
+                    Связаться с автором
                   </button>
                 )}
               </div>
-              <div class="flex gap-3 flex-nowrap">
+              <div class="flex gap-3 flex-wrap">
                 {hasPermission(PERMISSIONS.POST_VERIFY) &&
                   !props.post.verified && (
                     <button
                       onClick={verifyPost}
                       disabled={loading()}
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
                     >
                       Верифицировать
                     </button>
@@ -255,7 +255,7 @@ const PostCardDetailed = (props: Props) => {
                       onClick={markReturned}
                       disabled={loading()}
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
                     >
                       Найдено
                     </button>
@@ -263,7 +263,7 @@ const PostCardDetailed = (props: Props) => {
                 <button
                   onClick={() => history.back()}
                   type="button"
-                  class="w-full sm:w-auto px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium cursor-pointer flex flex-row items-center"
+                  class="w-full sm:w-auto px-3 h-10 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium cursor-pointer inline-flex items-center justify-center"
                 >
                   <ChevronLeft /> Назад
                 </button>

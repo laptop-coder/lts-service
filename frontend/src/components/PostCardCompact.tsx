@@ -69,7 +69,7 @@ const PostCardCompact = (props: Props) => {
       class={`rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden w-full ${props.post.thingReturnedToOwner ? "bg-gray-100 opacity-75" : "bg-white"}`}
     >
       <div class="p-5">
-        <div class="flex items-start gap-4">
+        <div class="flex flex-col md:flex-row items-start gap-4 w-full">
           <A
             href={`/users/${props.post.author.id}`}
             class="w-10 h-10 flex bg-gray-100 rounded-full hover:bg-gray-200 transition"
@@ -80,10 +80,10 @@ const PostCardCompact = (props: Props) => {
               alt="Фото профиля"
             />
           </A>
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 w-full">
             <div class="flex items-center justify-between flex-wrap gap-2">
               <h3
-                class={`text-lg font-semibold truncate ${props.post.thingReturnedToOwner ? "text-gray-500 line-through" : "text-gray-800"}`}
+                class={`text-wrap text-lg font-semibold truncate ${props.post.thingReturnedToOwner ? "text-gray-500 line-through" : "text-gray-800"}`}
               >
                 {props.post.name}
               </h3>
@@ -96,11 +96,11 @@ const PostCardCompact = (props: Props) => {
               </div>
             </div>
 
-            <div class="flex items-center gap-3 mt-1 text-sm text-gray-500">
+            <div class="flex flex-col md:flex-row items-start md:items-center md:gap-3 mt-1 text-sm text-gray-500">
               <span>
                 {props.post.author.firstName} {props.post.author.lastName}
               </span>
-              <span>•</span>
+              <span class="hidden md:flex">•</span>
               <span>
                 Последнее изменение: {formatDate(props.post.updatedAt)}
               </span>
@@ -124,8 +124,8 @@ const PostCardCompact = (props: Props) => {
               </p>
             </Show>
 
-            <div class="mt-4 flex flex-col sm:flex-row justify-between gap-3">
-              <div class="flex gap-2 flex-nowrap">
+            <div class="mt-4 flex flex-col sm:flex-row justify-between gap-3 w-full">
+              <div class="flex gap-3 flex-wrap">
                 {(hasPermission(PERMISSIONS.POST_UPDATE_ANY) ||
                   (hasPermission(PERMISSIONS.POST_UPDATE_OWN) &&
                     props.post.author.id === auth.user()?.id)) &&
@@ -135,7 +135,7 @@ const PostCardCompact = (props: Props) => {
                         (window.location.href = `/posts/${props.post.id}/edit`)
                       }
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition font-medium cursor-pointer"
                     >
                       Редактировать
                     </button>
@@ -146,7 +146,7 @@ const PostCardCompact = (props: Props) => {
                       onClick={verifyPost}
                       disabled={loading()}
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
                     >
                       Верифицировать
                     </button>
@@ -159,13 +159,13 @@ const PostCardCompact = (props: Props) => {
                       onClick={deletePost}
                       disabled={loading()}
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-red-100 text-red-700 text-sm rounded-lg hover:bg-red-200 transition font-medium cursor-pointer"
                     >
                       Удалить
                     </button>
                   )}
               </div>
-              <div class="flex gap-2 flex-nowrap">
+              <div class="flex gap-3 flex-wrap">
                 {(hasPermission(PERMISSIONS.POST_MARK_RETURNED_ANY) ||
                   (hasPermission(PERMISSIONS.POST_MARK_RETURNED_OWN) &&
                     props.post.author.id === auth.user()?.id)) &&
@@ -175,7 +175,7 @@ const PostCardCompact = (props: Props) => {
                       onClick={markReturned}
                       disabled={loading()}
                       type="button"
-                      class="w-full sm:w-auto px-3 py-1.5 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
+                      class="w-full sm:w-auto px-3 h-10 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition font-medium cursor-pointer"
                     >
                       Найдено
                     </button>
@@ -185,7 +185,7 @@ const PostCardCompact = (props: Props) => {
                     (window.location.href = `/posts/${props.post.id}`)
                   }
                   type="button"
-                  class="w-full sm:w-auto px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium cursor-pointer flex flex-row items-center"
+                  class="w-full sm:w-auto px-3 h-10 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium cursor-pointer inline-flex items-center justify-center"
                 >
                   Подробнее <ChevronRight />
                 </button>

@@ -23,7 +23,7 @@ import type {
   StaffPosition,
   InstitutionAdministratorPosition,
 } from "../lib/types";
-import { Pencil } from "lucide-solid";
+import { Pencil, Trash, LogOut, Plus } from "lucide-solid";
 
 const Profile = () => {
   const auth = useAuth();
@@ -336,7 +336,13 @@ const Profile = () => {
             <div class="bg-red-100 text-red-700 p-4 rounded-xl">{error()}</div>
           </Show>
           <Show when={user() && !error()}>
-            <div class="bg-white rounded-2xl shadow-lg p-6">
+            <div class="bg-white rounded-2xl shadow-lg p-6 relative">
+              <button
+                onClick={handleLogout}
+                class="aspect-square h-10 bg-red-700 text-white rounded-lg hover:bg-red-800 transition cursor-pointer absolute top-4 right-4 flex justify-center items-center"
+              >
+                <LogOut />
+              </button>
               <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <div class="relative group w-32 h-32 rounded-full">
                   <img
@@ -360,7 +366,7 @@ const Profile = () => {
                     </div>
                   </Show>
                 </div>
-                <div class="flex-1 text-center md:text-left">
+                <div class="flex-1 text-center md:text-left md:mr-40">
                   <h2 class="text-2xl font-bold text-gray-800">
                     {user()!.lastName} {user()!.firstName} {user()?.middleName}
                   </h2>
@@ -379,44 +385,34 @@ const Profile = () => {
                       </For>
                     </div>
                   </div>
-                </div>
-                <div class="text-sm text-gray-500">
-                  <p>ID: {user()!.id}</p>
-                  <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
-                  <div class="flex gap-1 flex-col">
-                    <p>
-                      <button
-                        onClick={handleLogout}
-                        class="px-3 py-1.5 bg-red-700 text-white rounded-lg hover:bg-red-800 transition mt-5 cursor-pointer"
-                      >
-                        Выйти
-                      </button>
-                    </p>
-                    <div class="flex gap-3 flex-row">
-                      <Show when={!editMode()}>
-                        <button
-                          onClick={() => setEditMode(true)}
-                          class="px-3 py-1.5 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition mt-5 cursor-pointer"
-                        >
-                          Редактировать
-                        </button>
-                      </Show>
-                      <Show when={editMode()}>
-                        <button
-                          onClick={cancelEdit}
-                          class="px-3 py-1.5 bg-red-700 text-white rounded-lg hover:bg-red-800 transition mt-5 cursor-pointer"
-                        >
-                          Отмена
-                        </button>
-                        <button
-                          onClick={saveProfile}
-                          class="px-3 py-1.5 bg-green-700 text-white rounded-lg hover:bg-green-800 transition mt-5 cursor-pointer"
-                        >
-                          Сохранить
-                        </button>
-                      </Show>
-                    </div>
+                  <div class="text-sm text-gray-500 text-left mt-4">
+                    <p>ID: {user()!.id}</p>
+                    <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
                   </div>
+                </div>
+                <div class="flex gap-3 flex-col md:absolute md:bottom-4 md:right-4">
+                  <Show when={!editMode()}>
+                    <button
+                      onClick={() => setEditMode(true)}
+                      class="w-40 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
+                    >
+                      Редактировать
+                    </button>
+                  </Show>
+                  <Show when={editMode()}>
+                    <button
+                      onClick={cancelEdit}
+                      class="w-40 h-10 bg-red-700 text-white rounded-lg hover:bg-red-800 transition cursor-pointer"
+                    >
+                      Отмена
+                    </button>
+                    <button
+                      onClick={saveProfile}
+                      class="w-40 h-10 bg-green-700 text-white rounded-lg hover:bg-green-800 transition cursor-pointer"
+                    >
+                      Сохранить
+                    </button>
+                  </Show>
                 </div>
               </div>
             </div>
@@ -444,15 +440,16 @@ const Profile = () => {
                                 updateStudentId(index, e.target.value);
                               }}
                               placeholder={`ID ученика ${index + 1}`}
-                              class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <button
                               disabled={saving()}
                               type="button"
                               onClick={() => removeStudentId(index)}
-                              class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                              class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
-                              Удалить
+                              <span class="hidden md:flex">Удалить</span>
+                              <Trash class="flex md:hidden" />
                             </button>
                           </div>
                         )}
@@ -462,9 +459,9 @@ const Profile = () => {
                         disabled={saving()}
                         type="button"
                         onClick={addStudentId}
-                        class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="w-full py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-row flex-nowrap items-center justify-center gap-2"
                       >
-                        + Добавить ученика
+                        <Plus /> Добавить ученика
                       </button>
                     </div>
                   </Show>
@@ -474,7 +471,7 @@ const Profile = () => {
                         <div
                           class={`border rounded-xl p-4 hover:shadow-md transition relative ${!parentStudentIds.includes(user.id) ? "opacity-50" : ""}`}
                         >
-                          <div class="flex items-center gap-3">
+                          <div class="flex flex-col md:flex-row items-center gap-3">
                             <img
                               class="w-12 h-12 rounded-full object-cover"
                               src={`/storage/storage/avatars/${user.hasAvatar ? user.id : "default"}.jpeg`}
@@ -661,9 +658,10 @@ const Profile = () => {
                           <button
                             type="button"
                             onClick={() => removeTeacherStudentGroupId(index)}
-                            class="px-4 py-2 bg-red-700 text-white rounded-xl hover:bg-red-800 transition cursor-pointer"
+                            class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            Удалить
+                            <span class="hidden md:flex">Удалить</span>
+                            <Trash class="flex md:hidden" />
                           </button>
                         </div>
                       )}
@@ -672,9 +670,9 @@ const Profile = () => {
                     <button
                       type="button"
                       onClick={addTeacherStudentGroupId}
-                      class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium cursor-pointer"
+                      class="w-full py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-row flex-nowrap items-center justify-center gap-2"
                     >
-                      + Добавить группу
+                      <Plus /> Добавить группу
                     </button>
                   </div>
                 </Show>
