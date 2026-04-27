@@ -1,5 +1,35 @@
 services:
 
+  valkey:
+    image: valkey/valkey:latest
+    container_name: lts-valkey
+    restart: always
+    ports:
+      - "${VALKEY_PORT:-6379}:6379"
+    volumes:
+      - ./data/valkey:/data
+    command:
+      - "valkey-server"
+      - "--bind"
+      - "${VALKEY_HOST}"
+      - "--port"
+      - "${VALKEY_PORT}"
+      - "--protected-mode"
+      - "yes"
+      - "--requirepass"
+      - "${VALKEY_PASSWORD}"
+      - "--dir"
+      - "/data"
+    env_file:
+      - .env
+    networks:
+      - lts_network
+    healthcheck:
+      test: ["CMD-SHELL", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   postgres:
     image: postgres:latest
     container_name: lts-postgres
@@ -45,6 +75,8 @@ services:
       - "37190:37190"
     depends_on:
       postgres:
+        condition: service_healthy
+      valkey:
         condition: service_healthy
 
   frontend:
