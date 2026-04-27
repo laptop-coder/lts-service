@@ -24,11 +24,11 @@ services:
       - .env
     networks:
       - lts_network
-    # healthcheck:
-    #   test: ["CMD-SHELL", "PING"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
+    healthcheck:
+      test: ["CMD", "valkey-cli", "--no-auth-warning", "--pass", "${VALKEY_PASSWORD}", "-h", "${VALKEY_HOST}", "-p", "${VALKEY_PORT}", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: postgres:latest
@@ -45,7 +45,7 @@ services:
     networks:
       - lts_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -76,15 +76,36 @@ services:
     ports:
       - "37190:37190"
     depends_on:
-      - postgres
-        # condition: service_healthy
-      - valkey
-        # condition: service_healthy
-      - mailhog
+      postgres:
+        condition: service_started
+      valkey:
+        condition: service_started
+      mailhog:
+        condition: service_started
     develop:
       watch:
         - action: rebuild
           path: ./backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://${BACKEND_HOST}:${BACKEND_PORT}/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.migrate
+    environment:
+      - POSTGRES_HOST=postgres
+    profiles: ["migrate"]
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lts_network
 
   mailhog:
     image: mailhog/mailhog:latest

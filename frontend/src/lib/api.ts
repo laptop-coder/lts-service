@@ -1,7 +1,7 @@
 import { ConversationListItem, Conversation, Message } from "./types";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "http://10.0.6.100:37190/api/v1";
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:37190/api/v1";
 
 type RequestOptions = {
   headers?: HeadersInit;
