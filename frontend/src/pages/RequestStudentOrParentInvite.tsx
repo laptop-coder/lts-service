@@ -72,13 +72,6 @@ const RequestStudentOrParentInvite = () => {
           <div class="text-center py-12 text-gray-500">Загрузка...</div>
         ) : !role() ? (
           <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-4">
-            <button
-              onClick={() => navigate("/login")}
-              type="button"
-              class="text-gray-500 hover:text-gray-700 cursor-pointer flex flex-row"
-            >
-              <ChevronLeft /> Назад
-            </button>
             <div class="flex flex-row gap-4">
               <button
                 type="button"
@@ -97,6 +90,15 @@ const RequestStudentOrParentInvite = () => {
                 Я родитель
               </button>
             </div>
+          <p class="text-sm text-gray-500 mt-1">
+            Уже есть аккаунт?{" "}
+            <a
+              href="/login"
+              class="text-blue-600 hover:text-blue-700 hover:underline"
+            >
+            Войти
+            </a>
+          </p>
           </div>
         ) : done() ? (
           <div class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-xl flex items-center gap-3">

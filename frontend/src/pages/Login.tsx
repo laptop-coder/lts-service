@@ -95,8 +95,8 @@ const Login = () => {
             </button>
           </div>
 
-          <p class="text-sm text-gray-500 mt-4">
-            Ученик или родитель?{" "}
+          <p class="text-sm text-gray-500 mt-4 flex flex-col">
+            Ученик или родитель?
             <a
               href="/register"
               class="text-blue-600 hover:text-blue-700 hover:underline"
