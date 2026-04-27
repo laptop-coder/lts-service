@@ -26,6 +26,8 @@ const InviteTokens = () => {
     }
   };
 
+  const [showTokenCopied, setShowTokenCopied] = createSignal(false);
+
   createEffect(() => {
     focusCountInput();
   });
@@ -144,14 +146,29 @@ const InviteTokens = () => {
     setCreating(false);
   };
 
-  const copyToClipboard = async (text: string, index: number) => {
+  const copyLinkToClipboard = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
     setButtonCopiedIndex(index);
     setTimeout(() => setButtonCopiedIndex(null), 2000);
   };
 
+  const copyTokenToClipboard = async (token: string) => {
+    await navigator.clipboard.writeText(token);
+    setShowTokenCopied(true);
+    setTimeout(() => setShowTokenCopied(false), 2000);
+  };
+
   return (
     <div class="space-y-6 p-4">
+      {/*TODO: move to the component (duplicates code from pages/Users.tsx)*/}
+      {/* "Copied!" notification */}
+      <Show when={showTokenCopied()}>
+        <div class="fixed top-5 left-1/2 -translate-x-1/2 z-50">
+          <div class="bg-gray-800 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
+            ✓ Скопировано!
+          </div>
+        </div>
+      </Show>
       <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Инвайт-токены</h1>
         <p class="text-gray-500 mt-1">
@@ -260,18 +277,21 @@ const InviteTokens = () => {
               <For each={tokens()}>
                 {(item, index) => (
                   <div class="p-4 hover:bg-gray-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <code class="text-sm font-mono break-all text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
+                    <code
+                      class="text-sm font-mono break-all text-gray-600 bg-gray-50 px-3 leading-10 text-center rounded-lg cursor-copy truncate"
+                      onClick={() => copyTokenToClipboard(item.token)}
+                    >
                       {item.token}
                     </code>
                     <div class="flex gap-2">
                       <button
                         onClick={() =>
-                          copyToClipboard(
+                          copyLinkToClipboard(
                             `${window.location.protocol}//${window.location.host}/register?inviteToken=${item.token}`,
                             index(),
                           )
                         }
-                        class="w-full md:w-36 h-10 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium gap-2 flex items-center justify-center"
+                        class="w-full md:w-36 h-10 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer font-medium gap-2 flex items-center justify-center px-4"
                       >
                         {buttonCopiedIndex() === index() ? (
                           <>
@@ -279,7 +299,7 @@ const InviteTokens = () => {
                           </>
                         ) : (
                           <>
-                            <Copy /> Копировать
+                            <Copy /> URL
                           </>
                         )}
                       </button>
