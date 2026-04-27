@@ -90,15 +90,15 @@ const RequestStudentOrParentInvite = () => {
                 Я родитель
               </button>
             </div>
-          <p class="text-sm text-gray-500 mt-1">
-            Уже есть аккаунт?{" "}
-            <a
-              href="/login"
-              class="text-blue-600 hover:text-blue-700 hover:underline"
-            >
-            Войти
-            </a>
-          </p>
+            <p class="text-sm text-gray-500 mt-1">
+              Уже есть аккаунт?{" "}
+              <a
+                href="/login"
+                class="text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                Войти
+              </a>
+            </p>
           </div>
         ) : done() ? (
           <div class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-xl flex items-center gap-3">

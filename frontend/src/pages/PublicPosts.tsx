@@ -55,9 +55,12 @@ const PublicPosts = () => {
   };
 
   // for first loading, for refresh after actions and for refresh when filter changes
-  const refreshPosts = async (ownerTab?: {query: string}, statusTab?: {query: string}) => {
-    const ownerQuery = ownerTab?.query ?? ownerTabsActive().query
-    const statusQuery = statusTab?.query ?? statusTabsActive().query
+  const refreshPosts = async (
+    ownerTab?: { query: string },
+    statusTab?: { query: string },
+  ) => {
+    const ownerQuery = ownerTab?.query ?? ownerTabsActive().query;
+    const statusQuery = statusTab?.query ?? statusTabsActive().query;
     setPage(0);
     setHasMore(true);
     setLoading(true);
@@ -153,7 +156,7 @@ const PublicPosts = () => {
           tabs={statusTabs}
           onChange={(tab) => {
             setStatusTabsActive(tab);
-              refreshPosts(undefined, tab);
+            refreshPosts(undefined, tab);
           }}
           tabsHTMLElementId="status_tabs_toggle"
         />

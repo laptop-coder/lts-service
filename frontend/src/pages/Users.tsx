@@ -902,10 +902,10 @@ const Users = () => {
                           disabled={saving()}
                           type="button"
                           onClick={() => removeStudentId(index)}
-                              class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            >
-                              <span class="hidden md:flex">Удалить</span>
-                              <Trash class="flex md:hidden" />
+                          class="max-md:aspect-square flex items-center justify-center px-2 md:px-4 bg-red-700 text-white rounded-xl hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <span class="hidden md:flex">Удалить</span>
+                          <Trash class="flex md:hidden" />
                         </button>
                       </div>
                     )}
@@ -915,9 +915,9 @@ const Users = () => {
                     disabled={saving()}
                     type="button"
                     onClick={addStudentId}
-                        class="w-full py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-row flex-nowrap items-center justify-center gap-2"
-                      >
-                        <Plus /> Добавить ученика
+                    class="w-full py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex flex-row flex-nowrap items-center justify-center gap-2"
+                  >
+                    <Plus /> Добавить ученика
                   </button>
                 </div>
               </Show>

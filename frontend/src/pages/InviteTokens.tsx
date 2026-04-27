@@ -249,7 +249,9 @@ const InviteTokens = () => {
               onClick={downloadTokensFile}
               class="px-4 h-10 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition cursor-pointer font-medium flex flex-row flex-nowrap gap-2 items-center justify-center"
             >
-              <Download /> <span class="hidden text-nowrap md:flex">Скачать Markdown</span> <span class="flex md:hidden">Скачать</span>
+              <Download />{" "}
+              <span class="hidden text-nowrap md:flex">Скачать Markdown</span>{" "}
+              <span class="flex md:hidden">Скачать</span>
             </button>
           </div>
 
