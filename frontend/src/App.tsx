@@ -1,5 +1,5 @@
 import { Router, Route, Navigate } from "@solidjs/router";
-import { lazy, onMount } from "solid-js";
+import { lazy, onMount, Show } from "solid-js";
 import { PublicRoute, ProtectedRoute } from "./components/Layouts";
 import AdminLayout from "./components/AdminLayout";
 import { useAuth } from "./lib/auth";
@@ -50,7 +50,16 @@ function App() {
       <Route
         path="/"
         component={PublicRoute}
-        children={<Route path="/" component={PublicPosts} />}
+        children={
+          <Route
+            path="/"
+            component={() => (
+              <Show when={hasRole(ROLES.SUPERADMIN)} fallback={<PublicPosts />}>
+                <Navigate href="/admin/users" />
+              </Show>
+            )}
+          />
+        }
       />
       <Route
         path="/posts/:id"
@@ -78,13 +87,14 @@ function App() {
             <Route path="/admin" component={AdminLayout}>
               <Route
                 path="/"
-                component={() =>
-                  hasRole(ROLES.ADMIN) ? (
+                component={() => (
+                  <Show
+                    when={hasRole(ROLES.ADMIN)}
+                    fallback={<Navigate href="users" />}
+                  >
                     <Navigate href="posts/verification" />
-                  ) : (
-                    <Navigate href="users" />
-                  )
-                }
+                  </Show>
+                )}
               />
               <Route path="/posts/verification" component={PostsToVerify} />
               <Route path="/subjects" component={Subjects} />
