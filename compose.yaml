@@ -80,12 +80,9 @@ services:
       retries: 5
 
   migrate:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.migrate
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
+    image: laptopcoder/lts-service-migrate:latest
+    container_name: lts-migrate
+    user: "${UID:-1000}:${GID:-1000}"
     environment:
       - POSTGRES_HOST=postgres
     profiles: ["migrate"]

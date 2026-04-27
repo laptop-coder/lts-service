@@ -96,6 +96,7 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
+    container_name: lts-migrate
     environment:
       - POSTGRES_HOST=postgres
     profiles: ["migrate"]
