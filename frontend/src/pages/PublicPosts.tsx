@@ -55,13 +55,15 @@ const PublicPosts = () => {
   };
 
   // for first loading, for refresh after actions and for refresh when filter changes
-  const refreshPosts = async () => {
+  const refreshPosts = async (ownerTab?: {query: string}, statusTab?: {query: string}) => {
+    const ownerQuery = ownerTab?.query ?? ownerTabsActive().query
+    const statusQuery = statusTab?.query ?? statusTabsActive().query
     setPage(0);
     setHasMore(true);
     setLoading(true);
     try {
       const data = await api.get<{ posts: Post[] }>(
-        `/posts/public?author=${ownerTabsActive().query}&thingReturnedToOwner=${statusTabsActive().query}&limit=10&offset=0`,
+        `/posts/public?author=${ownerQuery}&thingReturnedToOwner=${statusQuery}&limit=10&offset=0`,
       );
       setPosts(data.posts);
       setPage(1);
@@ -117,15 +119,15 @@ const PublicPosts = () => {
     if (!auth.user()?.roles) return tabs;
 
     if (hasRole(ROLES.TEACHER)) {
-      tabs.push({ label: "Мои ученики", query: "students" });
+      tabs.push({ label: "Моих учеников", query: "students" });
     }
     if (hasRole(ROLES.PARENT)) {
-      tabs.push({ label: "Мои дети", query: "children" });
-      tabs.push({ label: "Классы детей", query: "children_groups" });
+      tabs.push({ label: "Моих детей", query: "children" });
+      tabs.push({ label: "Одноклассников детей", query: "children_groups" });
     }
     if (hasRole(ROLES.STUDENT)) {
-      tabs.push({ label: "Мои родители", query: "parents" });
-      tabs.push({ label: "Мой класс", query: "classmates" });
+      tabs.push({ label: "Моих родителей", query: "parents" });
+      tabs.push({ label: "Моих одноклассников", query: "classmates" });
     }
     return tabs;
   });
@@ -142,7 +144,7 @@ const PublicPosts = () => {
             tabs={ownerTabs()}
             onChange={(tab) => {
               setOwnerTabsActive(tab);
-              refreshPosts();
+              refreshPosts(tab, undefined);
             }}
             tabsHTMLElementId="owner_tabs_toggle"
           />
@@ -151,7 +153,7 @@ const PublicPosts = () => {
           tabs={statusTabs}
           onChange={(tab) => {
             setStatusTabsActive(tab);
-            refreshPosts();
+              refreshPosts(undefined, tab);
           }}
           tabsHTMLElementId="status_tabs_toggle"
         />
@@ -175,7 +177,7 @@ const PublicPosts = () => {
         </div>
       </Show>
       <div ref={observerRef} class="h-10">
-        <Show when={posts().length === 0}>
+        <Show when={posts().length === 0 && !loading()}>
           <div class="text-center text-gray-500 py-8">Пока нет объявлений</div>
         </Show>
         <Show when={!hasMore() && posts().length > 0}>
