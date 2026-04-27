@@ -54,6 +54,7 @@ services:
     image: laptopcoder/lts-service-backend:latest
     container_name: lts-backend
     restart: always
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/db:/backend/data/db
@@ -88,6 +89,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.migrate
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     environment:
       - POSTGRES_HOST=postgres
     profiles: ["migrate"]
@@ -101,6 +105,7 @@ services:
     image: laptopcoder/lts-service-frontend:latest
     container_name: lts-frontend
     restart: always
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - /etc/localtime:/etc/localtime
       - ./data/env:/env

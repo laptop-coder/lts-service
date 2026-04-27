@@ -11,7 +11,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s -extldflags "-static"' 
 
 FROM debian:12.11-slim
 COPY --from=builder /app/bin/main /usr/local/bin/app
-RUN adduser appuser && \
+ARG UID=1000
+ARG GID=1000
+RUN addgroup --gid $GID appuser && \
+    adduser --uid $UID --gid $GID appuser && \
     chown appuser /usr/local/bin/app && \
     chmod u+x /usr/local/bin/app
 USER appuser
