@@ -25,7 +25,7 @@ services:
     networks:
       - lts_network
     healthcheck:
-      test: ["CMD-SHELL", "PING"]
+      test: ["CMD", "valkey-cli", "--no-auth-warning", "--pass", "${VALKEY_PASSWORD}", "-h", "${VALKEY_HOST}", "-p", "${VALKEY_PORT}", "PING"]
       interval: 10s
       timeout: 5s
       retries: 5
