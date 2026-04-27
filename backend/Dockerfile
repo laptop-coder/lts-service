@@ -20,6 +20,6 @@ RUN adduser appuser && \
 USER appuser
 WORKDIR /app
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:37190/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://10.0.6.100:37190/health || exit 1
 EXPOSE 37190
 ENTRYPOINT ["./entrypoint.sh"]

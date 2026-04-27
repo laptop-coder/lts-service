@@ -30,7 +30,7 @@ func Logging(log logger.Logger, next http.Handler) http.Handler {
 
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", fmt.Sprintf("http://127.0.0.1:%s", env.GetStringRequired("FRONTEND_PORT")))
+		w.Header().Set("Access-Control-Allow-Origin", fmt.Sprintf("http://10.0.6.100:%s", env.GetStringRequired("FRONTEND_PORT")))
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
