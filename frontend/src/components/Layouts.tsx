@@ -1,4 +1,12 @@
-import { type Component, type JSX, Show, createEffect, createSignal, onMount, onCleanup } from "solid-js";
+import {
+  type Component,
+  type JSX,
+  Show,
+  createEffect,
+  createSignal,
+  onMount,
+  onCleanup,
+} from "solid-js";
 import { useNavigate, useLocation, A } from "@solidjs/router";
 import { useAuth } from "../lib/auth";
 import { usePermissions, PERMISSIONS, ROLES } from "../lib/permissions";
@@ -20,19 +28,18 @@ export const PublicRoute: Component<Props> = (props) => {
     }
   });
 
-  const [isMobile, setIsMobile]= createSignal(window.innerWidth < 768)
+  const [isMobile, setIsMobile] = createSignal(window.innerWidth < 768);
 
   onMount(() => {
-    const mq = window.matchMedia("(max-width: 767px)")
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mq.addEventListener("change", handler)
-    onCleanup(() => mq.removeEventListener("change", handler))
-  })
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    onCleanup(() => mq.removeEventListener("change", handler));
+  });
 
   // /conversations/<any_string>
   const isMobileConversationViewPage = () =>
-    /^\/conversations\/[^/]+$/.test(location.pathname) &&
-    isMobile();
+    /^\/conversations\/[^/]+$/.test(location.pathname) && isMobile();
 
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col">
@@ -49,6 +56,14 @@ export const PublicRoute: Component<Props> = (props) => {
               <span class="block md:hidden">LTS</span>
             </span>
           </A>
+          <Show when={!auth.user() && location.pathname === "/"}>
+            <A
+              href="/about"
+              class="text-sm text-gray-500 hover:text-gray-700 transition"
+            >
+              О проекте
+            </A>
+          </Show>
 
           <div class="flex items-center gap-3">
             {auth.user() ? (
@@ -126,12 +141,12 @@ export const PublicRoute: Component<Props> = (props) => {
               </div>
 
               <div class="flex gap-6">
-                <a
+                <A
                   href="/about"
                   class="text-sm text-gray-500 hover:text-gray-700 transition"
                 >
                   О проекте
-                </a>
+                </A>
               </div>
             </div>
           </div>
