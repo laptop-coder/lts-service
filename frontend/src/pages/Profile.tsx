@@ -390,30 +390,32 @@ const Profile = () => {
                     <p>Аккаунт создан: {formatDate(user()!.createdAt)}</p>
                   </div>
                 </div>
-                <div class="flex gap-3 flex-col md:absolute md:bottom-4 md:right-4">
-                  <Show when={!editMode()}>
-                    <button
-                      onClick={() => setEditMode(true)}
-                      class="w-40 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
-                    >
-                      Редактировать
-                    </button>
-                  </Show>
-                  <Show when={editMode()}>
-                    <button
-                      onClick={cancelEdit}
-                      class="w-40 h-10 bg-red-700 text-white rounded-lg hover:bg-red-800 transition cursor-pointer"
-                    >
-                      Отмена
-                    </button>
-                    <button
-                      onClick={saveProfile}
-                      class="w-40 h-10 bg-green-700 text-white rounded-lg hover:bg-green-800 transition cursor-pointer"
-                    >
-                      Сохранить
-                    </button>
-                  </Show>
-                </div>
+                <Show when={hasPermission(PERMISSIONS.USER_UPDATE_OWN)}>
+                  <div class="flex gap-3 flex-col md:absolute md:bottom-4 md:right-4">
+                    <Show when={!editMode()}>
+                      <button
+                        onClick={() => setEditMode(true)}
+                        class="w-40 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
+                      >
+                        Редактировать
+                      </button>
+                    </Show>
+                    <Show when={editMode()}>
+                      <button
+                        onClick={cancelEdit}
+                        class="w-40 h-10 bg-red-700 text-white rounded-lg hover:bg-red-800 transition cursor-pointer"
+                      >
+                        Отмена
+                      </button>
+                      <button
+                        onClick={saveProfile}
+                        class="w-40 h-10 bg-green-700 text-white rounded-lg hover:bg-green-800 transition cursor-pointer"
+                      >
+                        Сохранить
+                      </button>
+                    </Show>
+                  </div>
+                </Show>
               </div>
             </div>
 
