@@ -86,17 +86,19 @@ export const PublicRoute: Component<Props> = (props) => {
                   </A>
                 )}
 
-                <A
-                  href="/conversations"
-                  class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10 relative"
-                >
-                  <MessageSquareText />
-                  <Show when={unreadMessagesCount() > 0}>
-                    <div class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full absolute -top-1 -right-1">
-                      {unreadMessagesCount()}
-                    </div>
-                  </Show>
-                </A>
+                <Show when={hasPermission(PERMISSIONS.CONVERSATION_READ_OWN)}>
+                  <A
+                    href="/conversations"
+                    class="bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center w-10 h-10 relative"
+                  >
+                    <MessageSquareText />
+                    <Show when={unreadMessagesCount() > 0}>
+                      <div class="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full absolute -top-1 -right-1">
+                        {unreadMessagesCount()}
+                      </div>
+                    </Show>
+                  </A>
+                </Show>
 
                 <A
                   href="/profile"
