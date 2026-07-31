@@ -993,15 +993,15 @@ func (s *userService) removeUserFromExtensionTable(tx *gorm.DB, userID uuid.UUID
 	case 1, 2: // superadmin, admin (there are no extension tables)
 		return nil
 	case 3: // institution_administrator
-		return tx.Where("user_id = ?", userID).Delete(&model.InstitutionAdministrator{}).Error
+		return tx.Where("user_id = ?", userID).Unscoped().Delete(&model.InstitutionAdministrator{}).Error
 	case 4: // staff
-		return tx.Where("user_id = ?", userID).Delete(&model.Staff{}).Error
+		return tx.Where("user_id = ?", userID).Unscoped().Delete(&model.Staff{}).Error
 	case 5: // teacher
-		return tx.Where("user_id = ?", userID).Delete(&model.Teacher{}).Error
+		return tx.Where("user_id = ?", userID).Unscoped().Delete(&model.Teacher{}).Error
 	case 6: // parent
-		return tx.Where("user_id = ?", userID).Delete(&model.Parent{}).Error
+		return tx.Where("user_id = ?", userID).Unscoped().Delete(&model.Parent{}).Error
 	case 7: // student
-		return tx.Where("user_id = ?", userID).Delete(&model.Student{}).Error
+		return tx.Where("user_id = ?", userID).Unscoped().Delete(&model.Student{}).Error
 	case 8: // bot_moderator_posts
 		return nil
 	}
