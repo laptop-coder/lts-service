@@ -26,7 +26,7 @@ type InviteService interface {
 	GetRoles(ctx context.Context, tokenString string) ([]RoleResponseDTO, error)
 	GetEmail(ctx context.Context, tokenString string) (*string, error)
 	RevokeToken(ctx context.Context, tokenString string) error
-	ParseToken(tokenString string) (*InviteTokenClaims, error)
+	ParseToken(ctx context.Context, tokenString string) (*InviteTokenClaims, error)
 	MakeInviteRequest(ctx context.Context, email *string, roleIDs []uint16) error
 }
 
@@ -123,7 +123,7 @@ func (s *inviteService) generateToken(ctx context.Context, roleIDs []uint16, ema
 	return &tokenString, nil
 }
 
-func (s *inviteService) ParseToken(tokenString string) (*InviteTokenClaims, error) {
+func (s *inviteService) ParseToken(ctx context.Context, tokenString string) (*InviteTokenClaims, error) {
 	// Parse token
 	token, err := jwt.ParseWithClaims(tokenString, &InviteTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Check signing algorithm
@@ -155,7 +155,7 @@ func (s *inviteService) GetRoles(ctx context.Context, tokenString string) ([]Rol
 		return nil, fmt.Errorf("invite token was revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
-	claims, err := s.ParseToken(tokenString)
+	claims, err := s.ParseToken(ctx, tokenString)
 	if err != nil || claims == nil {
 		return nil, fmt.Errorf("failed to parse invite token: %w", err)
 	}
@@ -192,7 +192,7 @@ func (s *inviteService) GetEmail(ctx context.Context, tokenString string) (*stri
 		return nil, fmt.Errorf("invite token was revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
-	claims, err := s.ParseToken(tokenString)
+	claims, err := s.ParseToken(ctx, tokenString)
 	if err != nil || claims == nil {
 		return nil, fmt.Errorf("failed to parse invite token: %w", err)
 	}
@@ -210,7 +210,7 @@ func (s *inviteService) RevokeToken(ctx context.Context, tokenString string) err
 		return fmt.Errorf("invite token was already revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
-	parsedToken, err := s.ParseToken(tokenString)
+	parsedToken, err := s.ParseToken(ctx, tokenString)
 	if err != nil || parsedToken == nil {
 		return fmt.Errorf("failed to parse invite token: %w", err)
 	}

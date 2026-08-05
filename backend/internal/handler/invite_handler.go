@@ -118,7 +118,7 @@ func (h *InviteHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	// Get token
 	token := r.PathValue("token")
 	// Parse token
-	claims, err := h.inviteService.ParseToken(token)
+	claims, err := h.inviteService.ParseToken(r.Context(), token)
 	if err != nil || claims == nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
