@@ -187,6 +187,9 @@ func (s *subjectService) validateUpdateSubjectDTO(dto *UpdateSubjectDTO) error {
 }
 
 func SubjectToDTO(subject *model.Subject) *SubjectResponseDTO {
+	if subject == nil {
+		return nil
+	}
 	return &SubjectResponseDTO{
 		ID:        subject.ID,
 		CreatedAt: subject.CreatedAt.Format(time.RFC3339),

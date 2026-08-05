@@ -185,6 +185,9 @@ func (s *staffPositionService) validateUpdatePositionDTO(dto *UpdateStaffPositio
 }
 
 func StaffPositionToDTO(staffPosition *model.StaffPosition) *StaffPositionResponseDTO {
+	if staffPosition == nil {
+		return nil
+	}
 	return &StaffPositionResponseDTO{
 		ID:        staffPosition.ID,
 		CreatedAt: staffPosition.CreatedAt.Format(time.RFC3339),

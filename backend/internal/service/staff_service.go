@@ -120,6 +120,9 @@ func (s *staffService) GetPosition(ctx context.Context, userID uuid.UUID) (*Staf
 }
 
 func StaffToDTO(staff *model.Staff) *StaffResponseDTO {
+	if staff == nil {
+		return nil
+	}
 	return &StaffResponseDTO{
 		UserID:   staff.UserID,
 		Position: *StaffPositionToDTO(&staff.Position),

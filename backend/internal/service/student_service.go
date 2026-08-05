@@ -155,6 +155,9 @@ func (s *studentService) GetStudents(ctx context.Context, filter repository.Stud
 }
 
 func StudentToDTO(student *model.Student) *StudentResponseDTO {
+	if student == nil {
+		return nil
+	}
 	var parents []ParentResponseDTO
 	if student.Parents != nil && len(*student.Parents) > 0 {
 		for _, parent := range *student.Parents {

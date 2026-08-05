@@ -24,6 +24,9 @@ type TeacherService interface {
 }
 
 func TeacherToDTO(teacher *model.Teacher) *TeacherResponseDTO {
+	if teacher == nil {
+		return nil
+	}
 	// Get subjects list
 	var subjects []SubjectResponseDTO
 	for _, subject := range teacher.Subjects {

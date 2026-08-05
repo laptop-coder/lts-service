@@ -159,6 +159,9 @@ func (s *roomService) validateUpdateRoomDTO(dto *UpdateRoomDTO) error {
 }
 
 func RoomToDTO(room *model.Room) *RoomResponseDTO {
+	if room == nil {
+		return nil
+	}
 	return &RoomResponseDTO{
 		ID:        room.ID,
 		CreatedAt: room.CreatedAt.Format(time.RFC3339),

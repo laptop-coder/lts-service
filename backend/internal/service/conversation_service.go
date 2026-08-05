@@ -83,6 +83,9 @@ type ConversationListItemDTO struct {
 }
 
 func ConversationToDTO(conversation *model.Conversation, otherUser *model.User) *ConversationResponseDTO {
+	if conversation == nil || otherUser == nil {
+		return nil
+	}
 	var messages []MessageResponseDTO
 	for _, message := range conversation.Messages {
 		messages = append(messages, *MessageToDTO(&message))
@@ -110,6 +113,9 @@ func ConversationToListItemDTO(conversation *model.Conversation, otherUser *mode
 }
 
 func MessageToDTO(message *model.Message) *MessageResponseDTO {
+	if message == nil {
+		return nil
+	}
 	return &MessageResponseDTO{
 		ID:        message.ID,
 		CreatedAt: message.CreatedAt.Format(time.RFC3339),
