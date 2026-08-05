@@ -655,6 +655,7 @@ func (s *postService) GetSimilar(ctx context.Context, dto *GetSimilarDTO) ([]Pos
 			s.log.Error("failed to open file", "error", err.Error())
 			return nil, fmt.Errorf("failed to open file: %w", err)
 		}
+		defer file.Close()
 		// Decode as JPEG
 		img, err := jpeg.Decode(file)
 		if err != nil {
@@ -822,6 +823,7 @@ func (s *postService) CalcAllPhotosHashes(ctx context.Context) error {
 			s.log.Error("failed to open file", "error", err.Error())
 			return fmt.Errorf("failed to open file: %w", err)
 		}
+		defer file.Close()
 		// Decode as JPEG
 		img, err := jpeg.Decode(file)
 		if err != nil {
