@@ -162,7 +162,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	authMiddleware := func(allowUnauthorized bool) func(http.Handler) http.Handler {
-		return middleware.Auth(authService, serviceConfigs.Auth, jwtRepo, db, log, allowUnauthorized)
+		return middleware.Auth(context.Background(), authService, serviceConfigs.Auth, jwtRepo, db, log, allowUnauthorized)
 	}
 	requireRoles := middleware.RequireRoles
 	requirePermissions := middleware.RequirePermissions
