@@ -312,7 +312,6 @@ func (h *UserHandler) GetOwnRoles(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodPut {
 		helpers.MethodNotAllowedError(h.log, w)
@@ -487,12 +486,12 @@ func (h *UserHandler) AssignRoles(w http.ResponseWriter, r *http.Request) {
 	}
 	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	// Replace old roles with new ones
-	if err := h.userService.AssignRolesToUser(ctx, userID, userExtensionsDTO, roleIDs); err != nil {
+	if err := h.userService.AssignRolesToUser(r.Context(), userID, userExtensionsDTO, roleIDs); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Get updated roles
-	roles, err := h.userService.GetUserRoles(ctx, userID)
+	roles, err := h.userService.GetUserRoles(r.Context(), userID)
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
@@ -645,7 +644,6 @@ func (h *UserHandler) AssignExtensionsOwn(w http.ResponseWriter, r *http.Request
 }
 
 func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodPut {
 		helpers.MethodNotAllowedError(h.log, w)
@@ -805,12 +803,12 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 	}
 	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	// Replace old roles with new ones
-	if err := h.userService.AssignNonAdminRolesToUser(ctx, userID, userExtensionsDTO, roleIDs); err != nil {
+	if err := h.userService.AssignNonAdminRolesToUser(r.Context(), userID, userExtensionsDTO, roleIDs); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Get updated roles
-	roles, err := h.userService.GetUserRoles(ctx, userID)
+	roles, err := h.userService.GetUserRoles(r.Context(), userID)
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
@@ -824,7 +822,6 @@ func (h *UserHandler) AssignNonAdminRoles(w http.ResponseWriter, r *http.Request
 }
 
 func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodPost {
 		helpers.MethodNotAllowedError(h.log, w)
@@ -999,12 +996,12 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 	}
 	userExtensionsDTO.ParentStudentIDs = parentStudentIDs
 	// Add new roles to the old ones
-	if err := h.userService.AddRolesToUser(ctx, userID, userExtensionsDTO, roleIDs); err != nil {
+	if err := h.userService.AddRolesToUser(r.Context(), userID, userExtensionsDTO, roleIDs); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}
 	// Get updated roles
-	roles, err := h.userService.GetUserRoles(ctx, userID)
+	roles, err := h.userService.GetUserRoles(r.Context(), userID)
 	if err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
@@ -1018,7 +1015,6 @@ func (h *UserHandler) AddRoles(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 	// Check method
 	if r.Method != http.MethodDelete {
 		helpers.MethodNotAllowedError(h.log, w)
@@ -1066,7 +1062,7 @@ func (h *UserHandler) RemoveRole(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// Remove user role
-	if err := h.userService.RemoveRoleFromUser(ctx, userID, roleID); err != nil {
+	if err := h.userService.RemoveRoleFromUser(r.Context(), userID, roleID); err != nil {
 		helpers.HandleServiceError(h.log, w, err)
 		return
 	}

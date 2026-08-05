@@ -186,6 +186,9 @@ func (s *institutionAdministratorPositionService) validateUpdatePositionDTO(dto 
 }
 
 func InstitutionAdministratorPositionToDTO(institutionAdministratorPosition *model.InstitutionAdministratorPosition) *InstitutionAdministratorPositionResponseDTO {
+	if institutionAdministratorPosition == nil {
+		return nil
+	}
 	return &InstitutionAdministratorPositionResponseDTO{
 		ID:        institutionAdministratorPosition.ID,
 		CreatedAt: institutionAdministratorPosition.CreatedAt.Format(time.RFC3339),

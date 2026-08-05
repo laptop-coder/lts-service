@@ -3,6 +3,7 @@ COMPOSE := $(shell command -v docker compose > /dev/null 2>&1 && echo "docker co
 .PHONY: migrate
 migrate: ## run database migrations using the migrate profile
 	$(COMPOSE) --profile migrate up migrate --exit-code-from migrate
+	$(COMPOSE) rm -f migrate
 
 .PHONY: cron
 cron: ## install nightly cron job from crontab.tasks for automatic updates
@@ -30,6 +31,11 @@ down: ## stop and remove docker compose services
 dev: ## run development stack with build and migration profile enabled
 	$(COMPOSE) -f ./dev.compose.yaml --profile migrate up --build
 
+.PHONY: dev-down
+dev-down: ## stop and remove development docker compose services
+	$(COMPOSE) -f ./dev.compose.yaml down
+
 .PHONY: help
 help: ## show available make targets with short descriptions
 	@cat $(MAKEFILE_LIST) | grep -e "^[a-zA-Z_\-]*: *.*## *" | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+

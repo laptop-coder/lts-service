@@ -81,6 +81,9 @@ func (s *institutionAdministratorService) GetInstitutionAdministrator(ctx contex
 }
 
 func InstitutionAdministratorToDTO(institutionAdministrator *model.InstitutionAdministrator) *InstitutionAdministratorResponseDTO {
+	if institutionAdministrator == nil {
+		return nil
+	}
 	return &InstitutionAdministratorResponseDTO{
 		UserID:   institutionAdministrator.UserID,
 		Position: *InstitutionAdministratorPositionToDTO(&institutionAdministrator.Position),

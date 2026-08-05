@@ -58,6 +58,9 @@ type PermissionResponseDTO struct {
 }
 
 func PermissionToDTO(permission *model.Permission) *PermissionResponseDTO {
+	if permission == nil {
+		return nil
+	}
 	return &PermissionResponseDTO{
 		ID:        permission.ID,
 		CreatedAt: permission.CreatedAt.Format(time.RFC3339),
@@ -601,6 +604,9 @@ type RoleResponseDTO struct {
 }
 
 func RoleToDTO(role *model.Role) *RoleResponseDTO {
+	if role == nil {
+		return nil
+	}
 	var permissions []PermissionResponseDTO
 	for _, permission := range role.Permissions {
 		permissions = append(permissions, *PermissionToDTO(&permission))

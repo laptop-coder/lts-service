@@ -34,7 +34,7 @@ type TokenClaims struct {
 type AuthService interface {
 	Login(ctx context.Context, email string, password string) (*TokenResponse, *UserResponseDTO, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error)
-	ParseToken(tokenString string) (*TokenClaims, error)
+	ParseToken(ctx context.Context, tokenString string) (*TokenClaims, error)
 	RevokeToken(ctx context.Context, tokenString string) error
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, token string, password string) error
@@ -111,7 +111,7 @@ func (s *authService) Login(ctx context.Context, email string, password string) 
 func (s *authService) RefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error) {
 	s.log.Info("starting tokens refresh...")
 	// Parse (and validate) refresh token
-	claims, err := s.ParseToken(refreshToken)
+	claims, err := s.ParseToken(ctx, refreshToken)
 	if err != nil || claims == nil { // TODO: check in the whole code like here
 		return nil, fmt.Errorf("invalid refresh token: %s: %w", err.Error(), apperrors.ErrInvalidToken)
 	}
@@ -157,7 +157,7 @@ func (s *authService) RevokeToken(ctx context.Context, token string) error {
 		return fmt.Errorf("token was already revoked: %w", apperrors.ErrTokenRevoked)
 	}
 	// Parse token
-	parsedToken, err := s.ParseToken(token)
+	parsedToken, err := s.ParseToken(ctx, token)
 	if err != nil || parsedToken == nil {
 		return fmt.Errorf("failed to parse token: %w", err)
 	}
@@ -226,7 +226,7 @@ func (s *authService) createToken(userID uuid.UUID, email string, roles []string
 	return &tokenString, nil
 }
 
-func (s *authService) ParseToken(tokenString string) (*TokenClaims, error) {
+func (s *authService) ParseToken(ctx context.Context, tokenString string) (*TokenClaims, error) {
 	// Parse token
 	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Check signing algorithm

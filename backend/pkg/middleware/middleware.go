@@ -43,7 +43,7 @@ func CORS(next http.Handler) http.Handler {
 	})
 }
 
-func Auth(authService service.AuthService, authServiceConfig service.AuthServiceConfig, jwtRepo repository.JWTRepository, db *gorm.DB, log logger.Logger, allowUnauthorized bool) func(http.Handler) http.Handler {
+func Auth(ctx context.Context, authService service.AuthService, authServiceConfig service.AuthServiceConfig, jwtRepo repository.JWTRepository, db *gorm.DB, log logger.Logger, allowUnauthorized bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get JWT access from cookies
@@ -82,7 +82,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 					return
 				}
 				// Parse new tokens
-				parsedAccessToken, err := authService.ParseToken(tokens.AccessToken)
+				parsedAccessToken, err := authService.ParseToken(ctx, tokens.AccessToken)
 				if err != nil || parsedAccessToken == nil {
 					if allowUnauthorized {
 						ctx = context.WithValue(ctx, appcontext.UserIDKey, uuid.Nil)
@@ -95,7 +95,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 					log.Error(fmt.Sprintf("Failed to parse access token: %s", err.Error()))
 					return
 				}
-				parsedRefreshToken, err := authService.ParseToken(tokens.RefreshToken)
+				parsedRefreshToken, err := authService.ParseToken(ctx, tokens.RefreshToken)
 				if err != nil || parsedRefreshToken == nil {
 					if allowUnauthorized {
 						ctx = context.WithValue(ctx, appcontext.UserIDKey, uuid.Nil)
@@ -140,7 +140,7 @@ func Auth(authService service.AuthService, authServiceConfig service.AuthService
 				log.Debug("Authorized value is set to true in cookies")
 			}
 			// Validate token
-			claims, err := authService.ParseToken(jwtAccess)
+			claims, err := authService.ParseToken(ctx, jwtAccess)
 			if err != nil || claims == nil {
 				if allowUnauthorized {
 					ctx := r.Context()

@@ -655,6 +655,7 @@ func (s *postService) GetSimilar(ctx context.Context, dto *GetSimilarDTO) ([]Pos
 			s.log.Error("failed to open file", "error", err.Error())
 			return nil, fmt.Errorf("failed to open file: %w", err)
 		}
+		defer file.Close()
 		// Decode as JPEG
 		img, err := jpeg.Decode(file)
 		if err != nil {
@@ -822,6 +823,7 @@ func (s *postService) CalcAllPhotosHashes(ctx context.Context) error {
 			s.log.Error("failed to open file", "error", err.Error())
 			return fmt.Errorf("failed to open file: %w", err)
 		}
+		defer file.Close()
 		// Decode as JPEG
 		img, err := jpeg.Decode(file)
 		if err != nil {
@@ -1000,6 +1002,9 @@ func (s *postService) validateUpdatePostDTO(dto *UpdatePostDTO) error {
 }
 
 func ModerationToDTO(moderation *model.PostModeration) *PostModerationResponseDTO {
+	if moderation == nil {
+		return nil
+	}
 	return &PostModerationResponseDTO{
 		PostID:        moderation.PostID,
 		CreatedAt:     moderation.CreatedAt.Format(time.RFC3339),
@@ -1012,6 +1017,9 @@ func ModerationToDTO(moderation *model.PostModeration) *PostModerationResponseDT
 }
 
 func PostToDTO(post *model.Post) *PostResponseDTO {
+	if post == nil {
+		return nil
+	}
 	return &PostResponseDTO{
 		ID:                   post.ID,
 		CreatedAt:            post.CreatedAt.Format(time.RFC3339),

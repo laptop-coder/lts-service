@@ -120,6 +120,9 @@ func (s *parentService) GetStudentGroupsOwn(ctx context.Context, userID uuid.UUI
 }
 
 func ParentToDTO(parent *model.Parent) *ParentResponseDTO {
+	if parent == nil {
+		return nil
+	}
 	var students []StudentResponseDTO
 	if parent.Students != nil && len(*parent.Students) > 0 {
 		for _, student := range *parent.Students {

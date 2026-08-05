@@ -284,13 +284,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Parse created tokens
-	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
+	parsedAccessToken, err := h.authService.ParseToken(r.Context(), tokens.AccessToken)
 	if err != nil || parsedAccessToken == nil {
 		h.log.Error(fmt.Sprintf("failed to parse access token: %s", err.Error()))
 		helpers.InternalError(h.log, w)
 		return
 	}
-	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
+	parsedRefreshToken, err := h.authService.ParseToken(r.Context(), tokens.RefreshToken)
 	if err != nil || parsedRefreshToken == nil {
 		h.log.Error(fmt.Sprintf("failed to parse refresh token: %s", err.Error()))
 		helpers.InternalError(h.log, w)
@@ -382,13 +382,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Parse created tokens
-	parsedAccessToken, err := h.authService.ParseToken(tokens.AccessToken)
+	parsedAccessToken, err := h.authService.ParseToken(r.Context(), tokens.AccessToken)
 	if err != nil || parsedAccessToken == nil {
 		h.log.Error(fmt.Sprintf("failed to parse access token: %s", err.Error()))
 		helpers.InternalError(h.log, w)
 		return
 	}
-	parsedRefreshToken, err := h.authService.ParseToken(tokens.RefreshToken)
+	parsedRefreshToken, err := h.authService.ParseToken(r.Context(), tokens.RefreshToken)
 	if err != nil || parsedRefreshToken == nil {
 		h.log.Error(fmt.Sprintf("failed to parse refresh token: %s", err.Error()))
 		helpers.InternalError(h.log, w)

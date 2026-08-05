@@ -65,6 +65,9 @@ type StudentGroupResponseDTO struct {
 }
 
 func StudentGroupToDTO(studentGroup *model.StudentGroup) *StudentGroupResponseDTO {
+	if studentGroup == nil {
+		return nil
+	}
 	var students []StudentGroupStudentResponseDTO
 	for _, student := range studentGroup.Students {
 		students = append(students, *StudentGroupStudentToDTO(&student))
@@ -340,6 +343,9 @@ type StudentGroupStudentResponseDTO struct {
 }
 
 func StudentGroupStudentToDTO(student *model.Student) *StudentGroupStudentResponseDTO {
+	if student == nil {
+		return nil
+	}
 	return &StudentGroupStudentResponseDTO{
 		UserID: student.UserID,
 	}
