@@ -1,30 +1,41 @@
-.PHONY: migrate cron deploy first-run logs down dev
 COMPOSE := $(shell command -v docker compose > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
 
-migrate:
+.PHONY: migrate
+migrate: ## run database migrations using the migrate profile
 	$(COMPOSE) --profile migrate up migrate --exit-code-from migrate
 	$(COMPOSE) rm -f migrate
 
-cron:
+.PHONY: cron
+cron: ## install nightly cron job from crontab.tasks for automatic updates
 	sh -c "( crontab -l; cat ./crontab.tasks )" | crontab -
 
-deploy:
+.PHONY: deploy
+deploy: ## start all application services in detached mode
 	$(COMPOSE) up -d
 
-first-run:
+.PHONY: first-run
+first-run: ## perform initial setup: migrate, start services, and install cron
 	$(MAKE) migrate
 	$(MAKE) deploy
 	$(MAKE) cron
 
-logs:
+.PHONY: logs
+logs: ## follow logs from all running docker compose services
 	$(COMPOSE) logs -f
 
-down:
+.PHONY: down
+down: ## stop and remove docker compose services
 	$(COMPOSE) down
 
-dev:
+.PHONY: dev
+dev: ## run development stack with build and migration profile enabled
 	$(COMPOSE) -f ./dev.compose.yaml --profile migrate up --build
 
-dev-down:
+.PHONY: dev-down
+dev-down: ## stop and remove development docker compose services
 	$(COMPOSE) -f ./dev.compose.yaml down
+
+.PHONY: help
+help: ## show available make targets with short descriptions
+	@cat $(MAKEFILE_LIST) | grep -e "^[a-zA-Z_\-]*: *.*## *" | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
