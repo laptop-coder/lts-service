@@ -25,3 +25,6 @@ down:
 dev:
 	$(COMPOSE) -f ./dev.compose.yaml --profile migrate up --build
 
+dev-down:
+	$(COMPOSE) -f ./dev.compose.yaml down
+
