@@ -3,6 +3,7 @@ COMPOSE := $(shell command -v docker compose > /dev/null 2>&1 && echo "docker co
 
 migrate:
 	$(COMPOSE) --profile migrate up migrate --exit-code-from migrate
+	$(COMPOSE) rm -f migrate
 
 cron:
 	sh -c "( crontab -l; cat ./crontab.tasks )" | crontab -
