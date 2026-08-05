@@ -34,14 +34,13 @@ func SetupRoutes(
 ) {
 	// Public routes (no auth required)
 	// TODO: split this routes into categories (i.e. mix with secure routes)
-	// TODO: use authMiddleware with allowUnauthorized = true
-	mux.HandleFunc("POST /api/v1/users", authHandler.Register)
-	mux.HandleFunc("POST /api/v1/auth/login", authHandler.Login)
-	mux.HandleFunc("/health", healthHandler)
-	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/roles", inviteHandler.GetRoles)
-	mux.HandleFunc("GET /api/v1/tokens/invite/{token}/email", inviteHandler.GetEmail)
-	mux.HandleFunc("POST /api/v1/invite/request/student", inviteHandler.MakeStudentInviteRequest)
-	mux.HandleFunc("POST /api/v1/invite/request/parent", inviteHandler.MakeParentInviteRequest)
+	mux.Handle("POST /api/v1/users", authMiddleware(true)(http.HandlerFunc(authHandler.Register)))
+	mux.Handle("POST /api/v1/auth/login", authMiddleware(true)(http.HandlerFunc(authHandler.Login)))
+	mux.Handle("/health", authMiddleware(true)(http.HandlerFunc(healthHandler)))
+	mux.Handle("GET /api/v1/tokens/invite/{token}/roles", authMiddleware(true)(http.HandlerFunc(inviteHandler.GetRoles)))
+	mux.Handle("GET /api/v1/tokens/invite/{token}/email", authMiddleware(true)(http.HandlerFunc(inviteHandler.GetEmail)))
+	mux.Handle("POST /api/v1/invite/request/student", authMiddleware(true)(http.HandlerFunc(inviteHandler.MakeStudentInviteRequest)))
+	mux.Handle("POST /api/v1/invite/request/parent", authMiddleware(true)(http.HandlerFunc(inviteHandler.MakeParentInviteRequest)))
 
 	// Secure routes (auth required)
 
