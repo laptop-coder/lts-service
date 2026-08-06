@@ -36,7 +36,7 @@ def run_command(command: str) -> subprocess.CompletedProcess[bytes]:
     )
 
 
-def alg() -> bool:
+def main() -> bool:
     print_wait(f"Got the project dir.")
     print_secondary(path_to_project)
 
@@ -168,8 +168,11 @@ def alg() -> bool:
     return True
 
 
-for _ in range(10):
-    success = alg()
-    if success:
-        print_ok("Done!")
-        break
+
+
+if __name__ == "__main__":
+    for _ in range(10):
+        success = main()
+        if success:
+            print_ok("Done!")
+            break
