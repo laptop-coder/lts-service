@@ -21,9 +21,22 @@ def print_secondary(s: str, line_break=True) -> None:
     print(f"\033[2m{s}\033[0m", end=end)
 
 
-def alg() -> bool:
-    path_to_project = f"{os.getenv('HOME')}/lost-things-search"
+path_to_project = f"{os.getenv('HOME')}/lost-things-search"
 
+
+def run_command(command: str) -> subprocess.CompletedProcess[bytes]:
+    """
+    Run shell command from the project dir.
+    """
+    return subprocess.run(
+        command,
+        shell=True,
+        capture_output=True,
+        cwd=path_to_project,
+    )
+
+
+def alg() -> bool:
     print_wait(f"Got the project dir.")
     print_secondary(path_to_project)
 
@@ -41,10 +54,8 @@ def alg() -> bool:
 
     # Get GHCR token
     print_wait("Trying to get GHCR token...")
-    result = subprocess.run(
+    result = run_command(
         f"""curl -s "https://ghcr.io/token?scope=repository:{repo}:pull" | grep -o '"token":"[^"]*"' | cut -d '"' -f4""",
-        shell=True,
-        capture_output=True,
     )
     if result.returncode != 0:
         err = result.stderr.decode("utf-8")
@@ -57,12 +68,10 @@ def alg() -> bool:
 
     # Get the latest tag
     print_wait(f"Trying to get the latest {service} service tag...")
-    result = subprocess.run(
+    result = run_command(
         f"""
         curl -s -H "Authorization: Bearer {token}" "https://ghcr.io/v2/{repo}/tags/list" | grep -o '"tags":\\[[^]]*\\]' | grep -o '"[^"]*"' | tail -1 | tr -d '"'
         """,
-        shell=True,
-        capture_output=True,
     )
     if result.returncode != 0:
         err = result.stderr.decode("utf-8")
@@ -91,12 +100,10 @@ def alg() -> bool:
             print("Downloading new images:")
             for service in ["backend", "frontend", "ml", "migrate"]:
                 print_wait(f"- {service}")
-                result = subprocess.run(
+                result = run_command(
                     f"""
                     docker pull "ghcr.io/{repo}:{latest_tag}"
                     """,
-                    shell=True,
-                    capture_output=True,
                 )
                 if result.returncode != 0:
                     err = result.stderr.decode("utf-8")
@@ -108,14 +115,7 @@ def alg() -> bool:
 
             # Stop the project
             print_wait("Stopping the project...")
-            result = subprocess.run(
-                f"""
-                make down
-                """,
-                shell=True,
-                capture_output=True,
-                cwd=path_to_project,
-            )
+            result = run_command("make down")
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
@@ -126,14 +126,7 @@ def alg() -> bool:
 
             # Pull the code changes
             print_wait("Pulling the code changes...")
-            result = subprocess.run(
-                f"""
-                git pull
-                """,
-                shell=True,
-                capture_output=True,
-                cwd=path_to_project,
-            )
+            result = run_command("git pull")
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
@@ -144,14 +137,7 @@ def alg() -> bool:
 
             # Deploy the project
             print_wait("Deploying the project...")
-            result = subprocess.run(
-                f"""
-                make deploy
-                """,
-                shell=True,
-                capture_output=True,
-                cwd=path_to_project,
-            )
+            result = run_command("make deploy")
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
@@ -162,14 +148,7 @@ def alg() -> bool:
 
             # Run migrations
             print_wait("Running migrations...")
-            result = subprocess.run(
-                f"""
-                make migrate
-                """,
-                shell=True,
-                capture_output=True,
-                cwd=path_to_project,
-            )
+            result = run_command("make migrate")
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
