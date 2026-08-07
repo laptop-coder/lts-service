@@ -1,4 +1,5 @@
 import os
+import time
 import subprocess
 
 
@@ -61,7 +62,6 @@ def main() -> bool:
         err = result.stderr.decode("utf-8")
         print_err("ERROR")
         print_err(f"Failed to get GHCR token! Error: {err}")
-        print("Running script one more time...")
         return False
     token = result.stdout.decode("utf-8")
     print_ok("OK")
@@ -77,7 +77,6 @@ def main() -> bool:
         err = result.stderr.decode("utf-8")
         print_err("ERROR")
         print_err(f"Failed to get tag! Error: {err}")
-        print("Running script one more time...")
         return False
     latest_tag = result.stdout.decode("utf-8")[:-1]
     print_ok("OK", line_break=False)
@@ -109,7 +108,6 @@ def main() -> bool:
                     err = result.stderr.decode("utf-8")
                     print_err("ERROR")
                     print_err(f"Failed to pull {service} image! Error: {err}")
-                    print("Running script one more time...")
                     return False
                 print_ok("OK")
 
@@ -120,7 +118,6 @@ def main() -> bool:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
                 print_err(f"Failed to stop the project! Error: {err}")
-                print("Running script one more time...")
                 return False
             print_ok("OK")
 
@@ -131,7 +128,6 @@ def main() -> bool:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
                 print_err(f"Failed to pull the code changes! Error: {err}")
-                print("Running script one more time...")
                 return False
             print_ok("OK")
 
@@ -142,7 +138,6 @@ def main() -> bool:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
                 print_err(f"Failed to deploy the project! Error: {err}")
-                print("Running script one more time...")
                 return False
             print_ok("OK")
 
@@ -153,7 +148,6 @@ def main() -> bool:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
                 print_err(f"Failed to run migrations! Error: {err}")
-                print("Running script one more time...")
                 return False
             print_ok("OK")
 
@@ -168,11 +162,13 @@ def main() -> bool:
     return True
 
 
-
-
 if __name__ == "__main__":
-    for _ in range(10):
+    for i in range(10):
         success = main()
         if success:
             print_ok("Done!")
             break
+        print(
+            f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time..."
+        )
+        time.sleep(10)
