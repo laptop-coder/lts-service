@@ -10,22 +10,22 @@ import time
 
 
 def print_wait(s: str) -> None:
-    print(s, end=" ")
+    print(s, end=" ", flush=True)
 
 
 def print_ok(s: str, line_break=True) -> None:
     end = "\n" if line_break else " "
-    print(f"\033[32m{s}\033[0m", end=end)
+    print(f"\033[32m{s}\033[0m", end=end, flush=True)
 
 
 def print_err(s: str, line_break=True) -> None:
     end = "\n" if line_break else " "
-    print(f"\033[31m{s}\033[0m", end=end)
+    print(f"\033[31m{s}\033[0m", end=end, flush=True)
 
 
 def print_secondary(s: str, line_break=True) -> None:
     end = "\n" if line_break else " "
-    print(f"\033[2m{s}\033[0m", end=end)
+    print(f"\033[2m{s}\033[0m", end=end, flush=True)
 
 
 path_to_project = f"{os.getenv('HOME')}/lost-things-search"
@@ -268,7 +268,8 @@ if __name__ == "__main__":
         if spinner_th is not None:
             spinner_th.join()
         print(
-            f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time..."
+            f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time...",
+            flush=True,
         )
         time.sleep(10)
         # Reset variables
