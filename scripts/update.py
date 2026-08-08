@@ -1,6 +1,9 @@
 import os
+import signal
 import time
 import subprocess
+from enum import Enum
+import threading
 
 
 def print_wait(s: str) -> None:
@@ -37,6 +40,50 @@ def run_command(command: str) -> subprocess.CompletedProcess[bytes]:
     )
 
 
+class Service(Enum):
+    BACKEND = 0
+    FRONTEND = 1
+    ML = 2
+    MIGRATE = 3
+
+
+current_service = Service.BACKEND
+
+
+# Spinner
+b = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+spinner = b[0]
+prev_n = len(Service) + 1
+
+
+def animate_spinner(stop_signal: threading.Event):
+    global spinner
+    global prev_n
+    while not stop_signal.is_set():
+        for c in b:
+            spinner = c
+            time.sleep(0.05)
+            n = len(Service) - current_service.value + 1
+            if n != prev_n:
+                print(
+                    "\r" + "\033[1A" * prev_n + f"│ \033[32m✔\033[0m" + "\n" * prev_n,
+                    end="",
+                    flush=True,
+                )
+                prev_n = n
+            print(
+                "\r" + "\033[1A" * n + f"│ \033[33m{spinner}\033[0m" + "\n" * n,
+                end="",
+                flush=True,
+            )
+
+
+# Create stop signal
+stop_signal = threading.Event()
+# Create animation thread
+th_spinner = threading.Thread(target=animate_spinner, args=(stop_signal,))
+
+
 def main() -> bool:
     print_wait(f"Got the project dir.")
     print_secondary(path_to_project)
@@ -49,9 +96,9 @@ def main() -> bool:
         print_secondary(tag_file)
         tag_file_is_new = True
 
-    service = "backend"
-    print(f"Looking at the {service} service.")
-    repo = f"laptop-coder/lost-things-search-{service}"
+    service = Service.BACKEND
+    print(f"Looking at the {service.name} service.")
+    repo = f"laptop-coder/lost-things-search-{service.name}".lower()
 
     # Get GHCR token
     print_wait("Trying to get GHCR token...")
@@ -67,7 +114,7 @@ def main() -> bool:
     print_ok("OK")
 
     # Get the latest tag
-    print_wait(f"Trying to get the latest {service} service tag...")
+    print_wait(f"Trying to get the latest {service.name} service tag...")
     result = run_command(
         f"""
         curl -s -H "Authorization: Bearer {token}" "https://ghcr.io/v2/{repo}/tags/list" | grep -o '"tags":\\[[^]]*\\]' | grep -o '"[^"]*"' | tail -1 | tr -d '"'
@@ -88,7 +135,7 @@ def main() -> bool:
             file.write(f"{latest_tag}\n")
         print_ok("OK")
     else:
-        print_wait(f"Getting current {service} tag...")
+        print_wait(f"Getting current {service.name} tag...")
         with open(tag_file, "r") as file:
             current_tag = file.readline()[:-1]
         print_ok("OK", line_break=False)
@@ -97,8 +144,23 @@ def main() -> bool:
         if current_tag != latest_tag:
             print_secondary(f"{current_tag} != {latest_tag}")
             print("Downloading new images:")
-            for service in ["backend", "frontend", "ml", "migrate"]:
-                print_wait(f"- {service}")
+
+            # Print services
+            print("╭" + "─" * (max([len(s.name) for s in Service]) + 4) + "╮")
+            for s in Service:
+                print(
+                    f"│ \033[33m⠼\033[0m {s.name}{' ' * (max([len(x.name) for x in Service]) - len(s.name) + 1)}│"
+                )
+            print("╰" + "─" * (max([len(x.name) for x in Service]) + 4) + "╯")
+
+            global current_service
+
+            # Start animation
+            th_spinner.start()
+            # Download
+            for s in Service:
+                current_service = s
+                repo = f"laptop-coder/lost-things-search-{s.name}".lower()
                 result = run_command(
                     f"""
                     docker pull "ghcr.io/{repo}:{latest_tag}"
@@ -107,9 +169,17 @@ def main() -> bool:
                 if result.returncode != 0:
                     err = result.stderr.decode("utf-8")
                     print_err("ERROR")
-                    print_err(f"Failed to pull {service} image! Error: {err}")
+                    print_err(f"Failed to pull {s.name} image! Error: {err}")
                     return False
-                print_ok("OK")
+
+            # Stop animation
+            stop_signal.set()
+            time.sleep(0.5)
+            print(
+                "\r" + "\033[1A" * prev_n + f"│ \033[32m✔\033[0m" + "\n" * prev_n,
+                end="",
+                flush=True,
+            )
 
             # Stop the project
             print_wait("Stopping the project...")
@@ -162,7 +232,16 @@ def main() -> bool:
     return True
 
 
+def graceful_shutdown(signum, frame):
+    del signum, frame  # ignore parameters
+    print("\n─────────────────────────────────")
+    print(f"Received a signal, shutting down.")
+    os._exit(0)
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
     for i in range(10):
         success = main()
         if success:
