@@ -1,4 +1,5 @@
 import os
+import sys
 import signal
 import time
 import subprocess
@@ -234,9 +235,10 @@ def main() -> bool:
 
 def graceful_shutdown(signum, frame):
     del signum, frame  # ignore parameters
-    print("\n─────────────────────────────────")
-    print(f"Received a signal, shutting down.")
-    os._exit(0)
+    print("\n───────────────────────────────────")
+    print(f"Received a signal, shutting down...")
+    stop_signal.set()
+    sys.exit(0)
 
 
 if __name__ == "__main__":
