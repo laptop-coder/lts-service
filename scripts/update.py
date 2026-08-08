@@ -1,10 +1,12 @@
-import os
-import sys
-import signal
-import time
-import subprocess
+from collections.abc import Callable
 from enum import Enum
+from typing import cast
+import os
+import signal
+import subprocess
+import sys
 import threading
+import time
 
 
 def print_wait(s: str) -> None:
@@ -49,6 +51,8 @@ class Service(Enum):
 
 
 current_service = Service.BACKEND
+docker_images_downloaded_successfully = False
+spinner_th: threading.Thread | None = None
 
 
 # Spinner
@@ -77,15 +81,27 @@ def animate_spinner(stop_signal: threading.Event):
                 end="",
                 flush=True,
             )
+    else:
+        if docker_images_downloaded_successfully:
+            print(
+                "\r" + "\033[1A" * prev_n + f"│ \033[32m✔\033[0m" + "\n" * prev_n,
+                end="",
+                flush=True,
+            )
 
 
 # Create stop signal
 stop_signal = threading.Event()
-# Create animation thread
-th_spinner = threading.Thread(target=animate_spinner, args=(stop_signal,))
+
+
+def start_new_thread(fun: Callable, stop_signal: threading.Event) -> threading.Thread:
+    th = threading.Thread(target=fun, args=(stop_signal,))
+    th.start()
+    return th
 
 
 def main() -> bool:
+    print("\033c", end="")
     print_wait(f"Got the project dir.")
     print_secondary(path_to_project)
 
@@ -157,7 +173,9 @@ def main() -> bool:
             global current_service
 
             # Start animation
-            th_spinner.start()
+            th = start_new_thread(animate_spinner, stop_signal)
+            global spinner_th
+            spinner_th = th
             # Download
             for s in Service:
                 current_service = s
@@ -174,13 +192,10 @@ def main() -> bool:
                     return False
 
             # Stop animation
+            global docker_images_downloaded_successfully
+            docker_images_downloaded_successfully = True
             stop_signal.set()
-            time.sleep(0.5)
-            print(
-                "\r" + "\033[1A" * prev_n + f"│ \033[32m✔\033[0m" + "\n" * prev_n,
-                end="",
-                flush=True,
-            )
+            th.join()
 
             # Stop the project
             print_wait("Stopping the project...")
@@ -245,11 +260,19 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
     for i in range(10):
-        success = main()
-        if success:
+        if main():
             print_ok("Done!")
             break
+        stop_signal.set()
+        spinner_th = cast(threading.Thread | None, spinner_th)
+        if spinner_th is not None:
+            spinner_th.join()
         print(
             f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time..."
         )
         time.sleep(10)
+        # Reset variables
+        stop_signal.clear()
+        spinner_th = None
+        prev_n = len(Service) + 1
+        docker_images_downloaded_successfully = False
