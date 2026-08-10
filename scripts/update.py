@@ -1,9 +1,12 @@
 from enum import Enum
+import json
 import os
 import signal
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 
 
 def print_wait(s: str) -> None:
@@ -70,30 +73,50 @@ def main() -> bool:
 
     # Get GHCR token
     print_wait("Trying to get GHCR token...")
-    result = run_command(
-        f"""curl -s "https://ghcr.io/token?scope=repository:{repo}:pull" | grep -o '"token":"[^"]*"' | cut -d '"' -f4""",
-    )
-    if result.returncode != 0:
-        err = result.stderr.decode("utf-8")
+    try:
+        with urllib.request.urlopen(
+            f"https://ghcr.io/token?scope=repository:{repo}:pull"
+        ) as response:
+            token = json.loads(response.read().decode("utf-8"))["token"]
+    except json.JSONDecodeError:
         print_err("ERROR")
-        print_err(f"Failed to get GHCR token! Error: {err}")
+        print_err(f"Failed to parse JSON response")
         return False
-    token = result.stdout.decode("utf-8")
+    except urllib.error.HTTPError as e:
+        print_err("ERROR")
+        print_err(f"Failed to get GHCR token! Status code: {e.code}. Error: {e.reason}")
+        return False
+    except urllib.error.URLError as e:
+        print_err("ERROR")
+        print_err(f"Failed to get GHCR token! Error: {e.reason}")
+        return False
     print_ok("OK")
 
     # Get the latest tag
     print_wait(f"Trying to get the latest {service.name} service tag...")
-    result = run_command(
-        f"""
-        curl -s -H "Authorization: Bearer {token}" "https://ghcr.io/v2/{repo}/tags/list" | grep -o '"tags":\\[[^]]*\\]' | grep -o '"[^"]*"' | tail -1 | tr -d '"'
-        """,
-    )
-    if result.returncode != 0:
-        err = result.stderr.decode("utf-8")
+    try:
+        req = urllib.request.Request(
+            f"https://ghcr.io/v2/{repo}/tags/list",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        with urllib.request.urlopen(req) as response:
+            latest_tag = json.loads(response.read().decode("utf-8"))["tags"][-1]
+    except json.JSONDecodeError:
         print_err("ERROR")
-        print_err(f"Failed to get tag! Error: {err}")
+        print_err(f"Failed to parse JSON response")
         return False
-    latest_tag = result.stdout.decode("utf-8")[:-1]
+    except urllib.error.HTTPError as e:
+        print_err("ERROR")
+        print_err(
+            f"Failed to get the latest {service.name} service tag! Status code: {e.code}. Error: {e.reason}"
+        )
+        return False
+    except urllib.error.URLError as e:
+        print_err("ERROR")
+        print_err(
+            f"Failed to get the latest {service.name} service tag! Error: {e.reason}"
+        )
+        return False
     print_ok("OK", line_break=False)
     print_secondary(latest_tag)
 
