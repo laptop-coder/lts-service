@@ -1,11 +1,8 @@
-from collections.abc import Callable
 from enum import Enum
-from typing import cast
 import os
 import signal
 import subprocess
 import sys
-import threading
 import time
 
 
@@ -50,54 +47,8 @@ class Service(Enum):
     MIGRATE = 3
 
 
-current_service = Service.BACKEND
-docker_images_downloaded_successfully = False
-spinner_th: threading.Thread | None = None
-
-
 # Spinner
 b = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-spinner = b[0]
-prev_n = len(Service) + 1
-
-
-def animate_spinner(stop_signal: threading.Event):
-    global spinner
-    global prev_n
-    while not stop_signal.is_set():
-        for c in b:
-            spinner = c
-            time.sleep(0.05)
-            n = len(Service) - current_service.value + 1
-            if n != prev_n:
-                print(
-                    "\r" + "\033[1A" * prev_n + f"│ \033[32m✔\033[0m" + "\n" * prev_n,
-                    end="",
-                    flush=True,
-                )
-                prev_n = n
-            print(
-                "\r" + "\033[1A" * n + f"│ \033[33m{spinner}\033[0m" + "\n" * n,
-                end="",
-                flush=True,
-            )
-    else:
-        if docker_images_downloaded_successfully:
-            print(
-                "\r" + "\033[1A" * prev_n + f"│ \033[32m✔\033[0m" + "\n" * prev_n,
-                end="",
-                flush=True,
-            )
-
-
-# Create stop signal
-stop_signal = threading.Event()
-
-
-def start_new_thread(fun: Callable, stop_signal: threading.Event) -> threading.Thread:
-    th = threading.Thread(target=fun, args=(stop_signal,))
-    th.start()
-    return th
 
 
 def main() -> bool:
@@ -162,40 +113,70 @@ def main() -> bool:
             print_secondary(f"{current_tag} != {latest_tag}")
             print("Downloading new images:")
 
-            # Print services
+            processes = []
+
             print("╭" + "─" * (max([len(s.name) for s in Service]) + 4) + "╮")
+
+            # Run parallel processes (download docker images)
             for s in Service:
                 print(
-                    f"│ \033[33m⠼\033[0m {s.name}{' ' * (max([len(x.name) for x in Service]) - len(s.name) + 1)}│"
+                    "    "
+                    + s.name
+                    + " " * (max([len(x.name) for x in Service]) - len(s.name) + 1)
+                    + "│"
                 )
+                repo = f"laptop-coder/lost-things-search-{s.name}".lower()
+                processes.append(
+                    subprocess.Popen(
+                        ["docker", "pull", "-q", f"ghcr.io/{repo}:{latest_tag}"],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                )
+
             print("╰" + "─" * (max([len(x.name) for x in Service]) + 4) + "╯")
 
-            global current_service
-
-            # Start animation
-            th = start_new_thread(animate_spinner, stop_signal)
-            global spinner_th
-            spinner_th = th
-            # Download
-            for s in Service:
-                current_service = s
-                repo = f"laptop-coder/lost-things-search-{s.name}".lower()
-                result = run_command(
-                    f"""
-                    docker pull "ghcr.io/{repo}:{latest_tag}"
-                    """,
-                )
-                if result.returncode != 0:
-                    err = result.stderr.decode("utf-8")
-                    print_err("ERROR")
-                    print_err(f"Failed to pull {s.name} image! Error: {err}")
-                    return False
-
-            # Stop animation
-            global docker_images_downloaded_successfully
-            docker_images_downloaded_successfully = True
-            stop_signal.set()
-            th.join()
+            # Print downloading status
+            i = 0
+            while True:
+                return_codes = [p.poll() for p in processes]
+                for j in range(len(return_codes)):
+                    if return_codes[j] is None:
+                        # Spinner
+                        print(
+                            "\r"
+                            + "\033[1A" * (len(Service) - j + 1)
+                            + f"│ \033[33m{b[i]}\033[0m"
+                            + "\n" * (len(Service) - j + 1),
+                            end="",
+                            flush=True,
+                        )
+                    elif return_codes[j] == 0:
+                        # OK status
+                        print(
+                            "\r"
+                            + "\033[1A" * (len(Service) - j + 1)
+                            + f"│ \033[32m✔\033[0m"
+                            + "\n" * (len(Service) - j + 1),
+                            end="",
+                            flush=True,
+                        )
+                    else:
+                        # ERROR status
+                        print(
+                            "\r"
+                            + "\033[1A" * (len(Service) - j + 1)
+                            + f"│ \033[31m✗\033[0m"
+                            + "\n" * (len(Service) - j + 1),
+                            end="",
+                            flush=True,
+                        )
+                if return_codes.count(None) == 0:
+                    break
+                i += 1
+                if i > len(b) - 1:
+                    i = 0
+                time.sleep(0.1)
 
             # Stop the project
             print_wait("Stopping the project...")
@@ -252,7 +233,6 @@ def graceful_shutdown(signum, frame):
     del signum, frame  # ignore parameters
     print("\n───────────────────────────────────")
     print(f"Received a signal, shutting down...")
-    stop_signal.set()
     sys.exit(0)
 
 
@@ -263,17 +243,8 @@ if __name__ == "__main__":
         if main():
             print_ok("Done!")
             break
-        stop_signal.set()
-        spinner_th = cast(threading.Thread | None, spinner_th)
-        if spinner_th is not None:
-            spinner_th.join()
         print(
             f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time...",
             flush=True,
         )
         time.sleep(10)
-        # Reset variables
-        stop_signal.clear()
-        spinner_th = None
-        prev_n = len(Service) + 1
-        docker_images_downloaded_successfully = False
