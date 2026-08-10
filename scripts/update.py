@@ -142,15 +142,21 @@ def main() -> bool:
             token = json.loads(response.read().decode("utf-8"))["token"]
     except json.JSONDecodeError:
         print_err("ERROR")
-        print_err(f"Failed to parse JSON response")
+        msg = "Failed to parse JSON response"
+        print_err(msg)
+        send_alert(msg)
         return False
     except urllib.error.HTTPError as e:
         print_err("ERROR")
-        print_err(f"Failed to get GHCR token! Status code: {e.code}. Error: {e.reason}")
+        msg = f"Failed to get GHCR token! Status code: {e.code}. Error: {e.reason}"
+        print_err(msg)
+        send_alert(msg)
         return False
     except urllib.error.URLError as e:
         print_err("ERROR")
-        print_err(f"Failed to get GHCR token! Error: {e.reason}")
+        msg = f"Failed to get GHCR token! Error: {e.reason}"
+        print_err(msg)
+        send_alert(msg)
         return False
     print_ok("OK")
 
@@ -165,19 +171,21 @@ def main() -> bool:
             latest_tag = json.loads(response.read().decode("utf-8"))["tags"][-1]
     except json.JSONDecodeError:
         print_err("ERROR")
-        print_err(f"Failed to parse JSON response")
+        msg = "Failed to parse JSON response"
+        print_err(msg)
+        send_alert(msg)
         return False
     except urllib.error.HTTPError as e:
         print_err("ERROR")
-        print_err(
-            f"Failed to get the latest {service.name} service tag! Status code: {e.code}. Error: {e.reason}"
-        )
+        msg = f"Failed to get the latest {service.name} service tag! Status code: {e.code}. Error: {e.reason}"
+        print_err(msg)
+        send_alert(msg)
         return False
     except urllib.error.URLError as e:
         print_err("ERROR")
-        print_err(
-            f"Failed to get the latest {service.name} service tag! Error: {e.reason}"
-        )
+        msg = f"Failed to get the latest {service.name} service tag! Error: {e.reason}"
+        print_err(msg)
+        send_alert(msg)
         return False
     print_ok("OK", line_break=False)
     print_secondary(latest_tag)
@@ -269,7 +277,9 @@ def main() -> bool:
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
-                print_err(f"Failed to stop the project! Error: {err}")
+                msg = f"Failed to stop the project! Error: {err}"
+                print_err(msg)
+                send_alert(msg)
                 return False
             print_ok("OK")
 
@@ -279,7 +289,9 @@ def main() -> bool:
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
-                print_err(f"Failed to pull the code changes! Error: {err}")
+                msg = f"Failed to pull the code changes! Error: {err}"
+                print_err(msg)
+                send_alert(msg)
                 return False
             print_ok("OK")
 
@@ -289,7 +301,9 @@ def main() -> bool:
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
-                print_err(f"Failed to deploy the project! Error: {err}")
+                msg = f"Failed to deploy the project! Error: {err}"
+                print_err(msg)
+                send_alert(msg)
                 return False
             print_ok("OK")
 
@@ -299,7 +313,9 @@ def main() -> bool:
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
-                print_err(f"Failed to run migrations! Error: {err}")
+                msg = f"Failed to run migrations! Error: {err}"
+                print_err(msg)
+                send_alert(msg)
                 return False
             print_ok("OK")
 
@@ -328,8 +344,12 @@ if __name__ == "__main__":
         if main():
             print_ok("Done!")
             break
+        msg = (
+            f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time..."
+        )
+        send_alert(msg)
         print(
-            f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time...",
+            msg,
             flush=True,
         )
         time.sleep(10)
