@@ -31,13 +31,12 @@ def print_secondary(s: str, line_break=True) -> None:
 path_to_project = f"{os.getenv('HOME')}/lost-things-search"
 
 
-def run_command(command: str) -> subprocess.CompletedProcess[bytes]:
+def run_command(command: list[str]) -> subprocess.CompletedProcess[bytes]:
     """
     Run shell command from the project dir.
     """
     return subprocess.run(
         command,
-        shell=True,
         capture_output=True,
         cwd=path_to_project,
     )
@@ -203,7 +202,7 @@ def main() -> bool:
 
             # Stop the project
             print_wait("Stopping the project...")
-            result = run_command("make down")
+            result = run_command(["make", "down"])
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
@@ -213,7 +212,7 @@ def main() -> bool:
 
             # Pull the code changes
             print_wait("Pulling the code changes...")
-            result = run_command("git pull")
+            result = run_command(["git", "pull"])
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
@@ -223,7 +222,7 @@ def main() -> bool:
 
             # Deploy the project
             print_wait("Deploying the project...")
-            result = run_command("make deploy")
+            result = run_command(["make", "deploy"])
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
@@ -233,7 +232,7 @@ def main() -> bool:
 
             # Run migrations
             print_wait("Running migrations...")
-            result = run_command("make migrate")
+            result = run_command(["make", "migrate"])
             if result.returncode != 0:
                 err = result.stderr.decode("utf-8")
                 print_err("ERROR")
