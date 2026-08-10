@@ -1,12 +1,78 @@
 from enum import Enum
 import json
 import os
+import random
 import signal
 import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
+
+
+path_to_project = f"{os.getenv('HOME')}/lost-things-search"
+
+
+def load_env(file_path=f"{path_to_project}/.env"):
+    if not os.path.exists(file_path):
+        return
+    with open(file_path, "r") as file:
+        for line in file.readlines():
+            line = line[:-1]
+            # skip empty lines and comments
+            if line and line[0] != "#":
+                line = line.split("=", 1)
+                key = line[0]
+                line = line[1]
+                # remove comments
+                q = ""
+                if line[0] == '"':
+                    q = '"'
+                elif line[0] == "'":
+                    q = "'"
+                if not q:  # without quotes
+                    if line.count("#") > 0:
+                        value = line[: line.find("#")].strip()
+                    else:
+                        value = line
+                else:
+                    value = line[1 : line[1:].find(q) + 1]
+                os.environ[key] = value
+
+
+load_env()
+
+
+VK_ALERTS_API_KEY = os.environ.get("VK_ALERTS_API_KEY")
+VK_ALERTS_CHAT_ID = os.environ.get("VK_ALERTS_CHAT_ID")
+
+
+def send_alert(message: str) -> None:
+    data = urllib.parse.urlencode(
+        {
+            "peer_id": VK_ALERTS_CHAT_ID,
+            "random_id": random.randint(0, 2_147_483_647),
+            "message": message,
+            "v": "5.199",
+        },
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        "https://api.vk.ru/method/messages.send",
+        headers={"Authorization": f"Bearer {VK_ALERTS_API_KEY}"},
+        data=data,
+    )
+    try:
+        response = urllib.request.urlopen(req)
+        response.close()
+    except urllib.error.HTTPError as e:
+        print_err("ERROR")
+        print_err(
+            f"Failed to send alert to VK! Status code: {e.code}. Error: {e.reason}"
+        )
+    except urllib.error.URLError as e:
+        print_err("ERROR")
+        print_err(f"Failed to send alert to VK! Error: {e.reason}")
 
 
 def print_wait(s: str) -> None:
@@ -26,9 +92,6 @@ def print_err(s: str, line_break=True) -> None:
 def print_secondary(s: str, line_break=True) -> None:
     end = "\n" if line_break else " "
     print(f"\033[2m{s}\033[0m", end=end, flush=True)
-
-
-path_to_project = f"{os.getenv('HOME')}/lost-things-search"
 
 
 def run_command(command: list[str]) -> subprocess.CompletedProcess[bytes]:
