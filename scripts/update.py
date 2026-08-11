@@ -1,4 +1,5 @@
 from enum import Enum
+import datetime
 import json
 import os
 import random
@@ -46,6 +47,35 @@ load_env()
 
 VK_ALERTS_API_KEY = os.environ.get("VK_ALERTS_API_KEY")
 VK_ALERTS_CHAT_ID = os.environ.get("VK_ALERTS_CHAT_ID")
+VK_ALERTS_GROUP_ID = os.environ.get("VK_ALERTS_GROUP_ID")
+
+
+def post_on_wall(message: str) -> None:
+    data = urllib.parse.urlencode(
+        {
+            "owner_id": VK_ALERTS_GROUP_ID,
+            "message": message,
+            "from_group": "1",
+            "signed": "0",
+            "v": "5.199",
+        },
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        "https://api.vk.ru/method/wall.post",
+        headers={"Authorization": f"Bearer {VK_ALERTS_API_KEY}"},
+        data=data,
+    )
+    try:
+        response = urllib.request.urlopen(req)
+        response.close()
+    except urllib.error.HTTPError as e:
+        print_err("ERROR")
+        print_err(
+            f"Failed to post on VK wall! Status code: {e.code}. Error: {e.reason}"
+        )
+    except urllib.error.URLError as e:
+        print_err("ERROR")
+        print_err(f"Failed to post on VK wall! Error: {e.reason}")
 
 
 def send_alert(message: str) -> None:
@@ -105,6 +135,9 @@ def run_command(command: list[str]) -> subprocess.CompletedProcess[bytes]:
     )
 
 
+update_digest = {}  # info about update for publishing
+
+
 class Service(Enum):
     BACKEND = 0
     FRONTEND = 1
@@ -123,11 +156,13 @@ def main() -> bool:
 
     tag_file = f"{path_to_project}/.tag"
     tag_file_is_new = False
+    update_digest["tag_file_is_new"] = False
 
     if not os.path.exists(tag_file):
         print_wait("Tag file not found")
         print_secondary(tag_file)
         tag_file_is_new = True
+        update_digest["tag_file_is_new"] = True
 
     service = Service.BACKEND
     print(f"Looking at the {service.name} service.")
@@ -189,6 +224,7 @@ def main() -> bool:
         return False
     print_ok("OK", line_break=False)
     print_secondary(latest_tag)
+    update_digest["latest_tag"] = latest_tag
 
     if tag_file_is_new:
         print_wait("Adding latest tag to the file...")
@@ -200,6 +236,7 @@ def main() -> bool:
         with open(tag_file, "r") as file:
             current_tag = file.readline()[:-1]
         print_ok("OK", line_break=False)
+        update_digest["current_tag"] = current_tag
         print_secondary(current_tag)
         print_wait("Compairing tags...")
         if current_tag != latest_tag:
@@ -207,6 +244,9 @@ def main() -> bool:
             print("Downloading new images:")
 
             processes = []
+            processes_time = []  # docker images downloading time
+            # was start time in processes_time[i] replaced with delta?
+            processes_time_calculated = [False] * len(Service)
 
             print("╭" + "─" * (max([len(s.name) for s in Service]) + 4) + "╮")
 
@@ -226,6 +266,7 @@ def main() -> bool:
                         stderr=subprocess.DEVNULL,
                     )
                 )
+                processes_time.append(time.monotonic())
 
             print("╰" + "─" * (max([len(x.name) for x in Service]) + 4) + "╯")
 
@@ -245,6 +286,11 @@ def main() -> bool:
                             flush=True,
                         )
                     elif return_codes[j] == 0:
+                        if not processes_time_calculated[j]:
+                            processes_time[j] = round(
+                                time.monotonic() - processes_time[j]
+                            )
+                            processes_time_calculated[j] = True
                         # OK status
                         print(
                             "\r"
@@ -255,6 +301,11 @@ def main() -> bool:
                             flush=True,
                         )
                     else:
+                        if not processes_time_calculated[j]:
+                            processes_time[j] = round(
+                                time.monotonic() - processes_time[j]
+                            )
+                            processes_time_calculated[j] = True
                         # ERROR status
                         print(
                             "\r"
@@ -270,6 +321,8 @@ def main() -> bool:
                 if i > len(b) - 1:
                     i = 0
                 time.sleep(0.1)
+
+            update_digest["time_processes"] = processes_time
 
             # Stop the project
             print_wait("Stopping the project...")
@@ -337,19 +390,62 @@ def graceful_shutdown(signum, frame):
     sys.exit(0)
 
 
+def publish_update_digest() -> None:
+    if update_digest["tag_file_is_new"]:
+        content = "Обновление не выполнялось"
+    else:
+        tag_changed = update_digest["current_tag"] != update_digest["latest_tag"]
+        content = (
+            f"Обновление ({datetime.date.today().strftime('%d.%m.%Y')} | {datetime.datetime.now().strftime('%H:%M')})\n"
+            + (
+                f"С {update_digest['current_tag'][1:]} до {update_digest['latest_tag'][1:]}\n"
+                if not update_digest["tag_file_is_new"]
+                else f"До {update_digest['latest_tag'][1:]}\n"
+                + "═════════════════════\n"
+                + (
+                    f"Время работы скрипта: {update_digest['time_app']} с\n"
+                    + "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+                    + "Время скачивания образов:\n"
+                    + f"• {'\n• '.join([f'{[s.name for s in Service][x]}: {update_digest["time_processes"][x]} с' for x in range(len(Service))])}\n"
+                    if tag_changed
+                    else ""
+                )
+                + "═════════════════════\n"
+                + (
+                    "Успешно обновлено.\n"
+                    if tag_changed
+                    else "Обновление не выполнялось.\n"
+                )
+                if update_digest["success"]
+                else ("═════════════════════\n" + "Возникла ошибка\n")
+            )
+        )
+    post_on_wall(content)
+
+
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
+    start_time = time.monotonic()
     for i in range(10):
         if main():
+            update_digest["time_app"] = round(time.monotonic() - start_time)
+            update_digest["success"] = True
+            publish_update_digest()
             print_ok("Done!")
             break
-        msg = (
-            f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time..."
-        )
-        send_alert(msg)
-        print(
-            msg,
-            flush=True,
-        )
-        time.sleep(10)
+        if i + 1 < 10:
+            msg = f"{i + 1}/10 attempt. Waiting for 10 seconds to run script one more time..."
+            send_alert(msg)
+            print(
+                msg,
+                flush=True,
+            )
+            time.sleep(10)
+        else:
+            msg = f"{i + 1}/10 attempt. Failed to update. Shutting down..."
+            send_alert(msg)
+            update_digest["time_app"] = round(time.monotonic() - start_time)
+            update_digest["success"] = False
+            publish_update_digest()
+            print(msg, flush=True)
