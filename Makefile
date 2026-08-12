@@ -38,7 +38,7 @@ dev-down: ## stop and remove development docker compose services
 
 .PHONY: update
 update: ## update docker images, pull the code changes and restart the project
-	$(PYTHON) ./scripts/update.py
+	$(PYTHON) -m ./scripts/update
 
 .PHONY: help
 help: ## show available make targets with short descriptions
