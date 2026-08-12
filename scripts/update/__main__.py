@@ -91,8 +91,13 @@ if __name__ == "__main__":
                 msg = "Script error"
                 send_alert(msg)
                 print(msg, flush=True)
+                time.sleep(5)
                 continue
-            publish_update_digest(digest_dto)
+            try:
+                publish_update_digest(digest_dto)
+            except:
+                time.sleep(5)
+                continue
             print_ok("Done!")
             break
         if i + 1 < 10:

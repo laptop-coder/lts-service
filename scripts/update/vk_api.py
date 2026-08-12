@@ -1,4 +1,5 @@
 import urllib.error
+import json
 import random
 import urllib.parse
 import urllib.request
@@ -22,16 +23,32 @@ def post_on_wall(message: str) -> None:
         data=data,
     )
     try:
-        response = urllib.request.urlopen(req)
-        response.close()
+        with urllib.request.urlopen(req) as response:
+            try:
+                # API returned the error
+                if json.loads(response.read().decode("utf-8"))["error"]:
+                    print_err("ERROR")
+                    msg = "Failed to post on wall in VK"
+                    print_err(msg)
+                    raise Exception()
+            except KeyError:
+                # There are no errors
+                pass
+    except json.JSONDecodeError:
+        print_err("ERROR")
+        msg = "Failed to parse JSON response"
+        print_err(msg)
+        raise Exception()
     except urllib.error.HTTPError as e:
         print_err("ERROR")
         print_err(
             f"Failed to post on VK wall! Status code: {e.code}. Error: {e.reason}"
         )
+        raise Exception
     except urllib.error.URLError as e:
         print_err("ERROR")
         print_err(f"Failed to post on VK wall! Error: {e.reason}")
+        raise Exception
 
 
 def send_alert(message: str) -> None:
@@ -49,13 +66,27 @@ def send_alert(message: str) -> None:
         data=data,
     )
     try:
-        response = urllib.request.urlopen(req)
-        response.close()
+        with urllib.request.urlopen(req) as response:
+            try:
+                # API returned the error
+                if json.loads(response.read().decode("utf-8"))["error"]:
+                    print_err("ERROR")
+                    msg = "Failed to send an alert in VK"
+                    print_err(msg)
+                    raise Exception()
+            except KeyError:
+                # There are no errors
+                pass
+    except json.JSONDecodeError:
+        print_err("ERROR")
+        msg = "Failed to parse JSON response"
+        print_err(msg)
+        raise Exception()
     except urllib.error.HTTPError as e:
         print_err("ERROR")
         print_err(
-            f"Failed to send alert to VK! Status code: {e.code}. Error: {e.reason}"
+            f"Failed to send alert in VK! Status code: {e.code}. Error: {e.reason}"
         )
     except urllib.error.URLError as e:
         print_err("ERROR")
-        print_err(f"Failed to send alert to VK! Error: {e.reason}")
+        print_err(f"Failed to send alert in VK! Error: {e.reason}")

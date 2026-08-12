@@ -10,6 +10,7 @@ from .utils import print_wait, print_ok, print_err, print_secondary, run_command
 
 
 def publish_update_digest(dto: DigestDTO) -> None:
+    print_wait("Publishing digest...")
     current_date = datetime.date.today().strftime("%d.%m.%Y")
     current_time = datetime.datetime.now().strftime("%H:%M")
     content = f"Обновление завершено {current_date} в {current_time}\n"
@@ -37,11 +38,19 @@ def publish_update_digest(dto: DigestDTO) -> None:
     if dto.changelog:
         content += dto.changelog
 
-    post_on_wall(content)
+    try:
+        post_on_wall(content)
+    except:
+        print_err("ERROR")
+        msg = "Failed to publish digest!"
+        print_err(msg)
+        send_alert(msg)
+        raise Exception()
+    print_ok("OK")
 
 
 def get_ghcr_token() -> str:
-    print_wait("Trying to get GHCR token...")
+    print_wait("Getting GHCR token...")
     try:
         with urllib.request.urlopen(
             f"https://ghcr.io/token?scope=repository:laptop-coder/lost-things-search-{MAIN_SERVICE.name}:pull".lower()
@@ -70,7 +79,7 @@ def get_ghcr_token() -> str:
 
 
 def get_latest_tag(token: str) -> str:
-    print_wait(f"Trying to get the latest {MAIN_SERVICE.name} service tag...")
+    print_wait(f"Getting the latest {MAIN_SERVICE.name} service tag...")
     try:
         req = urllib.request.Request(
             f"https://ghcr.io/v2/laptop-coder/lost-things-search-{MAIN_SERVICE.name}/tags/list".lower(),
