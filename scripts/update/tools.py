@@ -11,10 +11,13 @@ from .utils import print_wait, print_ok, print_err, print_secondary, run_command
 
 def publish_update_digest(dto: DigestDTO) -> None:
     print_wait("Publishing digest...")
+
     current_date = datetime.date.today().strftime("%d.%m.%Y")
     current_time = datetime.datetime.now().strftime("%H:%M")
-    content = f"Обновление завершено {current_date} в {current_time}\n"
 
+    content = "LostThingsSearch\n"
+    content += "\n"
+    content += f"Обновление завершено {current_date} в {current_time}\n"
     content += "\n"
 
     if dto.old_tag:
