@@ -41,6 +41,7 @@ env = load_env(os.path.join(PATH_TO_PROJECT, ".env"))
 VK_ALERTS_API_KEY = env["VK_ALERTS_API_KEY"]
 VK_ALERTS_CHAT_ID = env["VK_ALERTS_CHAT_ID"]
 VK_ALERTS_GROUP_ID = env["VK_ALERTS_GROUP_ID"]
+GITHUB_PAT = env["GITHUB_PAT"]
 
 del env
 gc.collect()
@@ -67,6 +68,7 @@ class DigestDTO:
     latest_tag: str
     downloading_time: list[int] | None
     script_time: int
+    changelog: str | None
 
 
 class DigestDTOBuilder:
@@ -75,6 +77,7 @@ class DigestDTOBuilder:
         self._latest_tag = None
         self._downloading_time = None
         self._script_time = None
+        self._changelog = None
 
     @property
     def old_tag(self):
@@ -92,6 +95,10 @@ class DigestDTOBuilder:
     def script_time(self):
         return self._script_time
 
+    @property
+    def changelog(self):
+        return self._changelog
+
     @old_tag.setter
     def old_tag(self, value):
         self._old_tag = value
@@ -108,6 +115,10 @@ class DigestDTOBuilder:
     def script_time(self, value):
         self._script_time = value
 
+    @changelog.setter
+    def changelog(self, value):
+        self._changelog = value
+
     def build(self) -> DigestDTO:
 
         if self._latest_tag is None:
@@ -120,4 +131,5 @@ class DigestDTOBuilder:
             latest_tag=self._latest_tag,
             downloading_time=self._downloading_time,
             script_time=self._script_time,
+            changelog=self._changelog,
         )

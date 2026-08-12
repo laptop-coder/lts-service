@@ -15,6 +15,7 @@ from .tools import (
     run_migrations,
     update_current_tag_in_file,
     publish_update_digest,
+    get_changelog,
 )
 from .config import PATH_TO_PROJECT, MAIN_SERVICE, TAG_FILE, DigestDTOBuilder
 import signal
@@ -69,6 +70,7 @@ def main(digest_dto_builder: DigestDTOBuilder) -> bool:
         deploy_project()
         run_migrations()
         update_current_tag_in_file(TAG_FILE, latest_tag)
+        digest_dto_builder.changelog = get_changelog()
 
     return True
 

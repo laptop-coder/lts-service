@@ -2,7 +2,7 @@ import datetime
 import time
 import subprocess
 from .vk_api import send_alert, post_on_wall
-from .config import Service, MAIN_SERVICE, b, DigestDTO
+from .config import Service, MAIN_SERVICE, b, DigestDTO, GITHUB_PAT
 import urllib.error
 import urllib.request
 import json
@@ -33,6 +33,9 @@ def publish_update_digest(dto: DigestDTO) -> None:
     content += "\n"
 
     content += f"Время работы скрипта: {dto.script_time} с\n"
+
+    if dto.changelog:
+        content += dto.changelog
 
     post_on_wall(content)
 
@@ -236,3 +239,55 @@ def update_current_tag_in_file(tag_file, latest_tag):
     with open(tag_file, "w") as file:
         file.write(f"{latest_tag}\n")
     print_ok("OK")
+
+
+def get_changelog() -> str:
+    print_wait("Getting changelog...")
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/laptop-coder/lost-things-search/releases",
+            headers={
+                "Authorization": f"Bearer {GITHUB_PAT}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2026-03-10",
+            },
+        )
+        with urllib.request.urlopen(req) as response:
+            body = json.loads(response.read().decode("utf-8"))[0]["body"]
+            lines = [x for x in repr(body)[1:-1].split("\\n") if x]
+
+            content = "\n==== CHANGELOG ====\n"
+
+            header = lines[0]
+
+            content += f"Сравнение с предыдущей версией: {header[header.find('(') + 1 : header.find(')')]}\n"
+
+            for line in lines:
+                if line.startswith("###"):  # header (e.g., Bug Fixes)
+                    line = line.replace("### ", "")
+                    content += f"\n{line}:\n"
+                elif line.startswith("*"):  # commit (name and link)
+                    line = line.replace("**", "", 2).replace("*", "•", 1)
+                    line = line[: line.rfind("[")] + line[line.rfind("]") + 2 : -1]
+                    content += f"{line}\n"
+
+    except json.JSONDecodeError:
+        print_err("ERROR")
+        msg = "Failed to parse JSON response"
+        print_err(msg)
+        send_alert(msg)
+        raise Exception()
+    except urllib.error.HTTPError as e:
+        print_err("ERROR")
+        msg = f"Failed to get changelog from GitHub releases! Status code: {e.code}. Error: {e.reason}"
+        print_err(msg)
+        send_alert(msg)
+        raise Exception()
+    except urllib.error.URLError as e:
+        print_err("ERROR")
+        msg = f"Failed to get changelog from GitHub releases! Error: {e.reason}"
+        print_err(msg)
+        send_alert(msg)
+        raise Exception()
+    print_ok("OK")
+    return content
