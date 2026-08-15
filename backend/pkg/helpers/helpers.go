@@ -126,10 +126,13 @@ func GetCookie(cookieKey string, r *http.Request) (string, error) {
 	return cookie.Value, nil
 }
 
-// HTTP 400
+// ==== HTTP 400 ====
+
 func BadRequestError(log logger.Logger, w http.ResponseWriter) {
 	ErrorResponse(log, w, "Неверный формат данных", http.StatusBadRequest)
 }
+
+// x-www-form-urlencoded and form-data fields
 
 func BadRequestFieldError(log logger.Logger, w http.ResponseWriter, field string) {
 	ErrorResponse(log, w, fmt.Sprintf("Неверный формат поля %s", field), http.StatusBadRequest)
@@ -151,22 +154,48 @@ func AtLeastOneFieldError(log logger.Logger, w http.ResponseWriter, field string
 	ErrorResponse(log, w, fmt.Sprintf("Хотя бы одно поле %s должно быть указано", field), http.StatusBadRequest)
 }
 
-// HTTP 401
+// query parameters
+
+func BadRequestQueryParameterError(log logger.Logger, w http.ResponseWriter, field string) {
+	ErrorResponse(log, w, fmt.Sprintf("Неверный формат query-параметра %s", field), http.StatusBadRequest)
+}
+
+func QueryParameterRequiredError(log logger.Logger, w http.ResponseWriter, field string) {
+	ErrorResponse(log, w, fmt.Sprintf("Query-параметр %s обязателен для заполнения", field), http.StatusBadRequest)
+}
+
+func TooManyQueryParametersError(log logger.Logger, w http.ResponseWriter, field string) {
+	ErrorResponse(log, w, fmt.Sprintf("Слишком много query-параметров %s", field), http.StatusBadRequest)
+}
+
+func QueryParameterExactlyOneError(log logger.Logger, w http.ResponseWriter, field string) {
+	ErrorResponse(log, w, fmt.Sprintf("Query-параметр %s должен быть указан ровно один раз", field), http.StatusBadRequest)
+}
+
+func AtLeastOneQueryParameterError(log logger.Logger, w http.ResponseWriter, field string) {
+	ErrorResponse(log, w, fmt.Sprintf("Хотя бы один query-параметр %s должен быть указан", field), http.StatusBadRequest)
+}
+
+// ==== HTTP 401 ====
+
 func UnauthorizedError(log logger.Logger, w http.ResponseWriter) {
 	ErrorResponse(log, w, "Требуется вход в систему", http.StatusUnauthorized)
 }
 
-// HTTP 403
+// ==== HTTP 403 ====
+
 func ForbiddenError(log logger.Logger, w http.ResponseWriter) {
 	ErrorResponse(log, w, "Доступ запрещён", http.StatusForbidden)
 }
 
-// HTTP 405
+// ==== HTTP 405 ====
+
 func MethodNotAllowedError(log logger.Logger, w http.ResponseWriter) {
 	ErrorResponse(log, w, "Метод не поддерживается", http.StatusMethodNotAllowed)
 }
 
-// HTTP 500
+// ==== HTTP 500 ====
+
 func InternalError(log logger.Logger, w http.ResponseWriter) {
 	ErrorResponse(log, w, "Внутренняя ошибка сервера. Попробуйте позже", http.StatusInternalServerError)
 }
