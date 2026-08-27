@@ -1,4 +1,5 @@
 COMPOSE := $(shell command -v docker compose > /dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
+PYTHON := $(shell command -v python > /dev/null 2>&1 && echo "python" || echo "python3")
 
 .PHONY: migrate
 migrate: ## run database migrations using the migrate profile
@@ -34,6 +35,10 @@ dev: ## run development stack with build and migration profile enabled
 .PHONY: dev-down
 dev-down: ## stop and remove development docker compose services
 	$(COMPOSE) -f ./dev.compose.yaml down
+
+.PHONY: update
+update: ## update docker images, pull the code changes and restart the project
+	cd ./scripts && $(PYTHON) -m update
 
 .PHONY: help
 help: ## show available make targets with short descriptions

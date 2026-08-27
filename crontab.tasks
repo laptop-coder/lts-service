@@ -1,4 +1,2 @@
-# LTS: get updates and restart at 06:00 UTC+3 (03:00 UTC)
-0 3 * * * /usr/bin/sh "${HOME}/lost-things-search/scripts/get_updates_and_restart.sh"
-# LTS: make backup at 03:30 UTC+3 (00:30 UTC)
-# 30 0 * * * /usr/bin/sh "${HOME}/lost-things-search/scripts/make_backup.sh"
+# LostThingsSearch: get updates and restart at 06:00 UTC+3 (03:00 UTC)
+0 3 * * * make -C "${HOME}/lost-things-search" update
