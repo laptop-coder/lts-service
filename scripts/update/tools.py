@@ -12,8 +12,14 @@ from .utils import print_wait, print_ok, print_err, print_secondary, run_command
 def publish_update_digest(dto: DigestDTO) -> None:
     print_wait("Publishing digest...")
 
-    current_date = datetime.date.today().strftime("%d.%m.%Y")
-    current_time = datetime.datetime.now().strftime("%H:%M")
+    current_date = (
+        datetime.datetime.now()
+        .astimezone(datetime.timezone(datetime.timedelta(hours=3)))
+        .strftime("%d.%m.%Y")
+    )
+    current_time = datetime.datetime.now(
+        datetime.timezone(datetime.timedelta(hours=3))
+    ).strftime("%H:%M")
 
     content = "LostThingsSearch\n"
     content += "\n"

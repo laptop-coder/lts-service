@@ -16,8 +16,8 @@ deploy: ## start all application services in detached mode
 
 .PHONY: first-run
 first-run: ## perform initial setup: migrate, start services, and install cron
-	$(MAKE) migrate
 	$(MAKE) deploy
+	$(MAKE) migrate
 	$(MAKE) cron
 
 .PHONY: logs
